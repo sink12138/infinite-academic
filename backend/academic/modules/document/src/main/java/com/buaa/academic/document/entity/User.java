@@ -1,6 +1,7 @@
 package com.buaa.academic.document.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,16 @@ public class User {
     @Field(type = FieldType.Keyword)
     private String password;
 
+    @Field(type = FieldType.Keyword, nullValue = "false")
+    @JsonIgnore
+    private boolean verified;
+
     @Field(type = FieldType.Keyword)
     private String researcherId;
 
+    public User(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
 }

@@ -22,6 +22,7 @@
         <module>modules/eureka</module>
         <module>modules/gateway</module>
         <module>modules/search</module>
+        <module>modules/account</module>
     </modules>
 
     <properties>
@@ -49,6 +50,8 @@
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
         </dependency>
+
+
     </dependencies>
 
     <dependencyManagement>
