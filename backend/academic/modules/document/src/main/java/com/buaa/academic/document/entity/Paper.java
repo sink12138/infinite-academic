@@ -72,6 +72,9 @@ public class Paper {
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
     private List<String> subjects;
 
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
+    private List<String> topics;
+
     @Field(type = FieldType.Integer)
     private Integer year;
 

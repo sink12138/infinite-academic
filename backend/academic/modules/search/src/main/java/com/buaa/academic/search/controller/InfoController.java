@@ -1,7 +1,7 @@
 package com.buaa.academic.search.controller;
 
-import com.buaa.academic.model.request.RequestModel;
-import com.buaa.academic.model.response.ResponseModel;
+import com.buaa.academic.model.web.RequestModel;
+import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,8 +14,8 @@ public class InfoController {
 
     @PostMapping("/test")
     @ApiOperation(value = "测试接口", notes = "返回传入的相同字符串")
-    public ResponseModel<String> test(@RequestBody RequestModel<String> model) {
-        return new ResponseModel<String>().withData(model.getData());
+    public Result<String> test(@RequestBody RequestModel<String> model) {
+        return new Result<String>().withData(model.getData());
     }
 
 }

@@ -13,7 +13,7 @@
 
     <artifactId>model</artifactId>
     <packaging>jar</packaging>
-    <description>Common models for requests, responses, sessions, etc.</description>
+    <description>Common models for requests, responses, sessions, exceptions, etc.</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
