@@ -42,3 +42,10 @@ eureka:
     serviceUrl:
       defaultZone: http://${eureka.server.username}:${eureka.server.password}@${settings.${mode}.host}:8100/eureka/
     register-with-eureka: ${settings.${mode}.register}
+
+knife4j:
+  basic:
+    enable: true
+    username: knife4j
+    password: 114514
+  enable: true

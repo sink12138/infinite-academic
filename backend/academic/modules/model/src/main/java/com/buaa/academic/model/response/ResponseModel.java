@@ -11,7 +11,7 @@ public class ResponseModel<D> {
     @ApiModelProperty(name = "success", required = true, value = "操作是否成功")
     private boolean success = true;
 
-    @ApiModelProperty(name = "message", value = "若操作不成功则含有此字段")
+    @ApiModelProperty(name = "message", value = "若操作不成功则含有此字段", example = "参数格式不合法")
     private String message;
 
     @ApiModelProperty(name = "data", value = "若操作成功则可能附带此字段")

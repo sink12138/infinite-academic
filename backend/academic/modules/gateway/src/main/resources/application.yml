@@ -52,9 +52,3 @@ spring:
             - Path=/search/**
           filters:
             - StripPrefix=1
-
-knife4j:
-  basic:
-    enable: true
-    username: knife4j
-    password: 114514
