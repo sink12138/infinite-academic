@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-@Component
+// @Component
 public class AuthorityFilter implements GlobalFilter, Ordered {
 
     @Autowired

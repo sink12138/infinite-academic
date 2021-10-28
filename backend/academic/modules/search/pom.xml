@@ -10,28 +10,46 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>gateway</artifactId>
+    <artifactId>search</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gateway</name>
-    <description>Gateway for routes, authority checks and api docs.</description>
+    <name>search</name>
+    <description>Search engine for data, entities and relations.</description>
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.buaa</groupId>
+            <artifactId>document</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../document/target/document-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.buaa</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../model/target/model-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
