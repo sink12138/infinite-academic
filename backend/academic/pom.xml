@@ -22,6 +22,7 @@
         <module>modules/eureka</module>
         <module>modules/gateway</module>
         <module>modules/search</module>
+        <module>modules/account</module>
     </modules>
 
     <properties>

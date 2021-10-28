@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>邮箱验证</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #ECECEC;
+        }
+
+        .container {
+            width: 800px;
+            margin: 50px auto;
+        }
+
+        .header {
+            height: 80px;
+            background-color: #49bcff;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            padding-left: 30px;
+        }
+
+        .header h2 {
+            padding-top: 25px;
+            color: white;
+        }
+
+        .content {
+            background-color: #fff;
+            padding-left: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .content h2 {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .content p {
+            padding-top: 10px;
+        }
+
+        #verify_click{ margin-top:32px; height:40px;}
+        #verify_click a
+        {
+            text-decoration:none;
+            background: #49bcff;
+            color: #ffffff;
+
+            padding: 15px 45px 15px 45px;
+            font-size:16px;
+            font-family: 微软雅黑,宋体,Arial,Helvetica,Verdana,sans-serif;
+            font-weight:bold;
+            border-radius:4px;
+
+            -webkit-transition:ease-in-out 0.15s;
+            -moz-transition:ease-in-out 0.15s;
+            transition:ease-in-out 0.15s;
+
+        }
+        #verify_click a:hover { background: #84cdfc; }
+
+        .footer {
+            background-color: #fff;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            padding: 35px;
+        }
+
+        .footer p {
+            color: #747474;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Infinite Academic <span th:text="${action}"></span>邮箱验证</h2>
+    </div>
+    <div class="content">
+        <p></p>
+        <h2>请验证您的电子邮件地址。</h2>
+        <p><b>亲爱的用户&nbsp;<span th:text="${username}"></span>，您好！</b></p>
+        <p><b>您于&nbsp;<span th:text="${createTime}"></span>&nbsp;在本网站进行了邮箱<span th:text="${action}"></span>操作。请点击下方的按钮验证您的电子邮件地址。</b></p>
+        <div id="verify_click">
+            <a id="verify" th:href="${checkLink}">验证电子邮件地址</a>
+        </div>
+        <div>
+            <p><b>如果这并非您本人的操作，请勿点击按钮。</b></p>
+        </div>
+        <p>当您在使用本网站时，务必要遵守法律法规</p>
+        <p>如果您有什么疑问可以联系管理员，Email: <b>3488997405@qq.com</b></p>
+    </div>
+    <div class="footer">
+        <p>此为系统邮件，请勿回复</p>
+        <p>请保管好您的信息，避免被他人盗用</p>
+        <p>©Infinite Academic</p>
+    </div>
+</div>
+</body>
+
+</html>
