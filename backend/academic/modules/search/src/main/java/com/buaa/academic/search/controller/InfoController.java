@@ -23,7 +23,7 @@ public class InfoController {
             return result.withFailure(ExceptionType.ILLEGAL_FORMAT);
         String param = model.getData();
         if (param == null)
-            return result.withFailure(ExceptionType.ILLEGAL_FORMAT);
+            throw new AcademicException(ExceptionType.ILLEGAL_FORMAT);
 
         if (param.equals("Throw an exception")) {
             throw new AcademicException(ExceptionType.INTERNAL_SERVER_ERROR);

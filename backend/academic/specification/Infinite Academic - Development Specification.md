@@ -233,7 +233,7 @@ JSON 键名为小写驼峰格式，多值属性用复数命名。
 | 服务层             | service      | XxxService       |
 | 服务实现类         | service.impl | XxxServiceImpl   |
 | 模块调用层         | client       | XxxClient        |
-| 数据层             | dao          | XxxDao           |
+| 数据层             | dao          | XxxRepository    |
 | 模型包装类         | model        | Xxx              |
 | 实体层（如果需要） | entity       | Xxx              |
 | 配置层（如果需要） | config       | XxxConfiguration |
@@ -286,7 +286,13 @@ public class GlobalExceptionHandler {
     public Result<Void> handleCustomException(AcademicException exception) {
         return new Result<Void>().withFailure(exception.getMessage());
     }
-
+    
+    @ExceptionHandler({ HttpMessageConversionException.class, MethodArgumentNotValidException.class })
+    @ResponseBody
+    public Result<Void> handleJsonException(Exception exception) {
+        return new Result<Void>().withFailure(ExceptionType.ILLEGAL_FORMAT);
+    }
+    
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Result<Void> handleOtherException(Exception exception) {

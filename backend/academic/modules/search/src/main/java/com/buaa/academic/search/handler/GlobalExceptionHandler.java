@@ -3,6 +3,8 @@ package com.buaa.academic.search.handler;
 import com.buaa.academic.model.exception.AcademicException;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
+import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,6 +16,12 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Result<Void> handleCustomException(AcademicException exception) {
         return new Result<Void>().withFailure(exception.getMessage());
+    }
+
+    @ExceptionHandler({ HttpMessageConversionException.class, MethodArgumentNotValidException.class })
+    @ResponseBody
+    public Result<Void> handleJsonException(Exception exception) {
+        return new Result<Void>().withFailure(ExceptionType.ILLEGAL_FORMAT);
     }
 
     @ExceptionHandler(Exception.class)
