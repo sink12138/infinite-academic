@@ -18,6 +18,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.buaa</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../model/target/model-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>

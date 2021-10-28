@@ -42,7 +42,7 @@
 
 点击 Next，Springboot 版本选择 2.5.6（可以先不管，新建后从 pom 里直接继承父工程的版本）。
 
-根据需要选择依赖。父工程已经包括 lombok 依赖，实体类模块已经包含 Elasticsearch 依赖，通用模型模块已经包含 knife4j 和 redis session 依赖，可以不用添加。一般需要选择 Web - Spring Web 和 Spring Cloud Discovery - Eureka Discovery Client。
+根据需要选择依赖。父工程已经包括 lombok、fastjson 依赖，实体类模块已经包含 elasticsearch 依赖，可以不用添加。一般需要选择 Web - Spring Web 和 Spring Cloud Discovery - Eureka Discovery Client。
 
 或者直接复制以下 pom，填入一些你的模块的具体信息：
 
@@ -101,6 +101,19 @@
     </build>
 
 </project>
+```
+
+在整个工程根目录的父 pom.xml 的 modules 标签里加上你新建的模块：
+
+```xml
+<modules>
+    <module>modules/document</module>
+    <module>modules/model</module>
+    <module>modules/eureka</module>
+    <module>modules/gateway</module>
+    <module>modules/search</module>
+    <module>modules/你的模块名字</module>
+</modules>
 ```
 
 配置文件统一使用 .yml 格式（删掉默认的 .properties），参考以下模板：

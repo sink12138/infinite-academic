@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(description = "请求体模型（仅供测试用")
+@ApiModel(description = "请求体模型（仅供测试用）")
 public class RequestModel<D> {
 
     @ApiModelProperty(name = "data", required = true, value = "所需参数")

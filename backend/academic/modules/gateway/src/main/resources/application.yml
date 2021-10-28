@@ -42,13 +42,18 @@ spring:
             allowedMethods:
               - GET
               - POST
-              - DELETE
-              - PUT
       routes:
-        - id: route-search
+        - id: 搜索服务
           uri: lb://client-search
-          order: 0
+          order: 1
           predicates:
             - Path=/search/**
+          filters:
+            - StripPrefix=1
+        - id: 账号服务
+          uri: lb://client-account
+          order: 2
+          predicates:
+            - Path=/account/**
           filters:
             - StripPrefix=1
