@@ -26,6 +26,11 @@ public class Result<D> {
     @ApiModelProperty(name = "data", value = "若操作成功则可能附带此字段")
     private D data;
 
+    /**
+     * Set attribute "success" and return the instance itself.
+     * @deprecated Seems useless.
+     */
+    @Deprecated
     public Result<D> withSuccess(boolean success) {
         this.success = success;
         return this;
@@ -43,6 +48,11 @@ public class Result<D> {
         return this;
     }
 
+    /**
+     * Set attribute "message" and return the instance itself.
+     * @deprecated Seems useless.
+     */
+    @Deprecated
     public Result<D> withMessage(String message) {
         this.message = message;
         return this;
