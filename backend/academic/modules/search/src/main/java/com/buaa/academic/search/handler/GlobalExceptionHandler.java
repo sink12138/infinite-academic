@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -18,7 +20,7 @@ public class GlobalExceptionHandler {
         return new Result<Void>().withFailure(exception.getMessage());
     }
 
-    @ExceptionHandler({ HttpMessageConversionException.class, MethodArgumentNotValidException.class })
+    @ExceptionHandler({ HttpMessageConversionException.class, MethodArgumentNotValidException.class, ServletException.class})
     @ResponseBody
     public Result<Void> handleJsonException(Exception exception) {
         return new Result<Void>().withFailure(ExceptionType.ILLEGAL_FORMAT);

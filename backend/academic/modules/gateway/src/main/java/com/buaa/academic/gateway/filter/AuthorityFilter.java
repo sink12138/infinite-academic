@@ -31,9 +31,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         RequestPath path = request.getPath();
-        if (path.value().startsWith("doc.html"))
-            return chain.filter(exchange);
-        else if (path.value().startsWith("search"))
+        if (path.value().startsWith("doc.html") || path.value().startsWith("search"))
             return chain.filter(exchange);
         HttpCookie cookie = request.getCookies().getFirst("TOKEN");
         String token = cookie == null ? null : cookie.getValue();
