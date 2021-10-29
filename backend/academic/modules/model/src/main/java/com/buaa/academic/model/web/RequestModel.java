@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
 
@@ -21,5 +22,10 @@ public class RequestModel<D> {
     @ApiModelProperty(name = "data", required = true, value = "所需参数")
     @NotNull
     private D data;
+
+    @ApiModelProperty(name = "num", required = true, value = "一个不大于5的正整数")
+    @NotNull
+    @Range(min = 0, max = 5)
+    private Integer num;
 
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
+@Validated
 @Api(tags = "实体信息获取")
 public class InfoController {
 
@@ -21,13 +22,7 @@ public class InfoController {
     @ApiOperation(value = "测试接口", notes = "返回传入的相同字符串")
     public Result<String> test(@RequestBody @Valid RequestModel<String> model) throws AcademicException {
         Result<String> result = new Result<>();
-        // Param checks
-        if (model == null)
-            return result.withFailure(ExceptionType.ILLEGAL_FORMAT);
         String param = model.getData();
-        if (param == null)
-            throw new AcademicException(ExceptionType.ILLEGAL_FORMAT);
-
         if (param.equals("Throw an exception")) {
             throw new AcademicException(ExceptionType.INTERNAL_SERVER_ERROR);
         }
