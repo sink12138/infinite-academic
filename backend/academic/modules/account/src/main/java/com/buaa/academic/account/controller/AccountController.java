@@ -6,8 +6,11 @@ import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.security.Authority;
 import com.buaa.academic.model.web.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

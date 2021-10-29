@@ -27,8 +27,8 @@ import static org.apache.commons.text.CharacterPredicates.LETTERS;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Autowired
-    private RedisTemplate redisTemplate;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Boolean exam_password(String password) {

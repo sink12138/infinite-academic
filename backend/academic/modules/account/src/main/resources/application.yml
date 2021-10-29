@@ -2,7 +2,7 @@ mode: deploy  # test / deploy
 
 settings:
   test:
-    host: <???ip??>
+    host: localhost
     register: false
   deploy:
     host: localhost
