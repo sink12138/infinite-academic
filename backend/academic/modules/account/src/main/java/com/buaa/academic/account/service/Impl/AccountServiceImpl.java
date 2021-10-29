@@ -9,6 +9,7 @@ import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String addAuthority(User user) {
-        String token = generateToken(64);
+        String token = generateRandomCode(64);
         Authority authority = new Authority(user.getId(), user.getResearcherId(), false);
         redisTemplate.opsForValue().set(token, authority);
         redisTemplate.expire(token, Duration.ofDays(1));
@@ -58,7 +59,7 @@ public class AccountServiceImpl implements AccountService {
         return (UserToVerify) redisTemplate.opsForValue().get(code);
     }
 
-    private String generateToken(int length) {
+    private String generateRandomCode(int length) {
         RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder()
                 .withinRange('0', 'Z')
                 .filteredBy(LETTERS, DIGITS)
@@ -95,32 +96,50 @@ public class AccountServiceImpl implements AccountService {
         @Override
         public void run() {
             UserToVerify user = new UserToVerify(userId, email);
-            String code = generateToken(16);
+            String code;
+            if (!action.equals("找回密码")) {
+                code = generateRandomCode(16);
+            } else {
+                code = generateRandomCode(5);
+            }
             redisTemplate.opsForValue().set(code, user);
             redisTemplate.expire(code, Duration.ofHours(1));
 
-            Date date = new Date();
 
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            if (!action.equals("找回密码")) {
+                Date date = new Date();
 
-            Context context = new Context();
-            context.setVariable("action", action);
-            String checkLink = IP_ADDRESS + ":8090/account/verify?code=" + code;
-            checkLink = checkLink.replace("@", "%40");
-            context.setVariable("checkLink",  checkLink);
-            context.setVariable("username", username);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-            context.setVariable("createTime", simpleDateFormat.format(date));
-            String process = templateEngine.process("CheckEmail.html", context);
+                MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setSubject("Infinite Academic | %s邮箱验证".formatted(action));
-            helper.setFrom(FROM_ADDRESS);
-            helper.setTo(email);
-            helper.setSentDate(date);
-            helper.setText(process, true);
+                // set content
+                Context context = new Context();
+                context.setVariable("action", action);
+                context.setVariable("username", username);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+                context.setVariable("createTime", simpleDateFormat.format(date));
 
-            javaMailSender.send(mimeMessage);
+                // set check link
+                String checkLink = IP_ADDRESS + ":8090/account/verify?code=" + code;
+                context.setVariable("checkLink", checkLink);
+                String process = templateEngine.process("CheckEmail.html", context);
+
+                // basic setting
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                helper.setSubject("Infinite Academic | %s邮箱验证".formatted(action));
+                helper.setFrom(FROM_ADDRESS);
+                helper.setTo(email);
+                helper.setSentDate(date);
+                helper.setText(process, true);
+
+                javaMailSender.send(mimeMessage);
+            } else {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(email);
+                message.setFrom(FROM_ADDRESS);
+                message.setSubject(action);
+                message.setText(code);
+                javaMailSender.send(message);
+            }
         }
     }
 }
