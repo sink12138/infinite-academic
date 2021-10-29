@@ -28,8 +28,8 @@ public class GlobalExceptionHandler {
             ServletException.class
     })
     @ResponseBody
-    public Result<Void> handleJsonException(Exception exception) {
-        return new Result<Void>().withFailure(ExceptionType.ILLEGAL_FORMAT);
+    public Result<Void> handleParamException() {
+        return new Result<Void>().withFailure(ExceptionType.INVALID_PARAM);
     }
 
     @ExceptionHandler(Exception.class)

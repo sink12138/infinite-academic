@@ -293,6 +293,7 @@ public class DemoController {
 }
 
 // GlobalExceptionHandler
+// 这一部分可以直接参考search模块的handler包
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
