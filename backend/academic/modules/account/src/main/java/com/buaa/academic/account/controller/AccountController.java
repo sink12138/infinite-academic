@@ -2,25 +2,30 @@ package com.buaa.academic.account.controller;
 
 import com.buaa.academic.account.repository.AccountRepository;
 import com.buaa.academic.account.service.AccountService;
+import com.buaa.academic.account.verifyModel.UserToVerify;
 import com.buaa.academic.document.entity.User;
-import com.buaa.academic.model.security.Authority;
 import com.buaa.academic.model.web.Result;
+import io.swagger.annotations.Api;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Map;
+import java.util.Objects;
+
+// todo API
+// todo password
 
 @RestController
+@Validated
+@Api(value = "用户接口")
 public class AccountController {
     @Autowired
     private AccountService accountService;
@@ -29,56 +34,43 @@ public class AccountController {
     private AccountRepository accountRepository;
 
     @PostMapping("/register")
-    public Result<Void> register(@RequestParam(value = "email") @Email String email,
-                                   @RequestParam(value = "username") String username,
-                                   @RequestParam(value = "password") @Size(min = 6, max = 20)
-                                             @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
-                                             String password) {
-        if (accountService.exam_password(password)) {
-            User original_user = accountRepository.findUserByEmail(email);
-            if (original_user != null) {
-                return new Result<Void>().withFailure("该邮箱已注册");
-            }
-            User new_user = new User(email, username, password);
-            accountRepository.save(new_user);
-            accountService.sendVerifyEmail(new_user, "注册");
-            return new Result<>();
+    public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
+                                 @RequestParam(value = "username") @NotNull @Length(max = 10) String username,
+                                 @RequestParam(value = "password") @Length(min = 6, max = 20) @NotNull
+                                 @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]+)(?=.*[a-z]+).*$") String password) {
+        User original_user = accountRepository.findUserByEmail(email);
+        if (original_user != null && original_user.isVerified()) {
+            return new Result<Void>().withFailure("该邮箱已注册");
+        } else if (original_user == null) {
+            original_user = new User(email, username, password);
+            accountRepository.save(original_user);
         }
-        return new Result<Void>().withFailure("密码不合法或强度过低");
+        accountService.sendVerifyEmail(original_user, "注册");
+        return new Result<>();
     }
 
     @Autowired
     private HttpServletRequest request;
 
     @GetMapping("/verify")
-    public ModelAndView verify(@RequestParam(value = "token") String token) {
-        Map<String, String> userMap = accountService.getUserMapByToken(token);
-        if (userMap == null) {
+    public ModelAndView verify(@RequestParam(value = "code") String code) {
+        UserToVerify userToVerify = accountService.getUserToVerifyByCode(code);
+        if (userToVerify == null) {
             return new ModelAndView("CheckFailure");
         } else {
-            String userId = userMap.get("userId");
-            User user = accountRepository.findUserById(userId);
-            if (user.isVerified()) {
-                user.setEmail(userMap.get("email"));
-            } else {
+            User user = accountRepository.findUserById(userToVerify.getUserId());
+            if (user.isVerified() && !Objects.equals(user.getEmail(), userToVerify.getEmail())) {
+                user.setEmail(userToVerify.getEmail());
+            } else if (!user.isVerified()) {
                 user.setVerified(true);
+            } else {
+                return new ModelAndView("CheckFailure");
             }
             accountRepository.save(user);
-            accountService.deleteToken(token);
+            accountService.deleteRedisKey(code);
             request.setAttribute("email", user.getEmail());
             return new ModelAndView("CheckSuccess");
         }
-    }
-
-    private String getToken() {
-        String token = null;
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("TOKEN")) {
-                token = cookie.getValue();
-                break;
-            }
-        }
-        return token;
     }
 
     @Autowired
@@ -92,12 +84,12 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public Result<Void> login(@RequestParam(value = "email") @Email  String email,
+    public Result<Void> login(@CookieValue(name = "TOKEN", required = false) String token,
+                              @RequestParam(value = "email") @Email  String email,
                               @RequestParam(value = "password") @Size(min = 6, max = 20)
                               @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
                                       String password) {
-        String token = getToken();
-        if (token != null) {
+        if (token != null && accountService.getAuthorityByToken(token) != null) {
             return new Result<Void>().withFailure("当前账户已登录");
         }
         User user = accountRepository.findUserByEmail(email);
@@ -110,34 +102,23 @@ public class AccountController {
     }
 
     @PostMapping("/logout")
-    public Result<Void> logout() {
-        String token = getToken();
-        accountService.deleteToken(token);
+    public Result<Void> logout(@CookieValue(name = "TOKEN", required = false) String token) {
+        accountService.deleteRedisKey(token);
         return new Result<>();
     }
 
-    private User getUserByToken() {
-        String token = getToken();
-        Authority authority = accountService.getAuthority(token);
-        String userId = authority.getUserId();
-        return accountRepository.findUserById(userId);
-    }
-
     @GetMapping("/profile")
-    public Result<User> profile() {
-        User user = getUserByToken();
+    public Result<User> profile(@RequestHeader(value = "Role-ID") String userId) {
+        User user = accountRepository.findUserById(userId);
         return new Result<User>().withData(user);
     }
 
     @PostMapping("/profile/modify/info")
-    public Result<Void> modifyInfo(@RequestParam(value = "username") String username,
-                               @RequestParam(value = "password")  @Size(min = 6, max = 20)
-                               @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
-                                       String password) {
-        if (!accountService.exam_password(password)) {
-            return new Result<Void>().withFailure("密码不合法或强度过低");
-        }
-        User user = getUserByToken();
+    public Result<Void> modifyInfo( @RequestHeader(value = "Role-ID") @NotNull String userId,
+                                    @RequestParam(value = "username") @NotNull String username,
+                                    @RequestParam(value = "password")  @Size(min = 6, max = 20)
+                                    @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$") String password) {
+        User user = accountRepository.findUserById(userId);
         user.setUsername(username);
         user.setPassword(password);
         accountRepository.save(user);
@@ -145,10 +126,16 @@ public class AccountController {
     }
 
     @PostMapping("/profile/modify/email")
-    public Result<Void> modifyEmail(@RequestParam(value = "email") @Email String email) {
-        User user = getUserByToken();
+    public Result<Void> modifyEmail(@RequestHeader(value = "Role-ID") @NotNull String userId,
+                                    @RequestParam(value = "email") @Email @NotNull String email) {
+        User user = accountRepository.findUserById(userId);
         user.setEmail(email);
         accountService.sendVerifyEmail(user, "修改");
         return new Result<>();
+    }
+
+    @GetMapping("/test")
+    public User test(@RequestParam(value = "id") String id) {
+        return accountRepository.findUserById(id);
     }
 }

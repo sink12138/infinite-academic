@@ -1,21 +1,11 @@
 package com.buaa.academic.account.service;
 
+import com.buaa.academic.account.verifyModel.UserToVerify;
 import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.security.Authority;
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 
 public interface AccountService {
-    /**
-     * Used to exam password,
-     * a valid password should contain both number and character,
-     * length >= 6
-     * @return true if valid, else false
-     */
-    Boolean exam_password(String password);
-
     /**
      * Send verify email
      * @param user Target user
@@ -30,23 +20,18 @@ public interface AccountService {
      */
     String addAuthority(User user);
 
-    /**
-     * Get authority from redis for current user
-     * @param token Token from cookie
-     * @return Authority Instance of current user
-     */
-    Authority getAuthority(String token);
+    Authority getAuthorityByToken(String token);
 
     /**
      * Delete token
-     * @param token Token
+     * @param key Key
      */
-    void deleteToken(String token);
+    void deleteRedisKey(String key);
 
     /**
      * Get userId from redis for verify
-     * @param token Token from cookie
-     * @return User information map
+     * @param code Code for verification
+     * @return User to verify
      */
-    Map<String, String> getUserMapByToken(String token);
+    UserToVerify getUserToVerifyByCode(String code);
 }
