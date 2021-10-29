@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import javax.annotation.Resource;
@@ -23,10 +24,11 @@ import java.util.Map;
 import static org.apache.commons.text.CharacterPredicates.DIGITS;
 import static org.apache.commons.text.CharacterPredicates.LETTERS;
 
+@Service
 public class AccountServiceImpl implements AccountService {
 
-    @Resource
-    private RedisTemplate<Object, Object> redisTemplate;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public Boolean exam_password(String password) {

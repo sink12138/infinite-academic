@@ -11,6 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.Map;
 
 @RestController
@@ -22,9 +25,11 @@ public class AccountController {
     private AccountRepository accountRepository;
 
     @PostMapping("/register")
-    public Result<Void> register(@RequestParam(value = "email") String email,
+    public Result<Void> register(@RequestParam(value = "email") @Email String email,
                                    @RequestParam(value = "username") String username,
-                                   @RequestParam(value = "password") String password) {
+                                   @RequestParam(value = "password") @Size(min = 6, max = 20)
+                                             @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
+                                             String password) {
         if (accountService.exam_password(password)) {
             User original_user = accountRepository.findUserByEmail(email);
             if (original_user != null) {
@@ -83,8 +88,10 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public Result<Void> login(@RequestParam(value = "email") String email,
-                              @RequestParam(value = "password") String password) {
+    public Result<Void> login(@RequestParam(value = "email") @Email  String email,
+                              @RequestParam(value = "password") @Size(min = 6, max = 20)
+                              @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
+                                      String password) {
         String token = getToken();
         if (token != null) {
             return new Result<Void>().withFailure("当前账户已登录");
@@ -120,7 +127,9 @@ public class AccountController {
 
     @PostMapping("/profile/modify/info")
     public Result<Void> modifyInfo(@RequestParam(value = "username") String username,
-                               @RequestParam(value = "password") String password) {
+                               @RequestParam(value = "password")  @Size(min = 6, max = 20)
+                               @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,}).*$")
+                                       String password) {
         if (!accountService.exam_password(password)) {
             return new Result<Void>().withFailure("密码不合法或强度过低");
         }
@@ -132,7 +141,7 @@ public class AccountController {
     }
 
     @PostMapping("/profile/modify/email")
-    public Result<Void> modifyEmail(@RequestParam(value = "email") String email) {
+    public Result<Void> modifyEmail(@RequestParam(value = "email") @Email String email) {
         User user = getUserByToken();
         user.setEmail(email);
         accountService.sendVerifyEmail(user, "修改");
