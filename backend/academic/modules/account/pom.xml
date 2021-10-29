@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>academic</artifactId>
         <groupId>com.buaa</groupId>
+        <artifactId>academic</artifactId>
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
@@ -14,10 +14,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>account</name>
     <description>account</description>
-    <properties>
-        <java.version>17</java.version>
-        <spring-cloud.version>2020.0.4</spring-cloud.version>
-    </properties>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -83,17 +80,6 @@
             <version>3.0.3</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * The common response model for all apis, including "success", "message" and "data".
@@ -14,27 +15,18 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "响应体模型")
+@ApiModel(description = "响应体基本模型")
 public class Result<D> {
 
-    @ApiModelProperty(name = "success", required = true, value = "操作是否成功")
+    @ApiModelProperty(required = true, value = "操作是否成功", example = "true")
+    @Length
     private boolean success = true;
 
-    @ApiModelProperty(name = "message", value = "若操作不成功则含有此字段", example = "参数格式不合法")
+    @ApiModelProperty(value = "若操作不成功则含有此字段", example = "参数格式非法")
     private String message;
 
-    @ApiModelProperty(name = "data", value = "若操作成功则可能附带此字段")
+    @ApiModelProperty(value = "若操作成功则可能附带此字段")
     private D data;
-
-    /**
-     * Set attribute "success" and return the instance itself.
-     * @deprecated Seems useless.
-     */
-    @Deprecated
-    public Result<D> withSuccess(boolean success) {
-        this.success = success;
-        return this;
-    }
 
     public Result<D> withFailure(ExceptionType type) {
         this.success = false;
@@ -44,16 +36,6 @@ public class Result<D> {
 
     public Result<D> withFailure(String message) {
         this.success = false;
-        this.message = message;
-        return this;
-    }
-
-    /**
-     * Set attribute "message" and return the instance itself.
-     * @deprecated Seems useless.
-     */
-    @Deprecated
-    public Result<D> withMessage(String message) {
         this.message = message;
         return this;
     }
