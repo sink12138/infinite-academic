@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class Institution {
 
     @Id
-    @Field(type = FieldType.Auto)
+    @Field(type = FieldType.Keyword)
     private String id;
 
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")

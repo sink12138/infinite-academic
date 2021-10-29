@@ -35,7 +35,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         RequestPath path = request.getPath();
-        if (path.value().matches("^/(?!/)*/v2/api-docs$") || path.value().startsWith("/search"))
+        if (path.value().startsWith("/search") || path.value().matches("^/(?!/)*/v2/api-docs$"))
             return chain.filter(exchange);
         List<PathContainer.Element> urlElements = path.elements();
         if (urlElements.size() < 2) {
@@ -57,6 +57,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                         case "register":
                         case "login":
                         case "verify":
+                        case "forget":
                             return chain.filter(exchange);
                         default: {
                             if (authority.getUserId() == null)

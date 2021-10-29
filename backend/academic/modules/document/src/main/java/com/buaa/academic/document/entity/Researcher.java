@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.List;
 public class Researcher {
 
     @Id
-    @Field(type = FieldType.Auto)
+    @Field(type = FieldType.Keyword)
     private String id;
 
     @Field(type = FieldType.Keyword)
@@ -52,9 +53,11 @@ public class Researcher {
     private String email;
 
     @Field(type = FieldType.Integer)
+    @JsonProperty("hIndex")
     private Integer hIndex;
 
     @Field(type = FieldType.Integer)
+    @JsonProperty("gIndex")
     private Integer gIndex;
 
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
