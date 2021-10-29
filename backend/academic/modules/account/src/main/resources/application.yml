@@ -40,7 +40,7 @@ spring:
         smtp:
           ssl:
             enable: true
-        debug: true
+        debug: false
     protocol: smtp
     port: 587
 

@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
@@ -104,7 +105,6 @@ public class AccountServiceImpl implements AccountService {
             }
             redisTemplate.opsForValue().set(code, user);
             redisTemplate.expire(code, Duration.ofHours(1));
-
 
             if (!action.equals("找回密码")) {
                 Date date = new Date();
