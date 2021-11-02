@@ -1,18 +1,21 @@
 <template>
-  <v-toolbar class="d-flex justify-center">
-    <v-btn-toggle>
-      <v-btn 
-        v-for="item in router"
-        :key="item.title"
-        :href=item.href
-      >
-        <v-icon>
-          {{item.icon}}
-        </v-icon>
-        {{item.title}}
-      </v-btn>
-    </v-btn-toggle>
-  </v-toolbar>
+  <div>
+    <v-toolbar elevation="0" class="d-flex justify-center">
+      <v-btn-toggle>
+        <v-btn 
+          v-for="item in router"
+          :key="item.title"
+          :href=item.href
+        >
+          <v-icon>
+            {{item.icon}}
+          </v-icon>
+          {{item.title}}
+        </v-btn>
+      </v-btn-toggle>
+    </v-toolbar>
+    <div class="bigfont">Infinit Acadmic</div>
+  </div>
 </template>
 
 <script>
@@ -32,6 +35,10 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+.bigfont {
+  font-family: Fira Code;
+  font-size: 80px;
+  font:800;
+}
 </style>
