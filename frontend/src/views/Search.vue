@@ -1,10 +1,15 @@
 <template>
-  <h1>Search</h1>
+  <div>
+    <h1>Search</h1>
+    <go-back></go-back>
+  </div>
 </template>
 
 <script>
-export default {
+import GoBack from '../components/GoBack.vue'
 
+export default {
+  components: { GoBack },
 }
 </script>
 

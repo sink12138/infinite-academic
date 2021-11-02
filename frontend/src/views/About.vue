@@ -1,5 +1,5 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <iframe src="https://embed.polleverywhere.com/multiple_choice_polls/vavVdyxGHPhwCnReQx3Ut?controls=none&short_poll=true" width="1000px" height="600px"></iframe>
   </div>
 </template>

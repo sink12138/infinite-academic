@@ -1,13 +1,14 @@
 <template>
-  <h1>Paper</h1>
+  <div>
+    <h1>Paper</h1>
+    <go-back></go-back>
+  </div>
 </template>
 
 <script>
-export default {
+import GoBack from '../components/GoBack.vue'
 
+export default {
+  components: { GoBack },
 }
 </script>
-
-<style>
-
-</style>
