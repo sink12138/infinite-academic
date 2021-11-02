@@ -119,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
                 context.setVariable("createTime", simpleDateFormat.format(date));
 
                 // set check link
-                String checkLink = IP_ADDRESS + ":8090/account/verify?code=" + code;
+                String checkLink = "http://" + IP_ADDRESS + ":8090/account/verify?code=" + code;
                 context.setVariable("checkLink", checkLink);
                 String process = templateEngine.process("CheckEmail.html", context);
 
