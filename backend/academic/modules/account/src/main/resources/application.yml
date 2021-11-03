@@ -62,3 +62,7 @@ knife4j:
     username: knife4j
     password: 114514
   enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn

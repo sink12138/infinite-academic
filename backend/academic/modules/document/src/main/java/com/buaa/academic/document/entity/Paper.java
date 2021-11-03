@@ -101,7 +101,7 @@ public class Paper {
 
     @Field(type = FieldType.Integer, nullValue = "0")
     @ApiModelProperty(required = true, value = "论文被引量", example = "114")
-    private Integer citationNum;
+    private int citationNum;
 
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "论文的DOI编号", example = "10.1007/BF02943174")

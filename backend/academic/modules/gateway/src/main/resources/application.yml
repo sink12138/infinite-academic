@@ -57,3 +57,7 @@ spring:
             - Path=/account/**
           filters:
             - StripPrefix=1
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
