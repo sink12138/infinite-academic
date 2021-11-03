@@ -68,6 +68,7 @@ public class Patent {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ApiModel("Patent$Inventor")
     public static class Inventor {
 
         @Field(type = FieldType.Keyword)
