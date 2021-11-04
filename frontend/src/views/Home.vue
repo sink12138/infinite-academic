@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="d-flex flex-column">
     <v-toolbar 
       dense 
+      dark
       elevation="0" 
-      class="d-flex justify-center pa-0"
     >
       <v-btn-toggle>
         <v-btn 
@@ -17,11 +17,15 @@
           {{item.title}}
         </v-btn>
       </v-btn-toggle>
+      <v-spacer></v-spacer>
+      <v-btn>
+        Citation
+        <v-icon>mdi-comma</v-icon>
+      </v-btn>
       <v-btn outlined>登录/注册</v-btn>
     </v-toolbar>
     <div class="big_font">Infinite Acadmic</div>
-    <v-btn @click="notify()">Notify</v-btn>
-    <search-bar></search-bar>
+    <search-bar class="ma-auto"></search-bar>
   </div>
 </template>
 
