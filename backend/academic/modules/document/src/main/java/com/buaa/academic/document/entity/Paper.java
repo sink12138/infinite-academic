@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.buaa.academic.document.entity.item.PaperHit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -12,6 +13,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "学术论文实体")
 @Document(indexName = "paper")
-public class Paper {
+public class Paper implements Reducible<PaperHit> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -99,7 +101,11 @@ public class Paper {
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
     private Integer year;
 
-    @Field(type = FieldType.Integer, nullValue = "0")
+    @Field(type = FieldType.Date)
+    @ApiModelProperty(value = "论文的发表日期", example = "2021-10-15")
+    private String date;
+
+    @Field(type = FieldType.Integer)
     @ApiModelProperty(required = true, value = "论文被引量", example = "114")
     private int citationNum;
 
@@ -167,5 +173,22 @@ public class Paper {
     @JsonIgnore
     @ApiModelProperty(value = "论文的源文件存储路径")
     private String filePath;
+
+    @Override
+    public PaperHit reduce() {
+        PaperHit hit = new PaperHit();
+        hit.setId(id);
+        hit.setTitle(title);
+        hit.setType(type);
+        List<PaperHit.Author> hitAuthors = new ArrayList<>();
+        authors.forEach(author -> hitAuthors.add(new PaperHit.Author(author.id, author.name)));
+        hit.setAuthors(hitAuthors);
+        hit.setPaperAbstract(paperAbstract.length() > 80 ? paperAbstract.substring(0, 80) + "..." : paperAbstract);
+        hit.setKeywords(keywords);
+        hit.setJournal(new PaperHit.Journal(journal.id, journal.title));
+        hit.setDate(date == null ? year == null ? null : String.valueOf(year) : date);
+        hit.setCitationNum(citationNum);
+        return hit;
+    }
 
 }

@@ -1,4 +1,4 @@
-package com.buaa.academic.search.util;
+package com.buaa.academic.search.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

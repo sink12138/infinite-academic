@@ -37,7 +37,7 @@ public class Patent {
     @ApiModelProperty(value = "申请（专利）号", example = "CN202130098898.1")
     private String patentNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Date)
     @ApiModelProperty(value = "申请日", example = "2021-02-20")
     private String filingDate;
 
@@ -45,7 +45,7 @@ public class Patent {
     @ApiModelProperty(value = "申请公布号", example = "CN113519399A")
     private String publicationNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Date)
     @ApiModelProperty(value = "公开公告日", example = "2021-10-22")
     private String publicationDate;
 
@@ -53,7 +53,7 @@ public class Patent {
     @ApiModelProperty(value = "授权公布号", example = "CN306893057S")
     private String authorizationNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Date)
     @ApiModelProperty(value = "授权公告日", example = "2021-10-22")
     private String authorizationDate;
 

@@ -1,8 +1,8 @@
 package com.buaa.academic.search.model;
 
-import com.buaa.academic.search.util.AllowValues;
-import com.buaa.academic.search.util.SearchCondition;
-import com.buaa.academic.search.util.SearchFilter;
+import com.buaa.academic.search.validator.AllowValues;
+import com.buaa.academic.search.validator.SearchCondition;
+import com.buaa.academic.search.validator.SearchFilter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;

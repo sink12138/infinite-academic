@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.buaa.academic.document.entity.item.ResearcherHit;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "科研人员实体")
 @Document(indexName = "researcher")
-public class Researcher {
+public class Researcher implements Reducible<ResearcherHit> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -83,4 +84,16 @@ public class Researcher {
     @ApiModelProperty(value = "科研人员发明的专利数量", example = "1919810")
     private int patentNum = 0;
 
+    @Override
+    public ResearcherHit reduce() {
+        ResearcherHit hit = new ResearcherHit();
+        hit.setId(id);
+        hit.setName(name);
+        hit.setInstitution(new ResearcherHit.Institution(currentInst.id, currentInst.name));
+        hit.setPosition(position);
+        hit.setInterests(interests);
+        hit.setPaperNum(paperNum);
+        hit.setPatentNum(patentNum);
+        return hit;
+    }
 }

@@ -1,7 +1,7 @@
 package com.buaa.academic.search.model;
 
-import com.buaa.academic.search.util.AllowValues;
-import com.buaa.academic.search.util.SearchCondition;
+import com.buaa.academic.search.validator.AllowValues;
+import com.buaa.academic.search.validator.SearchCondition;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -33,11 +33,11 @@ public class Condition {
     @ApiModelProperty(value = "是否模糊搜索", required = true)
     private boolean fuzzy;
 
-    @ApiModelProperty(value = "是否进行语种关联", required = true)
+    @ApiModelProperty(value = "是否进行语种关联，若为true则需指定languages", required = true)
     private boolean translated;
 
     @AllowValues({"zh", "en"})
-    @ApiModelProperty(value = "需要扩展的语言（需设定translated为true）", allowableValues = "zh,en", example = "zh")
+    @ApiModelProperty(value = "需要扩展的语言", allowableValues = "zh,en", example = "zh")
     private Set<String> languages;
 
     @SearchCondition

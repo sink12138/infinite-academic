@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +19,7 @@ public class Filter {
                     "<b>range</b> - 属性值在给定范围之间（params[0],和params[1]含两端），例如出版年份</br>" +
                     "<b>equal</b> - 属性值等于给定参数（params）之一，例如出版年份</br>" +
                     "<b>true</b> - 属性值为真，例如是否可下载</br>" +
-                    "<b>false</b> - 属性值为假，（暂时没想到能用来干啥）",
+                    "<b>false</b> - 属性值为假，暂时没想到能用来干啥",
             required = true,
             example = "above")
     private String type;

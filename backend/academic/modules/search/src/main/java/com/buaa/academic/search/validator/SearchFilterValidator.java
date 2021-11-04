@@ -1,4 +1,4 @@
-package com.buaa.academic.search.util;
+package com.buaa.academic.search.validator;
 
 import com.buaa.academic.search.model.Filter;
 
@@ -37,7 +37,7 @@ public class SearchFilterValidator implements ConstraintValidator<SearchFilter, 
             if (filter == null)
                 return false;
             // Attr checks
-            if (filter.getAttr() == null || !filter.getAttr().matches("$[a-z][a-zA-Z_0-9$]*^"))
+            if (filter.getAttr() == null || !filter.getAttr().matches("^[a-z][a-zA-Z_0-9]*$"))
                 return false;
             String type = filter.getType();
             int[] params = filter.getParams();

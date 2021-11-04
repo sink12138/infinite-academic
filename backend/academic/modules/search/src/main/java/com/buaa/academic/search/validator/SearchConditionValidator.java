@@ -1,4 +1,4 @@
-package com.buaa.academic.search.util;
+package com.buaa.academic.search.validator;
 
 import com.buaa.academic.search.model.Condition;
 import org.hibernate.validator.constraints.Length;
@@ -55,6 +55,8 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
                 condition.setSubConditions(null);
                 if (!condition.isTranslated())
                     condition.setLanguages(null);
+                else if (condition.getLanguages() == null || condition.getLanguages().isEmpty())
+                    return false;
                 if (!validateSingle(condition.getKeyword(), condition.getScope()))
                     return false;
             }
