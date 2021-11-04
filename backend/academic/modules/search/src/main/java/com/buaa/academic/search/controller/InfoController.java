@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-@RestController
+@RestController("/info")
 @Validated
-@Api(tags = "实体信息获取")
+@Api(tags = "实体详细信息")
 public class InfoController {
 
     @PostMapping("/test")

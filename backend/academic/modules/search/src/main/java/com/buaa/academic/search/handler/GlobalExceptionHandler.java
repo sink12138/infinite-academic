@@ -25,8 +25,7 @@ public class GlobalExceptionHandler {
             HttpMessageConversionException.class,
             MethodArgumentNotValidException.class,
             ValidationException.class,
-            ServletException.class
-    })
+            ServletException.class })
     @ResponseBody
     public Result<Void> handleParamException() {
         return new Result<Void>().withFailure(ExceptionType.INVALID_PARAM);

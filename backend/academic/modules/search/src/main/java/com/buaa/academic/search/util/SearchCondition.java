@@ -8,25 +8,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Check if the value(s) is among the given allowed values.
+ * Check if the condition is a valid search condition
+ * (its keyword and scope must be specified, unless it is compound and has sub-conditions).
  */
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = AllowValuesValidator.class)
-public @interface AllowValues {
-
-    /**
-     * Allowed values as string.
-     */
-    String[] value() default {};
-
-    /**
-     * Allowed values as integer. Will not be used if 'value' is already specified.
-     */
-    int[] intValue() default {};
+@Constraint(validatedBy = SearchConditionValidator.class)
+public @interface SearchCondition {
 
     @Deprecated
-    String message() default "Value not allowed";
+    String[] value() default {};
+
+    @Deprecated
+    String message() default "Not a valid search condition";
 
     @Deprecated
     Class<?>[] groups() default {};
