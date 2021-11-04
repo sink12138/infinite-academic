@@ -14,7 +14,7 @@
         </v-btn>
       </v-btn-toggle>
     </v-toolbar>
-    <div class="bigfont">Infinit Acadmic</div>
+    <div class="big_font">Infinit Acadmic</div>
   </div>
 </template>
 
@@ -34,11 +34,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.bigfont {
-  font-family: Fira Code;
-  font-size: 80px;
-  font:800;
-}
-</style>
