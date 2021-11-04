@@ -1,8 +1,5 @@
 <template>
-  <div class="d-flex flex-column">
-    <navigation></navigation>
-    <div class="big_font">Infinite Acadmic</div>
-    <search-bar class="ma-auto"></search-bar>
+  <div>
     <v-menu
       :close-on-content-click="false"
       :nudge-width="200"
@@ -17,9 +14,12 @@
           <v-icon>mdi-comma</v-icon>
         </v-btn>
       </template>
-      <v-card>
+
+      <v-card
+        class="mt-100"
+      >
         <v-card-title>
-          123
+          Citation List
         </v-card-title>
         <v-card-text>
           ...TEXT...
@@ -35,24 +35,18 @@
 </template>
 
 <script>
-import SearchBar from '../components/SearchBar.vue'
-import Navigation from '../components/Navigation.vue'
 export default {
-  components: {
-    SearchBar,
-    Navigation
-  },
   data:() =>  ({
     expand: false
   }),
   methods: {
-    notify() {
-      this.$notify({
-        title: 'hello',
-        message: 'test message',
-        type: 'success'
-      });
+    onClickOutside() {
+      this.expand = false;
     }
   }
 }
 </script>
+
+<style>
+
+</style>
