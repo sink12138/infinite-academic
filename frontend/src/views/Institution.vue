@@ -8,7 +8,7 @@
       >
         mdi-home
       </v-icon>
-      <div class="myfont my-5">
+      <div class="my_font my-5">
         Institution
       </div>
     </div>
@@ -24,9 +24,4 @@ export default {
 </script>
 
 <style>
-.myfont {
-  font-family: Fira Code;
-  font-size: 30px;
-  font:800;
-}
 </style>
