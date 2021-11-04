@@ -15,6 +15,7 @@
       </v-btn-toggle>
     </v-toolbar>
     <div class="big_font">Infinit Acadmic</div>
+    <v-btn @click="notify()">Notify</v-btn>
   </div>
 </template>
 
@@ -30,6 +31,15 @@ export default {
         {href: '/search', icon: 'mdi-magnify-expand', title: 'Search'},
         {href: '/admin', icon: 'mdi-shield-lock', title: 'Admin'},
       ]
+    }
+  },
+  methods: {
+    notify() {
+      this.$notify({
+        title: 'hello',
+        message: 'test message',
+        type: 'success'
+      });
     }
   }
 }
