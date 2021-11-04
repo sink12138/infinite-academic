@@ -1,11 +1,15 @@
 <template>
   <div>
-    <v-toolbar elevation="0" class="d-flex justify-center">
+    <v-toolbar 
+      dense 
+      elevation="0" 
+      class="d-flex justify-center pa-0"
+    >
       <v-btn-toggle>
         <v-btn 
           v-for="item in router"
           :key="item.title"
-          :href=item.href
+          :to=item.href
         >
           <v-icon>
             {{item.icon}}
@@ -13,14 +17,20 @@
           {{item.title}}
         </v-btn>
       </v-btn-toggle>
+      <v-btn outlined>登录/注册</v-btn>
     </v-toolbar>
-    <div class="big_font">Infinit Acadmic</div>
+    <div class="big_font">Infinite Acadmic</div>
     <v-btn @click="notify()">Notify</v-btn>
+    <search-bar></search-bar>
   </div>
 </template>
 
 <script>
+import SearchBar from '../components/SearchBar.vue'
 export default {
+  components: {
+    SearchBar,
+  },
   data() {
     return {
       router: [
