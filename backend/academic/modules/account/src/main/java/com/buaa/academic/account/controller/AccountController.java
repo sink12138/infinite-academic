@@ -21,9 +21,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.Objects;
 
-// todo API
-// todo password
-
 @RestController
 @Validated
 @Api(tags = "用户接口", value = "/account")
