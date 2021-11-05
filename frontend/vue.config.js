@@ -6,7 +6,7 @@ module.exports = {
     config
       .plugin('html')
       .tap(args => {
-        args[0].title= 'Infinit Acadmic'
+        args[0].title= 'Infinite Acadmic'
         return args
       })
   }
