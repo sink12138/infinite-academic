@@ -23,6 +23,7 @@
         <module>modules/gateway</module>
         <module>modules/search</module>
         <module>modules/account</module>
+        <module>modules/tool</module>
     </modules>
 
     <properties>
