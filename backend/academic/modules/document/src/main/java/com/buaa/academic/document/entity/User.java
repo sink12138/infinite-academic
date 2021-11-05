@@ -1,6 +1,5 @@
 package com.buaa.academic.document.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,7 +19,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 public class User {
 
     @Id
-    @Field(type = FieldType.Auto)
+    @Field(type = FieldType.Keyword)
     @ApiModelProperty(required = true, value = "用户在数据库中对应的ID", example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 

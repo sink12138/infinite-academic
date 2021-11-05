@@ -260,7 +260,7 @@ JSON 键名为小写驼峰格式，多值属性用复数命名。
 
 控制类需要进行所有的合法性检查（参数、权限、存在性等），不能让底层方法判断操作合法性。下层不调用上层，不跨层调用，一般情况下同层尽量不调用自己（当然可以自行添加私有方法）。
 
-参数格式检查推荐使用 hibernate-validator 进行统一快速判断，仅将 复杂/复合/与实际业务逻辑有关 的参数格式检查留到控制层，能够减少很大一部分工作量并增强可读性。详见：[Spring boot 结合hibernate-validate校验数据_Jankin丶Chen的博客-CSDN博客](https://blog.csdn.net/qq_45152095/article/details/120922171)。使用时控制类上注解`@Validate`，参数前注解`@Valid`（几个用于字符串的检查似乎只有这样才能生效）。
+参数格式检查推荐使用 hibernate-validator 进行统一快速判断，仅将 复杂/复合/与实际业务逻辑有关 的参数格式检查留到控制层，能够减少很大一部分工作量并增强可读性。详见：[Spring boot 结合hibernate-validate校验数据_Jankin丶Chen的博客-CSDN博客](https://blog.csdn.net/qq_45152095/article/details/120922171) 。使用时控制类上注解`@Validate`，参数前注解`@Valid`（几个用于字符串的检查似乎只有这样才能生效）。
 
 完整的控制层和异常处理业务流程可以参考：
 
@@ -306,7 +306,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ HttpMessageConversionException.class, MethodArgumentNotValidException.class })
     @ResponseBody
     public Result<Void> handleJsonException(Exception exception) {
-        return new Result<Void>().withFailure(ExceptionType.ILLEGAL_FORMAT);
+        return new Result<Void>().withFailure(ExceptionType.INVALID_PARAM);
     }
     
     @ExceptionHandler(Exception.class)
@@ -323,7 +323,15 @@ public class GlobalExceptionHandler {
 
 底层业务逻辑自行设计。
 
-### 3.3 说明和注释
+### 3.3 接口设计
+
+新增接口时，**首先和前端开发人员对接商议确定业务流程**，随后在《接口声明》表格中添加对应接口的简要描述。编写控制类和模型类时必须使用对应的 knife4j 注解，不能只放着一个参数名字不加描述给前端看。请求方法（POST/GET）、内容类型（json/form-data/url）、参数数据类型（尤其是非字符串类型）必须事先和前端开发人员明确；**返回参数的存在性**（是否可能为 null，或在何条件下为 null）也务必明确。
+
+接口开发完成后，其规格一般不再作修改（因为你修改了前端也得跟着改，可能造成前后端版本不一致）。如果确实要更改，应首先与前端开发人员商议，修改完成并部署后提醒前端人员。
+
+对于一些请求或返回数据结构较复杂、数据量较大的接口，尤其是涉及界面中分级表单、图表展示等的接口，应与前端商议最佳的组织形式。很多前端组件的输入数据结构是定义好的，且后端进行针对性适配比前端转换数据结构容易得多。**千万不要想当然直接使用自己认为合适的结构。**
+
+### 3.4 说明和注释
 
 接口文档相关的说明注解使用中文，尽可能告诉前端这个接口是用来干什么的，以及每个参数的含义、类型、必要性、示例；尽可能告诉前端每个返回值的含义、类型、是否一定存在、示例。
 
@@ -335,17 +343,17 @@ public class GlobalExceptionHandler {
 
 其他地方没有很严格的注释要求，只要保证代码风格基本都能很快看懂。
 
-### 3.4 代码风格
+### 3.5 代码风格
 
 ~~这部分就不用多说了吧~~
 
-运算符、逗号和等号前后加空格。同时建议根据 IDEA 的提示消除所有 warning（除非无法消除）。**尤其要注意 typo，最容易坑人坑己。**
+运算符、等号前后加空格，逗号后加空格。同时建议根据 IDEA 的提示消除所有 warning（除非无法消除）。**尤其要注意 typo，最容易坑人坑己。**
 
 
 
 ## 4. Git 版本控制
 
-一般情况下在 backend 分支完成所有开发工作（避免分支合并造成麻烦）。除 src、pom.xml、Dockerfile 和 .gitignore 以外所有文件和文件夹不得 push 到远程仓库，如果被自动 add 了，需要右键 Git - Rollback，然后 Git - Ignore - 选择添加到模块目录下的 .gitignore 文件。每个模块根目录都有一个 .gitignore，可以参考：
+一般情况下在 backend 分支完成所有开发工作（避免分支合并造成麻烦）。除 src、pom.xml、Dockerfile 和 .gitignore 以外所有文件和文件夹不得 push 到远程仓库，如果被自动 add 了，需要右键 Git - Rollback，然后 Git - Ignore - 选择添加到模块目录下的 .gitignore 文件。每个模块根目录都建一个 .gitignore，可以参考：
 
 ```gitignore
 HELP.md
@@ -398,7 +406,7 @@ Commit 时填写一下这次提交干了什么，不要只写一两个词。程�
 
 **首先确保 application.yml 的第一行设置为 test。** Elasticsearch 数据库、Redis 缓存、Eureka 注册中心直接使用远端服务器，但一般会绕过 Gateway 网关入口进行测试（因为你本地测试的服务没有注册，网关不知道你在哪，所以只能直接给自己模块的端口号发请求）。稍微注意一下实际 URL 路径和 Header 参数（可能和有网关时不太一样）。
 
-**如果设计重大试验项目，可能对远端数据库造成污染，可以在本地部署运行一整套程序进行测试（这时候 application.yml 第一行设置为 deploy。**
+**如果涉及重大试验项目，可能对远端数据库造成污染，可以在本地部署运行一整套程序进行测试（这时候 application.yml 第一行设置为 deploy。**
 
 ### 5.2 部署
 

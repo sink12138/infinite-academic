@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
@@ -105,7 +106,6 @@ public class AccountServiceImpl implements AccountService {
             redisTemplate.opsForValue().set(code, user);
             redisTemplate.expire(code, Duration.ofHours(1));
 
-
             if (!action.equals("找回密码")) {
                 Date date = new Date();
 
@@ -119,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
                 context.setVariable("createTime", simpleDateFormat.format(date));
 
                 // set check link
-                String checkLink = IP_ADDRESS + ":8090/account/verify?code=" + code;
+                String checkLink = "http://" + IP_ADDRESS + ":8090/account/verify?code=" + code;
                 context.setVariable("checkLink", checkLink);
                 String process = templateEngine.process("CheckEmail.html", context);
 
