@@ -12,49 +12,61 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
+            height: 100%;
             background-color: #ECECEC;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            width: 800px;
-            margin: 50px auto;
+            width: 600px;
+            margin: auto;
         }
 
         .header {
             height: 80px;
-            background-color: #49bcff;
+            text-align: center;
+            background-color: #263238;
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
-            padding-left: 30px;
         }
 
         .header h2 {
-            padding-top: 25px;
             color: white;
         }
 
         .content {
-            background-color: #fff;
-            padding-left: 30px;
-            padding-bottom: 30px;
+            text-align: center;
+            background-color: #000;
             border-bottom: 1px solid #ccc;
+            padding-top: 20px;
+            padding-bottom: 40px;
         }
 
         .content h2 {
+            color: #fff;
             padding-top: 20px;
             padding-bottom: 20px;
         }
 
         .content p {
-            padding-top: 10px;
+            color: #fff;
+            padding-top: 7px;
+            padding-bottom: 5px;
         }
 
         #verify_click{ margin-top:32px; height:40px;}
         #verify_click a
         {
             text-decoration:none;
-            background: #49bcff;
+            background: #01579B;
             color: #ffffff;
 
             padding: 15px 45px 15px 45px;
@@ -71,15 +83,20 @@
         #verify_click a:hover { background: #84cdfc; }
 
         .footer {
-            background-color: #fff;
+            background-color: #000;
             border-bottom-left-radius: 5px;
             border-bottom-right-radius: 5px;
-            padding: 35px;
+            padding: 20px;
         }
 
         .footer p {
-            color: #747474;
+            color: #fff;
             padding-top: 10px;
+        }
+
+        .my_font {
+            font-family: Fira code;
+            font-size: 46px;
         }
     </style>
 </head>
@@ -87,7 +104,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h2>Infinite Academic <span th:text="${action}"></span>邮箱验证</h2>
+        <h2 class="my_font">Infinite Academic <span th:text="${action}"></span></h2>
     </div>
     <div class="content">
         <p></p>
