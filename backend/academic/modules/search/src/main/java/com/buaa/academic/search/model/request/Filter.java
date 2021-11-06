@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.elasticsearch.index.query.QueryBuilder;
 
 @Data
 @AllArgsConstructor
@@ -29,5 +30,9 @@ public class Filter {
 
     @ApiModelProperty(value = "过滤器参数列表（布尔类型的过滤器不需要设定参数）", example = "2016")
     private int[] params;
+
+    public QueryBuilder compile() {
+        return null;
+    }
 
 }

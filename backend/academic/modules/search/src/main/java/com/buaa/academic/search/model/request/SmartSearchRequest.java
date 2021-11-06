@@ -1,6 +1,7 @@
 package com.buaa.academic.search.model.request;
 
 import com.buaa.academic.search.validator.SearchFilter;
+import com.buaa.academic.tool.validator.AllowValues;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ public class SmartSearchRequest {
     @ApiModelProperty(value = "每页显示的条目数量，最多25", required = true, example = "20")
     private int size;
 
+    @AllowValues({"year", })
     @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "year")
     private String sort;
 

@@ -32,6 +32,9 @@ spring:
       username: elastic
       password: 114514
       uris: http://${settings.${mode}.host}:9200
+    highlight:
+      pre-tag: <b>
+      post-tag: </b>
 
 eureka:
   instance:

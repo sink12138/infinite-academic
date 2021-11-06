@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
@@ -45,5 +46,9 @@ public class Condition {
     @SearchCondition
     @ApiModelProperty(value = "查询子条件")
     private List<Condition> subConditions;
+
+    public QueryBuilder compile() {
+        return null;
+    }
 
 }
