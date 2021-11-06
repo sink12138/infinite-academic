@@ -34,15 +34,12 @@ spring:
       uris: http://${settings.${mode}.host}:9200
 
 eureka:
-  server:
-    username: eureka
-    password: 114514
   instance:
     instance-id: ${spring.application.name}:${server.port}
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://${eureka.server.username}:${eureka.server.password}@${settings.${mode}.host}:8100/eureka/
+      defaultZone: http://eureka:114514@${settings.${mode}.host}:8100/eureka/
     register-with-eureka: ${settings.${mode}.register}
 
 knife4j:
@@ -55,3 +52,4 @@ knife4j:
 logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    com.netflix.discovery.DiscoveryClient: warn

@@ -1,6 +1,6 @@
 package com.buaa.academic.document.entity;
 
-import com.buaa.academic.document.entity.item.PaperHit;
+import com.buaa.academic.document.entity.item.PaperItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "学术论文实体")
 @Document(indexName = "paper")
-public class Paper implements Reducible<PaperHit> {
+public class Paper implements Reducible<PaperItem> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -89,11 +89,11 @@ public class Paper implements Reducible<PaperHit> {
     @ApiModelProperty(required = true, value = "论文的所有关键词")
     private List<String> keywords;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
     @ApiModelProperty(value = "论文的话题分类")
     private List<String> topics;
 
@@ -175,17 +175,17 @@ public class Paper implements Reducible<PaperHit> {
     private String filePath;
 
     @Override
-    public PaperHit reduce() {
-        PaperHit hit = new PaperHit();
+    public PaperItem reduce() {
+        PaperItem hit = new PaperItem();
         hit.setId(id);
         hit.setTitle(title);
         hit.setType(type);
-        List<PaperHit.Author> hitAuthors = new ArrayList<>();
-        authors.forEach(author -> hitAuthors.add(new PaperHit.Author(author.id, author.name)));
+        List<PaperItem.Author> hitAuthors = new ArrayList<>();
+        authors.forEach(author -> hitAuthors.add(new PaperItem.Author(author.id, author.name)));
         hit.setAuthors(hitAuthors);
         hit.setPaperAbstract(paperAbstract.length() > 80 ? paperAbstract.substring(0, 80) + "..." : paperAbstract);
         hit.setKeywords(keywords);
-        hit.setJournal(new PaperHit.Journal(journal.id, journal.title));
+        hit.setJournal(new PaperItem.Journal(journal.id, journal.title));
         hit.setDate(date == null ? year == null ? null : String.valueOf(year) : date);
         hit.setCitationNum(citationNum);
         return hit;

@@ -1,4 +1,4 @@
-package com.buaa.academic.search.model;
+package com.buaa.academic.search.model.request;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

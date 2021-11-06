@@ -13,6 +13,13 @@ public class Translator {
 
     private Translator() { }
 
+    /**
+     * @apiNote Language: zh, en, ...
+     * @param text The text to be translated
+     * @param from Source language. Use 'auto' if not specified
+     * @param to Target language
+     * @return Translated text
+     */
     public static String translate(String text, String from, String to) {
         TransApi api = new TransApi(appid, securityKey);
         String transResultResponse = api.getTransResult(text, from, to);

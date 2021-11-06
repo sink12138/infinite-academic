@@ -1,12 +1,13 @@
-package com.buaa.academic.search.model;
+package com.buaa.academic.search.model.request;
 
-import com.buaa.academic.search.validator.AllowValues;
+import com.buaa.academic.tool.validator.AllowValues;
 import com.buaa.academic.search.validator.SearchCondition;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,8 @@ public class Condition {
     @ApiModelProperty(value = "是否为复合条件。若为true则必须指定子条件，若为false则必须指定除子条件外所有属性", required = true)
     private boolean compound;
 
-    @ApiModelProperty(value = "搜索关键词，长度最多为32个字符", required = true, example = "机器学习")
+    @Length(max = 128)
+    @ApiModelProperty(value = "搜索关键词，超过32个字符将被截断，忽略头尾空白符", required = true, example = "机器学习")
     private String keyword;
 
     @ApiModelProperty(value = "限定关键词的出现范围，均为属性名", required = true, example = "title")

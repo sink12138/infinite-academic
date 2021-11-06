@@ -19,7 +19,6 @@ import org.hibernate.validator.constraints.Length;
 public class Result<D> {
 
     @ApiModelProperty(required = true, value = "操作是否成功", example = "true")
-    @Length
     private boolean success = true;
 
     @ApiModelProperty(value = "若操作不成功则含有此字段", example = "参数格式非法")

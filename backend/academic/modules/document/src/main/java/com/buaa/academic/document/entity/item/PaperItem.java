@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "学术论文实体的简要信息，用于批量搜索的结果显示")
-public class PaperHit {
+public class PaperItem {
 
     @ApiModelProperty(required = true, value = "论文在数据库中的ID", example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;

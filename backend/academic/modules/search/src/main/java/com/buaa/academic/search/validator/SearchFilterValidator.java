@@ -1,6 +1,6 @@
 package com.buaa.academic.search.validator;
 
-import com.buaa.academic.search.model.Filter;
+import com.buaa.academic.search.model.request.Filter;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

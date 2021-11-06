@@ -1,6 +1,6 @@
 package com.buaa.academic.document.entity;
 
-import com.buaa.academic.document.entity.item.ResearcherHit;
+import com.buaa.academic.document.entity.item.ResearcherItem;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "科研人员实体")
 @Document(indexName = "researcher")
-public class Researcher implements Reducible<ResearcherHit> {
+public class Researcher implements Reducible<ResearcherItem> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -72,7 +72,7 @@ public class Researcher implements Reducible<ResearcherHit> {
     @JsonProperty("gIndex")
     private Integer gIndex;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
     @ApiModelProperty(value = "科研人员的研究方向", example = "智能化软件工程")
     private List<String> interests;
 
@@ -85,11 +85,11 @@ public class Researcher implements Reducible<ResearcherHit> {
     private int patentNum = 0;
 
     @Override
-    public ResearcherHit reduce() {
-        ResearcherHit hit = new ResearcherHit();
+    public ResearcherItem reduce() {
+        ResearcherItem hit = new ResearcherItem();
         hit.setId(id);
         hit.setName(name);
-        hit.setInstitution(new ResearcherHit.Institution(currentInst.id, currentInst.name));
+        hit.setInstitution(new ResearcherItem.Institution(currentInst.id, currentInst.name));
         hit.setPosition(position);
         hit.setInterests(interests);
         hit.setPaperNum(paperNum);

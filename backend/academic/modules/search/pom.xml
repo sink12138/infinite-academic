@@ -32,6 +32,13 @@
             <systemPath>${project.basedir}/../model/target/model-1.0.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>com.buaa</groupId>
+            <artifactId>tool</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../tool/target/tool-1.0.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

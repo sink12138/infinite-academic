@@ -1,10 +1,10 @@
 package com.buaa.academic.search.validator;
 
-import com.buaa.academic.search.model.Condition;
-import org.hibernate.validator.constraints.Length;
+import com.buaa.academic.search.model.request.Condition;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -53,6 +53,10 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
             }
             else {
                 condition.setSubConditions(null);
+                String keyword = condition.getKeyword().trim().replaceAll("\\s+", " ");
+                if (keyword.length() > 32)
+                    keyword = keyword.substring(0, 32);
+                condition.setKeyword(keyword);
                 if (!condition.isTranslated())
                     condition.setLanguages(null);
                 else if (condition.getLanguages() == null || condition.getLanguages().isEmpty())
@@ -68,7 +72,7 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
         return !subConditions.isEmpty();
     }
 
-    private boolean validateSingle(@NotNull @NotEmpty @Length(max = 32) String keyword,
+    private boolean validateSingle(@NotNull @NotBlank String keyword,
                                    @NotNull @NotEmpty Set<String> scope) {
         return !keyword.isEmpty() && scope != null;
     }
