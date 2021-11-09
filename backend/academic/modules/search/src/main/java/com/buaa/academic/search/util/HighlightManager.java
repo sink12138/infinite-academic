@@ -23,6 +23,12 @@ public class HighlightManager {
         return this;
     }
 
+    public int length() {
+        if (this.text == null)
+            throw new NullPointerException("No input text");
+        return length(this.text);
+    }
+
     public int length(String text) {
         return text.replaceAll(tags[0], "").replaceAll(tags[1], "").length();
     }
@@ -59,7 +65,7 @@ public class HighlightManager {
             offset += sections[index].length();
         }
         if (index == sections.length)
-            throw new StringIndexOutOfBoundsException("begin " + this.range[0] + ", end " + this.range[1] + ", length " + length(text));
+            throw new StringIndexOutOfBoundsException("begin " + this.range[0] + ", end " + this.range[1] + ", length " + length());
         if (between && offset < this.range[1])
             builder.append(tags[0]);
         for (; offset < this.range[1] && index < sections.length; between = !between, ++index) {
@@ -77,7 +83,7 @@ public class HighlightManager {
                 builder.append(tags[0]);
         }
         if (index == sections.length && offset < this.range[1])
-            throw new StringIndexOutOfBoundsException("begin " + this.range[0] + ", end " + this.range[1] + ", length " + length(text));
+            throw new StringIndexOutOfBoundsException("begin " + this.range[0] + ", end " + this.range[1] + ", length " + length());
         return builder.toString();
     }
 
