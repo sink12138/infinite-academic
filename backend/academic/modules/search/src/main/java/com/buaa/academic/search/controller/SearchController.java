@@ -8,6 +8,7 @@ import com.buaa.academic.document.entity.item.InstitutionItem;
 import com.buaa.academic.document.entity.item.JournalItem;
 import com.buaa.academic.document.entity.item.PaperItem;
 import com.buaa.academic.document.entity.item.ResearcherItem;
+import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.search.dao.InstitutionRepository;
 import com.buaa.academic.search.dao.JournalRepository;
@@ -27,6 +28,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -87,14 +89,29 @@ public class SearchController {
         long start = System.currentTimeMillis();
         Result<SmartPage> result = new Result<>();
         SmartPage smartPage = new SmartPage();
+
+        // Strip keyword
         String keyword = searchRequest.getKeyword().trim().replaceAll("\\s+", " ");
         if (keyword.length() > 32)
             keyword = keyword.substring(0, 32);
+
+        // Param check for filters
         List<Filter> filters = searchRequest.getFilters();
-        String srt = searchRequest.getSort();
-        // TODO: 2021/11/11 Param checks for conditions and filters
+        for (Filter filter : filters) {
+            String type = filter.getType();
+            switch (filter.getAttr()) {
+                case "year", "citationNum" -> {
+                    if (type.equals("true") || type.equals("false"))
+                        return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+                default -> {
+                    return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+            }
+        }
 
         // Search for base items (papers)
+        // Keywords
         String[] keywords;
         if (searchRequest.isTranslated()) {
             Set<String> keySet = new HashSet<>(6);
@@ -106,6 +123,8 @@ public class SearchController {
         else {
             keywords = new String[] { keyword };
         }
+
+        // Filters
         BoolQueryBuilder filter = null;
         if (!filters.isEmpty()) {
             filter = QueryBuilders.boolQuery();
@@ -113,9 +132,28 @@ public class SearchController {
                 filter.must(flt.compile());
             }
         }
-        SortBuilder<?> sort = srt == null ? SortBuilders.scoreSort() : SortBuilders.fieldSort(srt);
+
+        // Sort
+        String srt = searchRequest.getSort();
+        SortBuilder<?> sort;
+        if (srt == null)
+            sort = SortBuilders.scoreSort();
+        else {
+            String[] srtParams = srt.split("\\.");
+            sort = SortBuilders.fieldSort(srtParams[0]);
+            if (srtParams[1].equals("asc"))
+                sort.order(SortOrder.ASC);
+            else
+                sort.order(SortOrder.DESC);
+        }
+
+        // Page
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
+
+        // Run search
         SearchHits<Paper> baseHits = searchService.smartSearch(keywords, filter, sort, page);
+
+        // Set items & statistics
         smartPage.setHits(baseHits);
         smartPage.setTotalHits(baseHits.getTotalHits());
         int pageSize = searchRequest.getSize();
@@ -126,6 +164,7 @@ public class SearchController {
         int pageNum = searchRequest.getPage();
         smartPage.setPage(Math.min(pageNum, totalPages - 1));
 
+        // Detect recommendations
         if (searchRequest.getPage() == 0) {
             // Search for researchers
             SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
@@ -151,7 +190,7 @@ public class SearchController {
                 return result.withData(smartPage);
             }
 
-            // Search for journals
+            // Search for institutions
             SearchPage<Institution> institutionsByName = institutionRepository.findByNameLike(keyword, PageRequest.of(0, 6));
             if (institutionsByName.getSearchHits().getMaxScore() >= baseScore * 0.75) {
                 smartPage.setDetection("institution");
