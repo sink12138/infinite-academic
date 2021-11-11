@@ -2,20 +2,17 @@ package com.buaa.academic.search.service.impl;
 
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.search.service.SearchService;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,25 +28,39 @@ public class SearchServiceImpl implements SearchService {
     private String postTag;
 
     @Override
-    public SearchHits<Paper> smartSearchForPapers(String keyword, Pageable pageable) {
-        Query query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.boolQuery()
-                        .should(QueryBuilders.matchQuery("title", keyword))
-                        .should(QueryBuilders.matchQuery("keywords", keyword))
-                        .should(QueryBuilders.matchQuery("abstract", keyword))
-                        .should(QueryBuilders.termQuery("authors.name", keyword)))
-                .withPageable(pageable)
-                // .withSort(SortBuilders.fieldSort("year").order(SortOrder.DESC))
-                .withHighlightBuilder(new HighlightBuilder()
-                        .field("title")
-                        .field("keywords")
-                        .field("abstract")
-                        .field("authors.name")
-                        .preTags(preTag)
-                        .postTags(postTag))
-                .withTrackTotalHits(true)
-                .build();
-        return template.search(query, Paper.class);
+    public <T> SearchHits<T> advancedSearch(Class<T> target, QueryBuilder query, QueryBuilder filter, SortBuilder<?> sort, HighlightBuilder hlt, Pageable page) {
+        return template.search(
+                new NativeSearchQueryBuilder()
+                        .withQuery(query)
+                        .withFilter(filter)
+                        .withSort(sort)
+                        .withHighlightBuilder(hlt)
+                        .withPageable(page)
+                        .build(),
+                target);
+    }
+
+    @Override
+    public SearchHits<Paper> smartSearch(String[] keywords, QueryBuilder filter, SortBuilder<?> sort, Pageable page) {
+        QueryBuilder query;
+        String[] matchFields = new String[] { "title", "keywords", "abstract", "authors.name" };
+        String[] hltFields = new String[] { "title", "keywords", "abstract" };
+        if (keywords.length > 1) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            for (String keyword : keywords) {
+                boolQuery.should(QueryBuilders.multiMatchQuery(keyword, matchFields));
+            }
+            query = boolQuery;
+        }
+        else {
+            query = QueryBuilders.multiMatchQuery(keywords[0], matchFields);
+        }
+        HighlightBuilder hlt = new HighlightBuilder();
+        for (String field : hltFields) {
+            hlt.field(field);
+        }
+        hlt.preTags(preTag).postTags(postTag);
+        return advancedSearch(Paper.class, query, filter, sort, hlt, page);
     }
 
 }

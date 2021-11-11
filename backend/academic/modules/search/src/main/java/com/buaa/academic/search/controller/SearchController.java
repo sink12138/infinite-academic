@@ -1,20 +1,30 @@
 package com.buaa.academic.search.controller;
 
+import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.document.entity.item.PaperItem;
 import com.buaa.academic.document.entity.item.ResearcherItem;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.search.dao.ResearcherRepository;
+import com.buaa.academic.search.model.request.Filter;
 import com.buaa.academic.search.model.request.SearchRequest;
 import com.buaa.academic.search.model.request.SmartSearchRequest;
 import com.buaa.academic.search.model.response.HitPage;
 import com.buaa.academic.search.model.response.SmartPage;
+import com.buaa.academic.search.service.SearchService;
+import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.validator.AllowValues;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Validated
@@ -36,7 +48,10 @@ import java.util.List;
 public class SearchController {
 
     @Autowired
-    ResearcherRepository researcherRepository;
+    private SearchService searchService;
+
+    @Autowired
+    private ResearcherRepository researcherRepository;
 
     @PostMapping("/")
     @ApiOperation(
@@ -57,19 +72,63 @@ public class SearchController {
                     "如果在其他实体上出现了精准的命中（例如学者、机构、期刊的名字），会将推荐信息一并返回。</br>" +
                     "返回值包括论文检索结果和可能的推荐信息。")
     public Result<SmartPage> smartSearch(@RequestBody @Valid SmartSearchRequest searchRequest) {
+        long start = System.currentTimeMillis();
+        Result<SmartPage> result = new Result<>();
         SmartPage smartPage = new SmartPage();
         String keyword = searchRequest.getKeyword().trim().replaceAll("\\s+", " ");
         if (keyword.length() > 32)
             keyword = keyword.substring(0, 32);
-        // TODO: 2021/11/6 smartPage.withHits()
-        SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
-        if (!researchersByName.isEmpty()) {
-            smartPage.setDetection("researcher");
-            List<ResearcherItem> researchers = new ArrayList<>();
-            researchersByName.forEach(item -> researchers.add(item.getContent().reduce()));
-            smartPage.setRecommendation(researchers);
+        List<Filter> filters = searchRequest.getFilters();
+        String srt = searchRequest.getSort();
+        // TODO: 2021/11/11 Param checks for conditions and filters
+
+        // Search for base items (papers)
+        String[] keywords;
+        if (searchRequest.isTranslated()) {
+            Set<String> keySet = new HashSet<>();
+            keySet.add(keyword);
+            keySet.add(Translator.translate(keyword, "auto", "zh"));
+            keySet.add(Translator.translate(keyword, "auto", "en"));
+            keywords = keySet.toArray(new String[0]);
         }
-        return new Result<>();
+        else {
+            keywords = new String[] { keyword };
+        }
+        BoolQueryBuilder filter = null;
+        if (!filters.isEmpty()) {
+            filter = QueryBuilders.boolQuery();
+            for (Filter flt : filters) {
+                filter.must(flt.compile());
+            }
+        }
+        SortBuilder<?> sort = srt == null ? SortBuilders.scoreSort() : SortBuilders.fieldSort(srt);
+        Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
+        SearchHits<Paper> baseHits = searchService.smartSearch(keywords, filter, sort, page);
+        smartPage.setHits(baseHits);
+        smartPage.setTotalHits(baseHits.getTotalHits());
+        int pageSize = searchRequest.getSize();
+        long totalHits = baseHits.getTotalHits();
+        int totalPages = (int) ((totalHits + pageSize - 1) / pageSize);
+        smartPage.setTotalPages(totalPages);
+        smartPage.setSize(baseHits.getSearchHits().size());
+        int pageNum = searchRequest.getPage();
+        smartPage.setPage(Math.min(pageNum, totalPages - 1));
+
+        if (searchRequest.getPage() == 0) {
+            // Search for researchers
+            SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
+            if (!researchersByName.isEmpty()) {
+                smartPage.setDetection("researcher");
+                List<ResearcherItem> researchers = new ArrayList<>();
+                researchersByName.forEach(item -> researchers.add(item.getContent().reduce()));
+                smartPage.setRecommendation(researchers);
+                smartPage.setTimeCost(System.currentTimeMillis() - start);
+                return result.withData(smartPage);
+            }
+            // TODO: 2021/11/11 Search for other entities
+        }
+        smartPage.setTimeCost(System.currentTimeMillis() - start);
+        return result.withData(smartPage);
     }
 
     @PostMapping("/paper")

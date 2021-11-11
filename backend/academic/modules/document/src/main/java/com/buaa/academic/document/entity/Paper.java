@@ -178,7 +178,7 @@ public class Paper implements Reducible<PaperItem> {
     public PaperItem reduce() {
         PaperItem hit = new PaperItem();
         hit.setId(id);
-        hit.setTitle(title);
+        hit.setTitle(title.length() > 32 ? title.substring(0, 32) + "..." : title);
         hit.setType(type);
         List<PaperItem.Author> hitAuthors = new ArrayList<>();
         authors.forEach(author -> hitAuthors.add(new PaperItem.Author(author.id, author.name)));

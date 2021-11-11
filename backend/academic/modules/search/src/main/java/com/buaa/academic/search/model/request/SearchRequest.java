@@ -28,7 +28,7 @@ public class SearchRequest {
 
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件")
-    private List<@SearchFilter Filter> filter;
+    private List<@SearchFilter Filter> filters;
 
     @Range(min = 0)
     @ApiModelProperty(value = "查询的页码，从0开始", required = true, example = "2")
@@ -41,6 +41,7 @@ public class SearchRequest {
     @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "year")
     private String sort;
 
+    @Deprecated
     @ApiModelProperty(value = "是否需要搜索结果高亮", example = "true")
     private boolean highlight;
 

@@ -1,5 +1,6 @@
 package com.buaa.academic.search.model.request;
 
+import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.validator.AllowValues;
 import com.buaa.academic.search.validator.SearchCondition;
 import io.swagger.annotations.ApiModel;
@@ -7,9 +8,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +52,57 @@ public class Condition {
     private List<Condition> subConditions;
 
     public QueryBuilder compile() {
-        return null;
+        if (compound) {
+            BoolQueryBuilder builder = QueryBuilders.boolQuery();
+            for (Condition subCond : subConditions) {
+                switch (subCond.logic) {
+                    case "and" -> builder.must(subCond.compile());
+                    case "or" -> builder.should(subCond.compile());
+                    case "not" -> builder.mustNot(subCond.compile());
+                }
+            }
+            return builder;
+        }
+        else {
+            String[] fields = scope.toArray(new String[0]);
+            if (translated) {
+                Set<String> keywords = new HashSet<>();
+                keywords.add(keyword);
+                for (String lang : languages) {
+                    keywords.add(Translator.translate(keyword, "auto", lang));
+                }
+                BoolQueryBuilder builder = QueryBuilders.boolQuery();
+                if (fuzzy) {
+                    for (String key : keywords) {
+                        builder.should(QueryBuilders.multiMatchQuery(key, fields));
+                    }
+                }
+                else {
+                    String[] keyArr = keywords.toArray(new String[0]);
+                    for (String field : fields) {
+                        builder.should(QueryBuilders.termsQuery(field, keyArr));
+                    }
+                }
+                return builder;
+            }
+            else {
+                if (fuzzy) {
+                    return QueryBuilders.multiMatchQuery(keyword, fields);
+                }
+                else {
+                    BoolQueryBuilder builder = QueryBuilders.boolQuery();
+                    if (fields.length > 1) {
+                        for (String field : fields) {
+                            builder.should(QueryBuilders.termQuery(field, keyword));
+                        }
+                        return builder;
+                    }
+                    else {
+                        return QueryBuilders.termQuery(fields[0], keyword);
+                    }
+                }
+            }
+        }
     }
 
 }

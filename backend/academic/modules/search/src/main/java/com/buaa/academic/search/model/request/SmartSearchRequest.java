@@ -33,7 +33,7 @@ public class SmartSearchRequest {
 
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件")
-    private List<@SearchFilter Filter> filter;
+    private List<@SearchFilter Filter> filters;
 
     @PositiveOrZero
     @ApiModelProperty(value = "查询页码，从0开始（页码大于0时，只会返回基准实体）", required = true, example = "0", allowableValues = "range[1,25]")
