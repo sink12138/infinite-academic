@@ -3,34 +3,6 @@
     <navigation></navigation>
     <div class="big_font">Infinite Acadmic</div>
     <search-bar class="ma-auto"></search-bar>
-    <v-menu
-      :close-on-content-click="false"
-      :nudge-width="200"
-      offset-y
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          v-bind="attrs"
-          v-on="on"
-        >
-          Citation
-          <v-icon>mdi-comma</v-icon>
-        </v-btn>
-      </template>
-      <v-card>
-        <v-card-title>
-          123
-        </v-card-title>
-        <v-card-text>
-          ...TEXT...
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn>Cancel</v-btn>
-          <v-btn>Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
   </div>
 </template>
 
