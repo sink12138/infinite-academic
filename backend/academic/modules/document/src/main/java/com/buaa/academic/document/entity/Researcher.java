@@ -86,14 +86,14 @@ public class Researcher implements Reducible<ResearcherItem> {
 
     @Override
     public ResearcherItem reduce() {
-        ResearcherItem hit = new ResearcherItem();
-        hit.setId(id);
-        hit.setName(name);
-        hit.setInstitution(new ResearcherItem.Institution(currentInst.id, currentInst.name));
-        hit.setPosition(position);
-        hit.setInterests(interests);
-        hit.setPaperNum(paperNum);
-        hit.setPatentNum(patentNum);
-        return hit;
+        ResearcherItem item = new ResearcherItem();
+        item.setId(id);
+        item.setName(name);
+        item.setInstitution(new ResearcherItem.Institution(currentInst.id, currentInst.name));
+        item.setPosition(position);
+        item.setInterests(interests);
+        item.setPaperNum(paperNum);
+        item.setPatentNum(patentNum);
+        return item;
     }
 }

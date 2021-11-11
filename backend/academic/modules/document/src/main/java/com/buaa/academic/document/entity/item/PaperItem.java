@@ -6,8 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
 
@@ -64,7 +62,6 @@ public class PaperItem {
 
     }
 
-    @Field(type = FieldType.Object)
     @ApiModelProperty(value = "论文的所属期刊信息")
     private Journal journal;
 

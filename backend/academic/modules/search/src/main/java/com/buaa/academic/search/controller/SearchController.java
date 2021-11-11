@@ -1,10 +1,16 @@
 package com.buaa.academic.search.controller;
 
+import com.buaa.academic.document.entity.Institution;
+import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.entity.item.InstitutionItem;
+import com.buaa.academic.document.entity.item.JournalItem;
 import com.buaa.academic.document.entity.item.PaperItem;
 import com.buaa.academic.document.entity.item.ResearcherItem;
 import com.buaa.academic.model.web.Result;
+import com.buaa.academic.search.dao.InstitutionRepository;
+import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.ResearcherRepository;
 import com.buaa.academic.search.model.request.Filter;
 import com.buaa.academic.search.model.request.SearchRequest;
@@ -53,6 +59,12 @@ public class SearchController {
     @Autowired
     private ResearcherRepository researcherRepository;
 
+    @Autowired
+    private JournalRepository journalRepository;
+
+    @Autowired
+    private InstitutionRepository institutionRepository;
+
     @PostMapping("/")
     @ApiOperation(
             value = "检索总入口",
@@ -85,7 +97,7 @@ public class SearchController {
         // Search for base items (papers)
         String[] keywords;
         if (searchRequest.isTranslated()) {
-            Set<String> keySet = new HashSet<>();
+            Set<String> keySet = new HashSet<>(6);
             keySet.add(keyword);
             keySet.add(Translator.translate(keyword, "auto", "zh"));
             keySet.add(Translator.translate(keyword, "auto", "en"));
@@ -125,7 +137,30 @@ public class SearchController {
                 smartPage.setTimeCost(System.currentTimeMillis() - start);
                 return result.withData(smartPage);
             }
-            // TODO: 2021/11/11 Search for other entities
+
+            float baseScore = baseHits.getMaxScore();
+
+            // Search for journals
+            SearchPage<Journal> journalsByTitle = journalRepository.findByTitleLike(keyword, PageRequest.of(0, 6));
+            if (journalsByTitle.getSearchHits().getMaxScore() >= baseScore * 0.75) {
+                smartPage.setDetection("journal");
+                List<JournalItem> journals = new ArrayList<>();
+                journalsByTitle.forEach(item -> journals.add(item.getContent().reduce()));
+                smartPage.setRecommendation(journals);
+                smartPage.setTimeCost(System.currentTimeMillis() - start);
+                return result.withData(smartPage);
+            }
+
+            // Search for journals
+            SearchPage<Institution> institutionsByName = institutionRepository.findByNameLike(keyword, PageRequest.of(0, 6));
+            if (institutionsByName.getSearchHits().getMaxScore() >= baseScore * 0.75) {
+                smartPage.setDetection("institution");
+                List<InstitutionItem> institutions = new ArrayList<>();
+                institutionsByName.forEach(item -> institutions.add(item.getContent().reduce()));
+                smartPage.setRecommendation(institutions);
+                smartPage.setTimeCost(System.currentTimeMillis() - start);
+                return result.withData(smartPage);
+            }
         }
         smartPage.setTimeCost(System.currentTimeMillis() - start);
         return result.withData(smartPage);

@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.buaa.academic.document.entity.item.JournalItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @ApiModel(description = "学术期刊实体")
 @Document(indexName = "journal")
-public class Journal {
+public class Journal implements Reducible<JournalItem> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -38,4 +39,12 @@ public class Journal {
     @ApiModelProperty(value = "期刊的ISSN编号", example = "1002-8331")
     private String issn;
 
+    @Override
+    public JournalItem reduce() {
+        JournalItem item = new JournalItem();
+        item.setId(id);
+        item.setTitle(title.length() > 24 ? title.substring(0, 24) + "..." : title);
+        item.setSponsor(sponsor.length() > 16 ? sponsor.substring(0, 16) + "..." : sponsor);
+        return item;
+    }
 }

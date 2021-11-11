@@ -5,8 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.List;
 
@@ -28,11 +26,9 @@ public class ResearcherItem {
     @ApiModel("ResearcherHit$Institution")
     public static class Institution {
 
-        @Field(type = FieldType.Keyword)
         @ApiModelProperty(value = "所属机构的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
-        @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
         @ApiModelProperty(required = true, value = "机构的名称", example = "北京航空航天大学软件学院")
         private String name;
 
@@ -50,7 +46,6 @@ public class ResearcherItem {
     @ApiModelProperty(value = "科研人员发表的文章数量", example = "114514")
     private int paperNum = 0;
 
-    @Field(type = FieldType.Integer)
     @ApiModelProperty(value = "科研人员发明的专利数量", example = "1919810")
     private int patentNum = 0;
 
