@@ -35,8 +35,7 @@ public class AccountController {
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
                                  @RequestParam(value = "username") @NotNull @Length(max = 10) String username,
-                                 @RequestParam(value = "password") @Length(min = 6, max = 20) @NotNull
-                                 @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]+)(?=.*[a-z]+).*$") String password) {
+                                 @RequestParam(value = "password") @Length(min = 6, max = 20) @NotNull String password) {
         User original_user = accountRepository.findUserByEmail(email);
         if (original_user != null && original_user.isVerified()) {
             return new Result<Void>().withFailure("该邮箱已注册");
@@ -118,8 +117,7 @@ public class AccountController {
     @PostMapping("/profile/modify/info")
     public Result<Void> modifyInfo( @RequestHeader(value = "Role-ID") @NotNull String userId,
                                     @RequestParam(value = "username") @NotNull String username,
-                                    @RequestParam(value = "password")  @Length(min = 6, max = 20)
-                                    @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]+)(?=.*[a-z]+).*$") String password) {
+                                    @RequestParam(value = "password")  @Length(min = 6, max = 20) String password) {
         User user = accountRepository.findUserById(userId);
         user.setUsername(username);
         user.setPassword(password);
@@ -156,8 +154,7 @@ public class AccountController {
     @ApiOperation(value = "找回密码设置新密码", notes = "用户输入新密码和验证码")
     @PostMapping("/forget/submit")
     public Result<Void> forgetSubmit(@RequestParam(value = "code") String code,
-                                     @RequestParam(value = "newPassword") @Length(min = 6, max = 20)
-                                     @Pattern(regexp = "^.*(?=.{6,16})(?=.*\\d)(?=.*[A-Z]+)(?=.*[a-z]+).*$") String newPassword) {
+                                     @RequestParam(value = "newPassword") @Length(min = 6, max = 20) String newPassword) {
         UserToVerify userToVerify = accountService.getUserToVerifyByCode(code);
         if (userToVerify == null) {
             return new Result<Void>().withFailure("验证码已失效");
