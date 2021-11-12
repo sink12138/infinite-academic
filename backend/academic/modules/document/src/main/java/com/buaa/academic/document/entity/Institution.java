@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.buaa.academic.document.entity.item.InstitutionItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @ApiModel(description = "科研机构实体")
 @Document(indexName = "institution")
-public class Institution {
+public class Institution implements Reducible<InstitutionItem> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -26,4 +27,11 @@ public class Institution {
     @ApiModelProperty(value = "科研机构的名称", required = true, example = "北京航空航天大学软件学院")
     private String name;
 
+    @Override
+    public InstitutionItem reduce() {
+        InstitutionItem item = new InstitutionItem();
+        item.setId(id);
+        item.setName(name);
+        return item;
+    }
 }

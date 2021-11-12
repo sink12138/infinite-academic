@@ -66,7 +66,7 @@ public class Condition {
         else {
             String[] fields = scope.toArray(new String[0]);
             if (translated) {
-                Set<String> keywords = new HashSet<>();
+                Set<String> keywords = new HashSet<>(6);
                 keywords.add(keyword);
                 for (String lang : languages) {
                     keywords.add(Translator.translate(keyword, "auto", lang));

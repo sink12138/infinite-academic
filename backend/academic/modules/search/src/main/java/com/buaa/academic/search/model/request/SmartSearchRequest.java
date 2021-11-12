@@ -43,10 +43,11 @@ public class SmartSearchRequest {
     @ApiModelProperty(value = "每页显示的条目数量，最多25", required = true, example = "20")
     private int size;
 
-    @AllowValues({"year", })
+    @AllowValues({"date.asc", "date.desc", "citationNum.desc"})
     @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "year")
     private String sort;
 
+    @Deprecated
     @ApiModelProperty(value = "是否需要搜索结果高亮（匹配部分添加b标签）", example = "true")
     private boolean highlight;
 
