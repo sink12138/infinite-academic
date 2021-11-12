@@ -1,0 +1,62 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: client-account
+  jackson:
+    default-property-inclusion: non_null
+  redis:
+    password: 114514
+    timeout: 5000
+    cluster:
+      nodes:
+        - 192.168.0.228:7001
+        - 192.168.0.228:7002
+        - 192.168.0.228:7003
+        - 192.168.0.239:7001
+        - 192.168.0.239:7002
+        - 192.168.0.239:7003
+      max-redirects: 3
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 2
+  elasticsearch:
+    rest:
+      username: elastic
+      password: 114514
+      uris: http://192.168.0.239:9200
+  mail:
+    host: smtp.163.com
+    username: ruangong202105@163.com
+    password: NYTIRYOWHUTHAPIS
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+        debug: false
+    protocol: smtp
+    port: 587
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:114514@192.168.0.228:8100/eureka/
+
+knife4j:
+  basic:
+    enable: true
+    username: knife4j
+    password: 114514
+  enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn

@@ -77,9 +77,6 @@ public class AccountServiceImpl implements AccountService {
     @Value("${spring.mail.username}")
     private String FROM_ADDRESS;
 
-    @Value("${settings.test.host}")
-    private String IP_ADDRESS;
-
     private class VerifyEmailThread implements Runnable {
         String userId;
         String email;
@@ -119,7 +116,7 @@ public class AccountServiceImpl implements AccountService {
                 context.setVariable("createTime", simpleDateFormat.format(date));
 
                 // set check link
-                String checkLink = "http://" + IP_ADDRESS + ":8090/account/verify?code=" + code;
+                String checkLink = "http://121.36.98.60:8090/account/verify?code=" + code;
                 context.setVariable("checkLink", checkLink);
                 String process = templateEngine.process("CheckEmail.html", context);
 
