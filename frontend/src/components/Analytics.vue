@@ -12,7 +12,7 @@
       </v-tabs>
       </div>
       
-      <div id="main" style="width: 800px;height:600px;"></div>
+      <div id="main" style="width: 800px;height:600px; margin:0 auto;"></div>
     </div>
  
 </template>
