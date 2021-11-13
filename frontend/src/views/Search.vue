@@ -1,21 +1,21 @@
 <template>
   <div>
     <h1>Search</h1>
-    <go-back></go-back>
+    <BaseGoBack></BaseGoBack>
     <div>
-      <search-filter></search-filter>
+      <BaseFilter></BaseFilter>
     </div>
   </div>
 </template>
 
 <script>
-import GoBack from '../components/GoBack.vue'
-import Filter from '../components/Filter.vue'
+import BaseFilter from '../components/BaseFilter.vue'
+import BaseGoBack from '../components/BaseGoBack.vue'
 
 export default {
   components: {
-    'go-back': GoBack,
-    'search-filter': Filter 
+    BaseGoBack,
+    BaseFilter 
   },
 }
 </script>

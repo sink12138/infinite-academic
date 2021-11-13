@@ -1,6 +1,6 @@
 <template>
   <v-card class="d-inline-flex align-center">
-    <go-back class="ml-6"></go-back>
+    <BaseGoBack class="ml-6"></BaseGoBack>
     <div class="ma-auto d-inline-flex">
       <v-icon 
         class="ml-5 text-h2"
@@ -16,11 +16,11 @@
 </template>
 
 <script>
-import GoBack from '../components/GoBack.vue'
+import BaseGoBack from '../components/BaseGoBack.vue'
 
 export default {
-  components: { 
-    'go-back': GoBack,
+  components: {
+    BaseGoBack,
   },
 }
 </script>

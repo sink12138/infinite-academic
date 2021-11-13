@@ -1,18 +1,18 @@
 <template>
   <div class="d-flex flex-column">
-    <home-navigation></home-navigation>
+    <BaseNavigation></BaseNavigation>
     <div class="big_font">Infinite Acadmic</div>
-    <search-bar class="ma-auto"></search-bar>
+    <BaseSearchBar class="ma-auto"></BaseSearchBar>
   </div>
 </template>
 
 <script>
-import SearchBar from '../components/SearchBar.vue'
-import Navigation from '../components/Navigation.vue'
+import BaseSearchBar from '../components/BaseSearchBar.vue'
+import BaseNavigation from '../components/BaseNavigation.vue'
 export default {
   components: {
-    'search-bar': SearchBar,
-    'home-navigation': Navigation
+    BaseSearchBar,
+    BaseNavigation
   },
   data:() =>  ({
     expand: false
