@@ -26,8 +26,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn>Cancel</v-btn>
-          <v-btn>Save</v-btn>
+          <v-btn @click="citationCopy">Copy</v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -37,9 +36,28 @@
 <script>
 export default {
   data:() =>  ({
-    expand: false
+    expand: false,
+    citationList: 'hello'
   }),
   methods: {
+    citationCopy() {
+      this.$copyText(this.citationList)
+      .then(
+        function(e) {
+          console.log(e);
+          this.$notify({
+            title: 'hello',
+            message: 'test message',
+            type: 'success'
+          });
+        }
+      )
+      this.$notify({
+        title: 'hello',
+        message: 'test message',
+        type: 'success'
+      });
+    },
     onClickOutside() {
       this.expand = false;
     }

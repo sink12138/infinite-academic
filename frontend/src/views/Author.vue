@@ -1,17 +1,17 @@
 <template>
   <div>
     <h1>Author</h1>
-    <go-back></go-back>
     <Analytics></Analytics>
+    <BaseGoBack></BaseGoBack>
   </div>
 </template>
 
 <script>
-import GoBack from '../components/GoBack.vue';
+import BaseGoBack from '../components/GoBack.vue';
 import Analytics from "../components/Analytics.vue";
 export default {
     name: "Income",
-    components: {Analytics,GoBack},
+    components: {Analytics,BaseGoBack},
     data() {
         return {
         }

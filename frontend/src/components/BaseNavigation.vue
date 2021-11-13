@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import Citation from '../components/Citation.vue'
+import Citation from './BaseCitation.vue'
 
 export default {
   components: {
