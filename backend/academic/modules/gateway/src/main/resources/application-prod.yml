@@ -42,7 +42,7 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOrigins:
-              - http://10.135.37.106
+              - http://121.36.98.60
             allowedHeaders: "*"
             allowCredentials: true
             allowedMethods:
