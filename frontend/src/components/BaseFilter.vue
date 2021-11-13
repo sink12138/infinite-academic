@@ -1,5 +1,5 @@
 <template>
-  <div style="overflow-y:scroll;overflow-x:hidden;height:80%;width:33%;">
+  <div style="overflow-y:scroll;overflow-x:hidden;height:80%;width:30%;">
     <div class="title">Filter</div>
     <div class="line"></div>
     <div>
@@ -123,7 +123,7 @@ export default {
 .line {
   margin-left: 15px;
   position: relative;
-  width: 300px;
+  width: 85%;
   height: 1px;
   background-color: #d4d4d4;
   text-align: center;

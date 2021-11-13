@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import BaseGoBack from '../components/GoBack.vue';
+import BaseGoBack from '../components/BaseGoBack.vue';
 import Analytics from "../components/Analytics.vue";
 export default {
     name: "Income",
