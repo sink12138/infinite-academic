@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 
 @Component
@@ -45,7 +46,9 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
         HttpCookie cookie = request.getCookies().getFirst("TOKEN");
         String token = cookie == null ? null : cookie.getValue();
         Authority authority = token == null ? null : redisTemplate.opsForValue().get(token);
-        if (authority == null)
+        if (authority != null)
+            redisTemplate.expire(token, Duration.ofDays(1));
+        else
             authority = new Authority();
         String headerId;
         try {

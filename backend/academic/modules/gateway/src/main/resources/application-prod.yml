@@ -43,6 +43,7 @@ spring:
           '[/**]':
             allowedOrigins:
               - http://121.36.98.60
+              - http://106.*.*.*
             allowedHeaders: "*"
             allowCredentials: true
             allowedMethods:
