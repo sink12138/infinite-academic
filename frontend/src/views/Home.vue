@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-column">
-    <navigation></navigation>
+    <home-navigation></home-navigation>
     <div class="big_font">Infinite Acadmic</div>
     <search-bar class="ma-auto"></search-bar>
   </div>
@@ -11,8 +11,8 @@ import SearchBar from '../components/SearchBar.vue'
 import Navigation from '../components/Navigation.vue'
 export default {
   components: {
-    SearchBar,
-    Navigation
+    'search-bar': SearchBar,
+    'home-navigation': Navigation
   },
   data:() =>  ({
     expand: false

@@ -3,7 +3,7 @@
     <h1>Search</h1>
     <go-back></go-back>
     <div>
-        <filter></filter>
+      <search-filter></search-filter>
     </div>
   </div>
 </template>
@@ -13,7 +13,10 @@ import GoBack from '../components/GoBack.vue'
 import Filter from '../components/Filter.vue'
 
 export default {
-  components: { GoBack,Filter },
+  components: {
+    'go-back': GoBack,
+    'search-filter': Filter 
+  },
 }
 </script>
 

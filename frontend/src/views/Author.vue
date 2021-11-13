@@ -9,7 +9,9 @@
 import GoBack from '../components/GoBack.vue'
 
 export default {
-  components: { GoBack },
+  components: { 
+    'go-back': GoBack,
+  },
 }
 </script>
 
