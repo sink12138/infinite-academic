@@ -6,7 +6,6 @@ import vuetify from './plugins/vuetify'
 import './plugins/index'
 
 import './assets/style/main.css'
-import './plugins/element';
 
 Vue.config.productionTip = false
 

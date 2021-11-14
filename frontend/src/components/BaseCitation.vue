@@ -26,7 +26,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="citationCopy">Copy</v-btn>
+          <v-btn 
+            @click="citationCopy"
+          >
+            Copy
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-menu>
