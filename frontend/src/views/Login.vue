@@ -1,5 +1,5 @@
 <template>
-<h2>登录账号</h2>
+<h2>账号</h2>
     <div class="login">
         <v-container  class="loginOverlay">
           <v-layout  align-center justify-center>
