@@ -12,33 +12,44 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
+            height: 100%;
             background-color: #ECECEC;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            width: 800px;
-            margin: 50px auto;
+            width: 550px;
+            margin: auto;
         }
 
         .header {
-            height: 80px;
-            background-color: #e30000;
+            height: 110px;
+            text-align: center;
+            background-color: #204969;
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
-            padding-left: 30px;
+            padding-top: 25px;
         }
 
         .header h2 {
-            padding-top: 25px;
             color: white;
         }
 
         .content {
-            background-color: #fff;
-            padding-left: 30px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid #ccc;
+            text-align: center;
+            background-color: #FFFFFF;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding-top: 20px;
+            padding-bottom: 40px;
         }
 
         .content h2 {
@@ -50,48 +61,36 @@
             padding-top: 10px;
         }
 
-        .subtitle {
-            margin-top: -14px;
-            padding-left: 60px;
-        }
-
         .error {
-            width: 15px;
-            height: 15px;
-            position: relative;
-            margin: auto auto auto 24px;
-            vertical-align: middle;
-        }
-
-        .error:before,
-        .error:after {
-            content: "";
-            position: absolute;
-            height: 48px;
-            width: 7px;
-            top: 12px;
-            right: 15px;
-            background: #e30000;
-        }
-
-        .error:before {
-            transform: rotate(45deg);
-        }
-
-        .error:after {
-            transform: rotate(-45deg);
+            fill: red;
         }
 
         .footer {
-            background-color: #fff;
+            background-color: #204969;
             border-bottom-left-radius: 5px;
             border-bottom-right-radius: 5px;
-            padding: 35px;
+            padding-top: 20px;
+            padding-left: 20px;
+            font-size: 14px;
         }
 
         .footer p {
-            color: #747474;
+            color: #fff;
+            padding: 2px;
+        }
+
+        .info  {
+            color: #fff;
             padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: center;
+            font-family: 'Calisto MT';
+            font-size: 14px;
+        }
+
+        .my_font {
+            font-family: 'Calisto MT';
+            font-size: 56px;
         }
     </style>
 </head>
@@ -99,22 +98,23 @@
 <body>
 <div class="container">
     <div class="header">
-        <h2>问卷星球 邮箱验证</h2>
+        <h2 class="my_font">Infinite Academic</h2>
     </div>
     <div class="content">
-        <p></p>
-        <div class="error"></div>
+        <svg class="error" t="1636823452931" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5749" width="128" height="128"><path d="M196.363 827.395c-174.174-174.174-174.174-456.566 0-630.74 174.173-174.173 456.565-174.173 630.739 0 174.174 174.174 174.174 456.566 0 630.74-174.174 174.174-456.566 174.174-630.74 0zM554.73 512.304l166.877-166.878L679.181 303 512.304 469.877 345.426 303 303 345.426l166.877 166.878L303 679.18l42.426 42.426L512.304 554.73 679.18 721.607l42.426-42.426L554.73 512.304z" p-id="5750"></path></svg>
         <div class="subtitle">
             <h2>很抱歉，该验证链接已失效。</h2>
         </div>
-        <p><b>该链接可能已被使用或已超时。若您还未完成邮箱验证，请重新申请注册或更改邮箱。</b></p>
-        <p></p>
+        <p>该链接可能已被使用或已超时。</p>
+        <p>若您还未完成邮箱验证，请重新申请注册或更改邮箱。</p>
         <p>当您在使用本网站时，务必要遵守法律法规</p>
-        <p>如果您有什么疑问可以联系管理员，Email: <b>3488997405@qq.com</b></p>
     </div>
-    <div class="footer">
-        <p>请保管好您的信息，避免被他人盗用</p>
-        <p>©Questionnaire Planet 问卷星球</p>
+    <div class="footer" >
+        <p>此为系统邮件，请勿回复</p>
+        <p>如果您有什么疑问可以联系管理员，Email: <b>3488997405@qq.com</b></p>
+        <div class="info">
+            ©Infinite Academic
+        </div>
     </div>
 </div>
 </body>
