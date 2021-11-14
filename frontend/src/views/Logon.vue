@@ -1,5 +1,6 @@
 <template>
-<h2>注册账号</h2>
+<div>
+  <h2>注册账号</h2>
     <div class="logon">
         <v-container  class="loginOverlay">
           <v-layout  align-center justify-center>
@@ -61,4 +62,5 @@
       </template>
     </v-snackbar>
     </div>
+</div>
 </template>
