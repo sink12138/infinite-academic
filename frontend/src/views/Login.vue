@@ -1,7 +1,6 @@
 <template>
-<div>
-  <h2>账号</h2>
     <div class="login">
+      <h2>登录</h2>
         <v-container  class="loginOverlay">
           <v-layout  align-center justify-center>
             <v-flex xs12 sm8>
@@ -55,5 +54,4 @@
       </template>
     </v-snackbar>
     </div>
-</div>
 </template>
