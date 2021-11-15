@@ -46,7 +46,7 @@ knife4j:
   basic:
     enable: true
     username: knife4j
-    password: 114514
+    password: knife4j-academic-2021
   enable: true
 
 logging:
