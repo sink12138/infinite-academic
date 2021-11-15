@@ -30,6 +30,8 @@ spring:
       username: elastic
       password: 114514
       uris: http://${settings.${mode}.host}:9200
+  hadoop:
+    fsUri: hdfs://localhost:9300
 
 eureka:
   server:
