@@ -2,15 +2,12 @@ server:
   port: 8090
 
 eureka:
-  server:
-    username: eureka
-    password: 114514
   instance:
     instance-id: ${spring.application.name}:${server.port}
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://${eureka.server.username}:${eureka.server.password}@localhost:8100/eureka/
+      defaultZone: http://eureka:eureka-academic-2021@localhost:8100/eureka/
 
 spring:
   application:
