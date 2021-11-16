@@ -50,7 +50,7 @@ public class Paper implements Reducible<PaperItem> {
         @ApiModelProperty(required = true, value = "作者姓名", example = "谭火彬")
         private String name;
 
-        @Field(type = FieldType.Integer)
+        @Field(type = FieldType.Integer, index = false)
         @ApiModelProperty(value = "作者所属机构的序号（从0开始），作为上标显示在作者名字之后")
         private List<Integer> instOrders;
 
@@ -135,19 +135,19 @@ public class Paper implements Reducible<PaperItem> {
         @ApiModelProperty(required = true, value = "期刊标题", example = "Science")
         private String title;
 
-        @Field(type = FieldType.Keyword)
+        @Field(type = FieldType.Keyword, index = false)
         @ApiModelProperty(value = "论文在期刊中的卷号", example = "43")
         private String volume;
 
-        @Field(type = FieldType.Keyword)
+        @Field(type = FieldType.Keyword, index = false)
         @ApiModelProperty(value = "论文在期刊中的期号", example = "02")
         private String issue;
 
-        @Field(type = FieldType.Integer)
+        @Field(type = FieldType.Integer, index = false)
         @ApiModelProperty(value = "论文在期刊中的起始页码", example = "114")
         private Integer startPage;
 
-        @Field(type = FieldType.Integer)
+        @Field(type = FieldType.Integer, index = false)
         @ApiModelProperty(value = "论文在期刊中的终止页码", example = "514")
         private Integer endPage;
 
@@ -161,17 +161,32 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(value = "论文的出版商", example = "Elsevier")
     private String publisher;
 
-    @Field(type = FieldType.Keyword, positionIncrementGap = 100)
     @JsonIgnore
+    @Field(type = FieldType.Keyword, positionIncrementGap = 100)
     private List<String> references;
 
-    @Field(type = FieldType.Keyword, positionIncrementGap = 100)
-    @ApiModelProperty(value = "论文的所有来源网页")
-    private List<String> urls;
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @ApiModel("Paper$Source")
+    public static class Source {
 
-    @Field(type = FieldType.Keyword)
+        @ApiModelProperty(value = "来源网站名称", example = "ResearchGate")
+        @Field(type = FieldType.Keyword)
+        private String website;
+
+        @ApiModelProperty(value = "来源网址", example = "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty")
+        @Field(type = FieldType.Keyword, index = false)
+        private String url;
+
+    }
+
+    @ApiModelProperty(value = "论文的所有来源")
+    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    private List<Source> sources;
+
     @JsonIgnore
-    @ApiModelProperty(value = "论文的源文件存储路径")
+    @Field(type = FieldType.Keyword, index = false)
     private String filePath;
 
     @Override

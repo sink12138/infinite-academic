@@ -1,5 +1,6 @@
 package com.buaa.academic.document.entity;
 
+import com.buaa.academic.document.entity.item.PatentItem;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "专利实体")
 @Document(indexName = "patent")
-public class Patent {
+public class Patent implements Reducible<PatentItem> {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -61,7 +62,7 @@ public class Patent {
     @ApiModelProperty(value = "申请人", example = "宏碁股份有限公司")
     private String applicant;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "地址", example = "中国台湾新北市汐止区新台五路一段88号8楼")
     private String address;
 
@@ -117,5 +118,18 @@ public class Patent {
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
     @ApiModelProperty(value = "主权项", example = "假装这是一大段主权项")
     private String claim;
+
+    @Override
+    public PatentItem reduce() {
+        PatentItem item = new PatentItem();
+        item.setId(id);
+        item.setTitle(title.length() > 32 ? title.substring(0, 32) + "..." : title);
+        item.setType(type);
+        item.setFilingDate(filingDate);
+        item.setPublicationDate(publicationDate);
+        item.setInventors(inventors);
+        item.setApplicant(applicant);
+        return item;
+    }
 
 }

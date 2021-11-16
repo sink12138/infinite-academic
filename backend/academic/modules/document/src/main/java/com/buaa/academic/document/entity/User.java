@@ -31,7 +31,7 @@ public class User {
     @ApiModelProperty(required = true, value = "用户名", example = "yq")
     private String username;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(required = true, value = "用户设置的密码", example = "114514")
     private String password;
 
@@ -39,7 +39,7 @@ public class User {
     @ApiModelProperty(value = "用户认证的研究人员ID（如果已认证）", example = "GF_4ynwBF-Mu8unTG1hc")
     private String researcherId;
 
-    @Field(type = FieldType.Keyword, nullValue = "false")
+    @Field(type = FieldType.Keyword, nullValue = "false", index = false)
     @JsonIgnore
     private boolean verified;
 
