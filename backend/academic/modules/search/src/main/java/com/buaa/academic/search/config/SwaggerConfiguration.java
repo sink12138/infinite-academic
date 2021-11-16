@@ -35,7 +35,7 @@ public class SwaggerConfiguration {
                 .title("搜索模块 - API文档")
                 .description("<div style='font-size:14px;'>实体类信息显示、批量查询、关联搜索</div>")
                 .contact(new Contact("yq", "", ""))
-                .termsOfServiceUrl("http://localhost:8091/")
+                .termsOfServiceUrl("http://120.46.154.200:8091/")
                 .version("1.0")
                 .build();
     }
