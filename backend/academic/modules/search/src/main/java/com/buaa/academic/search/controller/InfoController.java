@@ -11,14 +11,13 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
-@Controller
+@RestController
 @RequestMapping(path = "/info")
 @Validated
 @Api(tags = "实体详细信息")
@@ -26,20 +25,6 @@ public class InfoController {
 
     @Autowired
     private SearchService searchService;
-
-    @PostMapping("/test")
-    @ApiOperation(value = "测试接口", notes = "返回传入的相同字符串")
-    public Result<String> test(@RequestBody @Valid RequestModel<String> model) throws AcademicException {
-        Result<String> result = new Result<>();
-        String param = model.getData();
-        if (param.equals("Throw an exception")) {
-            throw new AcademicException(ExceptionType.INTERNAL_SERVER_ERROR);
-        }
-        else if (param.equals("Return a failure")) {
-            return result.withFailure(ExceptionType.INTERNAL_SERVER_ERROR);
-        }
-        return result.withData(param);
-    }
 
     @GetMapping("/paper/{id}")
     @ApiOperation(value = "学术论文详细信息", notes = "根据论文编号显示文章详细信息")
