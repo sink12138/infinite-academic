@@ -9,6 +9,8 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 
 public interface SearchService {
 
+    <T> T searchById(Class<T> type, String id);
+
     <T> SearchHits<T> advancedSearch(Class<T> target, QueryBuilder query, QueryBuilder filter, SortBuilder<?> sort, HighlightBuilder hlt, Pageable page);
 
     SearchHits<Paper> smartSearch(String[] keywords, QueryBuilder filter, SortBuilder<?> sort, Pageable page);
