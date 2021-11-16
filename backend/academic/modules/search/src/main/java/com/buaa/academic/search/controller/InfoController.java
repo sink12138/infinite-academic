@@ -1,20 +1,20 @@
 package com.buaa.academic.search.controller;
 
 import com.buaa.academic.document.entity.*;
-import com.buaa.academic.model.exception.AcademicException;
 import com.buaa.academic.model.exception.ExceptionType;
-import com.buaa.academic.model.web.RequestModel;
 import com.buaa.academic.model.web.Result;
-import com.buaa.academic.search.service.SearchService;
+import com.buaa.academic.search.service.InfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 @RestController
@@ -24,14 +24,14 @@ import javax.validation.constraints.NotBlank;
 public class InfoController {
 
     @Autowired
-    private SearchService searchService;
+    private InfoService infoService;
 
     @GetMapping("/paper/{id}")
     @ApiOperation(value = "学术论文详细信息", notes = "根据论文编号显示文章详细信息")
     @ApiImplicitParam(name = "id", value = "论文ID")
     public Result<Paper> paperInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Paper> result = new Result<>();
-        Paper paper = searchService.searchById(Paper.class, id);
+        Paper paper = infoService.findDocument(Paper.class, id);
         if (paper == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(paper);
@@ -42,7 +42,7 @@ public class InfoController {
     @ApiImplicitParam(name = "id", value = "科研人员ID")
     public Result<Researcher> researcherInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Researcher> result = new Result<>();
-        Researcher researcher = searchService.searchById(Researcher.class, id);
+        Researcher researcher = infoService.findDocument(Researcher.class, id);
         if (researcher == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(researcher);
@@ -53,7 +53,7 @@ public class InfoController {
     @ApiImplicitParam(name = "id", value = "期刊ID")
     public Result<Journal> journalInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Journal> result = new Result<>();
-        Journal journal = searchService.searchById(Journal.class, id);
+        Journal journal = infoService.findDocument(Journal.class, id);
         if (journal == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(journal);
@@ -64,7 +64,7 @@ public class InfoController {
     @ApiImplicitParam(name = "id", value = "机构ID")
     public Result<Institution> institutionInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Institution> result = new Result<>();
-        Institution institution = searchService.searchById(Institution.class, id);
+        Institution institution = infoService.findDocument(Institution.class, id);
         if (institution == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(institution);
@@ -75,7 +75,7 @@ public class InfoController {
     @ApiImplicitParam(name = "id", value = "专利ID")
     public Result<Patent> patentInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Patent> result = new Result<>();
-        Patent patent = searchService.searchById(Patent.class, id);
+        Patent patent = infoService.findDocument(Patent.class, id);
         if (patent == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(patent);
