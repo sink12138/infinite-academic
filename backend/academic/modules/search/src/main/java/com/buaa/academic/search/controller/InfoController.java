@@ -11,13 +11,15 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
-@RestController("/info")
+@Controller
+@RequestMapping(path = "/info")
 @Validated
 @Api(tags = "实体详细信息")
 public class InfoController {
@@ -84,8 +86,8 @@ public class InfoController {
     }
 
     @GetMapping("/patent/{id}")
-    @ApiOperation(value = "学术机构详细信息", notes = "根据机构编号显示机构详细信息")
-    @ApiImplicitParam(name = "id", value = "机构ID")
+    @ApiOperation(value = "专利详细信息", notes = "根据专利编号显示专利详细信息")
+    @ApiImplicitParam(name = "id", value = "专利ID")
     public Result<Patent> patentInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<Patent> result = new Result<>();
         Patent patent = searchService.searchById(Patent.class, id);
