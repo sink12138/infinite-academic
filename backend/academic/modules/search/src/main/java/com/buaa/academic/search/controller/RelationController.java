@@ -9,6 +9,9 @@ import com.buaa.academic.search.model.vo.Relations;
 import com.buaa.academic.search.service.InfoService;
 import com.buaa.academic.search.service.RelationService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +36,10 @@ public class RelationController {
     private RelationService relationService;
 
     @GetMapping("/references/{id}/{page}")
+    @ApiOperation(value = "参考文献列表", notes = "通过路径变量id来获取一篇论文的参考文献列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "论文ID"),
+            @ApiImplicitParam(name = "page", value = "页码编号，从0开始")})
     public Result<ScrollPage<PaperItem>> references(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                     @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<PaperItem>> result = new Result<>();
@@ -45,6 +52,10 @@ public class RelationController {
     }
 
     @GetMapping("/citations/{id}/{page}")
+    @ApiOperation(value = "引证文献列表", notes = "通过路径变量id来获取一篇论文的引证文献（即引用这篇论文的论文）列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "论文ID"),
+            @ApiImplicitParam(name = "page", value = "页码编号，从0开始")})
     public Result<ScrollPage<PaperItem>> citations(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                    @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<PaperItem>> result = new Result<>();
