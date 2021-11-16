@@ -162,7 +162,7 @@ public class Paper implements Reducible<PaperItem> {
     private String publisher;
 
     @Field(type = FieldType.Keyword, positionIncrementGap = 100)
-    @ApiModelProperty(value = "论文的所有参考文献的数据库ID")
+    @JsonIgnore
     private List<String> references;
 
     @Field(type = FieldType.Keyword, positionIncrementGap = 100)
