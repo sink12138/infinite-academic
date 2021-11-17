@@ -84,7 +84,8 @@ public class SearchController {
             value = "智能搜索",
             notes = "使用一条关键词搜索学术论文。</br>" +
                     "如果在其他实体上出现了精准的命中（例如学者、机构、期刊的名字），会将推荐信息一并返回。</br>" +
-                    "返回值包括论文检索结果和可能的推荐信息。")
+                    "返回值包括论文检索结果和可能的推荐信息。</br>" +
+                    "允许添加Filter的字段：year (below, above, range, equal), citationNum (above)")
     public Result<SmartPage> smartSearch(@RequestBody @Valid SmartSearchRequest searchRequest) {
         long start = System.currentTimeMillis();
         Result<SmartPage> result = new Result<>();
@@ -99,9 +100,13 @@ public class SearchController {
         List<Filter> filters = searchRequest.getFilters();
         for (Filter filter : filters) {
             String type = filter.getType();
-            switch (filter.getAttr()) {
-                case "year", "citationNum" -> {
-                    if (type.equals("true") || type.equals("false"))
+            switch (type) {
+                case "below", "range", "equal" -> {
+                    if (!filter.getAttr().equals("year"))
+                        return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+                case "above" -> {
+                    if (!filter.getAttr().matches("^(year)|(citationNum)$"))
                         return result.withFailure(ExceptionType.INVALID_PARAM);
                 }
                 default -> {

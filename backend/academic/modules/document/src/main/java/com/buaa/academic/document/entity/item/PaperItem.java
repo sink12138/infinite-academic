@@ -27,7 +27,7 @@ public class PaperItem {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @ApiModel("PaperHit$Author")
+    @ApiModel("PaperItem$Author")
     public static class Author {
 
         @ApiModelProperty(value = "论文作者的ID", example = "GF_4ynwBF-Mu8unTG1hc")
@@ -51,7 +51,7 @@ public class PaperItem {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @ApiModel("PaperHit$Journal")
+    @ApiModel("PaperItem$Journal")
     public static class Journal {
 
         @ApiModelProperty(value = "期刊的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")

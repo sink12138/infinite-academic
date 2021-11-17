@@ -44,7 +44,7 @@ public class SmartSearchRequest {
     private int size;
 
     @AllowValues({"date.asc", "date.desc", "citationNum.desc"})
-    @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "year")
+    @ApiModelProperty(value = "排序依据，null默认为相关度排序，格式为${字段名}.${排序类型}", allowableValues = "date.asc, date.dsc, citationNum.desc", example = "year")
     private String sort;
 
     @Deprecated

@@ -58,7 +58,7 @@ public class Researcher implements Reducible<ResearcherItem> {
     @ApiModelProperty(value = "职称，例如讲师、副教授、教授等", example = "副教授")
     private String position;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "科研人员的邮箱", example = "songyou@buaa.edu.cn")
     private String email;
 

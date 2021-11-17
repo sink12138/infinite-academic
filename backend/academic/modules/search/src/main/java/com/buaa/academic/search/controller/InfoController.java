@@ -1,73 +1,84 @@
 package com.buaa.academic.search.controller;
 
 import com.buaa.academic.document.entity.*;
-import com.buaa.academic.model.exception.AcademicException;
 import com.buaa.academic.model.exception.ExceptionType;
-import com.buaa.academic.model.web.RequestModel;
 import com.buaa.academic.model.web.Result;
+import com.buaa.academic.search.service.InfoService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
-@RestController("/info")
+@RestController
+@RequestMapping(path = "/info")
 @Validated
 @Api(tags = "实体详细信息")
 public class InfoController {
 
-    @PostMapping("/test")
-    @ApiOperation(value = "测试接口", notes = "返回传入的相同字符串")
-    public Result<String> test(@RequestBody @Valid RequestModel<String> model) throws AcademicException {
-        Result<String> result = new Result<>();
-        String param = model.getData();
-        if (param.equals("Throw an exception")) {
-            throw new AcademicException(ExceptionType.INTERNAL_SERVER_ERROR);
-        }
-        else if (param.equals("Return a failure")) {
-            return result.withFailure(ExceptionType.INTERNAL_SERVER_ERROR);
-        }
-        return result.withData(param);
+    @Autowired
+    private InfoService infoService;
+
+    @GetMapping("/paper/{id}")
+    @ApiOperation(value = "学术论文详细信息", notes = "根据论文编号显示文章详细信息")
+    @ApiImplicitParam(name = "id", value = "论文ID")
+    public Result<Paper> paperInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
+        Result<Paper> result = new Result<>();
+        Paper paper = infoService.findDocument(Paper.class, id);
+        if (paper == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        return result.withData(paper);
     }
 
-    @GetMapping("/test/user")
-    @ApiOperation(value = "测试用户实体", notes = "测试用户实体的信息显示效果")
-    public Result<User> testUser() {
-        return new Result<>();
+    @GetMapping("/researcher/{id}")
+    @ApiOperation(value = "科研人员详细信息", notes = "根据科研人员编号显示科研人员详细信息")
+    @ApiImplicitParam(name = "id", value = "科研人员ID")
+    public Result<Researcher> researcherInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
+        Result<Researcher> result = new Result<>();
+        Researcher researcher = infoService.findDocument(Researcher.class, id);
+        if (researcher == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        return result.withData(researcher);
     }
 
-    @GetMapping("/test/paper")
-    @ApiOperation(value = "测试学术论文实体", notes = "测试用户实体的信息显示效果")
-    public Result<Paper> testPaper() {
-        return new Result<>();
+    @GetMapping("/journal/{id}")
+    @ApiOperation(value = "学术期刊详细信息", notes = "根期刊编号显示期刊详细信息")
+    @ApiImplicitParam(name = "id", value = "期刊ID")
+    public Result<Journal> journalInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
+        Result<Journal> result = new Result<>();
+        Journal journal = infoService.findDocument(Journal.class, id);
+        if (journal == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        return result.withData(journal);
     }
 
-    @GetMapping("/test/researcher")
-    @ApiOperation(value = "测试科研人员实体", notes = "测试用户实体的信息显示效果")
-    public Result<Researcher> testResearcher() {
-        return new Result<>();
+    @GetMapping("/institution/{id}")
+    @ApiOperation(value = "学术机构详细信息", notes = "根据机构编号显示机构详细信息")
+    @ApiImplicitParam(name = "id", value = "机构ID")
+    public Result<Institution> institutionInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
+        Result<Institution> result = new Result<>();
+        Institution institution = infoService.findDocument(Institution.class, id);
+        if (institution == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        return result.withData(institution);
     }
 
-    @GetMapping("/test/institution")
-    @ApiOperation(value = "测试科研机构实体", notes = "测试用户实体的信息显示效果")
-    public Result<Institution> testInstitution() {
-        return new Result<>();
-    }
-
-    @GetMapping("/test/journal")
-    @ApiOperation(value = "测试期刊实体", notes = "测试用户实体的信息显示效果")
-    public Result<Journal> testJournal() {
-        return new Result<>();
-    }
-
-    @GetMapping("/test/patent")
-    @ApiOperation(value = "测试专利实体", notes = "测试用户实体的信息显示效果")
-    public Result<Patent> testPatent() {
-        return new Result<>();
+    @GetMapping("/patent/{id}")
+    @ApiOperation(value = "专利详细信息", notes = "根据专利编号显示专利详细信息")
+    @ApiImplicitParam(name = "id", value = "专利ID")
+    public Result<Patent> patentInfo(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id) {
+        Result<Patent> result = new Result<>();
+        Patent patent = infoService.findDocument(Patent.class, id);
+        if (patent == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        return result.withData(patent);
     }
 
 }
