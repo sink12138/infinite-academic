@@ -19,8 +19,8 @@ public class HitsReducer {
             Map<String, List<String>> hlt = hit.getHighlightFields();
             if (hlt.containsKey("title")) {
                 String title = hlt.get("title").get(0);
-                if (manager.text(title).length() > 32)
-                    title = manager.cut(32).process() + "...";
+                if (manager.text(title).length() > 64)
+                    title = manager.cut(64).process() + "...";
                 item.setTitle(title);
             }
             if (hlt.containsKey("keywords")) {
@@ -28,8 +28,8 @@ public class HitsReducer {
             }
             if (hlt.containsKey("abstract")) {
                 String paperAbstract = hlt.get("abstract").get(0);
-                if (manager.text(paperAbstract).length() > 80)
-                    paperAbstract = manager.cut(80).process() + "...";
+                if (manager.text(paperAbstract).length() > 128)
+                    paperAbstract = manager.cut(128).process() + "...";
                 item.setPaperAbstract(paperAbstract);
             }
             result.add(item);

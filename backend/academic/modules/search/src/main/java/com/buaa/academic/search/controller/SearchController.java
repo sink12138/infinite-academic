@@ -105,7 +105,7 @@ public class SearchController {
         SmartPage smartPage = new SmartPage();
 
         // Strip keyword
-        String keyword = StringUtils.strip(searchRequest.getKeyword(), 32);
+        String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
 
         // Param check for filters
         List<Filter> filters = searchRequest.getFilters();
