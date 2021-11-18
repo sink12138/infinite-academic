@@ -28,6 +28,7 @@ public class AssociationReducer extends Reducer<Text, AssociationRule, NullWrita
             }
         }
         String jsonRes = "{\"item\": \"" + item + "\", \"associationSet\": \"" + StringUtils.join(FPGMainClass.splitChar, associationList) + "\"}";
+        System.out.println(jsonRes);
         context.write(NullWritable.get(), new Text(jsonRes));
     }
 }

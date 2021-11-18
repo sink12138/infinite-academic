@@ -53,7 +53,7 @@ public class FPGMainClass implements Runnable{
     private final Configuration configuration;
 
     public FPGMainClass(double minSupport, double minConfidence, boolean deleteTmpFiles, String analysisObject) {
-        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject;
+        this.inputPath = "./modules/analysis/src/main/resources/data/data.txt";
         this.minSupport = minSupport;
         this.minConfidence = minConfidence;
         this.deleteTmpFiles = deleteTmpFiles;
@@ -77,9 +77,8 @@ public class FPGMainClass implements Runnable{
         System.out.println(analysisObject + " analysis: FP-Growth analysis starting...");
         long start_time = System.currentTimeMillis();
 
-        getInputData();
+        //getInputData();
 
-        /*
         // 词频统计
         Job countJob = frequencyCal();
 
@@ -92,16 +91,13 @@ public class FPGMainClass implements Runnable{
         // 计算关联规则
         associationCal();
 
-
         if (deleteTmpFiles) {
             deleteDir(resultDir);
             deleteDir(inputPath);
-        }*/
+        }
         System.out.println(analysisObject + " analysis: All Down!");
         System.out.println(analysisObject + " analysis: Cost " + ((double)(System.currentTimeMillis() - start_time) / 1000) + "s");
     }
-
-
 
     private void getInputData() throws IOException {
         File inputFile = new File(inputPath);
