@@ -168,4 +168,10 @@ public class AccountController {
         accountRepository.save(user);
         return new Result<>();
     }
+
+    @ApiOperation(value = "用于测试跨域")
+    @GetMapping("/echo")
+    public String echo(@RequestParam(value = "str") String str) {
+        return str;
+    }
 }
