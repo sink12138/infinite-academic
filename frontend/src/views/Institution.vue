@@ -5,8 +5,7 @@
       <v-icon 
         class="ml-5 text-h2"
         color="indigo darken-4"
-      >
-        mdi-home
+      >mdi-home
       </v-icon>
       <div class="my-font my-5">
         Institution

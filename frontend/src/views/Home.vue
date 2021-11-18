@@ -3,6 +3,7 @@
     <BaseNavigation></BaseNavigation>
     <div class="big-font">Infinite Acadmic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
+    <v-btn @click="echo()">echo</v-btn>
   </div>
 </template>
 
@@ -18,12 +19,18 @@ export default {
     expand: false
   }),
   methods: {
-    notify() {
-      this.$notify({
-        title: "hello",
-        message: "test message",
-        type: "success"
-      });
+    echo() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/echo",
+        params: {
+          str: "echo hello"
+        }
+      }).then(response => {
+        console.log(response.data)
+      }).catch(error => {
+        console.log(error)
+      })
     }
   }
 }
