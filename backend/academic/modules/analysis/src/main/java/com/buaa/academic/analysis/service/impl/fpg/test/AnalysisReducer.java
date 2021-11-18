@@ -1,9 +1,8 @@
-package com.buaa.academic.analysis.service.impl.fpg;
+package com.buaa.academic.analysis.service.impl.fpg.test;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import java.io.IOException;
 
 public class AnalysisReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
