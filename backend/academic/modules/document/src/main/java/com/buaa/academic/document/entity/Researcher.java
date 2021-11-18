@@ -47,7 +47,7 @@ public class Researcher implements Reducible<ResearcherItem> {
     }
 
     @Field(type = FieldType.Keyword, index = false)
-    @ApiModelProperty(value = "科研人员的头像图片链接")
+    @ApiModelProperty(value = "科研人员的头像图片链接", example = "https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3607928980,2147845641&fm=58")
     private String avatarUrl;
 
     @Field(type = FieldType.Object)

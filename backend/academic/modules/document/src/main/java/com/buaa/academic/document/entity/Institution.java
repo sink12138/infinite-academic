@@ -31,7 +31,7 @@ public class Institution implements Reducible<InstitutionItem> {
     private String name;
 
     @Field(type = FieldType.Keyword, index = false)
-    @ApiModelProperty(value = "学术机构的标志图片链接")
+    @ApiModelProperty(value = "学术机构的标志图片链接", example = "https://ma-v3-images.azureedge.net/images/185261750.png")
     private String logoUrl;
 
     @JsonIgnore
