@@ -8,7 +8,7 @@
       >
         mdi-home
       </v-icon>
-      <div class="my_font my-5">
+      <div class="my-font my-5">
         Institution
       </div>
     </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column">
     <BaseNavigation></BaseNavigation>
-    <div class="big_font">Infinite Acadmic</div>
+    <div class="big-font">Infinite Acadmic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
   </div>
 </template>
@@ -20,9 +20,9 @@ export default {
   methods: {
     notify() {
       this.$notify({
-        title: 'hello',
-        message: 'test message',
-        type: 'success'
+        title: "hello",
+        message: "test message",
+        type: "success"
       });
     }
   }
