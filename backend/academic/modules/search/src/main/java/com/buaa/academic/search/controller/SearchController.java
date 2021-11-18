@@ -71,7 +71,7 @@ public class SearchController {
     @Autowired
     private InstitutionRepository institutionRepository;
 
-    @Value("${search.conditions.max-layers}")
+    @Value("${search.conditions.max-depth}")
     private int maxDepth;
 
     @Value("${spring.elasticsearch.highlight.pre-tag}")
