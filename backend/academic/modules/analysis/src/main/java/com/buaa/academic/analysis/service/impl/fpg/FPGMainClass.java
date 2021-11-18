@@ -43,12 +43,13 @@ public class FPGMainClass implements Runnable{
     private final String inputPath;
     private double minSupport;
     private final double minConfidence;
-    private final boolean deleteTmpFiles;
+    private boolean deleteTmpFiles;
     private final String resultDir;
     private final String countPath;
     private final String frequentItemsPath;
     private final String frequentSetsPath;
     private final String associationRulesPath;
+    private ElasticsearchRestTemplate template;
     private final Configuration configuration;
 
     public FPGMainClass(double minSupport, double minConfidence, boolean deleteTmpFiles, String analysisObject) {
@@ -64,6 +65,10 @@ public class FPGMainClass implements Runnable{
         frequentSetsPath =  resultDir + "\\frequentSets";
         associationRulesPath = resultDir + "\\associationRules";
         configuration = new Configuration(true);
+    }
+
+    public void setTemplate(ElasticsearchRestTemplate template) {
+        this.template = template;
     }
 
     @SneakyThrows
@@ -96,8 +101,7 @@ public class FPGMainClass implements Runnable{
         System.out.println(analysisObject + " analysis: Cost " + ((double)(System.currentTimeMillis() - start_time) / 1000) + "s");
     }
 
-    @Autowired
-    private ElasticsearchRestTemplate template;
+
 
     private void getInputData() throws IOException {
         File inputFile = new File(inputPath);
