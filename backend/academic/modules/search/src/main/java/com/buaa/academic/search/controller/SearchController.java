@@ -71,7 +71,7 @@ public class SearchController {
     @Autowired
     private InstitutionRepository institutionRepository;
 
-    @Value("${search.conditions.max-layers}")
+    @Value("${search.conditions.max-depth}")
     private int maxDepth;
 
     @Value("${spring.elasticsearch.highlight.pre-tag}")
@@ -105,7 +105,7 @@ public class SearchController {
         SmartPage smartPage = new SmartPage();
 
         // Strip keyword
-        String keyword = StringUtils.strip(searchRequest.getKeyword(), 32);
+        String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
 
         // Param check for filters
         List<Filter> filters = searchRequest.getFilters();

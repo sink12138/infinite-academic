@@ -12,7 +12,7 @@
 >
 > Spring Cloud 版本：2020.4
 >
-> Elasticsearch 依赖项版本：15.0.1
+> Elasticsearch 依赖项版本：15.0.2
 >
 > Knife4j 依赖项版本：3.0.3
 
@@ -41,6 +41,8 @@
 <img src="img/Infinite%20Academic%20-%20Development%20Specification/image-20211028152902926.png" alt="image-20211028152902926" style="zoom:50%;" />
 
 点击 Next，Springboot 版本选择 2.5.6（可以先不管，新建后从 pom 里直接继承父工程的版本）。
+
+#### 2.2.1 pom.xml 依赖
 
 根据需要选择依赖。父工程已经包括 lombok、fastjson 依赖，实体类模块已经包含 elasticsearch 依赖，可以不用添加。一般需要选择 Web - Spring Web 和 Spring Cloud Discovery - Eureka Discovery Client。
 
@@ -96,6 +98,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -116,31 +121,32 @@
 </modules>
 ```
 
-配置文件统一使用 .yml 格式（删掉默认的 .properties），参考以下模板：
+#### 2.2.2 配置文件 application.yml
+
+配置文件统一使用 .yml 格式（删掉默认的 .properties），且使用`dev`和`prod`两套配置。
+
+application.yml 指定了默认运行时使用的配置策略：
 
 ```yaml
-mode: deploy  # test / deploy
+spring:
+  profiles:
+    default: dev
+```
 
-settings:
-  test:
-    host: <服务器ip地址>
-    register: false
-  deploy:
-    host: localhost
-    register: true
+application-dev.yml 指定了本地开发测试时使用的配置策略（注意 redis 是本地连接的，其余是远程连接服务器的）：
 
+```yaml
 server:
-  port: <你的模块端口>
+  port: 8091
 
 spring:
   application:
-    name: client-<你的模块名>
+    name: client-search
+  jackson:
+    default-property-inclusion: non_null
   redis:
-    database: 0
-    host: ${settings.${mode}.host}
-    port: 6379
     password: 114514
-    timeout: 1500
+    timeout: 5000
     jedis:
       pool:
         max-idle: 10
@@ -149,28 +155,87 @@ spring:
   elasticsearch:
     rest:
       username: elastic
-      password: 114514
-      uris: http://${settings.${mode}.host}:9200
+      password: elastic-academic-2021
+      uris: http://120.46.154.200:9200
 
 eureka:
-  server:
-    username: eureka
-    password: 114514
   instance:
     instance-id: ${spring.application.name}:${server.port}
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://${eureka.server.username}:${eureka.server.password}@${settings.${mode}.host}:8100/eureka/
-    register-with-eureka: ${settings.${mode}.register}
+      defaultZone: http://eureka:eureka-academic-2021@121.36.98.60:8100/eureka/
+    register-with-eureka: false
 
 knife4j:
   basic:
     enable: true
     username: knife4j
-    password: 114514
+    password: knife4j-academic-2021
   enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    com.netflix.discovery.DiscoveryClient: warn
 ```
+
+application-prod.yml 指定了在服务器上部署时（生产环境中）使用的配置：
+
+```yaml
+server:
+  port: 8091
+
+spring:
+  application:
+    name: client-search
+  jackson:
+    default-property-inclusion: non_null
+  redis:
+    password: redis-academic-2021
+    timeout: 5000
+    cluster:
+      nodes:
+        - 192.168.0.228:7001
+        - 192.168.0.228:7002
+        - 192.168.0.228:7003
+        - 192.168.0.239:7001
+        - 192.168.0.239:7002
+        - 192.168.0.239:7003
+      max-redirects: 3
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 2
+  elasticsearch:
+    rest:
+      username: elastic
+      password: elastic-academic-2021
+      uris: http://192.168.0.239:9200
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/
+
+knife4j:
+  basic:
+    enable: true
+    username: knife4j
+    password: knife4j-academic-2021
+  enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    com.netflix.discovery.DiscoveryClient: warn
+```
+
+#### 2.2.3 knife4j 配置类
 
 Knife4j 配置可参考 search 模块的 com.buaa.academic.search.config.SwaggerConfiguration：
 
@@ -212,7 +277,7 @@ public class SwaggerConfiguration {
                 .title("搜索模块 - API文档")
                 .description("<div style='font-size:14px;'>实体类信息显示、批量查询、关联搜索</div>")
                 .contact(new Contact("yq", "", ""))
-                .termsOfServiceUrl("http://localhost:8091/")
+                .termsOfServiceUrl("http://http://120.46.154.200:8091/")
                 .version("1.0")
                 .build();
     }
@@ -227,6 +292,8 @@ public class SwaggerConfiguration {
 eureka 是微服务注册和发现中心，gateway 是统一网关，平时有专人维护，不需要修改。
 
 document 是数据库实体模块，model 是通用模型，包括响应体、请求体、异常等。**修改这两个模块后需要提醒其他开发人员，并且这两个模块在出现修改后需要重新 package。**
+
+此外，tool 是通用工具类模块，欢迎添加你自己编写的实用工具类。
 
 
 
@@ -406,13 +473,15 @@ Commit 时填写一下这次提交干了什么，不要只写一两个词。程�
 
 **首先确保 application.yml 的第一行设置为 test。** Elasticsearch 数据库、Redis 缓存、Eureka 注册中心直接使用远端服务器，但一般会绕过 Gateway 网关入口进行测试（因为你本地测试的服务没有注册，网关不知道你在哪，所以只能直接给自己模块的端口号发请求）。稍微注意一下实际 URL 路径和 Header 参数（可能和有网关时不太一样）。
 
-**如果涉及重大试验项目，可能对远端数据库造成污染，可以在本地部署运行一整套程序进行测试（这时候 application.yml 第一行设置为 deploy。**
+如果你的程序要在 Docker 以外的环境下以生产环境配置运行，你需要手动在命令行添加`--spring.profiles.active=prod`。默认情况下程序以开发测试环境配置运行。
+
+**如果涉及重大试验项目，可能对远端数据库造成污染，可以在本地部署运行一整套架构进行测试。**
 
 ### 5.2 部署
 
-**部署前请先 Pull、完成自己的本地测试、Push 到仓库。**
+**部署前请先 pull、完成自己的本地测试、push 到仓库。**
 
-Dockerfile 放在模块根目录：
+Dockerfile 放在模块根目录，注意最后指定了使用生产环境的配置：
 
 ```dockerfile
 FROM openjdk:17
@@ -421,10 +490,10 @@ ADD target/*.jar app.jar
 ENV TZ=PRC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 EXPOSE <你的模块端口号>
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
 ```
 
-以名为 search 的微服务为例。**严格按照以下命名规范**设置启动项（为了别人也能临时帮你部署）：
+以名为 search 的微服务为例，**严格按照以下命名规范**设置部署启动项（为了别人也能临时帮你部署）：
 
 <img src="img/Infinite%20Academic%20-%20Development%20Specification/image-20211028173905576.png" alt="image-20211028173905576" style="zoom: 33%;" />
 
