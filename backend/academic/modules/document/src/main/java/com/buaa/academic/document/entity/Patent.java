@@ -1,6 +1,7 @@
 package com.buaa.academic.document.entity;
 
 import com.buaa.academic.document.entity.item.PatentItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "专利的数据库ID", required = true, example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", copyTo = "completion")
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 
@@ -118,6 +121,10 @@ public class Patent implements Reducible<PatentItem> {
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
     @ApiModelProperty(value = "主权项", example = "假装这是一大段主权项")
     private String claim;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    private Completion completion;
 
     @Override
     public PatentItem reduce() {

@@ -1,15 +1,18 @@
 package com.buaa.academic.document.entity;
 
 import com.buaa.academic.document.entity.item.JournalItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +30,7 @@ public class Journal implements Reducible<JournalItem> {
     @ApiModelProperty(value = "学术期刊自带的编号", example = "137773608")
     private String journalId;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", copyTo = "completion")
     @ApiModelProperty(value = "期刊标题", required = true, example = "计算机工程与应用")
     private String title;
 
@@ -38,6 +41,10 @@ public class Journal implements Reducible<JournalItem> {
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
     @ApiModelProperty(value = "期刊的ISSN编号", example = "1002-8331")
     private String issn;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    private Completion completion;
 
     @Override
     public JournalItem reduce() {

@@ -9,9 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(required = true, value = "论文在数据库中的ID", example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", copyTo = "completion")
     @ApiModelProperty(required = true, value = "论文标题", example = "基于机器学习的无需人工编制词典的切词系统")
     private String title;
 
@@ -85,15 +84,15 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(required = true, value = "论文摘要", example = "假装这是一大段摘要")
     private String paperAbstract;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, copyTo = "completion")
     @ApiModelProperty(required = true, value = "论文的所有关键词")
     private List<String> keywords;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true, copyTo = "completion")
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
+    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true, copyTo = "completion")
     @ApiModelProperty(value = "论文的话题分类")
     private List<String> topics;
 
@@ -188,6 +187,10 @@ public class Paper implements Reducible<PaperItem> {
     @JsonIgnore
     @Field(type = FieldType.Keyword, index = false)
     private String filePath;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    private Completion completion;
 
     @Override
     public PaperItem reduce() {
