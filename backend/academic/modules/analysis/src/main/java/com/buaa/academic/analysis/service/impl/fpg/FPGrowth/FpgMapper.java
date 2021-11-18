@@ -8,7 +8,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.util.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -59,7 +60,7 @@ public class FpgMapper extends Mapper<LongWritable, Text, Text, Text> {
         for(int i = appearedItemsSorted.size() - 1; i > 0; i--){
             k = appearedItemsSorted.get(i);								//从后往前遍历排好序的数据，每次取出当前支持度最小的项
             appearedItemsSorted.remove(appearedItemsSorted.size() - 1);
-            prefix = StringUtils.join(appearedItemsSorted, FPGMainClass.splitChar);
+            prefix = StringUtils.join(FPGMainClass.splitChar, appearedItemsSorted);
             context.write(new Text(k), new Text(prefix));				//将该项前的所有项作为该项的条件模式基，传递给Reducer
         }
     }

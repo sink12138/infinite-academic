@@ -12,7 +12,6 @@ import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentMa
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentReducer;
 import com.buaa.academic.document.entity.Paper;
 import lombok.SneakyThrows;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -22,6 +21,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -133,7 +133,7 @@ public class FPGMainClass implements Runnable{
                     items = hit.getContent().getTopics();
                 else
                     items = hit.getContent().getSubjects();
-                String inputData = StringUtils.join(items, FPGMainClass.splitChar) + "\n";
+                String inputData = StringUtils.join(FPGMainClass.splitChar, items) + "\n";
                 try {
                     fileWriter.write(inputData);
                 } catch (IOException e) {

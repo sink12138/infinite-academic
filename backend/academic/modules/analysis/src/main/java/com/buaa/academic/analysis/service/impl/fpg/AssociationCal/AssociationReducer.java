@@ -1,10 +1,11 @@
 package com.buaa.academic.analysis.service.impl.fpg.AssociationCal;
 
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.util.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -26,7 +27,7 @@ public class AssociationReducer extends Reducer<Text, AssociationRule, NullWrita
                 }
             }
         }
-        String jsonRes = "{\"item\": \"" + item + "\", \"associationSet\": \"" + StringUtils.join(associationList, FPGMainClass.splitChar) + "\"}";
+        String jsonRes = "{\"item\": \"" + item + "\", \"associationSet\": \"" + StringUtils.join(FPGMainClass.splitChar, associationList) + "\"}";
         context.write(NullWritable.get(), new Text(jsonRes));
     }
 }
