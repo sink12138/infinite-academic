@@ -46,6 +46,10 @@ public class Researcher implements Reducible<ResearcherItem> {
 
     }
 
+    @Field(type = FieldType.Keyword, index = false)
+    @ApiModelProperty(value = "科研人员的头像图片链接")
+    private String avatarUrl;
+
     @Field(type = FieldType.Object)
     @ApiModelProperty(value = "当前所属机构的信息")
     private Institution currentInst;
