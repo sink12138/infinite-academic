@@ -10,7 +10,9 @@ import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortReducer;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequency;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentReducer;
+import com.buaa.academic.document.entity.Paper;
 import lombok.SneakyThrows;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -20,14 +22,24 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class FPGMainClass implements Runnable{
 
     public static String splitChar = " ";
+    private final String analysisObject;
     private final String inputPath;
     private double minSupport;
     private final double minConfidence;
@@ -39,11 +51,12 @@ public class FPGMainClass implements Runnable{
     private final String associationRulesPath;
     private final Configuration configuration;
 
-    public FPGMainClass(String inputPath, double minSupport, double minConfidence, boolean deleteTmpFiles) {
-        this.inputPath = inputPath;
+    public FPGMainClass(double minSupport, double minConfidence, boolean deleteTmpFiles, String analysisObject) {
+        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject;
         this.minSupport = minSupport;
         this.minConfidence = minConfidence;
         this.deleteTmpFiles = deleteTmpFiles;
+        this.analysisObject = analysisObject;
         String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         resultDir = "./modules/analysis/src/main/resources/fpgResult" + time;
         countPath =  resultDir +"\\count";
@@ -56,9 +69,12 @@ public class FPGMainClass implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
-        System.out.println("FP-Growth analysis starting...");
+        System.out.println(analysisObject + " analysis: FP-Growth analysis starting...");
         long start_time = System.currentTimeMillis();
 
+        getInputData();
+
+        /*
         // 词频统计
         Job countJob = frequencyCal();
 
@@ -71,20 +87,62 @@ public class FPGMainClass implements Runnable{
         // 计算关联规则
         associationCal();
 
+
         if (deleteTmpFiles) {
             deleteDir(resultDir);
-            System.out.println("Tmp files delete");
-        }
-        System.out.println("All Down!");
-        System.out.println("Cost " + ((double)(System.currentTimeMillis() - start_time) / 1000) + "s");
+            deleteDir(inputPath);
+        }*/
+        System.out.println(analysisObject + " analysis: All Down!");
+        System.out.println(analysisObject + " analysis: Cost " + ((double)(System.currentTimeMillis() - start_time) / 1000) + "s");
     }
 
-    private void getInputData() {
+    @Autowired
+    private ElasticsearchRestTemplate template;
 
+    private void getInputData() throws IOException {
+        File inputFile = new File(inputPath);
+        if (!inputFile.createNewFile()) {
+            System.out.println("Can't make file " + inputFile);
+            throw new IOException();
+        }
+        FileWriter fileWriter = new FileWriter(inputFile);
+
+        System.out.println(analysisObject + " analysis: Write data to local tmp file..");
+        int pageContent = 10000;
+        int page = 1;
+        int totalPage = -1;
+        do {
+            SearchHits<Paper> hits = template.search(
+                    new NativeSearchQueryBuilder()
+                            .withPageable(PageRequest.of(page, pageContent))
+                            .build(),
+                    Paper.class
+            );
+            page ++;
+
+            if (totalPage < 0)
+                totalPage = (int) (hits.getTotalHits() + (pageContent - 1)) / pageContent;
+
+            hits.forEach(hit -> {
+                List<String> items;
+                if (analysisObject.equals("topic"))
+                    items = hit.getContent().getTopics();
+                else
+                    items = hit.getContent().getSubjects();
+                String inputData = StringUtils.join(items, FPGMainClass.splitChar) + "\n";
+                try {
+                    fileWriter.write(inputData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } while (page <= totalPage);
+        fileWriter.close();
+        System.out.println(analysisObject + " analysis: Data is ready!");
     }
 
     private Job frequencyCal() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println("Counting frequency...");
+        System.out.println(analysisObject + " analysis: Counting frequency...");
         Job countJob = Job.getInstance(configuration, "Word Frequency");
         countJob.setJarByClass(FPGMainClass.class);
 
@@ -98,16 +156,17 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(countJob, new Path(countPath));
 
         if (!countJob.waitForCompletion(true)) {
-            System.out.println("frequency count error!");
+            System.out.println(analysisObject + " analysis: frequency count error!");
             deleteDir(resultDir);
+            deleteDir(inputPath);
             System.exit(-1);
         }
-        System.out.println("Frequency count finished!");
+        System.out.println(analysisObject + " analysis: Frequency count finished!");
         return countJob;
     }
 
     private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println("Generating and sorting frequent items...");
+        System.out.println(analysisObject + " analysis: Generating and sorting frequent items...");
         minSupport = minSupport * countJob.getCounters().findCounter(WordFrequency.Counter.LINE_LEN).getValue();
         countJob.close();
         configuration.setDouble("minSupport", minSupport);
@@ -127,15 +186,16 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(sortJob, new Path(frequentItemsPath));
 
         if (!sortJob.waitForCompletion(true)) {
-            System.out.println("Frequent items sort error!");
+            System.out.println(analysisObject + " analysis: Frequent items sort error!");
             deleteDir(resultDir);
+            deleteDir(inputPath);
             System.exit(-1);
         }
-        System.out.println("Frequent items sorting finished!");
+        System.out.println(analysisObject + " analysis: Frequent items sorting finished!");
     }
 
     private void fpgExc() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println("FP-growth executing...");
+        System.out.println(analysisObject + " analysis: FP-growth executing...");
         Job fpJob = Job.getInstance(configuration, "FPGrowth");
         fpJob.setJarByClass(FPGMainClass.class);
         fpJob.addCacheFile(new Path(frequentItemsPath + "/part-r-00000").toUri());
@@ -153,16 +213,17 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(fpJob, new Path(frequentSetsPath));
 
         if (!fpJob.waitForCompletion(true)) {
-            System.out.println("FP-Growth error!");
+            System.out.println(analysisObject + " analysis: FP-Growth error!");
             deleteDir(resultDir);
+            deleteDir(inputPath);
             System.exit(-1);
         }
         fpJob.close();
-        System.out.println("FP-Growth finished!");
+        System.out.println(analysisObject + " analysis: FP-Growth finished!");
     }
 
     private void associationCal() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println("Calculating association rules...");
+        System.out.println(analysisObject + " analysis: Calculating association rules...");
         configuration.setDouble("confidence", minConfidence);
 
         Job rulesJob = Job.getInstance(configuration, "association rules job");
@@ -182,30 +243,34 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(rulesJob, new Path(associationRulesPath));
 
         if (!rulesJob.waitForCompletion(true)) {
-            System.out.println("Association rules calculating error!");
+            System.out.println(analysisObject + " analysis: Association rules calculating error!");
             deleteDir(resultDir);
+            deleteDir(inputPath);
             System.exit(-1);
         }
         rulesJob.close();
-        System.out.println("Association rules calculating finished!");
+        System.out.println(analysisObject + " analysis: Association rules calculating finished!");
     }
 
     private void deleteDir(String dirPath) throws IOException {
         File resultDir = new File(dirPath);
-        File[] sonDirs = resultDir.listFiles();
-        assert sonDirs != null;
-        for (File dir : sonDirs) {
-            File[] tmpFiles = dir.listFiles();
-            assert tmpFiles != null;
-            for (File file: tmpFiles) {
-                if (!file.delete()) {
-                    throw new IOException("Can't delete tmp files");
+        if (resultDir.isDirectory()) {
+            File[] sonDirs = resultDir.listFiles();
+            assert sonDirs != null;
+            for (File dir : sonDirs) {
+                File[] tmpFiles = dir.listFiles();
+                assert tmpFiles != null;
+                for (File file : tmpFiles) {
+                    if (!file.delete()) {
+                        throw new IOException(analysisObject + " analysis: Can't delete tmp files");
+                    }
                 }
+                if (!dir.delete())
+                    throw new IOException(analysisObject + " analysis: Can't delete tmp files");
             }
-            if(!dir.delete())
-                throw new IOException("Can't delete tmp files");
         }
         if(!resultDir.delete())
-            throw new IOException("Can't delete files");
+            throw new IOException(analysisObject + " analysis: Can't delete files");
+        System.out.println(analysisObject + " analysis: Delete tmp files at " + dirPath);
     }
 }
