@@ -26,8 +26,9 @@ public class SearchRequest {
     @ApiModelProperty(value = "所有搜索条件（顶层），不可为空", required = true)
     private List<@SearchCondition Condition> conditions;
 
+    @NotNull
     @Size(max = 5)
-    @ApiModelProperty(value = "数值或逻辑过滤条件")
+    @ApiModelProperty(value = "数值或逻辑过滤条件，可为空不可为null")
     private List<@SearchFilter Filter> filters;
 
     @Range(min = 0)

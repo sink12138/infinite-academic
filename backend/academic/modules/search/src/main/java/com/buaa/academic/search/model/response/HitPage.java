@@ -33,10 +33,13 @@ public class HitPage<I> {
     @ApiModelProperty(value = "当前页码，从0开始", required = true, example = "2")
     protected int page;
 
-    @ApiModelProperty(value = "当前页码上的项目数量", required = true, example = "10")
-    protected int size;
-
     @ApiModelProperty(value = "当页的所有条目", required = true)
     protected List<I> items;
+
+    public void setStatistics(long totalHits, int pageNum, int pageSize) {
+        this.totalHits = totalHits;
+        this.totalPages = (int) ((totalHits + pageSize - 1) / pageSize);
+        this.page = Math.min(pageNum, totalPages - 1);
+    }
 
 }

@@ -13,23 +13,27 @@ import com.buaa.academic.model.web.Result;
 import com.buaa.academic.search.dao.InstitutionRepository;
 import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.ResearcherRepository;
+import com.buaa.academic.search.model.request.Condition;
 import com.buaa.academic.search.model.request.Filter;
 import com.buaa.academic.search.model.request.SearchRequest;
 import com.buaa.academic.search.model.request.SmartSearchRequest;
 import com.buaa.academic.search.model.response.HitPage;
 import com.buaa.academic.search.model.response.SmartPage;
 import com.buaa.academic.search.service.SearchService;
+import com.buaa.academic.search.util.HitsReducer;
+import com.buaa.academic.tool.util.StringUtils;
 import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.validator.AllowValues;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -67,6 +71,15 @@ public class SearchController {
     @Autowired
     private InstitutionRepository institutionRepository;
 
+    @Value("${search.conditions.max-layers}")
+    private int maxDepth;
+
+    @Value("${spring.elasticsearch.highlight.pre-tag}")
+    private String preTag;
+
+    @Value("${spring.elasticsearch.highlight.post-tag}")
+    private String postTag;
+
     @PostMapping("/")
     @ApiOperation(
             value = "检索总入口",
@@ -92,9 +105,7 @@ public class SearchController {
         SmartPage smartPage = new SmartPage();
 
         // Strip keyword
-        String keyword = searchRequest.getKeyword().trim().replaceAll("\\s+", " ");
-        if (keyword.length() > 32)
-            keyword = keyword.substring(0, 32);
+        String keyword = StringUtils.strip(searchRequest.getKeyword(), 32);
 
         // Param check for filters
         List<Filter> filters = searchRequest.getFilters();
@@ -130,27 +141,11 @@ public class SearchController {
         }
 
         // Filters
-        BoolQueryBuilder filter = null;
-        if (!filters.isEmpty()) {
-            filter = QueryBuilders.boolQuery();
-            for (Filter flt : filters) {
-                filter.must(flt.compile());
-            }
-        }
+        QueryBuilder filter = searchService.buildFilters(filters);
 
         // Sort
         String srt = searchRequest.getSort();
-        SortBuilder<?> sort;
-        if (srt == null)
-            sort = SortBuilders.scoreSort();
-        else {
-            String[] srtParams = srt.split("\\.");
-            sort = SortBuilders.fieldSort(srtParams[0]);
-            if (srtParams[1].equals("asc"))
-                sort.order(SortOrder.ASC);
-            else
-                sort.order(SortOrder.DESC);
-        }
+        SortBuilder<?> sort = searchService.buildSort(srt);
 
         // Page
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
@@ -160,14 +155,7 @@ public class SearchController {
 
         // Set items & statistics
         smartPage.setHits(baseHits);
-        smartPage.setTotalHits(baseHits.getTotalHits());
-        int pageSize = searchRequest.getSize();
-        long totalHits = baseHits.getTotalHits();
-        int totalPages = (int) ((totalHits + pageSize - 1) / pageSize);
-        smartPage.setTotalPages(totalPages);
-        smartPage.setSize(baseHits.getSearchHits().size());
-        int pageNum = searchRequest.getPage();
-        smartPage.setPage(Math.min(pageNum, totalPages - 1));
+        smartPage.setStatistics(baseHits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
         // Detect recommendations
         if (searchRequest.getPage() == 0) {
@@ -210,10 +198,82 @@ public class SearchController {
         return result.withData(smartPage);
     }
 
+    /* TODO: 2021/11/18 完成API文档
+        要求详细描述允许使用的搜索条件和过滤器类型规则，注解写法可以参考其他API.
+        API文档的呈现效果可以参考 http://121.36.98.60:8090/doc.html
+        如果涉及大段文字描述，请适当使用 html 标签使文档更加易读，例如换行</br>，<b>加粗</b>.
+     */
     @PostMapping("/paper")
     @ApiOperation(value = "学术论文检索", notes = "学术论文（Paper）类检索的专用接口")
     public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest) {
-        return new Result<>();
+        long start = System.currentTimeMillis();
+        Result<HitPage<PaperItem>> result = new Result<>();
+        HitPage<PaperItem> hitPage = new HitPage<>();
+
+        List<Condition> conditions = searchRequest.getConditions();
+        List<Filter> filters = searchRequest.getFilters();
+        String srt = searchRequest.getSort(); // Sort
+
+        /* TODO: 2021/11/18 进行参数检查
+            (1) 若条件树的层数超过 maxDepth 则 return result.withFailure(<合适的错误信息>)
+            (2) 遍历条件树，对所有叶节点的 keyword 进行 strip 和截断，可以参考上一个方法
+            (3) 遍历过程中，对所有叶节点基于 scope 进行检查和处理。学术论文所允许限定的 scope 规则为：
+                "title", "abstract", "keywords", "subjects", "topics", "institutions.name": 允许开启 fuzzy 和 translated
+                "journal.title": 允许开启 fuzzy，但不允许开启 translated
+                "type", "authors.name": 不允许开启 fuzzy 和 translated
+                要求可读性和可扩展性，以便后续添加新的 scope 规则.
+                不符合规则时，可以 return result.withFailure(ExceptionType.INVALID_PARAM), 也可以将对应字段强制 set 回 false
+            (4) 顺序遍历所有过滤器，对 type 和 attr 进行检查。学术论文所允许添加的过滤器规则可以参考上一个方法.
+            (5) 对排序字段进行检查。学术论文允许的排序规则为 null, "date.asc", "date.desc", "citationNum.desc".
+                若不符合，return result.withFailure(ExceptionType.INVALID_PARAM)
+            (6) 涉及某字段允许多个值的参数检查 禁止使用 if (xxx || xxx || ... || xxx) 这种结构.
+         */
+
+        // Conditions
+        QueryBuilder query;
+        if (conditions.size() == 1) {
+            query = conditions.get(0).compile();
+        }
+        else {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            for (Condition condition : conditions) {
+                switch (condition.getLogic()) {
+                    case "and" -> boolQuery.must(condition.compile());
+                    case "or" -> boolQuery.should(condition.compile());
+                    case "not" -> boolQuery.mustNot(condition.compile());
+                }
+            }
+            query = boolQuery;
+        }
+
+        // Filters
+        QueryBuilder filter = searchService.buildFilters(filters);
+
+        // Sort
+        SortBuilder<?> sort = searchService.buildSort(srt);
+
+        // Highlight
+        HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
+
+        // Page
+        Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
+
+        // Run search
+        SearchHits<Paper> hits = searchService.advancedSearch(Paper.class, query, filter, sort, hlt, page);
+
+        // Set items & statistics
+        hitPage.setItems(HitsReducer.reducePaperHits(hits, preTag, postTag));
+        hitPage.setStatistics(hits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
+
+        // Set time cost
+        hitPage.setTimeCost(System.currentTimeMillis() - start);
+
+        return result.withData(hitPage);
+    }
+    
+    private int countDepth(List<Condition> conditions) {
+        // TODO: 2021/11/18 返回条件树的最大深度（层数）
+        return 0;
     }
 
 }

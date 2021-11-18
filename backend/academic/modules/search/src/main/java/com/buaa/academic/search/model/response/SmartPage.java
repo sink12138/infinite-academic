@@ -3,6 +3,7 @@ package com.buaa.academic.search.model.response;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.item.PaperItem;
 import com.buaa.academic.search.util.HighlightManager;
+import com.buaa.academic.search.util.HitsReducer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -27,27 +28,7 @@ public class SmartPage extends HitPage<PaperItem> {
     protected List<?> recommendation;
 
     public void setHits(SearchHits<Paper> hits) {
-        this.items = new ArrayList<>();
-        HighlightManager manager = new HighlightManager(preTag, postTag);
-        for (SearchHit<Paper> hit : hits) {
-            PaperItem item = hit.getContent().reduce();
-            Map<String, List<String>> hlt = hit.getHighlightFields();
-            if (hlt.containsKey("title")) {
-                String title = hlt.get("title").get(0);
-                if (manager.text(title).length() > 32)
-                    title = manager.cut(32).process() + "...";
-                item.setTitle(title);
-            }
-            if (hlt.containsKey("keywords")) {
-                item.setKeywords(hlt.get("keywords"));
-            }
-            if (hlt.containsKey("abstract")) {
-                String paperAbstract = hlt.get("abstract").get(0);
-                if (manager.text(paperAbstract).length() > 80)
-                    paperAbstract = manager.cut(80).process() + "...";
-                item.setPaperAbstract(paperAbstract);
-            }
-        }
+        this.items = HitsReducer.reducePaperHits(hits, preTag, postTag);
     }
 
 }

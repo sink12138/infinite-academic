@@ -28,11 +28,6 @@ public class SearchServiceImpl implements SearchService {
     private String postTag;
 
     @Override
-    public <T> T searchById(Class<T> type, String id) {
-        return template.get(id, type);
-    }
-
-    @Override
     public <T> SearchHits<T> advancedSearch(Class<T> target, QueryBuilder query, QueryBuilder filter, SortBuilder<?> sort, HighlightBuilder hlt, Pageable page) {
         return template.search(
                 new NativeSearchQueryBuilder()
