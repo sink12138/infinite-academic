@@ -198,8 +198,8 @@ public class SearchController {
         return result.withData(smartPage);
     }
 
-    /* TODO: 2021/11/18 完成API文档
-        要求详细描述允许使用的搜索条件和过滤器类型规则，注解写法可以参考其他API.
+    /* TODO: 2021/11/18 完成 API文档，注意缩进规范。
+        要求详细描述允许使用的搜索条件和过滤器类型规则，注解写法可以参考上一个 API.
         API文档的呈现效果可以参考 http://121.36.98.60:8090/doc.html
         如果涉及大段文字描述，请适当使用 html 标签使文档更加易读，例如换行</br>，<b>加粗</b>.
      */
@@ -270,7 +270,7 @@ public class SearchController {
 
         return result.withData(hitPage);
     }
-    
+
     private int countDepth(List<Condition> conditions) {
         // TODO: 2021/11/18 返回条件树的最大深度（层数）
         return 0;
