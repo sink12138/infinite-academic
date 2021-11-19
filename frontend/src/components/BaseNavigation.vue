@@ -4,6 +4,7 @@
     dark
     elevation="0"
   >
+    <!-- 导航组 -->
     <v-btn-toggle>
       <v-btn
         v-for="item in router"
@@ -17,7 +18,27 @@
       </v-btn>
     </v-btn-toggle>
     <v-spacer></v-spacer>
-    <citation></citation>
+    <!-- 引用 -->
+    <v-menu
+      :close-on-content-click="false"
+      :nudge-width="420"
+      offset-y
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          v-bind="attrs"
+          v-on="on"
+          depressed
+          height="100%"
+        >
+          引用
+          <v-icon>mdi-comma</v-icon>
+        </v-btn>
+      </template>
+      <BaseCitation>
+      </BaseCitation>
+    </v-menu>
+    <!-- 登录注册组件 -->
     <router-link to="/login">
       <v-btn outlined>登录/注册</v-btn>
     </router-link>
@@ -25,11 +46,11 @@
 </template>
 
 <script>
-import Citation from "./BaseCitation.vue";
+import BaseCitation from "./BaseCitation.vue";
 
 export default {
   components: {
-    Citation,
+    BaseCitation,
   },
   data() {
     return {

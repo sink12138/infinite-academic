@@ -12,6 +12,7 @@
 html,body {
   height: 100%;
   margin: 0;
+  overflow-y: auto !important;
 }
 #app {
   font-family: 微软雅黑;
