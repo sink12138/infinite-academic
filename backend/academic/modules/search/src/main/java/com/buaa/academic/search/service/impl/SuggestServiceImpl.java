@@ -28,7 +28,7 @@ public class SuggestServiceImpl implements SuggestService {
     public <T> List<String> completionSuggest(Class<T> target, String text) {
         Suggest suggest = template.suggest(new SuggestBuilder()
                 .addSuggestion(suggestionLabel,
-                        SuggestBuilders.completionSuggestion("completion")
+                        SuggestBuilders.completionSuggestion("suggest")
                                 .prefix(text, FuzzyOptions.builder()
                                         .setUnicodeAware(true)
                                         .build())

@@ -28,7 +28,8 @@ public class SuggestController {
     @GetMapping("/{entity}")
     @ApiOperation(
             value = "建议检索词",
-            notes = "用于在用户输入搜索关键词时提供检索建议。路径变量entity指定了建议的来源类型，允许的各值及含义如下：</br>" +
+            notes = "<b>----------本接口已启用，请不要请求本接口----------<b>" +
+                    "用于在用户输入搜索关键词时提供检索建议。路径变量entity指定了建议的来源类型，允许的各值及含义如下：</br>" +
                     "<b>paper</b> - 用于在用户检索论文（和智能检索）时提供建议，建议词来源为库中论文的标题、关键词、学科分类、话题分类</br>" +
                     "<b>journal</b> - 用于在用户检索期刊时提供建议，建议词来源为库中期刊的标题</br>" +
                     "<b>institution</b> - 用于在用户检索科研机构时提供建议，建议词来源为库中科研机构的名称</br>" +
@@ -43,7 +44,7 @@ public class SuggestController {
         switch (entity) {
             case "paper" -> {
                 target = Paper.class;
-                field = "completion";
+                field = "suggest";
             }
             case "journal" -> {
                 target = Journal.class;
@@ -61,11 +62,17 @@ public class SuggestController {
                 return result.withFailure(ExceptionType.INVALID_PARAM);
             }
         }
-        List<String> suggestions = suggestService.completionSuggest(target, text);
-        if (suggestions.size() <= 2) {
-            suggestions = suggestService.phraseSuggest(target, text, field);
+        try {
+            List<String> suggestions = suggestService.completionSuggest(target, text);
+            if (suggestions.size() <= 2) {
+                suggestions = suggestService.phraseSuggest(target, text, field);
+            }
+            suggestions.clear();
         }
-        return result.withData(suggestions);
+        finally {
+            System.out.println("Deprecated API");
+        }
+        return result.withFailure("本接口已弃用");
     }
 
 }
