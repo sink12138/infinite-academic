@@ -12,7 +12,7 @@
 >
 > Spring Cloud 版本：2020.4
 >
-> Elasticsearch 依赖项版本：15.0.2
+> Elasticsearch 依赖项版本：7.15.2
 >
 > Knife4j 依赖项版本：3.0.3
 
