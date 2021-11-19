@@ -1,78 +1,130 @@
 <template>
-  <v-card>
-    <v-card-title>
-      引用列表
-    </v-card-title>
-    <v-card-text>
-      <v-list>
-        <v-list-item
-          v-for="citation in citationList"
-          :key="citation.paperId"
-        >
-          <v-list-item-content v-text="citation.text">
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon>
-              <v-icon color="red darken-2">mdi-window-close</v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
+  <v-menu
+    :close-on-content-click="false"
+    :nudge-width="320"
+    rounded="sm"
+    offset-y
+  >
+    <template v-slot:activator="{ on, attrs }">
       <v-btn
-        @click="reveal = true"
-      >删除所有
-      </v-btn>
-      <v-btn 
-        @click="citationCopy"
-      >复制
-      </v-btn>
-    </v-card-actions>
-
-    <v-expand-transition>
-      <v-card
-        v-show="reveal"
-        class="transition-fast-in-fast-out v-card--reveal"
-        style="height: 100%;"
+        v-bind="attrs"
+        v-on="on"
+        depressed
+        height="100%"
       >
-        <v-card-text>
-          确认清除？
-        </v-card-text>
-        <v-card-actions>
-          <v-btn
-            text
-            color="teal accent-4"
-            @click="reveal = false"
+        引用
+        <v-icon>mdi-comma</v-icon>
+      </v-btn>
+    </template>
+
+    <v-card
+      rounded="sm"
+    >
+      <v-card-title
+        class="text-h5"
+      >
+        引用列表
+      </v-card-title>
+      <v-card-text>
+        <v-list 
+          max-height="300"
+          class="overflow-auto"
+        >
+          <v-list-item
+            class="grey lighten-4 my-1"
+            v-for="citation in citationList"
+            :key="citation.paperId"
           >
-            取消
-          </v-btn>
-          <v-btn
-            text
-            color="teal accent-4"
-            @click="reveal = false"
-          >
-            删除
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-expand-transition>
-  </v-card>
+            <v-list-item-content v-text="citation.text">
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon>
+                <v-icon 
+                  color="red darken-2"
+                  @click="deleteItem(citation)"
+                >
+                  mdi-window-close
+                </v-icon>
+              </v-btn>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          depressed
+          @click="reveal = true"
+        >删除所有
+        </v-btn>
+        <v-btn 
+          depressed
+          @click="copyCitations()"
+        >复制
+        </v-btn>
+      </v-card-actions>
+
+      <v-expand-transition>
+        <v-card
+          v-if="reveal"
+          class="transition-fast-in-fast-out v-card--reveal 
+          d-flex flex-column justify-center align-center"
+          style="height: 100%"
+          dark
+        >
+          <div>
+            <v-card-text
+              class="text-center text-h6"
+            >
+              是否确认删除所有引用？
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions
+              class="text-center"
+            >
+              <v-btn
+                color="grey"
+                class="font-weight-bold"
+                plain
+                x-large
+                @click="reveal = false"
+              >
+                取消
+              </v-btn>
+              <v-btn
+                color="error"
+                class="font-weight-bold"
+                plain
+                x-large
+                @click="cleanCitaions()"
+              >
+                删除
+              </v-btn>
+            </v-card-actions>
+          </div>
+        </v-card>
+      </v-expand-transition>
+    </v-card>
+  </v-menu>
 </template>
 
 <script>
 export default {
   data:() =>  ({
     expand: false,
-    citationList: [
-      {paperId:1, text: 'hello'},
-      {paperId:2, text: 'hello'}
-    ],
-    reveal: false
+    reveal: false,
+    citationList: [],
   }),
+
+  created() {
+    this.initCitations();
+  },
+
   methods: {
-    citationCopy() {
+    initCitations() {
+      this.citationList = localStorage.getItem("citations");
+    },
+    copyCitations() {
       this.$copyText(this.citationList)
       .then(e => {
         this.$notify({
@@ -84,9 +136,15 @@ export default {
         console.log(error)
       })
     },
-    citationClean() {
-      this.cleanExpand = true;
-      //this.citationList.splice(0,this.citationList.length);
+    deleteItem(citation) {
+      var index = this.citationList.indexOf(citation);
+      this.citationList.splice(index, 1);
+      localStorage.setItem("citations", this.citationList)
+    },
+    cleanCitaions() {
+      this.citationList.splice(0,this.citationList.length);
+      this.reveal = false;
+      localStorage.removeItem("citations");
     },
     onClickOutside() {
       this.expand = false;

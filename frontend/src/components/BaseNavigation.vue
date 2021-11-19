@@ -19,25 +19,8 @@
     </v-btn-toggle>
     <v-spacer></v-spacer>
     <!-- 引用 -->
-    <v-menu
-      :close-on-content-click="false"
-      :nudge-width="420"
-      offset-y
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          v-bind="attrs"
-          v-on="on"
-          depressed
-          height="100%"
-        >
-          引用
-          <v-icon>mdi-comma</v-icon>
-        </v-btn>
-      </template>
-      <BaseCitation>
-      </BaseCitation>
-    </v-menu>
+    <BaseCitation>
+    </BaseCitation>
     <!-- 登录注册组件 -->
     <router-link to="/login">
       <v-btn outlined>登录/注册</v-btn>

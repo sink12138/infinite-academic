@@ -1,15 +1,18 @@
 <template>
-  <base-citation></base-citation>
+  <div v-html="text">
+  </div>
 </template>
 
 <script>
-import BaseCitation from '../components/BaseCitation.vue';
-
 export default {
-  components: {
-    BaseCitation
-  },
+  data:() =>  ({
+    text: "Yongfang Li, et al.\"A review of enterprise social media: visualization of landscape and evolution.\""+
+    "<span style='font-style:italic'>Internet Research</span>" +
+    "<span style='font-style:italic'>31</span><br/>" +
+    ".4(2021): doi:10.1108/INTR-07-2020-0389."
+  }),
 }
+
 </script>
 
 
