@@ -55,7 +55,7 @@ public class Researcher implements Reducible<ResearcherItem> {
     private Institution currentInst;
 
     @Field(type = FieldType.Nested, positionIncrementGap = 100)
-    @ApiModelProperty(value = "曾经工作过的所有机构的信息")
+    @ApiModelProperty(value = "有合作关系的所有机构的信息")
     private List<Institution> institutions;
 
     @Field(type = FieldType.Integer)
