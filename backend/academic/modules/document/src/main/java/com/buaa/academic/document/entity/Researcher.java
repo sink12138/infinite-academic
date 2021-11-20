@@ -58,14 +58,6 @@ public class Researcher implements Reducible<ResearcherItem> {
     @ApiModelProperty(value = "曾经工作过的所有机构的信息")
     private List<Institution> institutions;
 
-    @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "职称，例如讲师、副教授、教授等", example = "副教授")
-    private String position;
-
-    @Field(type = FieldType.Keyword, index = false)
-    @ApiModelProperty(value = "科研人员的邮箱", example = "songyou@buaa.edu.cn")
-    private String email;
-
     @Field(type = FieldType.Integer)
     @ApiModelProperty(value = "科研人员的H指数", example = "4")
     @JsonProperty("hIndex")
@@ -94,7 +86,6 @@ public class Researcher implements Reducible<ResearcherItem> {
         item.setId(id);
         item.setName(name);
         item.setInstitution(new ResearcherItem.Institution(currentInst.id, currentInst.name));
-        item.setPosition(position);
         item.setInterests(interests);
         item.setPaperNum(paperNum);
         item.setPatentNum(patentNum);

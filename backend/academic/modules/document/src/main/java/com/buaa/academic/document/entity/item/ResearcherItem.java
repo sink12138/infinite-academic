@@ -37,9 +37,6 @@ public class ResearcherItem {
     @ApiModelProperty(value = "当前所属机构的信息")
     private Institution institution;
 
-    @ApiModelProperty(value = "职称，例如讲师、副教授、教授等", example = "副教授")
-    private String position;
-
     @ApiModelProperty(value = "科研人员的研究方向", example = "智能化软件工程")
     private List<String> interests;
 
