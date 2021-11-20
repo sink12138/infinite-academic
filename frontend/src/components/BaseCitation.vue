@@ -1,7 +1,8 @@
 <template>
   <v-menu
     :close-on-content-click="false"
-    :nudge-width="320"
+    nudge-width="450"
+    max-width="450"
     rounded="sm"
     offset-y
   >
@@ -18,16 +19,25 @@
     </template>
 
     <v-card
+      max-width="450"
       rounded="sm"
     >
       <v-card-title
-        class="text-h5"
+        class="text-center text-h4"
       >
         引用列表
+        <v-spacer></v-spacer>
+        <v-icon large>mdi-comma-box</v-icon>
+        <v-icon large>mdi-comma-box</v-icon>
       </v-card-title>
-      <v-card-text>
+
+
+      <v-card-text
+        v-if="citationList.length > 0"
+      >
         <v-list 
           max-height="300"
+          max-width="468"
           class="overflow-auto"
         >
           <v-list-item
@@ -35,8 +45,8 @@
             v-for="citation in citationList"
             :key="citation.paperId"
           >
-            <v-list-item-content v-text="citation.text">
-            </v-list-item-content>
+            <div v-html="citation[citationType]">
+            </div>
             <v-list-item-action>
               <v-btn icon>
                 <v-icon 
@@ -50,17 +60,64 @@
           </v-list-item>
         </v-list>
       </v-card-text>
-      <v-card-actions>
+
+      <v-card-text
+        v-else
+        class="text-left text-body-1"
+      >
+        <v-row>
+          <v-col 
+            align-self="center"
+            cols="2"
+          >
+            <v-icon x-large full-height>mdi-information</v-icon>
+          </v-col>
+          <v-col
+            align-self="center"
+          >
+            <div class="text-h6">尚未选择任何论文引用</div>
+          </v-col>
+        </v-row>
+        <br/>
+        <div>点击论文旁的<b>“引用”</b>按钮，将其添加到引用列表</div>
+        <div>添加引用信息后可以修改引用规范并一键复制</div>
+      </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions
+        v-if="citationList.length > 0"
+      >
+        <v-btn-toggle
+          v-model="citationType"
+          group
+          color="indigo darken-4"
+        >
+          <v-btn
+            value="MLA"
+          >MLA</v-btn>
+          <v-btn
+            value="APA"
+          >APA</v-btn>
+          <v-btn
+            value="GB/T"
+          >GB/T</v-btn>
+        </v-btn-toggle>
         <v-spacer></v-spacer>
         <v-btn
-          depressed
+          color="deep-orange accent-4"
+          plain
           @click="reveal = true"
-        >删除所有
+        >
+          <v-icon>mdi-trash-can</v-icon>
+          清空
         </v-btn>
         <v-btn 
-          depressed
+          plain
           @click="copyCitations()"
-        >复制
+        >
+          <v-icon>mdi-clipboard-text</v-icon>
+          复制
         </v-btn>
       </v-card-actions>
 
@@ -113,19 +170,34 @@ export default {
   data:() =>  ({
     expand: false,
     reveal: false,
+    citationType: "MLA",
     citationList: [],
   }),
 
   created() {
-    this.initCitations();
+    this.loadCitations();
+  },
+
+  watch: {
+    '$store.state.citations'() {
+      this.loadCitations();
+    }
   },
 
   methods: {
-    initCitations() {
-      this.citationList = localStorage.getItem("citations");
+    loadCitations() {
+      this.citationList = [];
+      var citations = JSON.parse(localStorage.getItem("citations"));
+      for (var i in citations) {
+        this.citationList.push(citations[i]);
+      }
     },
     copyCitations() {
-      this.$copyText(this.citationList)
+      var citationText = "";
+      for (var i in this.citationList){
+        citationText += this.citationList[i]["MLA"] + "\n";
+      }
+      this.$copyText(citationText)
       .then(e => {
         this.$notify({
           title: 'Copy',
@@ -137,9 +209,15 @@ export default {
       })
     },
     deleteItem(citation) {
+      var citations = JSON.parse(localStorage.getItem("citations"));
       var index = this.citationList.indexOf(citation);
+      delete citations[citation.paperId];
       this.citationList.splice(index, 1);
-      localStorage.setItem("citations", this.citationList)
+      if (JSON.stringify(citations) == "{}")
+        localStorage.removeItem("citations");
+      else
+        localStorage.setItem("citations", JSON.stringify(citations));
+      this.$store.commit('decCitations');
     },
     cleanCitaions() {
       this.citationList.splice(0,this.citationList.length);

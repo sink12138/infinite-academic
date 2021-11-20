@@ -1,10 +1,17 @@
-const addCitation = {
+export const addCitation = {
   methods: {
     addCitationItem(item) {
-      var citationList = localStorage.getItem("citations");
-      citaion["MLA"] = this.MLACitation();
-      citationList[paperId] = citation;
-      localStorage.setItem("citations", citationList)
+      var citationList = JSON.parse(localStorage.getItem("citations"));
+      console.log(citationList);
+      if (citationList == null) citationList = {};
+      var citation = {
+        paperId: item.id,
+        MLA: {},
+      };
+      citation["MLA"] = this.MLACitation(item);
+      citationList[item.id] = citation;
+      localStorage.setItem("citations", JSON.stringify(citationList));
+      this.$store.commit('incCitations');
     },
     MLACitation(item) {
       var italicLeft = "<span style='font-style:italic'>"

@@ -1,9 +1,11 @@
 <template>
-  <div class="d-flex flex-column">
+  <div>
     <BaseNavigation></BaseNavigation>
     <div class="big-font">Infinite Acadmic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
-    <v-btn @click="echo()">echo</v-btn>
+    <div>
+      <v-btn @click="echo()">echo</v-btn>
+    </div>
   </div>
 </template>
 

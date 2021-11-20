@@ -9,7 +9,6 @@ import './assets/style/main.css'
 
 Vue.config.productionTip = false
 
-
 new Vue({
   router,
   store,

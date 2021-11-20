@@ -44,6 +44,7 @@ export default {
         { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },
         { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
+        { href: "/about", icon: "mdi-account", title: "About"}
       ],
     };
   },
