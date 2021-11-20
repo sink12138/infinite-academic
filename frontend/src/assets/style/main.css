@@ -9,3 +9,16 @@
   font-size: 30px;
   font:800;
 }
+.betop{
+  position:fixed;
+  top:0;
+}
+.message{
+   text-align:left; 
+}
+.whole{
+  width:90%;
+  margin:auto;
+  left:0;
+  right:0;
+}
