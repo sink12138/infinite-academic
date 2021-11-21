@@ -5,5 +5,5 @@ import com.buaa.academic.analysis.model.Status;
 public interface AnalysisService {
     boolean associationAnalysis();
     Status getStatus();
-    boolean associationStop();
+    void associationStop();
 }

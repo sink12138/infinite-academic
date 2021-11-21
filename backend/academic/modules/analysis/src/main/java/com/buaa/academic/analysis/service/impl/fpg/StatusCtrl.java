@@ -1,11 +1,10 @@
-package com.buaa.academic.analysis.service.impl;
+package com.buaa.academic.analysis.service.impl.fpg;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class StatusResources {
+public class
+StatusCtrl {
     public static final Map<String, Boolean> isRunning = new HashMap<>();
     public static final Map<String, String> runningStatus = new HashMap<>();
-    public static final Map<String, Thread> currentJob = new HashMap<>();
 }

@@ -21,6 +21,8 @@ public class SortMapper extends
     @Override
     protected void map(Text key, Text value,Context context)
             throws IOException, InterruptedException {
+        context.getJobName();
+
         int val = Integer.parseInt(value.toString());
         if(val >= support)
             context.write(new WordFrequency(key.toString(), val), new IntWritable(1));

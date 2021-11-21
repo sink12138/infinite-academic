@@ -1,7 +1,6 @@
 package com.buaa.academic.analysis.service.impl.fpg;
 
 import com.buaa.academic.analysis.service.impl.AnalysisServiceImpl;
-import com.buaa.academic.analysis.service.impl.StatusResources;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationMapper;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationReducer;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationRule;
@@ -55,20 +54,17 @@ public class FPGMainClass implements Runnable{
     private ElasticsearchRestTemplate template;
     private final Configuration configuration;
 
-    public FPGMainClass() {
+    public FPGMainClass(String analysisObject) {
+        this.analysisObject = analysisObject;
+        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject + "Data";
         String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        resultDir = "./modules/analysis/src/main/resources/fpgResult" + time;
+        resultDir = "./modules/analysis/src/main/resources/fpgResult" + analysisObject + time;
         countPath =  resultDir +"\\count";
         frequentItemsPath = resultDir + "\\frequentItems";
         frequentSetsPath =  resultDir + "\\frequentSets";
         associationRulesPath = resultDir + "\\associationRules";
         configuration = new Configuration(true);
-    }
-
-    public FPGMainClass setAnalysisObject(String analysisObject) {
-        this.analysisObject = analysisObject;
-        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject + "Data";
-        return this;
+        configuration.set("resDir", resultDir);
     }
 
     public FPGMainClass setMinSupport(double minSupport) {
@@ -129,16 +125,15 @@ public class FPGMainClass implements Runnable{
 
     private void changeRunningStatusTo(String runningStatus) {
         synchronized (AnalysisServiceImpl.STATUS_LOCK) {
-            StatusResources.runningStatus.put(name, runningStatus);
+            StatusCtrl.runningStatus.put(name, runningStatus);
         }
         System.out.println(name + ": " + runningStatus);
     }
 
     private void changeRunningStatusToStop(String runningStatus) {
         synchronized (AnalysisServiceImpl.STATUS_LOCK) {
-            StatusResources.isRunning.put(name, false);
-            StatusResources.runningStatus.put(name, runningStatus);
-            StatusResources.currentJob.remove(name);
+            StatusCtrl.isRunning.remove(name);
+            StatusCtrl.runningStatus.put(name, runningStatus);
         }
         System.out.println(name + ": " + runningStatus);
     }

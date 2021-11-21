@@ -3,6 +3,7 @@ package com.buaa.academic.analysis.service.impl;
 import com.buaa.academic.analysis.model.Status;
 import com.buaa.academic.analysis.service.AnalysisService;
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
+import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
@@ -25,33 +26,29 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Override
     public boolean associationAnalysis() {
 
-        FPGMainClass topicFPG = new FPGMainClass()
+        FPGMainClass topicFPG = new FPGMainClass("topics")
                 .setName(JobClass.TOPIC_FPG_ANALYSIS.name())
                 .setMinSupport(0.4).setMinConfidence(0.6)
-                .setDeleteTmpFiles(false).setAnalysisObject("topics")
+                .setDeleteTmpFiles(false)
                 .setTemplate(template);
         Thread topicFPGThread = new Thread(topicFPG);
         synchronized (STATUS_LOCK) {
-            if (StatusResources.isRunning.containsKey(JobClass.TOPIC_FPG_ANALYSIS.name())
-                    && StatusResources.isRunning.get(JobClass.TOPIC_FPG_ANALYSIS.name()))
+            if (StatusCtrl.isRunning.containsKey(JobClass.TOPIC_FPG_ANALYSIS.name()))
                 return false;
-            StatusResources.isRunning.put(JobClass.TOPIC_FPG_ANALYSIS.name(), true);
-            StatusResources.currentJob.put(JobClass.TOPIC_FPG_ANALYSIS.name(), topicFPGThread);
+            StatusCtrl.isRunning.put(JobClass.TOPIC_FPG_ANALYSIS.name(), true);
         }
         topicFPGThread.start();
 
-        FPGMainClass subjectFPG = new FPGMainClass()
+        FPGMainClass subjectFPG = new FPGMainClass("subjects")
                 .setName(JobClass.SUBJECT_FPG_ANALYSIS.name())
                 .setMinSupport(0.4).setMinConfidence(0.6)
-                .setDeleteTmpFiles(false).setAnalysisObject("subjects")
+                .setDeleteTmpFiles(false)
                 .setTemplate(template);
         Thread subjectFPGThread = new Thread(subjectFPG);
         synchronized (STATUS_LOCK) {
-            if (StatusResources.isRunning.containsKey(JobClass.SUBJECT_FPG_ANALYSIS.name())
-                    && StatusResources.isRunning.get(JobClass.SUBJECT_FPG_ANALYSIS.name()))
+            if (StatusCtrl.isRunning.containsKey(JobClass.SUBJECT_FPG_ANALYSIS.name()))
                 return false;
-            StatusResources.isRunning.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), true);
-            StatusResources.currentJob.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), subjectFPGThread);
+            StatusCtrl.isRunning.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), true);
         }
         subjectFPGThread.start();
 
@@ -63,8 +60,8 @@ public class AnalysisServiceImpl implements AnalysisService {
         Status status = new Status();
         Map<String, String> jobs = new HashMap<>();
         synchronized (STATUS_LOCK) {
-            for (String job : StatusResources.currentJob.keySet()) {
-                jobs.put(job, StatusResources.runningStatus.get(job));
+            for (String job : StatusCtrl.isRunning.keySet()) {
+                jobs.put(job, StatusCtrl.runningStatus.get(job));
             }
         }
         for (Map.Entry<String, String> entry : jobs.entrySet()) {
@@ -74,15 +71,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     @Override
-    public boolean associationStop() {
-        try {
-            for (Thread job : StatusResources.currentJob.values()) {
-                job.stop();
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public void associationStop() {
+        StatusCtrl.isRunning.replaceAll((j, v) -> false);
     }
 
 }
