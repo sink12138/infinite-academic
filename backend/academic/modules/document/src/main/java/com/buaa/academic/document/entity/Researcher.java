@@ -46,21 +46,17 @@ public class Researcher implements Reducible<ResearcherItem> {
 
     }
 
+    @Field(type = FieldType.Keyword, index = false)
+    @ApiModelProperty(value = "科研人员的头像图片链接", example = "https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3607928980,2147845641&fm=58")
+    private String avatarUrl;
+
     @Field(type = FieldType.Object)
     @ApiModelProperty(value = "当前所属机构的信息")
     private Institution currentInst;
 
     @Field(type = FieldType.Nested, positionIncrementGap = 100)
-    @ApiModelProperty(value = "曾经工作过的所有机构的信息")
+    @ApiModelProperty(value = "有合作关系的所有机构的信息")
     private List<Institution> institutions;
-
-    @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "职称，例如讲师、副教授、教授等", example = "副教授")
-    private String position;
-
-    @Field(type = FieldType.Keyword, index = false)
-    @ApiModelProperty(value = "科研人员的邮箱", example = "songyou@buaa.edu.cn")
-    private String email;
 
     @Field(type = FieldType.Integer)
     @ApiModelProperty(value = "科研人员的H指数", example = "4")
@@ -90,7 +86,6 @@ public class Researcher implements Reducible<ResearcherItem> {
         item.setId(id);
         item.setName(name);
         item.setInstitution(new ResearcherItem.Institution(currentInst.id, currentInst.name));
-        item.setPosition(position);
         item.setInterests(interests);
         item.setPaperNum(paperNum);
         item.setPatentNum(patentNum);

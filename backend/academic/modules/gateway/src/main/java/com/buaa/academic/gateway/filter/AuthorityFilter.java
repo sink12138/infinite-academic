@@ -57,10 +57,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
             switch (primaryUrl) {
                 case "account" -> {
                     switch (secondaryUrl) {
-                        case "register":
-                        case "login":
-                        case "verify":
-                        case "forget":
+                        case "register", "login", "verify", "forget", "echo":
                             return chain.filter(exchange);
                         default: {
                             if (authority.getUserId() == null)

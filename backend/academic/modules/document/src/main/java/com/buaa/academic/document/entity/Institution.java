@@ -27,6 +27,10 @@ public class Institution implements Reducible<InstitutionItem> {
     @ApiModelProperty(value = "科研机构的名称", required = true, example = "北京航空航天大学软件学院")
     private String name;
 
+    @Field(type = FieldType.Keyword, index = false)
+    @ApiModelProperty(value = "学术机构的标志图片链接", example = "https://ma-v3-images.azureedge.net/images/185261750.png")
+    private String logoUrl;
+
     @Override
     public InstitutionItem reduce() {
         InstitutionItem item = new InstitutionItem();

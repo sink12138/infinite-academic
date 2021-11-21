@@ -31,6 +31,10 @@ public class Journal implements Reducible<JournalItem> {
     @ApiModelProperty(value = "期刊标题", required = true, example = "计算机工程与应用")
     private String title;
 
+    @Field(type = FieldType.Keyword, index = false)
+    @ApiModelProperty(value = "期刊封面链接", example = "https://ss0.bdstatic.com/9r-1bjml2gcT8tyhnq/ps-scholar/xueshu/1628135451/25407/7dcab4875c10fd0e47ded29c6d9a703d.jpg")
+    private String coverUrl;
+
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
     @ApiModelProperty(value = "主办单位", example = "华北计算技术研究所")
     private String sponsor;
