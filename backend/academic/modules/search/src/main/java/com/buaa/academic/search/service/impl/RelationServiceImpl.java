@@ -39,10 +39,9 @@ public class RelationServiceImpl implements RelationService {
     @Override
     public <I, T extends Reducible<I>> Relations<I> searchReferences(Class<T> target, List<String> references, int page) {
         Relations<I> relations = new Relations<>();
-        String[] terms = references.toArray(new String[0]);
         SearchHits<T> hits = template.search(
                 new NativeSearchQueryBuilder()
-                        .withQuery(QueryBuilders.termsQuery("_id", terms))
+                        .withQuery(QueryBuilders.termsQuery("_id", references))
                         .withPageable(PageRequest.of(page, 10))
                         .withTrackTotalHits(true)
                         .build(),

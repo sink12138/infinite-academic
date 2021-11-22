@@ -51,4 +51,5 @@ public class Journal implements Reducible<JournalItem> {
         item.setSponsor(sponsor.length() > 16 ? sponsor.substring(0, 16) + "..." : sponsor);
         return item;
     }
+
 }
