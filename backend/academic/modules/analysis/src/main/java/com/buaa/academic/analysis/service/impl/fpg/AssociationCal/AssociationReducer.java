@@ -5,7 +5,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.StringUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -27,8 +26,8 @@ public class AssociationReducer extends Reducer<Text, AssociationRule, NullWrita
                 }
             }
         }
+
         String jsonRes = "{\"item\": \"" + item + "\", \"associationSet\": \"" + StringUtils.join(FPGMainClass.splitChar, associationList) + "\"}";
-        System.out.println(jsonRes);
         context.write(NullWritable.get(), new Text(jsonRes));
     }
 }

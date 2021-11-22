@@ -2,6 +2,7 @@ package com.buaa.academic.analysis.service.impl.fpg.FPGrowth;
 
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.fpg.FPTree.FPTree;
+import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -24,6 +25,11 @@ public class FpgReducer extends Reducer<Text, Text, NullWritable, Text> {
         ArrayList<ArrayList<String>> transactions = new ArrayList<>();
         int sup = 0;
         for(Text val: values) {
+
+            if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                StatusCtrl.stop(context.getJobName());
+            }
+
             ArrayList<String> items = new ArrayList<>(Arrays.asList(val.toString().split(FPGMainClass.splitChar)));
             transactions.add(items);									//将传递的条件模式基拆分后保存到集合
             sup++;
@@ -31,8 +37,14 @@ public class FpgReducer extends Reducer<Text, Text, NullWritable, Text> {
         if (sup > support) {
             FPTree fpTree = new FPTree(support);
             ArrayList<String> freqSet = fpTree.fp_growth(transactions, key.toString());
-            for (String freqItem: freqSet)
+            for (String freqItem: freqSet) {
+
+                if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                    StatusCtrl.stop(context.getJobName());
+                }
+
                 context.write(NullWritable.get(), new Text(freqItem));
+            }
         }
    }
 }

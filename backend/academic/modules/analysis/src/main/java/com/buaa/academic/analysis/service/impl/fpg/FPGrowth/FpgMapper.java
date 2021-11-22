@@ -3,6 +3,7 @@ package com.buaa.academic.analysis.service.impl.fpg.FPGrowth;
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.fpg.FPTree.FPTree;
 import com.buaa.academic.analysis.service.impl.fpg.FPTree.FPTreeNode;
+import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -36,6 +37,11 @@ public class FpgMapper extends Mapper<LongWritable, Text, Text, Text> {
             String line;
             try{
                 while ((line = joinReader.readLine()) != null) {
+
+                    if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                        StatusCtrl.stop(context.getJobName());
+                    }
+
                     String[] itemFreq = line.split("\\s+");//读出频繁一项集，以TreeNode类型保存到集合中
                     itemsSorted.add(new FPTreeNode(itemFreq[0], Integer.parseInt(itemFreq[1])));
                 }
@@ -58,6 +64,11 @@ public class FpgMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         String k, prefix;
         for(int i = appearedItemsSorted.size() - 1; i > 0; i--){
+
+            if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                StatusCtrl.stop(context.getJobName());
+            }
+
             k = appearedItemsSorted.get(i);								//从后往前遍历排好序的数据，每次取出当前支持度最小的项
             appearedItemsSorted.remove(appearedItemsSorted.size() - 1);
             prefix = StringUtils.join(FPGMainClass.splitChar, appearedItemsSorted);

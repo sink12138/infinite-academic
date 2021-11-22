@@ -1,6 +1,7 @@
 package com.buaa.academic.analysis.service.impl.fpg.AssociationCal;
 
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
+import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -30,6 +31,11 @@ public class AssociationMapper extends Mapper<LongWritable, Text, Text, Associat
             String line;
             try{
                 while ((line = joinReader.readLine()) != null) {
+
+                    if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                        StatusCtrl.stop(context.getJobName());
+                    }
+
                     String[] itemFreq = line.split("\\s+");//读出频繁一项集，以TreeNode类型保存到集合中
                     supportMap.put(itemFreq[0], Integer.parseInt(itemFreq[1]));
                 }
@@ -49,6 +55,11 @@ public class AssociationMapper extends Mapper<LongWritable, Text, Text, Associat
         String[] freItems = freSet[0].split(FPGMainClass.splitChar);
         int frequencyOfSet = Integer.parseInt(freSet[1]);
         for (String item : freItems) {
+
+            if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                StatusCtrl.stop(context.getJobName());
+            }
+
             int frequencyOfItem = supportMap.get(item);
             double selfConfidence = ((double) frequencyOfSet) / ((double) frequencyOfItem);
             if (selfConfidence > confidence) {

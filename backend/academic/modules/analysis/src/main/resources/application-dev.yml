@@ -17,8 +17,8 @@ spring:
   elasticsearch:
     rest:
       username: elastic
-      password: elastic-academic-2021
-      uris: http://120.46.154.200:9200
+      password: 114514
+      uris: localhost:9200
 
 eureka:
   instance:

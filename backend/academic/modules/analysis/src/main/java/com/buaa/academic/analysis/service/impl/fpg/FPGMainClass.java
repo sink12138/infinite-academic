@@ -22,27 +22,28 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.SearchScrollHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class FPGMainClass implements Runnable{
 
     public static String splitChar = " ";
-    private final String analysisObject;
+    private final String analysisObject; // 用于区分对话题还是学科进行分析
+    private String name; // 用于获取当前作业的运行状态
     private final String inputPath;
     private double minSupport;
-    private final double minConfidence;
+    private double minConfidence;
     private boolean deleteTmpFiles;
     private final String resultDir;
     private final String countPath;
@@ -52,14 +53,11 @@ public class FPGMainClass implements Runnable{
     private ElasticsearchRestTemplate template;
     private final Configuration configuration;
 
-    public FPGMainClass(double minSupport, double minConfidence, boolean deleteTmpFiles, String analysisObject) {
-        this.inputPath = "./modules/analysis/src/main/resources/data/data.txt";
-        this.minSupport = minSupport;
-        this.minConfidence = minConfidence;
-        this.deleteTmpFiles = deleteTmpFiles;
+    public FPGMainClass(String analysisObject) {
         this.analysisObject = analysisObject;
+        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject + "Data";
         String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        resultDir = "./modules/analysis/src/main/resources/fpgResult" + time;
+        resultDir = "./modules/analysis/src/main/resources/fpgResult_" + analysisObject + time;
         countPath =  resultDir +"\\count";
         frequentItemsPath = resultDir + "\\frequentItems";
         frequentSetsPath =  resultDir + "\\frequentSets";
@@ -67,65 +65,134 @@ public class FPGMainClass implements Runnable{
         configuration = new Configuration(true);
     }
 
-    public void setTemplate(ElasticsearchRestTemplate template) {
+    public FPGMainClass setMinSupport(double minSupport) {
+        this.minSupport = minSupport;
+        return this;
+    }
+
+    public FPGMainClass setMinConfidence(double minConfidence) {
+        this.minConfidence = minConfidence;
+        return this;
+    }
+
+    public FPGMainClass setDeleteTmpFiles(boolean deleteTmpFiles) {
+        this.deleteTmpFiles = deleteTmpFiles;
+        return this;
+    }
+
+    public FPGMainClass setTemplate(ElasticsearchRestTemplate template) {
         this.template = template;
+        return this;
+    }
+
+    public FPGMainClass setName(String name) {
+        configuration.set("name", name);
+        this.name = name;
+        return this;
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        System.out.println(analysisObject + " analysis: FP-Growth analysis starting...");
+
+        changeRunningStatusTo("FP-Growth analysis starting...");
+
         long start_time = System.currentTimeMillis();
 
-        //getInputData();
+        try {
+            getInputData();
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
+        if(threadStopCheck())
+            return;
 
         // 词频统计
-        Job countJob = frequencyCal();
+        Job countJob = null;
+        try {
+            countJob = frequencyCal();
+        } catch (IllegalStateException e) {
+            interruptStop("Stopped");
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
+        if(threadStopCheck())
+            return;
 
         // 去除非频繁项，根据词频对原数据排序
-        sortItem(countJob);
+        try {
+            assert countJob != null;
+            sortItem(countJob);
+        } catch (IllegalStateException e) {
+            interruptStop("Stopped");
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
+        if(threadStopCheck())
+            return;
 
         // fp-growth生成频繁项集
-        fpgExc();
+        try {
+            fpgExc();
+        }catch (IllegalStateException e) {
+            interruptStop("Stopped");
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
+        if(threadStopCheck())
+            return;
 
         // 计算关联规则
-        associationCal();
+        try {
+            associationCal();
+        }catch (IllegalStateException e) {
+            interruptStop("Stopped");
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
 
         if (deleteTmpFiles) {
             deleteDir(resultDir);
             deleteDir(inputPath);
         }
-        System.out.println(analysisObject + " analysis: All Down!");
-        System.out.println(analysisObject + " analysis: Cost " + ((double)(System.currentTimeMillis() - start_time) / 1000) + "s");
+
+        double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
+        changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s");
     }
 
     private void getInputData() throws IOException {
         File inputFile = new File(inputPath);
+        if (inputFile.exists()) {
+            deleteDir(inputPath);
+        }
         if (!inputFile.createNewFile()) {
-            System.out.println("Can't make file " + inputFile);
+            changeRunningStatusToStop("Can't make file " + inputFile);
             throw new IOException();
         }
         FileWriter fileWriter = new FileWriter(inputFile);
 
-        System.out.println(analysisObject + " analysis: Write data to local tmp file..");
-        int pageContent = 10000;
-        int page = 1;
-        int totalPage = -1;
+        changeRunningStatusTo("Write data to local tmp file...");
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchAllQuery())
+                .withFields(analysisObject)
+                .withPageable(PageRequest.of(0, 1000))
+                .build();
+        SearchScrollHits<Paper> hits = template.searchScrollStart(3000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
+        String scrollId = hits.getScrollId();
         do {
-            SearchHits<Paper> hits = template.search(
-                    new NativeSearchQueryBuilder()
-                            .withPageable(PageRequest.of(page, pageContent))
-                            .build(),
-                    Paper.class
-            );
-            page ++;
 
-            if (totalPage < 0)
-                totalPage = (int) (hits.getTotalHits() + (pageContent - 1)) / pageContent;
+            // 检查线程是否终止
+            if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
+                changeRunningStatusToStop("Stopped.");
+                fileWriter.close();
+                return;
+            }
 
+            // 写入
             hits.forEach(hit -> {
                 List<String> items;
-                if (analysisObject.equals("topic"))
+                if (analysisObject.equals("topics"))
                     items = hit.getContent().getTopics();
                 else
                     items = hit.getContent().getSubjects();
@@ -136,14 +203,20 @@ public class FPGMainClass implements Runnable{
                     e.printStackTrace();
                 }
             });
-        } while (page <= totalPage);
+            hits = template.searchScrollContinue(scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
+        } while (hits.hasSearchHits());
         fileWriter.close();
-        System.out.println(analysisObject + " analysis: Data is ready!");
+
+        changeRunningStatusTo("Data is ready!");
     }
 
     private Job frequencyCal() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println(analysisObject + " analysis: Counting frequency...");
-        Job countJob = Job.getInstance(configuration, "Word Frequency");
+        changeRunningStatusTo("Counting frequency...");
+
+        String jobName = "Word Frequency";
+        Job countJob = Job.getInstance(configuration, jobName);
+        StatusCtrl.currentJob.put(jobName, countJob);
+
         countJob.setJarByClass(FPGMainClass.class);
 
         countJob.setMapperClass(WordFrequentMapper.class);
@@ -156,22 +229,29 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(countJob, new Path(countPath));
 
         if (!countJob.waitForCompletion(true)) {
-            System.out.println(analysisObject + " analysis: frequency count error!");
+
+            changeRunningStatusToStop("Frequency count error!");
+
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
-        System.out.println(analysisObject + " analysis: Frequency count finished!");
+
+        changeRunningStatusTo("Frequency count finished!");
         return countJob;
     }
 
     private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println(analysisObject + " analysis: Generating and sorting frequent items...");
+        changeRunningStatusTo("Generating and sorting frequent items...");
+
         minSupport = minSupport * countJob.getCounters().findCounter(WordFrequency.Counter.LINE_LEN).getValue();
         countJob.close();
         configuration.setDouble("minSupport", minSupport);
 
-        Job sortJob = Job.getInstance(configuration, "Sort");
+        String jobName = "Sort";
+        Job sortJob = Job.getInstance(configuration, jobName);
+        StatusCtrl.currentJob.put(jobName, sortJob);
+
         sortJob.setJarByClass(FPGMainClass.class);
         sortJob.setMapperClass(SortMapper.class);
         sortJob.setReducerClass(SortReducer.class);
@@ -186,17 +266,23 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(sortJob, new Path(frequentItemsPath));
 
         if (!sortJob.waitForCompletion(true)) {
-            System.out.println(analysisObject + " analysis: Frequent items sort error!");
+            changeRunningStatusToStop("Frequent items sort error!");
+
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
-        System.out.println(analysisObject + " analysis: Frequent items sorting finished!");
+
+        changeRunningStatusTo("Frequent items sorting finished!");
     }
 
     private void fpgExc() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println(analysisObject + " analysis: FP-growth executing...");
-        Job fpJob = Job.getInstance(configuration, "FPGrowth");
+        changeRunningStatusTo("FP-growth executing...");
+
+        String jobName = "FPGrowth";
+        Job fpJob = Job.getInstance(configuration, jobName);
+        StatusCtrl.currentJob.put(jobName, fpJob);
+
         fpJob.setJarByClass(FPGMainClass.class);
         fpJob.addCacheFile(new Path(frequentItemsPath + "/part-r-00000").toUri());
 
@@ -213,20 +299,26 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(fpJob, new Path(frequentSetsPath));
 
         if (!fpJob.waitForCompletion(true)) {
-            System.out.println(analysisObject + " analysis: FP-Growth error!");
+            changeRunningStatusToStop("FP-Growth error!");
+
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
         fpJob.close();
-        System.out.println(analysisObject + " analysis: FP-Growth finished!");
+
+        changeRunningStatusTo("FP-Growth finished!");
     }
 
     private void associationCal() throws IOException, InterruptedException, ClassNotFoundException {
-        System.out.println(analysisObject + " analysis: Calculating association rules...");
+        changeRunningStatusTo("Calculating association rules...");
+
         configuration.setDouble("confidence", minConfidence);
 
-        Job rulesJob = Job.getInstance(configuration, "association rules job");
+        String jobName = "association rules job";
+        Job rulesJob = Job.getInstance(configuration, jobName);
+        StatusCtrl.currentJob.put(jobName, rulesJob);
+
         rulesJob.setJarByClass(FPGMainClass.class);
         rulesJob.addCacheFile(new Path(frequentItemsPath + "/part-r-00000").toUri());
         FileInputFormat.addInputPath(rulesJob, new Path(frequentSetsPath));
@@ -243,34 +335,72 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(rulesJob, new Path(associationRulesPath));
 
         if (!rulesJob.waitForCompletion(true)) {
-            System.out.println(analysisObject + " analysis: Association rules calculating error!");
+            changeRunningStatusToStop("Association rules calculating error!");
+
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
         rulesJob.close();
-        System.out.println(analysisObject + " analysis: Association rules calculating finished!");
+
+        changeRunningStatusTo("Association rules calculating finished!");
+    }
+
+    private void changeRunningStatusTo(String runningStatus) {
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.runningStatus.put(name, runningStatus);
+        }
+        System.out.println(name + ": " + runningStatus);
+    }
+
+    private void changeRunningStatusToStop(String runningStatus) {
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.isRunning.remove(name);
+            StatusCtrl.runningStatus.put(name, runningStatus);
+        }
+        System.out.println(name + ": " + runningStatus);
     }
 
     private void deleteDir(String dirPath) throws IOException {
         File resultDir = new File(dirPath);
-        if (resultDir.isDirectory()) {
-            File[] sonDirs = resultDir.listFiles();
-            assert sonDirs != null;
-            for (File dir : sonDirs) {
-                File[] tmpFiles = dir.listFiles();
-                assert tmpFiles != null;
-                for (File file : tmpFiles) {
-                    if (!file.delete()) {
-                        throw new IOException(analysisObject + " analysis: Can't delete tmp files");
+        if (resultDir.exists()) {
+            if (resultDir.isDirectory()) {
+                File[] sonDirs = resultDir.listFiles();
+                assert sonDirs != null;
+                for (File dir : sonDirs) {
+                    File[] tmpFiles = dir.listFiles();
+                    assert tmpFiles != null;
+                    for (File file : tmpFiles) {
+                        if (!file.delete()) {
+                            changeRunningStatusToStop("Can't delete tmp files at" + file.getPath());
+                            throw new IOException(analysisObject + " analysis: Can't delete tmp files at" + file.getPath());
+                        }
+                    }
+                    if (!dir.delete()) {
+                        changeRunningStatusToStop("Can't delete tmp files" + dir.getPath());
+                        throw new IOException(analysisObject + " analysis: Can't delete tmp files at" + dir.getPath());
                     }
                 }
-                if (!dir.delete())
-                    throw new IOException(analysisObject + " analysis: Can't delete tmp files");
             }
+            if (!resultDir.delete()) {
+                changeRunningStatusToStop("Can't delete files at" + resultDir.getPath());
+                throw new IOException(analysisObject + " analysis: Can't delete files at" + resultDir.getPath());
+            }
+            System.out.println(analysisObject + " analysis: Delete tmp files at " + dirPath);
         }
-        if(!resultDir.delete())
-            throw new IOException(analysisObject + " analysis: Can't delete files");
-        System.out.println(analysisObject + " analysis: Delete tmp files at " + dirPath);
+    }
+
+    private boolean threadStopCheck() throws IOException {
+        if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
+            interruptStop("Stopped");
+            return true;
+        }
+        return false;
+    }
+
+    private void interruptStop(String reason) throws IOException {
+        deleteDir(inputPath);
+        deleteDir(resultDir);
+        changeRunningStatusToStop(reason);
     }
 }
