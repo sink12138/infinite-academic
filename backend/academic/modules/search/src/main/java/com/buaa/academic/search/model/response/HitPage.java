@@ -39,7 +39,7 @@ public class HitPage<I> {
     public void setStatistics(long totalHits, int pageNum, int pageSize) {
         this.totalHits = totalHits;
         this.totalPages = (int) ((totalHits + pageSize - 1) / pageSize);
-        this.page = Math.min(pageNum, totalPages - 1);
+        this.page = Math.max(0, Math.min(pageNum, totalPages - 1));
     }
 
 }
