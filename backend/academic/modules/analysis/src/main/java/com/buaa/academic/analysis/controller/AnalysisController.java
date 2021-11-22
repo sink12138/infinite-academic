@@ -26,5 +26,10 @@ public class AnalysisController {
         return new Result<>().withData(analysisService.getStatus());
     }
 
+    @PostMapping("/stop")
+    public Result<Void> stopAnalysis() {
+        analysisService.associationStop();
+        return new Result<>();
+    }
 
 }

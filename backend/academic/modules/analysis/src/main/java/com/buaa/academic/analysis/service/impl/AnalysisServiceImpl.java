@@ -21,8 +21,6 @@ public class AnalysisServiceImpl implements AnalysisService {
     @Autowired
     private ElasticsearchRestTemplate template;
 
-    public static final Object STATUS_LOCK = new Object();
-
     @Override
     public boolean associationAnalysis() {
 
@@ -32,7 +30,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .setDeleteTmpFiles(false)
                 .setTemplate(template);
         Thread topicFPGThread = new Thread(topicFPG);
-        synchronized (STATUS_LOCK) {
+        topicFPGThread.setName(JobClass.TOPIC_FPG_ANALYSIS.name());
+        synchronized (StatusCtrl.STATUS_LOCK) {
             if (StatusCtrl.isRunning.containsKey(JobClass.TOPIC_FPG_ANALYSIS.name()))
                 return false;
             StatusCtrl.isRunning.put(JobClass.TOPIC_FPG_ANALYSIS.name(), true);
@@ -45,7 +44,8 @@ public class AnalysisServiceImpl implements AnalysisService {
                 .setDeleteTmpFiles(false)
                 .setTemplate(template);
         Thread subjectFPGThread = new Thread(subjectFPG);
-        synchronized (STATUS_LOCK) {
+        subjectFPGThread.setName(JobClass.SUBJECT_FPG_ANALYSIS.name());
+        synchronized (StatusCtrl.STATUS_LOCK) {
             if (StatusCtrl.isRunning.containsKey(JobClass.SUBJECT_FPG_ANALYSIS.name()))
                 return false;
             StatusCtrl.isRunning.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), true);
@@ -59,8 +59,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     public Status getStatus() {
         Status status = new Status();
         Map<String, String> jobs = new HashMap<>();
-        synchronized (STATUS_LOCK) {
-            for (String job : StatusCtrl.isRunning.keySet()) {
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            for (String job : StatusCtrl.runningStatus.keySet()) {
                 jobs.put(job, StatusCtrl.runningStatus.get(job));
             }
         }
@@ -72,7 +72,9 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     public void associationStop() {
-        StatusCtrl.isRunning.replaceAll((j, v) -> false);
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.isRunning.replaceAll((j, v) -> false);
+        }
     }
 
 }

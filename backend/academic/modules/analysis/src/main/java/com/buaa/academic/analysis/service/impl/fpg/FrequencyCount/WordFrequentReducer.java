@@ -1,5 +1,6 @@
 package com.buaa.academic.analysis.service.impl.fpg.FrequencyCount;
 
+import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -12,8 +13,14 @@ public class WordFrequentReducer extends
     protected void reduce(Text key, Iterable<IntWritable> values,Context context)
             throws IOException, InterruptedException {
         int sum = 0;
-        for(IntWritable val: values)
+        for(IntWritable val: values) {
+
+            if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
+                StatusCtrl.stop(context.getJobName());
+            }
+
             sum += val.get();
+        }
         context.write(key, new IntWritable(sum));
     }
 }

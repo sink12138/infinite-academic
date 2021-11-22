@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,7 +23,7 @@ public class Status {
         public String status;
     }
 
-    List<JobStatus> jobStatuses;
+    List<JobStatus> jobStatuses = new ArrayList<>();
 
     public void addJObStatus(JobStatus jobStatus) {
         jobStatuses.add(jobStatus);
