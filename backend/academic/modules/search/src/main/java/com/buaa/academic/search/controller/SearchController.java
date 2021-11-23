@@ -8,6 +8,7 @@ import com.buaa.academic.document.entity.item.InstitutionItem;
 import com.buaa.academic.document.entity.item.JournalItem;
 import com.buaa.academic.document.entity.item.PaperItem;
 import com.buaa.academic.document.entity.item.ResearcherItem;
+import com.buaa.academic.model.exception.AcademicException;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.search.dao.InstitutionRepository;
@@ -204,7 +205,7 @@ public class SearchController {
                     "<b>本接口请求可以允许多层嵌套子条件</b></br>" +
                     "返回值包括论文检索结果。</br>" +
                     "允许添加Filter的字段：year (below, above, range, equal), citationNum (above)")
-    public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest) throws AcademicException {
         long start = System.currentTimeMillis();
         Result<HitPage<PaperItem>> result = new Result<>();
         HitPage<PaperItem> hitPage = new HitPage<>();
@@ -215,7 +216,7 @@ public class SearchController {
 
         /* TODO: 2021/11/18 进行参数检查
             (1) 若条件树的层数超过 maxDepth 则 return result.withFailure(<合适的错误信息>)
-            (2) 遍历条件树，对所有叶节点的 keyword 进行 strip 和截断，可以参考上一个方法
+            (2) 遍历条件树，对所有叶节点的 keyword 进行 strip 和截断，可以参考上一个方法 (修改代码风格和考虑String = null的情况）
             (3) 遍历过程中，对所有叶节点基于 scope 进行检查和处理。学术论文所允许限定的 scope 规则为：
                 "title", "abstract", "keywords", "subjects", "topics", "institutions.name": 允许开启 fuzzy 和 translated
                 "journal.title": 允许开启 fuzzy，但不允许开启 translated
@@ -228,17 +229,13 @@ public class SearchController {
             (6) 涉及某字段允许多个值的参数检查 禁止使用 if (xxx || xxx || ... || xxx) 这种结构.
          */
         // Condition tree depth check
-        if (countDepth(conditions) > maxDepth) {
-            return result.withFailure("条件复合层数太多！");
-        }
+        countDepth(conditions, maxDepth);
 
         // Keyword strip
         stripKeyword(conditions);
 
         // Scope check
-        if (checkScope(conditions) == 1) {
-            return result.withFailure(ExceptionType.INVALID_PARAM);
-        }
+        checkScope(conditions);
 
         // Param check for filters
         for (Filter filter : filters) {
@@ -259,14 +256,17 @@ public class SearchController {
         }
 
         // Sort check
-        if (!searchRequest.getSort().equals("") && !searchRequest.getSort().equals("date.asc") && !searchRequest.getSort().equals("date.desc") && !searchRequest.getSort().equals("citationNum.desc")) {
-            return result.withFailure(ExceptionType.INVALID_PARAM);
+        if(!srt.equals("")){
+            switch(srt){
+                case "date.asc":
+                case "date.desc":
+                case "citationNum.desc":
+                    break;
+                default: return result.withFailure(ExceptionType.INVALID_PARAM);
+            }
         }
 
         // Multiple params check
-        if(checkMultiParam(conditions) != null){
-            return result.withFailure(checkMultiParam(conditions));
-        }
 
         // Conditions
         QueryBuilder query;
@@ -318,59 +318,36 @@ public class SearchController {
         }
     }
 
-    private int checkScope(List<Condition> conditions) {
-        int flag = 0;
-        for (Condition condition : conditions) {
-            for (String s : condition.getScope()) {
-                if (s.equals("journal.title") && condition.isTranslated()) {
-                    flag = 1;
-                }
-                if (s.equals("type") && (condition.isTranslated() || condition.isFuzzy())) {
-                    flag = 1;
-                }
-                if (s.equals("authors.name") && (condition.isTranslated() || condition.isFuzzy())) {
-                    flag = 1;
-                }
-            }
-            if (condition.isCompound()) {
-                flag += checkScope(condition.getSubConditions());
-            }
-            if (flag > 1) {
-                flag = 1;
-            }
-        }
-        return flag;
-    }
-
-    private int countDepth(List<Condition> conditions) {
-        int tempCount = 1;
-        int maxCount = 1;
+    private void checkScope(List<Condition> conditions) throws AcademicException {
         for (Condition condition : conditions) {
             if (condition.isCompound()) {
-                tempCount += countDepth(condition.getSubConditions());
+                checkScope(condition.getSubConditions());
             }
-            if (maxCount < tempCount) {
-                maxCount = tempCount;
+            if (condition.getScope() != null) {
+                for (String s : condition.getScope()) {
+                    if (!s.equals("")) {
+                        switch (s) {
+                            case "journal.title":
+                            case "type":
+                            case "authors.name":
+                                break;
+                            default:
+                                throw new AcademicException("条件冲突");
+                        }
+                    }
+                }
             }
         }
-        return maxCount;
     }
 
-    private String checkMultiParam(List<Condition> conditions) {
-        for(Condition condition:conditions){
-            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("title")){
-                return "关键词"+condition.getKeyword()+"设置出现不合理";
+    private void countDepth(List<Condition> conditions, int maxDepth) throws AcademicException {
+        for (Condition condition : conditions) {
+            if (maxDepth < 0) {
+                throw new AcademicException("条件复合层数过高");
             }
-            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("institutions.name")){
-                return "关键词"+condition.getKeyword()+"设置出现不合理";
-            }
-            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("journal.title")){
-                return "关键词"+condition.getKeyword()+"设置出现不合理";
-            }
-            if(condition.isCompound()){
-                checkMultiParam(condition.getSubConditions());
+            if (condition.isCompound()) {
+                countDepth(condition.getSubConditions(), maxDepth - 1);
             }
         }
-        return null;
     }
 }
