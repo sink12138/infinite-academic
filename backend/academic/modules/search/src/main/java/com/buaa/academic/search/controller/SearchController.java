@@ -135,9 +135,8 @@ public class SearchController {
             keySet.add(Translator.translate(keyword, "auto", "zh"));
             keySet.add(Translator.translate(keyword, "auto", "en"));
             keywords = keySet.toArray(new String[0]);
-        }
-        else {
-            keywords = new String[] { keyword };
+        } else {
+            keywords = new String[]{keyword};
         }
 
         // Filters
@@ -198,13 +197,13 @@ public class SearchController {
         return result.withData(smartPage);
     }
 
-    /* TODO: 2021/11/18 完成 API文档，注意缩进规范。
-        要求详细描述允许使用的搜索条件和过滤器类型规则，注解写法可以参考上一个 API.
-        API文档的呈现效果可以参考 http://121.36.98.60:8090/doc.html
-        如果涉及大段文字描述，请适当使用 html 标签使文档更加易读，例如换行</br>，<b>加粗</b>.
-     */
     @PostMapping("/paper")
-    @ApiOperation(value = "学术论文检索", notes = "学术论文（Paper）类检索的专用接口")
+    @ApiOperation(
+            value = "学术论文检索",
+            notes = "使用可复合的条件搜索学术论文。</br>" +
+                    "<b>本接口请求可以允许多层嵌套子条件</b></br>" +
+                    "返回值包括论文检索结果。</br>" +
+                    "允许添加Filter的字段：year (below, above, range, equal), citationNum (above)")
     public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<PaperItem>> result = new Result<>();
@@ -228,13 +227,52 @@ public class SearchController {
                 若不符合，return result.withFailure(ExceptionType.INVALID_PARAM)
             (6) 涉及某字段允许多个值的参数检查 禁止使用 if (xxx || xxx || ... || xxx) 这种结构.
          */
+        // Condition tree depth check
+        if (countDepth(conditions) > maxDepth) {
+            return result.withFailure("条件复合层数太多！");
+        }
+
+        // Keyword strip
+        stripKeyword(conditions);
+
+        // Scope check
+        if (checkScope(conditions) == 1) {
+            return result.withFailure(ExceptionType.INVALID_PARAM);
+        }
+
+        // Param check for filters
+        for (Filter filter : filters) {
+            String type = filter.getType();
+            switch (type) {
+                case "below", "range", "equal" -> {
+                    if (!filter.getAttr().equals("year"))
+                        return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+                case "above" -> {
+                    if (!filter.getAttr().matches("^(year)|(citationNum)$"))
+                        return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+                default -> {
+                    return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
+            }
+        }
+
+        // Sort check
+        if (!searchRequest.getSort().equals("") && !searchRequest.getSort().equals("date.asc") && !searchRequest.getSort().equals("date.desc") && !searchRequest.getSort().equals("citationNum.desc")) {
+            return result.withFailure(ExceptionType.INVALID_PARAM);
+        }
+
+        // Multiple params check
+        if(checkMultiParam(conditions) != null){
+            return result.withFailure(checkMultiParam(conditions));
+        }
 
         // Conditions
         QueryBuilder query;
         if (conditions.size() == 1) {
             query = conditions.get(0).compile();
-        }
-        else {
+        } else {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             for (Condition condition : conditions) {
                 switch (condition.getLogic()) {
@@ -271,9 +309,68 @@ public class SearchController {
         return result.withData(hitPage);
     }
 
-    private int countDepth(List<Condition> conditions) {
-        // TODO: 2021/11/18 返回条件树的最大深度（层数）
-        return 0;
+    private void stripKeyword(List<Condition> conditions) {
+        for (Condition condition : conditions) {
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            if (condition.isCompound()) {
+                stripKeyword(condition.getSubConditions());
+            }
+        }
     }
 
+    private int checkScope(List<Condition> conditions) {
+        int flag = 0;
+        for (Condition condition : conditions) {
+            for (String s : condition.getScope()) {
+                if (s.equals("journal.title") && condition.isTranslated()) {
+                    flag = 1;
+                }
+                if (s.equals("type") && (condition.isTranslated() || condition.isFuzzy())) {
+                    flag = 1;
+                }
+                if (s.equals("authors.name") && (condition.isTranslated() || condition.isFuzzy())) {
+                    flag = 1;
+                }
+            }
+            if (condition.isCompound()) {
+                flag += checkScope(condition.getSubConditions());
+            }
+            if (flag > 1) {
+                flag = 1;
+            }
+        }
+        return flag;
+    }
+
+    private int countDepth(List<Condition> conditions) {
+        int tempCount = 1;
+        int maxCount = 1;
+        for (Condition condition : conditions) {
+            if (condition.isCompound()) {
+                tempCount += countDepth(condition.getSubConditions());
+            }
+            if (maxCount < tempCount) {
+                maxCount = tempCount;
+            }
+        }
+        return maxCount;
+    }
+
+    private String checkMultiParam(List<Condition> conditions) {
+        for(Condition condition:conditions){
+            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("title")){
+                return "关键词"+condition.getKeyword()+"设置出现不合理";
+            }
+            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("institutions.name")){
+                return "关键词"+condition.getKeyword()+"设置出现不合理";
+            }
+            if(condition.getScope().contains("authors.name")&&condition.getScope().contains("journal.title")){
+                return "关键词"+condition.getKeyword()+"设置出现不合理";
+            }
+            if(condition.isCompound()){
+                checkMultiParam(condition.getSubConditions());
+            }
+        }
+        return null;
+    }
 }

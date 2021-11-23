@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="search" />
+        <module name="eureka" />
+        <module name="document" />
+        <module name="model" />
+        <module name="analysis" />
+        <module name="gateway" />
+        <module name="account" />
+        <module name="tool" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="academic" target="17" />
+      <module name="account" target="17" />
+      <module name="analysis" target="17" />
+      <module name="document" target="17" />
+      <module name="eureka" target="17" />
+      <module name="gateway" target="17" />
+      <module name="model" target="17" />
+      <module name="search" target="17" />
+      <module name="tool" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="account" options="-parameters" />
+      <module name="analysis" options="-parameters" />
+      <module name="document" options="-parameters" />
+      <module name="eureka" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+      <module name="model" options="-parameters" />
+      <module name="search" options="-parameters" />
+      <module name="tool" options="-parameters" />
+    </option>
+  </component>
+</project>
