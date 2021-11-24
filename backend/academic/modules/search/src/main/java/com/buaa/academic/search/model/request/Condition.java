@@ -33,16 +33,16 @@ public class Condition {
     private boolean compound;
 
     @Length(max = 128)
-    @ApiModelProperty(value = "搜索关键词，超过32个字符将被截断，忽略头尾空白符", required = true, example = "机器学习")
+    @ApiModelProperty(value = "搜索关键词，超过32个字符将被截断，忽略头尾空白符", example = "机器学习")
     private String keyword;
 
-    @ApiModelProperty(value = "限定关键词的出现范围，均为属性名", required = true, example = "title")
+    @ApiModelProperty(value = "限定关键词的出现范围，均为属性名", example = "title")
     private Set<@NotNull String> scope;
 
-    @ApiModelProperty(value = "是否模糊搜索", required = true)
+    @ApiModelProperty(value = "是否模糊搜索")
     private boolean fuzzy;
 
-    @ApiModelProperty(value = "是否进行语种关联，若为true则需指定languages", required = true)
+    @ApiModelProperty(value = "是否进行语种关联，若为true则需指定languages")
     private boolean translated;
 
     @AllowValues({"zh", "en"})
@@ -93,8 +93,8 @@ public class Condition {
                     return QueryBuilders.multiMatchQuery(keyword, fields);
                 }
                 else {
-                    BoolQueryBuilder builder = QueryBuilders.boolQuery();
                     if (fields.length > 1) {
+                        BoolQueryBuilder builder = QueryBuilders.boolQuery();
                         for (String field : fields) {
                             builder.should(QueryBuilders.termQuery(field, keyword));
                         }

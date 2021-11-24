@@ -39,7 +39,7 @@ public class SearchRequest {
     @ApiModelProperty(value = "每页呈现的条目数量，最多25", required = true, example = "20", allowableValues = "range[1, 25]")
     private int size;
 
-    @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "year")
+    @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "citationNum.desc")
     private String sort;
 
     @Deprecated
