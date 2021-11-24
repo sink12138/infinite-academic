@@ -13,6 +13,8 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +37,7 @@ public class Condition {
     private String keyword;
 
     @ApiModelProperty(value = "限定关键词的出现范围，均为属性名", required = true, example = "title")
-    private Set<String> scope;
+    private Set<@NotNull String> scope;
 
     @ApiModelProperty(value = "是否模糊搜索", required = true)
     private boolean fuzzy;
@@ -45,11 +47,12 @@ public class Condition {
 
     @AllowValues({"zh", "en"})
     @ApiModelProperty(value = "需要扩展的语言", allowableValues = "zh,en", example = "zh")
-    private Set<String> languages;
+    private Set<@NotNull String> languages;
 
+    @Size(min = 1, max = 5)
     @SearchCondition
     @ApiModelProperty(value = "查询子条件")
-    private List<Condition> subConditions;
+    private List<@NotNull Condition> subConditions;
 
     public QueryBuilder compile() {
         if (compound) {

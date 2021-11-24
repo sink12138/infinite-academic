@@ -24,18 +24,18 @@ public class SearchRequest {
     @NotNull
     @Size(min = 1, max = 5)
     @ApiModelProperty(value = "所有搜索条件（顶层），不可为空", required = true)
-    private List<@SearchCondition Condition> conditions;
+    private List<@NotNull @SearchCondition Condition> conditions;
 
     @NotNull
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件，可为空不可为null")
-    private List<@SearchFilter Filter> filters;
+    private List<@NotNull @SearchFilter Filter> filters;
 
-    @Range(min = 0)
+    @PositiveOrZero
     @ApiModelProperty(value = "查询的页码，从0开始", required = true, example = "2")
     private int page;
 
-    @PositiveOrZero
+    @Range(min = 1, max = 25)
     @ApiModelProperty(value = "每页呈现的条目数量，最多25", required = true, example = "20", allowableValues = "range[1, 25]")
     private int size;
 
