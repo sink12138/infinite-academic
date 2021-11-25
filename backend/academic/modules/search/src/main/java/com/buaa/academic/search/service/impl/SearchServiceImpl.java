@@ -55,11 +55,10 @@ public class SearchServiceImpl implements SearchService {
         else {
             query = QueryBuilders.multiMatchQuery(keywords[0], matchFields);
         }
-        HighlightBuilder hlt = new HighlightBuilder();
+        HighlightBuilder hlt = new HighlightBuilder().preTags(preTag).postTags(postTag);
         for (String field : hltFields) {
             hlt.field(field);
         }
-        hlt.preTags(preTag).postTags(postTag);
         return advancedSearch(Paper.class, query, filter, sort, hlt, page);
     }
 

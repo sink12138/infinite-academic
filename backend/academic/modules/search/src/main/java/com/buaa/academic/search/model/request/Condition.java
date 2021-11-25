@@ -1,5 +1,6 @@
 package com.buaa.academic.search.model.request;
 
+import com.buaa.academic.search.dao.TextMappings;
 import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.validator.AllowValues;
 import com.buaa.academic.search.validator.SearchCondition;
@@ -54,20 +55,26 @@ public class Condition {
     @ApiModelProperty(value = "查询子条件")
     private List<@NotNull Condition> subConditions;
 
-    public QueryBuilder compile() {
+    public QueryBuilder compile(String strategy) {
         if (compound) {
             BoolQueryBuilder builder = QueryBuilders.boolQuery();
             for (Condition subCond : subConditions) {
                 switch (subCond.logic) {
-                    case "and" -> builder.must(subCond.compile());
-                    case "or" -> builder.should(subCond.compile());
-                    case "not" -> builder.mustNot(subCond.compile());
+                    case "and" -> builder.must(subCond.compile(strategy));
+                    case "or" -> builder.should(subCond.compile(strategy));
+                    case "not" -> builder.mustNot(subCond.compile(strategy));
                 }
             }
             return builder;
         }
         else {
             String[] fields = scope.toArray(new String[0]);
+            if (!fuzzy) {
+                for (int i = 0; i < fields.length; ++i) {
+                    if (TextMappings.contains(strategy, fields[i]))
+                        fields[i] += ".raw";
+                }
+            }
             if (translated) {
                 Set<String> keywords = new HashSet<>(6);
                 keywords.add(keyword);

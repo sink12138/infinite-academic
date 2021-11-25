@@ -290,7 +290,7 @@ public class SearchController {
         }
 
         // Prepare search params
-        QueryBuilder query = searchService.buildQuery(conditions);
+        QueryBuilder query = searchService.buildQuery(conditions, "paper");
         QueryBuilder filter = searchService.buildFilter(filters);
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
@@ -392,7 +392,7 @@ public class SearchController {
         }
 
         // Prepare search params
-        QueryBuilder query = searchService.buildQuery(conditions);
+        QueryBuilder query = searchService.buildQuery(conditions, "researcher");
         QueryBuilder filter = searchService.buildFilter(filters);
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("name", "interests");
@@ -452,7 +452,7 @@ public class SearchController {
         }
 
         // Prepare search params
-        QueryBuilder query = searchService.buildQuery(conditions);
+        QueryBuilder query = searchService.buildQuery(conditions, "journal");
         SortBuilder<?> sort = SortBuilders.scoreSort();
         HighlightBuilder hlt = searchService.buildHighlight("title");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
@@ -511,7 +511,7 @@ public class SearchController {
         }
 
         // Prepare search params
-        QueryBuilder query = searchService.buildQuery(conditions);
+        QueryBuilder query = searchService.buildQuery(conditions, "institution");
         SortBuilder<?> sort = SortBuilders.scoreSort();
         HighlightBuilder hlt = searchService.buildHighlight("name");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
@@ -600,7 +600,7 @@ public class SearchController {
         }
 
         // Prepare search params
-        QueryBuilder query = searchService.buildQuery(conditions);
+        QueryBuilder query = searchService.buildQuery(conditions, "patent");
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("title", "applicant");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());

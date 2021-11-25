@@ -8,9 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.util.List;
 
@@ -26,7 +24,9 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "专利的数据库ID", required = true, example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 
@@ -58,7 +58,9 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "授权公告日", example = "2021-10-22")
     private String authorizationDate;
 
-    @Field(type = FieldType.Text)
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @ApiModelProperty(value = "申请人", example = "宏碁股份有限公司")
     private String applicant;
 
@@ -110,7 +112,9 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "代理人", example = "朱颖;刘芳")
     private String agent;
 
-    @Field(name = "abstract", type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @JsonProperty("abstract")
     @ApiModelProperty(value = "专利的摘要", example = "假装这是一大段摘要")
     private String patentAbstract;

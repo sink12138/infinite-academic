@@ -9,6 +9,7 @@ import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.PaperRepository;
 import com.buaa.academic.search.dao.PatentRepository;
 import com.buaa.academic.tool.validator.AllowValues;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotEmpty;
 @RestController
 @RequestMapping("/query")
 @Validated
+@Api(tags = "编号精确查询")
 public class QueryController {
 
     @Autowired
@@ -45,7 +47,7 @@ public class QueryController {
                     "<b>注意：若未找到对应实体，本接口返回success = false。</b>")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "type", value = "查询类别：doi/issn/isbn/patentNum", example = "doi"),
-            @ApiImplicitParam(name = "key", value = "查询字符串", example = "10.15881/j.cnki.cn33-1304/g4.2017.03.002")})
+            @ApiImplicitParam(name = "key", value = "查询编号字符串", example = "10.15881/j.cnki.cn33-1304/g4.2017.03.002")})
     public Result<String> query(@RequestParam(name = "type") @AllowValues({"doi", "issn", "isbn", "patentNum"}) String type,
                                 @RequestParam(name = "key") @NotEmpty @Length(max = 128) String key) {
         Result<String> result = new Result<>();

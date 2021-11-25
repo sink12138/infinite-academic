@@ -21,17 +21,17 @@ public interface SearchService {
 
     SearchHits<Paper> smartSearch(String[] keywords, QueryBuilder filter, SortBuilder<?> sort, Pageable page);
 
-    default QueryBuilder buildQuery(List<Condition> conditions) {
+    default QueryBuilder buildQuery(List<Condition> conditions, String strategy) {
         QueryBuilder query;
         if (conditions.size() == 1) {
-            query = conditions.get(0).compile();
+            query = conditions.get(0).compile(strategy);
         } else {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             for (Condition condition : conditions) {
                 switch (condition.getLogic()) {
-                    case "and" -> boolQuery.must(condition.compile());
-                    case "or" -> boolQuery.should(condition.compile());
-                    case "not" -> boolQuery.mustNot(condition.compile());
+                    case "and" -> boolQuery.must(condition.compile(strategy));
+                    case "or" -> boolQuery.should(condition.compile(strategy));
+                    case "not" -> boolQuery.mustNot(condition.compile(strategy));
                 }
             }
             query = boolQuery;

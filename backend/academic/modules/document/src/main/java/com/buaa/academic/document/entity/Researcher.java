@@ -8,9 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.util.List;
 
@@ -40,7 +38,9 @@ public class Researcher implements Reducible<ResearcherItem> {
         @ApiModelProperty(value = "所属机构的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
-        @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+        @MultiField(
+                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+                otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
         @ApiModelProperty(required = true, value = "机构的名称", example = "北京航空航天大学软件学院")
         private String name;
 
@@ -68,7 +68,9 @@ public class Researcher implements Reducible<ResearcherItem> {
     @JsonProperty("gIndex")
     private Integer gIndex;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100, fielddata = true)
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw", positionIncrementGap = 100))
     @ApiModelProperty(value = "科研人员的研究方向", example = "智能化软件工程")
     private List<String> interests;
 
