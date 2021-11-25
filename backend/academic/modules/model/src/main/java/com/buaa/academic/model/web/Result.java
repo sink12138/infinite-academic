@@ -21,7 +21,7 @@ public class Result<D> {
     @ApiModelProperty(required = true, value = "操作是否成功", example = "true")
     private boolean success = true;
 
-    @ApiModelProperty(value = "若操作不成功则含有此字段", example = "参数格式非法")
+    @ApiModelProperty(value = "错误信息，若操作不成功则含有此字段", example = "参数格式非法")
     private String message;
 
     @ApiModelProperty(value = "若操作成功则可能附带此字段")
