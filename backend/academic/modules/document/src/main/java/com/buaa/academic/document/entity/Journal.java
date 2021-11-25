@@ -47,8 +47,8 @@ public class Journal implements Reducible<JournalItem> {
     public JournalItem reduce() {
         JournalItem item = new JournalItem();
         item.setId(id);
-        item.setTitle(title.length() > 24 ? title.substring(0, 24) + "..." : title);
-        item.setSponsor(sponsor.length() > 16 ? sponsor.substring(0, 16) + "..." : sponsor);
+        item.setTitle(title);
+        item.setSponsor(sponsor);
         return item;
     }
 
