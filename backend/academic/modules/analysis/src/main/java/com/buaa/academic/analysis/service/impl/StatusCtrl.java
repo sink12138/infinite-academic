@@ -12,11 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-enum JobClass {
-    TOPIC_FPG_ANALYSIS,
-    SUBJECT_FPG_ANALYSIS,
-    HOT_ANALYSIS
-}
+
 
 public class
 StatusCtrl implements Runnable{
@@ -66,6 +62,19 @@ StatusCtrl implements Runnable{
         return true;
     }
 
+    public static void changeRunningStatusTo(String runningStatus, String threadName) {
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.runningStatus.put(threadName, runningStatus);
+        }
+    }
+
+    public static void changeRunningStatusToStop(String runningStatus, String threadName) {
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.isRunning.remove(threadName);
+            StatusCtrl.runningStatus.put(threadName, runningStatus);
+        }
+    }
+
     @Override
     public void run() {
         associationAnalysis();
@@ -74,15 +83,17 @@ StatusCtrl implements Runnable{
     public Status getStatus() {
         Status status = new Status();
         Map<String, String> jobs = new HashMap<>();
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            for (String job : StatusCtrl.runningStatus.keySet()) {
-                jobs.put(job, StatusCtrl.runningStatus.get(job));
+        Map<String, Boolean> isR;
+        synchronized (STATUS_LOCK) {
+            for (String job : runningStatus.keySet()) {
+                jobs.put(job, runningStatus.get(job));
             }
+            isR = new HashMap<>(isRunning);
         }
         for (Map.Entry<String, String> entry : jobs.entrySet()) {
             Boolean isRunning = false;
-            if (StatusCtrl.isRunning.containsKey(entry.getKey())) {
-                isRunning = StatusCtrl.isRunning.get(entry.getKey());
+            if (isR.containsKey(entry.getKey())) {
+                isRunning = isR.get(entry.getKey());
             }
             status.addJObStatus(new Status.JobStatus(entry.getKey(), entry.getValue(), isRunning));
         }
@@ -90,35 +101,35 @@ StatusCtrl implements Runnable{
     }
 
     public void associationStop() {
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            StatusCtrl.isRunning.replaceAll((j, v) -> false);
+        synchronized (STATUS_LOCK) {
+            isRunning.replaceAll((j, v) -> false);
         }
     }
 
     private void associationAnalysis() {
         FPGMainClass topicFPG = new FPGMainClass("topics")
-                .setName(JobClass.TOPIC_FPG_ANALYSIS.name())
+                .setName(JobType.TOPIC_FPG_ANALYSIS.name())
                 .setMinSupport(0.4).setMinConfidence(0.6)
                 .setDeleteTmpFiles(false)
                 .setTemplate(template)
                 .setTopicRepository(topicRepository);
         Thread topicFPGThread = new Thread(topicFPG);
-        topicFPGThread.setName(JobClass.TOPIC_FPG_ANALYSIS.name());
+        topicFPGThread.setName(JobType.TOPIC_FPG_ANALYSIS.name());
         synchronized (StatusCtrl.STATUS_LOCK) {
-            StatusCtrl.isRunning.put(JobClass.TOPIC_FPG_ANALYSIS.name(), true);
+            StatusCtrl.isRunning.put(JobType.TOPIC_FPG_ANALYSIS.name(), true);
         }
         topicFPGThread.start();
 
         FPGMainClass subjectFPG = new FPGMainClass("subjects")
-                .setName(JobClass.SUBJECT_FPG_ANALYSIS.name())
+                .setName(JobType.SUBJECT_FPG_ANALYSIS.name())
                 .setMinSupport(0.4).setMinConfidence(0.6)
                 .setDeleteTmpFiles(false)
                 .setTemplate(template)
                 .setSubjectRepository(subjectRepository);
         Thread subjectFPGThread = new Thread(subjectFPG);
-        subjectFPGThread.setName(JobClass.SUBJECT_FPG_ANALYSIS.name());
+        subjectFPGThread.setName(JobType.SUBJECT_FPG_ANALYSIS.name());
         synchronized (StatusCtrl.STATUS_LOCK) {
-            StatusCtrl.isRunning.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), true);
+            StatusCtrl.isRunning.put(JobType.SUBJECT_FPG_ANALYSIS.name(), true);
         }
         subjectFPGThread.start();
     }
