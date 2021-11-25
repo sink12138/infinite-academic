@@ -80,6 +80,10 @@ public class Researcher implements Reducible<ResearcherItem> {
     @ApiModelProperty(value = "科研人员发明的专利数量", example = "1919810")
     private int patentNum = 0;
 
+    @Field(type = FieldType.Integer)
+    @ApiModelProperty(value = "科研人员总被引量", example = "666")
+    private int citationNum = 0;
+
     @Override
     public ResearcherItem reduce() {
         ResearcherItem item = new ResearcherItem();
@@ -89,6 +93,7 @@ public class Researcher implements Reducible<ResearcherItem> {
         item.setInterests(interests);
         item.setPaperNum(paperNum);
         item.setPatentNum(patentNum);
+        item.setCitationNum(citationNum);
         return item;
     }
 }

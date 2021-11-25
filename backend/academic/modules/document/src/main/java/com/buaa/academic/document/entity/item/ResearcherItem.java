@@ -46,4 +46,7 @@ public class ResearcherItem {
     @ApiModelProperty(value = "科研人员发明的专利数量", example = "1919810")
     private int patentNum = 0;
 
+    @ApiModelProperty(value = "科研人员总被引量", example = "666")
+    private int citationNum = 0;
+
 }
