@@ -30,7 +30,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "专利类型", example = "外观设计")
     private String type;
 
@@ -86,27 +86,27 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "发明人信息列表")
     private List<Inventor> inventors;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "分类号", example = "14-02")
     private String classificationNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "主分类号", example = "14-02")
     private String mainClassificationNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "国省代码", example = "JP")
     private String countryProvinceCode;
 
-    @Field(type = FieldType.Integer)
+    @Field(type = FieldType.Integer, index = false)
     @ApiModelProperty(value = "页数", example = "9")
     private Integer pageNum;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "代理机构", example = "北京同立钧成知识产权代理有限公司")
     private String agency;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "代理人", example = "朱颖;刘芳")
     private String agent;
 
@@ -115,7 +115,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "专利的摘要", example = "假装这是一大段摘要")
     private String patentAbstract;
 
-    @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
+    @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "主权项", example = "假装这是一大段主权项")
     private String claim;
 
