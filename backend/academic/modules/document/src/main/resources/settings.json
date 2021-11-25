@@ -1,0 +1,13 @@
+{
+  "analysis": {
+    "analyzer": {
+      "ik_optimized": {
+        "tokenizer": "ik_smart",
+        "filter": [
+          "lowercase",
+          "stemmer"
+        ]
+      }
+    }
+  }
+}

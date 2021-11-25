@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "科研人员实体")
 @Document(indexName = "researcher")
+@Setting(settingPath = "settings.json")
 public class Researcher implements Reducible<ResearcherItem> {
 
     @Id
@@ -70,7 +71,7 @@ public class Researcher implements Reducible<ResearcherItem> {
 
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw", positionIncrementGap = 100))
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @ApiModelProperty(value = "科研人员的研究方向", example = "智能化软件工程")
     private List<String> interests;
 

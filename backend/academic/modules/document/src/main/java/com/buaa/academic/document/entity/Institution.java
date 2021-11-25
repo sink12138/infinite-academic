@@ -14,6 +14,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @NoArgsConstructor
 @ApiModel(description = "科研机构实体")
 @Document(indexName = "institution")
+@Setting(settingPath = "settings.json")
 public class Institution implements Reducible<InstitutionItem> {
 
     @Id

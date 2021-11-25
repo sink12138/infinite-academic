@@ -19,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "学术论文实体")
 @Document(indexName = "paper")
+@Setting(settingPath = "settings.json")
 public class Paper implements Reducible<PaperItem> {
 
     @Id
@@ -83,7 +84,7 @@ public class Paper implements Reducible<PaperItem> {
     private List<Institution> institutions;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+            mainField = @Field(type = FieldType.Text, name = "abstract", analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
             otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @JsonProperty("abstract")
     @ApiModelProperty(required = true, value = "论文摘要", example = "假装这是一大段摘要")
@@ -97,13 +98,13 @@ public class Paper implements Reducible<PaperItem> {
 
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw", positionIncrementGap = 100))
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw", positionIncrementGap = 100))
+            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @ApiModelProperty(value = "论文的话题分类")
     private List<String> topics;
 
@@ -172,7 +173,7 @@ public class Paper implements Reducible<PaperItem> {
     private String publisher;
 
     @JsonIgnore
-    @Field(type = FieldType.Keyword, positionIncrementGap = 100)
+    @Field(type = FieldType.Keyword)
     private List<String> references;
 
     @Data

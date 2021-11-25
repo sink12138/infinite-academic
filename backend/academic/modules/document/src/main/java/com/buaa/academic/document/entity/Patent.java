@@ -17,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "专利实体")
 @Document(indexName = "patent")
+@Setting(settingPath = "settings.json")
 public class Patent implements Reducible<PatentItem> {
 
     @Id
@@ -113,7 +114,7 @@ public class Patent implements Reducible<PatentItem> {
     private String agent;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+            mainField = @Field(type = FieldType.Text, name = "abstract", analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
             otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
     @JsonProperty("abstract")
     @ApiModelProperty(value = "专利的摘要", example = "假装这是一大段摘要")

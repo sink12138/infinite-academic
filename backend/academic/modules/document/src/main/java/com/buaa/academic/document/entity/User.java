@@ -10,12 +10,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "普通用户账号实体")
 @Document(indexName = "user")
+@Setting(settingPath = "settings.json")
 public class User {
 
     @Id
