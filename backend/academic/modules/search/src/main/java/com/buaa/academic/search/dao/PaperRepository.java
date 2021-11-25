@@ -7,4 +7,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PaperRepository extends ElasticsearchRepository<Paper, String> {
 
+    Paper findTopByDoi(String doi);
+
+    Paper findTopByIssn(String issn);
+
+    Paper findTopByIsbn(String isbn);
+
 }

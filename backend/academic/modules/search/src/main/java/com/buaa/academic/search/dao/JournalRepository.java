@@ -10,4 +10,6 @@ public interface JournalRepository extends ElasticsearchRepository<Journal, Stri
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
     SearchPage<Journal> findByTitleLike(String title, Pageable pageable);
 
+    Journal findTopByIssn(String issn);
+
 }
