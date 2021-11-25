@@ -1,54 +1,77 @@
 package com.buaa.academic.analysis.service.impl.hot;
 
+import com.buaa.academic.analysis.model.Subject;
+import com.buaa.academic.analysis.model.Topic;
+import com.buaa.academic.analysis.repository.SubjectRepository;
+import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.service.impl.JobType;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
-import com.buaa.academic.document.entity.Paper;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.SearchScrollHits;
-import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+
+import java.util.Objects;
 
 public class HotCalThread implements Runnable{
-    private ElasticsearchRestTemplate template;
-    private Integer partition;
+    private String threadName;
+    private TopicRepository topicRepository;
+    private SubjectRepository subjectRepository;
 
-    public HotCalThread(ElasticsearchRestTemplate template, Integer partition) {
-        this.template = template;
-        this.partition = partition;
+    public HotCalThread(String threadName) {
+        this.threadName = threadName;
+    }
+
+    public HotCalThread setTopicRepository(TopicRepository topicRepository) {
+        this.topicRepository = topicRepository;
+        return this;
+    }
+
+    public HotCalThread setSubjectRepository(SubjectRepository subjectRepository) {
+        this.subjectRepository = subjectRepository;
+        return this;
     }
 
     @Override
     public void run() {
-        SearchScrollHits<Paper> hits;
-        while (true) {
+        while (true){
+
+            if (StatusCtrl.isStopped(threadName))
+                return;
+
+            Terms.Bucket bucket;
+
             synchronized (StatusCtrl.STATUS_LOCK) {
-                if (!HotUpdateMainThread.scrollId.isEmpty()) {
-                    NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                            .withQuery(QueryBuilders.matchAllQuery())
-                            .withFields("id")
-                            .withPageable(PageRequest.of(0, partition))
-                            .build();
-                    hits = template.searchScrollStart(3000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
-                    HotUpdateMainThread.scrollId = hits.getScrollId();
-                } else {
-                    hits = template.searchScrollContinue(HotUpdateMainThread.scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
-                }
-                if (!hits.hasSearchHits())
+                int index = HotUpdateMainThread.finished.get(threadName);
+                int total = HotUpdateMainThread.total.get(threadName);
+                if (index >= total)
                     return;
+                bucket = HotUpdateMainThread.targetTerm.getBuckets().get(index);
+                HotUpdateMainThread.finished.put(threadName, ++index);
+                StatusCtrl.runningStatus.put(threadName, "Hot rank calculating["+index+"/"+total+"]...");
             }
-            ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("year");
-            hits.forEach(paperSearchHit -> {
-                NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
-                        .withQuery(QueryBuilders.termQuery("references", paperSearchHit.getContent()))
-                        .addAggregation(count)
-                        .build();
-            });
+
+            String targetName = bucket.getKey().toString();
+            double hot = 0.0;
+            Aggregation aggregationYear = bucket.getAggregations().get("year_term");
+            ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
+            for (Terms.Bucket yearBucket : longTerms.getBuckets()) {
+                hot += calHot(Integer.parseInt(yearBucket.getKey().toString()), (int) yearBucket.getDocCount());
+            }
+
+            if (Objects.equals(threadName, JobType.HOT_TOPIC_ANALYSIS.name())) {
+                Topic topic = topicRepository.findTopicByName(targetName);
+                topic.setHot(hot);
+                topicRepository.save(topic);
+            } else {
+                Subject subject = subjectRepository.findSubjectByName(targetName);
+                subject.setHot(hot);
+                subjectRepository.save(subject);
+            }
         }
     }
+
+    private double calHot(int year, int citation) {
+        return 0.0;
+    }
+
 }

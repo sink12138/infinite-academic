@@ -112,7 +112,7 @@ public class FPGMainClass implements Runnable{
     @Override
     public void run() {
 
-        changeRunningStatusTo("FP-Growth analysis starting...");
+        StatusCtrl.changeRunningStatusTo("FP-Growth analysis starting...", name);
 
         long start_time = System.currentTimeMillis();
 
@@ -182,7 +182,7 @@ public class FPGMainClass implements Runnable{
         }
 
         double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
-        changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s");
+        StatusCtrl.changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s", name);
     }
 
     private void getInputData() throws IOException {
@@ -191,12 +191,12 @@ public class FPGMainClass implements Runnable{
             deleteDir(inputPath);
         }
         if (!inputFile.createNewFile()) {
-            changeRunningStatusToStop("Can't make file " + inputFile);
+            StatusCtrl.changeRunningStatusToStop("Can't make file " + inputFile, name);
             throw new IOException();
         }
         FileWriter fileWriter = new FileWriter(inputFile);
 
-        changeRunningStatusTo("Write data to local tmp file...");
+        StatusCtrl.changeRunningStatusTo("Write data to local tmp file...", name);
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
@@ -209,7 +209,7 @@ public class FPGMainClass implements Runnable{
 
             // 检查线程是否终止
             if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
-                changeRunningStatusToStop("Stopped.");
+                StatusCtrl.changeRunningStatusToStop("Stopped.", name);
                 fileWriter.close();
                 return;
             }
@@ -217,10 +217,28 @@ public class FPGMainClass implements Runnable{
             // 写入
             hits.forEach(hit -> {
                 List<String> items;
-                if (analysisObject.equals("topics"))
+                if (analysisObject.equals("topics")) {
                     items = hit.getContent().getTopics();
-                else
+                    for (String item : items) {
+                        Topic topic = topicRepository.findTopicByName(item);
+                        if (topic == null) {
+                            topic = new Topic();
+                            topic.setName(item);
+                            topicRepository.save(topic);
+                        }
+                    }
+                }
+                else {
                     items = hit.getContent().getSubjects();
+                    for (String item : items) {
+                        Subject subject = subjectRepository.findSubjectByName(item);
+                        if (subject == null) {
+                            subject = new Subject();
+                            subject.setName(item);
+                            subjectRepository.save(subject);
+                        }
+                    }
+                }
                 String inputData = StringUtils.join(FPGMainClass.splitChar, items) + "\n";
                 try {
                     fileWriter.write(inputData);
@@ -232,11 +250,11 @@ public class FPGMainClass implements Runnable{
         } while (hits.hasSearchHits());
         fileWriter.close();
 
-        changeRunningStatusTo("Data is ready!");
+        StatusCtrl.changeRunningStatusTo("Data is ready!", name);
     }
 
     private Job frequencyCal() throws IOException, InterruptedException, ClassNotFoundException {
-        changeRunningStatusTo("Counting frequency...");
+        StatusCtrl.changeRunningStatusTo("Counting frequency...", name);
 
         String jobName = "Word Frequency";
         Job countJob = Job.getInstance(configuration, jobName);
@@ -255,19 +273,19 @@ public class FPGMainClass implements Runnable{
 
         if (!countJob.waitForCompletion(true)) {
 
-            changeRunningStatusToStop("Frequency count error!");
+            StatusCtrl.changeRunningStatusToStop("Frequency count error!", name);
 
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
 
-        changeRunningStatusTo("Frequency count finished!");
+        StatusCtrl.changeRunningStatusTo("Frequency count finished!", name);
         return countJob;
     }
 
     private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
-        changeRunningStatusTo("Generating and sorting frequent items...");
+        StatusCtrl.changeRunningStatusTo("Generating and sorting frequent items...", name);
 
         minSupport = minSupport * countJob.getCounters().findCounter(WordFrequency.Counter.LINE_LEN).getValue();
         countJob.close();
@@ -291,18 +309,18 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(sortJob, new Path(frequentItemsPath));
 
         if (!sortJob.waitForCompletion(true)) {
-            changeRunningStatusToStop("Frequent items sort error!");
+            StatusCtrl.changeRunningStatusToStop("Frequent items sort error!", name);
 
             deleteDir(resultDir);
             deleteDir(inputPath);
             System.exit(-1);
         }
 
-        changeRunningStatusTo("Frequent items sorting finished!");
+        StatusCtrl.changeRunningStatusTo("Frequent items sorting finished!", name);
     }
 
     private void fpgExc() throws IOException, InterruptedException, ClassNotFoundException {
-        changeRunningStatusTo("FP-growth executing...");
+        StatusCtrl.changeRunningStatusTo("FP-growth executing...", name);
 
         String jobName = "FPGrowth";
         Job fpJob = Job.getInstance(configuration, jobName);
@@ -324,7 +342,7 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(fpJob, new Path(frequentSetsPath));
 
         if (!fpJob.waitForCompletion(true)) {
-            changeRunningStatusToStop("FP-Growth error!");
+            StatusCtrl.changeRunningStatusToStop("FP-Growth error!", name);
 
             deleteDir(resultDir);
             deleteDir(inputPath);
@@ -332,11 +350,11 @@ public class FPGMainClass implements Runnable{
         }
         fpJob.close();
 
-        changeRunningStatusTo("FP-Growth finished!");
+        StatusCtrl.changeRunningStatusTo("FP-Growth finished!", name);
     }
 
     private void associationCal() throws IOException, InterruptedException, ClassNotFoundException {
-        changeRunningStatusTo("Calculating association rules...");
+        StatusCtrl.changeRunningStatusTo("Calculating association rules...", name);
 
         configuration.setDouble("confidence", minConfidence);
 
@@ -360,7 +378,7 @@ public class FPGMainClass implements Runnable{
         FileOutputFormat.setOutputPath(rulesJob, new Path(associationRulesPath));
 
         if (!rulesJob.waitForCompletion(true)) {
-            changeRunningStatusToStop("Association rules calculating error!");
+            StatusCtrl.changeRunningStatusToStop("Association rules calculating error!", name);
 
             deleteDir(resultDir);
             deleteDir(inputPath);
@@ -368,11 +386,11 @@ public class FPGMainClass implements Runnable{
         }
         rulesJob.close();
 
-        changeRunningStatusTo("Association rules calculating finished!");
+        StatusCtrl.changeRunningStatusTo("Association rules calculating finished!", name);
     }
 
     private void saveToEs() throws IOException {
-        changeRunningStatusTo("Write to ElasticSearch...");
+        StatusCtrl.changeRunningStatusTo("Write to ElasticSearch...", name);
 
         File resFile = new File(associationRulesPath + "/part-r-00000");
         FileReader fileReader = new FileReader(resFile);
@@ -412,23 +430,10 @@ public class FPGMainClass implements Runnable{
             }
         }
 
-        changeRunningStatusTo("ALl data has been written to ElasticSearch!");
+        StatusCtrl.changeRunningStatusTo("ALl data has been written to ElasticSearch!", name);
     }
 
-    private void changeRunningStatusTo(String runningStatus) {
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            StatusCtrl.runningStatus.put(name, runningStatus);
-        }
-        System.out.println(name + ": " + runningStatus);
-    }
 
-    private void changeRunningStatusToStop(String runningStatus) {
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            StatusCtrl.isRunning.remove(name);
-            StatusCtrl.runningStatus.put(name, runningStatus);
-        }
-        System.out.println(name + ": " + runningStatus);
-    }
 
     private void deleteDir(String dirPath) throws IOException {
         File resultDir = new File(dirPath);
@@ -441,18 +446,18 @@ public class FPGMainClass implements Runnable{
                     assert tmpFiles != null;
                     for (File file : tmpFiles) {
                         if (!file.delete()) {
-                            changeRunningStatusToStop("Can't delete tmp files at" + file.getPath());
+                            StatusCtrl.changeRunningStatusToStop("Can't delete tmp files at" + file.getPath(), name);
                             throw new IOException(analysisObject + " analysis: Can't delete tmp files at" + file.getPath());
                         }
                     }
                     if (!dir.delete()) {
-                        changeRunningStatusToStop("Can't delete tmp files" + dir.getPath());
+                        StatusCtrl.changeRunningStatusToStop("Can't delete tmp files" + dir.getPath(), name);
                         throw new IOException(analysisObject + " analysis: Can't delete tmp files at" + dir.getPath());
                     }
                 }
             }
             if (!resultDir.delete()) {
-                changeRunningStatusToStop("Can't delete files at" + resultDir.getPath());
+                StatusCtrl.changeRunningStatusToStop("Can't delete files at" + resultDir.getPath(), name);
                 throw new IOException(analysisObject + " analysis: Can't delete files at" + resultDir.getPath());
             }
             System.out.println(analysisObject + " analysis: Delete tmp files at " + dirPath);
@@ -470,6 +475,6 @@ public class FPGMainClass implements Runnable{
     private void interruptStop(String reason) throws IOException {
         deleteDir(inputPath);
         deleteDir(resultDir);
-        changeRunningStatusToStop(reason);
+        StatusCtrl.changeRunningStatusToStop(reason, name);
     }
 }

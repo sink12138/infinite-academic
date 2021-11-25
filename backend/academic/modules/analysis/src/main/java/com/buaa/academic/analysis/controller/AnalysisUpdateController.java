@@ -1,11 +1,17 @@
 package com.buaa.academic.analysis.controller;
 
+import com.buaa.academic.analysis.repository.PaperRepository;
 import com.buaa.academic.analysis.service.AnalysisService;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.model.web.Result;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.range.Range;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -14,11 +20,13 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/update")
+import java.util.List;
+import java.util.Map;
+
+@RequestMapping("/update")
+@RestController()
 public class AnalysisUpdateController {
 
     @Autowired
@@ -49,14 +57,37 @@ public class AnalysisUpdateController {
     ElasticsearchRestTemplate template;
 
     @GetMapping("/test")
-    public Result<Object> testAgg(@Param(value = "id") String id) {
+    public Result<Object> testAgg(@RequestParam(value = "topic") String topic) {
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("test").field("year");
+        TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("term").field("year").subAggregation(count);
+        TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("topicTerm").field("topics.keyword").subAggregation(termsAgg);
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.termQuery("references", id))
-                .addAggregation(count)
+                .withQuery(QueryBuilders.matchAllQuery())
+                .addAggregation(topicTerm)
                 .build();
         SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
         Aggregations aggregations = searchHit.getAggregations();
+        assert aggregations != null;
+        Aggregation aggregation = aggregations.asMap().get("topicTerm");
+        ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+        for (Terms.Bucket bucket: terms.getBuckets()) {
+            System.out.println(bucket.getKey().toString());
+            Aggregation aggregationYear = bucket.getAggregations().get("term");
+            ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
+            for (Terms.Bucket bucket1: longTerms.getBuckets()) {
+                System.out.println(bucket1.getKey().toString() + ": " + bucket1.getDocCount());
+            }
+        }
+        return new Result<>();
+    }
+
+    @Autowired
+    PaperRepository paperRepository;
+
+    @PostMapping("/add")
+    public Result<Void> add(@RequestBody Paper request) {
+        //template.indexOps(Paper.class).putMapping();
+        paperRepository.save(request);
         return new Result<>();
     }
 
