@@ -4,4 +4,5 @@ import com.buaa.academic.analysis.model.Subject;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 public interface SubjectRepository extends ElasticsearchRepository<Subject, String> {
+    Subject findSubjectByName(String name);
 }

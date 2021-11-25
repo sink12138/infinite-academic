@@ -21,6 +21,7 @@ public class Status {
     public static class JobStatus {
         public String name;
         public String status;
+        public Boolean isRunning;
     }
 
     List<JobStatus> jobStatuses = new ArrayList<>();

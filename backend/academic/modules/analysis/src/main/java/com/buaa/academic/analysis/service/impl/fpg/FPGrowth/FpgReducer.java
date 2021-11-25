@@ -2,7 +2,7 @@ package com.buaa.academic.analysis.service.impl.fpg.FPGrowth;
 
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.fpg.FPTree.FPTree;
-import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
+import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
