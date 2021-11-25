@@ -40,6 +40,8 @@ public class SearchFilterValidator implements ConstraintValidator<SearchFilter, 
             if (filter.getAttr() == null || !filter.getAttr().matches("^[a-z][a-zA-Z_0-9]*$"))
                 return false;
             String type = filter.getType();
+            if (type == null)
+                return false;
             int[] params = filter.getParams();
             // Existence checks of params
             switch (type) {

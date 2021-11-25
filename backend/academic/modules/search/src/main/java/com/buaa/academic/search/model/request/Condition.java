@@ -33,7 +33,7 @@ public class Condition {
     private boolean compound;
 
     @Length(max = 128)
-    @ApiModelProperty(value = "搜索关键词，超过32个字符将被截断，忽略头尾空白符", example = "机器学习")
+    @ApiModelProperty(value = "搜索关键词，超过64个字符将被截断，忽略头尾空白符", example = "机器学习")
     private String keyword;
 
     @ApiModelProperty(value = "限定关键词的出现范围，均为属性名", example = "title")
