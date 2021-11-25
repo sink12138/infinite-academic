@@ -1,7 +1,7 @@
 package com.buaa.academic.analysis.service.impl.fpg.AssociationCal;
 
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
-import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
+import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;

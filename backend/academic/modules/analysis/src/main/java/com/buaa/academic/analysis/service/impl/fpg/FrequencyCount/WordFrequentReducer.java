@@ -1,6 +1,6 @@
 package com.buaa.academic.analysis.service.impl.fpg.FrequencyCount;
 
-import com.buaa.academic.analysis.service.impl.fpg.StatusCtrl;
+import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;

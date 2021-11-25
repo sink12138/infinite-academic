@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -22,6 +23,9 @@ public class Topic {
     @Field(type = FieldType.Keyword)
     private String name;
 
+    @Field(type = FieldType.Double)
+    private Double hot;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -33,4 +37,6 @@ public class Topic {
         @Field(type = FieldType.Double)
         private Double confidence;
     }
+
+    private ArrayList<AssociationTopic> associationTopics = new ArrayList<>();
 }

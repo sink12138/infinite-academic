@@ -9,6 +9,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.ArrayList;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,14 +24,14 @@ public class Subject {
     @Field(type = FieldType.Keyword)
     private String name;
 
+    @Field(type = FieldType.Double)
+    private Double hot;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @ApiModel(description = "关联学科")
     public static class AssociationSubject {
-        @Field(type = FieldType.Keyword)
-        private String id;
-
         @Field(type = FieldType.Keyword)
         private String name;
 
@@ -37,4 +39,5 @@ public class Subject {
         private Double confidence;
     }
 
+    private ArrayList<AssociationSubject> associationSubjects = new ArrayList<>();
 }

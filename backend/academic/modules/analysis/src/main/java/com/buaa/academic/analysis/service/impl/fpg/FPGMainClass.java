@@ -1,5 +1,10 @@
 package com.buaa.academic.analysis.service.impl.fpg;
 
+import com.buaa.academic.analysis.model.Subject;
+import com.buaa.academic.analysis.model.Topic;
+import com.buaa.academic.analysis.repository.SubjectRepository;
+import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationMapper;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationReducer;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationRule;
@@ -29,10 +34,9 @@ import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +56,9 @@ public class FPGMainClass implements Runnable{
     private final String associationRulesPath;
     private ElasticsearchRestTemplate template;
     private final Configuration configuration;
+
+    private TopicRepository topicRepository;
+    private SubjectRepository subjectRepository;
 
     public FPGMainClass(String analysisObject) {
         this.analysisObject = analysisObject;
@@ -88,6 +95,16 @@ public class FPGMainClass implements Runnable{
     public FPGMainClass setName(String name) {
         configuration.set("name", name);
         this.name = name;
+        return this;
+    }
+
+    public FPGMainClass setTopicRepository(TopicRepository topicRepository) {
+        this.topicRepository = topicRepository;
+        return this;
+    }
+
+    public FPGMainClass setSubjectRepository(SubjectRepository subjectRepository) {
+        this.subjectRepository = subjectRepository;
         return this;
     }
 
@@ -134,7 +151,7 @@ public class FPGMainClass implements Runnable{
         // fp-growth生成频繁项集
         try {
             fpgExc();
-        }catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             interruptStop("Stopped");
         } catch (Exception e) {
             interruptStop(e.toString());
@@ -145,8 +162,16 @@ public class FPGMainClass implements Runnable{
         // 计算关联规则
         try {
             associationCal();
-        }catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             interruptStop("Stopped");
+        } catch (Exception e) {
+            interruptStop(e.toString());
+        }
+        if(threadStopCheck())
+            return;
+
+        try {
+            saveToEs();
         } catch (Exception e) {
             interruptStop(e.toString());
         }
@@ -344,6 +369,50 @@ public class FPGMainClass implements Runnable{
         rulesJob.close();
 
         changeRunningStatusTo("Association rules calculating finished!");
+    }
+
+    private void saveToEs() throws IOException {
+        changeRunningStatusTo("Write to ElasticSearch...");
+
+        File resFile = new File(associationRulesPath + "/part-r-00000");
+        FileReader fileReader = new FileReader(resFile);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] rule = line.split(":");
+            String item = rule[0];
+            String[] associationItems = rule[1].split(FPGMainClass.splitChar);
+            String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
+            if (analysisObject.equals("topics")) {
+                ArrayList<Topic.AssociationTopic> associationTopics = new ArrayList<>();
+                for (int index = 0; index < associationItems.length; index ++) {
+                    Topic.AssociationTopic associationTopic = new Topic.AssociationTopic(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                    associationTopics.add(associationTopic);
+                }
+                Topic topic = topicRepository.findTopicByName(item);
+                if (topic == null) {
+                    topic = new Topic();
+                    topic.setName(item);
+                }
+                topic.setAssociationTopics(associationTopics);
+                topicRepository.save(topic);
+            } else {
+                ArrayList<Subject.AssociationSubject> associationSubjects = new ArrayList<>();
+                for (int index = 0; index < associationItems.length; index ++) {
+                    Subject.AssociationSubject associationTopic = new Subject.AssociationSubject(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                    associationSubjects.add(associationTopic);
+                }
+                Subject subject = subjectRepository.findSubjectByName(item);
+                if (subject == null) {
+                    subject = new Subject();
+                    subject.setName(item);
+                }
+                subject.setAssociationSubjects(associationSubjects);
+                subjectRepository.save(subject);
+            }
+        }
+
+        changeRunningStatusTo("ALl data has been written to ElasticSearch!");
     }
 
     private void changeRunningStatusTo(String runningStatus) {
