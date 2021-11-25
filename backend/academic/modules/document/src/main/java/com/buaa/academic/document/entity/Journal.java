@@ -23,10 +23,6 @@ public class Journal implements Reducible<JournalItem> {
     @ApiModelProperty(value = "学术期刊的数据库ID", required = true, example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 
-    @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "学术期刊自带的编号", example = "137773608")
-    private String journalId;
-
     @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized")
     @ApiModelProperty(value = "期刊标题", required = true, example = "计算机工程与应用")
     private String title;
