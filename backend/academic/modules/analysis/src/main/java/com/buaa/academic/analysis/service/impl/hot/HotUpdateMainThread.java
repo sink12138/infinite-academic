@@ -63,10 +63,10 @@ public class HotUpdateMainThread implements Runnable{
 
         long start_time = System.currentTimeMillis();
 
-        StatusCtrl.changeRunningStatusTo(threadName, "Rate rules generating...");
+        StatusCtrl.changeRunningStatusTo("Rate rules generating...", threadName);
         rateGen();
 
-        StatusCtrl.changeRunningStatusTo(threadName, "Building search query...");
+        StatusCtrl.changeRunningStatusTo("Building search query...", threadName);
 
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
         TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("year_term").field("year").subAggregation(count);
@@ -76,7 +76,7 @@ public class HotUpdateMainThread implements Runnable{
                 .addAggregation(topicTerm)
                 .build();
 
-        StatusCtrl.changeRunningStatusTo(threadName, "Aggregating " + targetIndex + "...");
+        StatusCtrl.changeRunningStatusTo("Aggregating " + targetIndex + "...", threadName);
         SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
         Aggregations aggregations = searchHit.getAggregations();
         assert aggregations != null;
@@ -87,7 +87,7 @@ public class HotUpdateMainThread implements Runnable{
         total.put(threadName, terms.getBuckets().size());
         finished.put(threadName, 0);
 
-        StatusCtrl.changeRunningStatusTo(threadName, "Building threads...");
+        StatusCtrl.changeRunningStatusTo( "Building threads...", threadName);
         ArrayList<Thread> threads = new ArrayList<>();
         for (int i = 0; i < jobsNum; i++) {
             threads.add(new Thread(new HotCalThread(threadName)
@@ -112,7 +112,7 @@ public class HotUpdateMainThread implements Runnable{
         }
 
         double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All down! Cost " + costTime + "s", threadName);
+        StatusCtrl.changeRunningStatusToStop("All down! Cost " + costTime + "s. ", threadName);
 
     }
 

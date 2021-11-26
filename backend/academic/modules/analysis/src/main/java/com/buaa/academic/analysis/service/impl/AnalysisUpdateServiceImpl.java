@@ -19,61 +19,26 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
     @Autowired
     private SubjectRepository subjectRepository;
 
-    private final StatusCtrl statusCtrl = new StatusCtrl()
-            .setTemplate(template)
-            .setTopicRepository(topicRepository)
-            .setSubjectRepository(subjectRepository);
-
     @Override
     public boolean start() {
-
-        if (statusCtrl.hasRunningJob())
+        if (StatusCtrl.hasRunningJob())
             return false;
+        StatusCtrl statusCtrl = new StatusCtrl()
+                .setTemplate(template)
+                .setTopicRepository(topicRepository)
+                .setSubjectRepository(subjectRepository);
         new Thread(statusCtrl).start();
         return true;
-
-        /*
-        FPGMainClass topicFPG = new FPGMainClass("topics")
-                .setName(JobClass.TOPIC_FPG_ANALYSIS.name())
-                .setMinSupport(0.4).setMinConfidence(0.6)
-                .setDeleteTmpFiles(false)
-                .setTemplate(template)
-                .setTopicRepository(topicRepository);
-        Thread topicFPGThread = new Thread(topicFPG);
-        topicFPGThread.setName(JobClass.TOPIC_FPG_ANALYSIS.name());
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            if (StatusCtrl.isRunning.containsKey(JobClass.TOPIC_FPG_ANALYSIS.name()))
-                return false;
-            StatusCtrl.isRunning.put(JobClass.TOPIC_FPG_ANALYSIS.name(), true);
-        }
-        topicFPGThread.start();
-
-        FPGMainClass subjectFPG = new FPGMainClass("subjects")
-                .setName(JobClass.SUBJECT_FPG_ANALYSIS.name())
-                .setMinSupport(0.4).setMinConfidence(0.6)
-                .setDeleteTmpFiles(false)
-                .setTemplate(template)
-                .setSubjectRepository(subjectRepository);
-        Thread subjectFPGThread = new Thread(subjectFPG);
-        subjectFPGThread.setName(JobClass.SUBJECT_FPG_ANALYSIS.name());
-        synchronized (StatusCtrl.STATUS_LOCK) {
-            if (StatusCtrl.isRunning.containsKey(JobClass.SUBJECT_FPG_ANALYSIS.name()))
-                return false;
-            StatusCtrl.isRunning.put(JobClass.SUBJECT_FPG_ANALYSIS.name(), true);
-        }
-        subjectFPGThread.start();
-
-        return true;*/
     }
 
     @Override
     public Status getStatus() {
-        return statusCtrl.getStatus();
+        return StatusCtrl.getStatus();
     }
 
     @Override
     public void stop() {
-        statusCtrl.associationStop();
+        StatusCtrl.associationStop();
     }
 
 }

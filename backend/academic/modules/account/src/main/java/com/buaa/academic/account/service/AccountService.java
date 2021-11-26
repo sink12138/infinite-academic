@@ -1,9 +1,7 @@
 package com.buaa.academic.account.service;
 
-import com.buaa.academic.account.verifyModel.UserToVerify;
 import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.security.Authority;
-
 
 public interface AccountService {
     /**
@@ -33,5 +31,5 @@ public interface AccountService {
      * @param code Code for verification
      * @return User to verify
      */
-    UserToVerify getUserToVerifyByCode(String code);
+    User getUserByCode(String code);
 }

@@ -2,7 +2,6 @@ package com.buaa.academic.account.controller;
 
 import com.buaa.academic.account.repository.AccountRepository;
 import com.buaa.academic.account.service.AccountService;
-import com.buaa.academic.account.verifyModel.UserToVerify;
 import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
@@ -17,8 +16,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.Objects;
 
 @RestController
@@ -31,18 +30,17 @@ public class AccountController {
     @Autowired
     private AccountRepository accountRepository;
 
+
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
-                                 @RequestParam(value = "username") @NotNull @Length(max = 10) String username,
-                                 @RequestParam(value = "password") @Length(min = 6, max = 20) @NotNull String password) {
+                                 @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10) String username,
+                                 @RequestParam(value = "password") @NotNull String password) {
         User original_user = accountRepository.findUserByEmail(email);
-        if (original_user != null && original_user.isVerified()) {
+        if (original_user != null) {
             return new Result<Void>().withFailure("该邮箱已注册");
-        } else if (original_user == null) {
-            original_user = new User(email, username, password);
-            accountRepository.save(original_user);
         }
+        original_user = new User(email, username, password);
         accountService.sendVerifyEmail(original_user, "注册");
         return new Result<>();
     }
@@ -53,21 +51,17 @@ public class AccountController {
     @ApiIgnore
     @GetMapping("/verify")
     public ModelAndView verify(@RequestParam(value = "code") String code) {
-        UserToVerify userToVerify = accountService.getUserToVerifyByCode(code);
+        User userToVerify = accountService.getUserByCode(code);
         if (userToVerify == null) {
             return new ModelAndView("CheckFailure");
         } else {
-            User user = accountRepository.findUserById(userToVerify.getUserId());
-            if (user.isVerified() && !Objects.equals(user.getEmail(), userToVerify.getEmail())) {
-                user.setEmail(userToVerify.getEmail());
-            } else if (!user.isVerified()) {
-                user.setVerified(true);
-            } else {
+            User user = accountRepository.findUserByEmail(userToVerify.getEmail());
+            if (user != null) {
                 return new ModelAndView("CheckFailure");
             }
-            accountRepository.save(user);
+            accountRepository.save(userToVerify);
             accountService.deleteRedisKey(code);
-            request.setAttribute("email", user.getEmail());
+            request.setAttribute("email", userToVerify.getEmail());
             return new ModelAndView("CheckSuccess");
         }
     }
@@ -116,8 +110,8 @@ public class AccountController {
     @ApiOperation(value = "修改用户信息，可修改用户名和密码")
     @PostMapping("/profile/modify/info")
     public Result<Void> modifyInfo( @RequestHeader(value = "Role-ID") @NotNull String userId,
-                                    @RequestParam(value = "username") @NotNull String username,
-                                    @RequestParam(value = "password")  @Length(min = 6, max = 20) String password) {
+                                    @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10)  String username,
+                                    @RequestParam(value = "password") @NotNull String password) {
         User user = accountRepository.findUserById(userId);
         user.setUsername(username);
         user.setPassword(password);
@@ -134,7 +128,7 @@ public class AccountController {
             return new Result<Void>().withFailure("不可修改为当前邮箱");
         }
         User original_user = accountRepository.findUserByEmail(email);
-        if (original_user != null && original_user.isVerified()) {
+        if (original_user != null) {
             return new Result<Void>().withFailure("该邮箱已注册");
         }
         user.setEmail(email);
@@ -154,8 +148,8 @@ public class AccountController {
     @ApiOperation(value = "找回密码设置新密码", notes = "用户输入新密码和验证码")
     @PostMapping("/forget/submit")
     public Result<Void> forgetSubmit(@RequestParam(value = "code") String code,
-                                     @RequestParam(value = "newPassword") @Length(min = 6, max = 20) String newPassword) {
-        UserToVerify userToVerify = accountService.getUserToVerifyByCode(code);
+                                     @RequestParam(value = "newPassword") @NotNull String newPassword) {
+        User userToVerify = accountService.getUserByCode(code);
         if (userToVerify == null) {
             return new Result<Void>().withFailure("验证码已失效");
         }

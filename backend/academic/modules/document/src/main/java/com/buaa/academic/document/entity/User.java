@@ -11,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Setting;
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +19,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @ApiModel(description = "普通用户账号实体")
 @Document(indexName = "user")
 @Setting(settingPath = "settings.json")
-public class User {
+public class User implements Serializable {
 
     @Id
     @Field(type = FieldType.Keyword)
@@ -40,10 +41,6 @@ public class User {
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "用户认证的研究人员ID（如果已认证）", example = "GF_4ynwBF-Mu8unTG1hc")
     private String researcherId;
-
-    @Field(type = FieldType.Keyword, nullValue = "false", index = false)
-    @JsonIgnore
-    private boolean verified;
 
     public User(String email, String username, String password) {
         this.email = email;
