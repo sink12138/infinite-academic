@@ -129,7 +129,7 @@ public class FPGMainClass implements Runnable{
         try {
             countJob = frequencyCal();
         } catch (IllegalStateException e) {
-            interruptStop("Stopped");
+            interruptStop("Stopped. ");
         } catch (Exception e) {
             interruptStop(e.toString());
         }
@@ -141,7 +141,7 @@ public class FPGMainClass implements Runnable{
             assert countJob != null;
             sortItem(countJob);
         } catch (IllegalStateException e) {
-            interruptStop("Stopped");
+            interruptStop("Stopped. ");
         } catch (Exception e) {
             interruptStop(e.toString());
         }
@@ -152,7 +152,7 @@ public class FPGMainClass implements Runnable{
         try {
             fpgExc();
         } catch (IllegalStateException e) {
-            interruptStop("Stopped");
+            interruptStop("Stopped. ");
         } catch (Exception e) {
             interruptStop(e.toString());
         }
@@ -163,7 +163,7 @@ public class FPGMainClass implements Runnable{
         try {
             associationCal();
         } catch (IllegalStateException e) {
-            interruptStop("Stopped");
+            interruptStop("Stopped. ");
         } catch (Exception e) {
             interruptStop(e.toString());
         }
@@ -176,13 +176,14 @@ public class FPGMainClass implements Runnable{
             interruptStop(e.toString());
         }
 
+        StatusCtrl.changeRunningStatusTo("Deleting tmp files... ", name);
         if (deleteTmpFiles) {
             deleteDir(resultDir);
             deleteDir(inputPath);
         }
 
         double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s", name);
+        StatusCtrl.changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s. ", name);
     }
 
     private void getInputData() throws IOException {
@@ -209,7 +210,7 @@ public class FPGMainClass implements Runnable{
 
             // 检查线程是否终止
             if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
-                StatusCtrl.changeRunningStatusToStop("Stopped.", name);
+                StatusCtrl.changeRunningStatusToStop("Stopped. ", name);
                 fileWriter.close();
                 return;
             }
@@ -227,8 +228,7 @@ public class FPGMainClass implements Runnable{
                             topicRepository.save(topic);
                         }
                     }
-                }
-                else {
+                } else {
                     items = hit.getContent().getSubjects();
                     for (String item : items) {
                         Subject subject = subjectRepository.findSubjectByName(item);
@@ -429,11 +429,10 @@ public class FPGMainClass implements Runnable{
                 subjectRepository.save(subject);
             }
         }
+        fileReader.close();
 
         StatusCtrl.changeRunningStatusTo("ALl data has been written to ElasticSearch!", name);
     }
-
-
 
     private void deleteDir(String dirPath) throws IOException {
         File resultDir = new File(dirPath);

@@ -1,13 +1,12 @@
 package com.buaa.academic.analysis.controller;
 
 import com.buaa.academic.analysis.repository.PaperRepository;
-import com.buaa.academic.analysis.service.AnalysisService;
+import com.buaa.academic.analysis.service.AnalysisUpdateService;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.model.web.Result;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.range.Range;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -15,26 +14,21 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RequestMapping("/update")
 @RestController()
 public class AnalysisUpdateController {
 
     @Autowired
-    private AnalysisService analysisService;
+    private AnalysisUpdateService analysisUpdateService;
 
     @PostMapping("/start")
     public Result<Object> startAnalysis() {
-        boolean notStarted = analysisService.start();
+        boolean notStarted = analysisUpdateService.start();
 
         if(notStarted)
             return new Result<>();
@@ -44,12 +38,12 @@ public class AnalysisUpdateController {
 
     @GetMapping("/status")
     public Result<Object> checkAnalysisStatus() {
-        return new Result<>().withData(analysisService.getStatus());
+        return new Result<>().withData(analysisUpdateService.getStatus());
     }
 
     @PostMapping("/stop")
     public Result<Void> stopAnalysis() {
-        analysisService.stop();
+        analysisUpdateService.stop();
         return new Result<>();
     }
 
@@ -60,7 +54,7 @@ public class AnalysisUpdateController {
     public Result<Object> testAgg(@RequestParam(value = "topic") String topic) {
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("test").field("year");
         TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("term").field("year").subAggregation(count);
-        TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("topicTerm").field("topics.keyword").subAggregation(termsAgg);
+        TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("topicTerm").field("topics.raw").subAggregation(termsAgg);
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(topicTerm)

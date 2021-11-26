@@ -9,11 +9,10 @@ import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-
 import java.util.Objects;
 
 public class HotCalThread implements Runnable{
-    private String threadName;
+    private final String threadName;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
 
@@ -55,7 +54,7 @@ public class HotCalThread implements Runnable{
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");
             ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
             for (Terms.Bucket yearBucket : longTerms.getBuckets()) {
-                hot += calHot(Integer.parseInt(yearBucket.getKey().toString()), (int) yearBucket.getDocCount());
+                hot += yearBucket.getDocCount() * HotUpdateMainThread.rate.get(Integer.parseInt(yearBucket.getKey().toString()));
             }
 
             if (Objects.equals(threadName, JobType.HOT_TOPIC_ANALYSIS.name())) {
@@ -69,9 +68,4 @@ public class HotCalThread implements Runnable{
             }
         }
     }
-
-    private double calHot(int year, int citation) {
-        return 0.0;
-    }
-
 }
