@@ -94,9 +94,6 @@ public class SearchController {
         Result<SmartPage> result = new Result<>();
         SmartPage smartPage = new SmartPage();
 
-        // Strip keyword
-        String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
-
         // Param check for filters
         List<Filter> filters = searchRequest.getFilters();
         for (Filter filter : filters) {
@@ -115,6 +112,11 @@ public class SearchController {
                 }
             }
         }
+
+        // Strip keyword
+        String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
+
+        // TODO 2021/11/27: Add auto-correction feature
 
         // Search for base items (papers)
         // Keywords
