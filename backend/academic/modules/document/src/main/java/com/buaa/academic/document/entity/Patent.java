@@ -1,6 +1,7 @@
 package com.buaa.academic.document.entity;
 
 import com.buaa.academic.document.entity.item.PatentItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 import java.util.List;
 
@@ -26,8 +28,10 @@ public class Patent implements Reducible<PatentItem> {
     private String id;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 
@@ -39,7 +43,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "申请（专利）号", example = "CN202130098898.1")
     private String patentNum;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date)
     @ApiModelProperty(value = "申请日", example = "2021-02-20")
     private String filingDate;
 
@@ -47,7 +51,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "申请公布号", example = "CN113519399A")
     private String publicationNum;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date)
     @ApiModelProperty(value = "公开公告日", example = "2021-10-22")
     private String publicationDate;
 
@@ -55,13 +59,15 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "授权公布号", example = "CN306893057S")
     private String authorizationNum;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date)
     @ApiModelProperty(value = "授权公告日", example = "2021-10-22")
     private String authorizationDate;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(value = "申请人", example = "宏碁股份有限公司")
     private String applicant;
 
@@ -113,16 +119,20 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "代理人", example = "朱颖;刘芳")
     private String agent;
 
+    @JsonProperty("abstract")
     @MultiField(
             mainField = @Field(type = FieldType.Text, name = "abstract", analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
-    @JsonProperty("abstract")
+            otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
     @ApiModelProperty(value = "专利的摘要", example = "假装这是一大段摘要")
     private String patentAbstract;
 
     @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "主权项", example = "假装这是一大段主权项")
     private String claim;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    private Completion completion;
 
     @Override
     public PatentItem reduce() {

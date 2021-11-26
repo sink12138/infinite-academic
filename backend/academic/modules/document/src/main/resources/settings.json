@@ -7,6 +7,13 @@
           "lowercase",
           "stemmer"
         ]
+      },
+      "ik_optimized_max_word": {
+        "tokenizer": "ik_max_word",
+        "filter": [
+          "lowercase",
+          "stemmer"
+        ]
       }
     }
   }

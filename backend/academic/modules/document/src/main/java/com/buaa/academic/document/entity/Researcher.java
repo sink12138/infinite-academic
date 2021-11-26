@@ -40,7 +40,7 @@ public class Researcher implements Reducible<ResearcherItem> {
         private String id;
 
         @MultiField(
-                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
+                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized"),
                 otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
         @ApiModelProperty(required = true, value = "机构的名称", example = "北京航空航天大学软件学院")
         private String name;
@@ -70,8 +70,8 @@ public class Researcher implements Reducible<ResearcherItem> {
     private Integer gIndex;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
+            otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
     @ApiModelProperty(value = "科研人员的研究方向", example = "智能化软件工程")
     private List<String> interests;
 

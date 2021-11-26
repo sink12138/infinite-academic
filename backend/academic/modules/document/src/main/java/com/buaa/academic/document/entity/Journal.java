@@ -1,6 +1,7 @@
 package com.buaa.academic.document.entity;
 
 import com.buaa.academic.document.entity.item.JournalItem;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 @Data
 @AllArgsConstructor
@@ -23,8 +25,10 @@ public class Journal implements Reducible<JournalItem> {
     private String id;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(value = "期刊标题", required = true, example = "计算机工程与应用")
     private String title;
 
@@ -39,6 +43,10 @@ public class Journal implements Reducible<JournalItem> {
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "期刊的ISSN编号", example = "1002-8331")
     private String issn;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    private Completion completion;
 
     @Override
     public JournalItem reduce() {

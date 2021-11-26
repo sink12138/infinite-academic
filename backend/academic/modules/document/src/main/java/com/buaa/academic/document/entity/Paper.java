@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +29,10 @@ public class Paper implements Reducible<PaperItem> {
     private String id;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(required = true, value = "论文标题", example = "基于机器学习的无需人工编制词典的切词系统")
     private String title;
 
@@ -72,8 +75,8 @@ public class Paper implements Reducible<PaperItem> {
         private String id;
 
         @MultiField(
-                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-                otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized"),
+                otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
         @ApiModelProperty(required = true, value = "机构的名称", example = "北京航空航天大学软件学院")
         private String name;
 
@@ -83,28 +86,37 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(value = "论文的所有机构")
     private List<Institution> institutions;
 
+    @JsonProperty("abstract")
     @MultiField(
             mainField = @Field(type = FieldType.Text, name = "abstract", analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
-    @JsonProperty("abstract")
+            otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
     @ApiModelProperty(required = true, value = "论文摘要", example = "假装这是一大段摘要")
     private String paperAbstract;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized"),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized",
+                    positionIncrementGap = 100, copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(required = true, value = "论文的所有关键词")
     private List<String> keywords;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized",
+                    positionIncrementGap = 100, copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized", searchAnalyzer = "ik_optimized", positionIncrementGap = 100),
-            otherFields = @InnerField(type = FieldType.Keyword, suffix = "raw"))
+            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized",
+                    positionIncrementGap = 100, copyTo = "completion"),
+            otherFields = {
+                    @InnerField(suffix = "raw", type = FieldType.Keyword),
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
     @ApiModelProperty(value = "论文的话题分类")
     private List<String> topics;
 
@@ -112,7 +124,7 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
     private Integer year;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date)
     @ApiModelProperty(value = "论文的发表日期", example = "2021-10-15")
     private String date;
 
@@ -142,7 +154,7 @@ public class Paper implements Reducible<PaperItem> {
         @ApiModelProperty(value = "期刊的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
-        @Field(type = FieldType.Keyword)
+        @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized")
         @ApiModelProperty(required = true, value = "期刊标题", example = "Science")
         private String title;
 
@@ -182,12 +194,12 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModel("Paper$Source")
     public static class Source {
 
-        @ApiModelProperty(value = "来源网站名称", example = "ResearchGate")
         @Field(type = FieldType.Keyword)
+        @ApiModelProperty(value = "来源网站名称", example = "ResearchGate")
         private String website;
 
-        @ApiModelProperty(value = "来源网址", example = "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty")
         @Field(type = FieldType.Keyword, index = false)
+        @ApiModelProperty(value = "来源网址", example = "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty")
         private String url;
 
     }
@@ -199,6 +211,10 @@ public class Paper implements Reducible<PaperItem> {
     @JsonIgnore
     @Field(type = FieldType.Keyword, index = false)
     private String filePath;
+
+    @JsonIgnore
+    @CompletionField(analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
+    private Completion completion;
 
     @Override
     public PaperItem reduce() {

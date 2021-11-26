@@ -17,7 +17,7 @@ import org.springframework.data.elasticsearch.annotations.Setting;
 @NoArgsConstructor
 @ApiModel(description = "普通用户账号实体")
 @Document(indexName = "user")
-@Setting(settingPath = "settings.json")
+@Setting
 public class User {
 
     @Id
@@ -50,4 +50,5 @@ public class User {
         this.username = username;
         this.password = password;
     }
+
 }
