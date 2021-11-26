@@ -41,5 +41,6 @@ public class Subject {
         private Double confidence;
     }
 
+    @Field(type = FieldType.Nested, positionIncrementGap = 100)
     private ArrayList<AssociationSubject> associationSubjects = new ArrayList<>();
 }
