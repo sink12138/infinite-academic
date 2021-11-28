@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "ik_optimized": {
+          "type": "custom",
+          "tokenizer": "ik_smart",
+          "filter": [
+            "stemmer",
+            "lowercase"
+          ]
+        }
+      }
+    }
+  }
+}
