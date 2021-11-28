@@ -22,18 +22,18 @@
     <BaseCitation>
     </BaseCitation>
     <!-- 登录注册组件 -->
-    <router-link to="/login">
-      <v-btn outlined>登录/注册</v-btn>
-    </router-link>
+    <BaseLogin>
+    </BaseLogin>
   </v-toolbar>
 </template>
 
 <script>
 import BaseCitation from "./BaseCitation.vue";
-
+import BaseLogin from "./BaseLogin.vue";
 export default {
   components: {
     BaseCitation,
+    BaseLogin,
   },
   data() {
     return {
@@ -44,7 +44,7 @@ export default {
         { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },
         { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
-        { href: "/about", icon: "mdi-account", title: "About"}
+        { href: "/about", icon: "mdi-account", title: "About" },
       ],
     };
   },
