@@ -25,11 +25,12 @@
       <header class="checkboxLabel">学科</header>
       <v-checkbox
         class="checkboxitem"
-        v-model="topics_selected"
+        v-model="filter.topics_selected"
         v-for="topic in topics"
         :key="topic"
         :label="`${topic}`"
         :value="topic"
+        @change="emit()"
       ></v-checkbox>
     </div>
     <div class="line"></div>
@@ -37,11 +38,12 @@
       <header class="checkboxLabel">作者</header>
       <v-checkbox
         class="checkboxItem"
-        v-model="authors_selected"
+        v-model="filter.authors_selected"
         v-for="author in authors"
         :key="author"
         :label="`${author}`"
         :value="author"
+        @change="emit()"
       ></v-checkbox>
     </div>
     <div class="line"></div>
@@ -49,11 +51,12 @@
       <header class="checkboxLabel">期刊</header>
       <v-checkbox
         class="checkboxItem"
-        v-model="journals_selected"
+        v-model="filter.journals_selected"
         v-for="journal in journals"
         :key="journal"
         :label="`${journal}`"
         :value="journal"
+        @change="emit()"
       ></v-checkbox>
     </div>
     <div class="line"></div>
@@ -61,11 +64,12 @@
       <header class="checkboxLabel">机构</header>
       <v-checkbox
         class="checkboxItem"
-        v-model="institutions_selected"
+        v-model="filter.institutions_selected"
         v-for="institution in institutions"
         :key="institution"
         :label="`${institution}`"
         :value="institution"
+        @change="emit()"
       ></v-checkbox>
     </div>
     <div class="line"></div>
@@ -77,32 +81,42 @@ export default {
   data() {
     return {
       menu: false,
-      Year1: "",
-      Year2: "",
+      filter:{
+        Year1: "",
+        Year2: "",
+        topics_selected: [],  
+        authors_selected: [],
+        journals_selected: [],
+        institutions_selected: [],
+      },
       topics: ["a", "b", "c", "d", "e"],
-      topics_selected: [],
       authors: ["a1", "b2", "c3", "d4", "e5"],
-      authors_selected: [],
       journals: ["a0", "b0", "c0", "d0", "e0", "f0"],
-      journals_selected: [],
       institutions: ["a01", "b02", "c03", "d04"],
-      institutions_selected: [],
     };
   },
   methods: {
+    emit:function(){
+      this.$emit('handleFilter', 'filter');
+    },
     handleChange: function () {
-      if(this.Year1 != "" && this.Year2 != "" ){
-        var d2 = new Date(Date.parse(this.Year2)); //取今天的日期  
-        var d1 = new Date(Date.parse(this.Year1));
+      if(this.filter.Year1 != "" && this.filter.Year2 != "" ){
+        var d2 = new Date(Date.parse(this.filter.Year2)); //取今天的日期  
+        var d1 = new Date(Date.parse(this.filter.Year1));
         if (d1 > d2) {
             this.$notify({
               title: "起止日期",
               message: "起始日期大于截至日期",
               type: "warning",
             });
+        }else{
+          this.$emit('handleFilter', 'filter');
         }  
+      }else{
+        this.$emit('handleFilter', 'filter');
       }
     },
+    
   },
 };
 </script>

@@ -7,10 +7,10 @@
       Search
     </h1>
     <BaseGoBack class="back"></BaseGoBack>
-    <BaseSearchBar class="search"></BaseSearchBar>
+    <BaseSearchBar class="search" ref="searchBar"></BaseSearchBar>
     <div>
       <div>
-        <BaseFilter class="filter"></BaseFilter>
+        <BaseFilter class="filter" ref="filter"></BaseFilter>
       </div>
       <div class="result">
         <v-row v-for="item in results" :key="item">
@@ -46,12 +46,24 @@ export default {
   },
   data() {
     return {
+      filters:{},
       results: [
         { title: "aaa", journal: "b", abstract: "114514" },
         { title: "aaa", journal: "b", abstract: "114514" },
         { title: "aaa", journal: "b", abstract: "114514" },
       ],
+      data:{},
     };
+  },
+  methods:{
+    echo(){
+      this.filters=this.$refs.filter.filter; 
+    },
+    searchResult(){
+      this.data=this.$refs.searchBar.data;
+      console.log(this.data+"data");
+      this.results=this.data.items;
+    },
   },
 };
 </script>
