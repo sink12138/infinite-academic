@@ -1,45 +1,24 @@
 <template>
-  <div style="overflow-y:scroll;overflow-x:hidden;height:80%;width:30%;">
+  <div style="overflow-y: scroll; overflow-x: hidden; height: 80%; width: 30%">
     <div class="title">Filter</div>
     <div class="line"></div>
     <div>
-      <v-row>
-        <v-col>
-          <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                class="datePicker"
-                v-model="dates"
-                label="起止日期"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="dates"
-              no-title
-              scrollable
-              range
-              type="month"
-            >
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(dates)"
-                >OK</v-btn
-              >
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-      </v-row>
+      <el-date-picker
+        v-model="Year1"
+        type="year"
+        placeholder="起始日期"
+        value-format="yyyy"
+        @change="handleChange"
+      >
+      </el-date-picker>
+      <el-date-picker
+        v-model="Year2"
+        type="year"
+        placeholder="结束日期"
+        value-format="yyyy"
+        @change="handleChange"
+      >
+      </el-date-picker>
     </div>
     <div class="line"></div>
     <div class="checkbox">
@@ -98,18 +77,33 @@ export default {
   data() {
     return {
       menu: false,
-      dates: [],
-      topics: ["a","b","c","d","e"],
+      Year1: "",
+      Year2: "",
+      topics: ["a", "b", "c", "d", "e"],
       topics_selected: [],
-      authors: ["a1","b2","c3","d4","e5"],
+      authors: ["a1", "b2", "c3", "d4", "e5"],
       authors_selected: [],
-      journals: ["a0","b0","c0","d0","e0","f0"],
+      journals: ["a0", "b0", "c0", "d0", "e0", "f0"],
       journals_selected: [],
-      institutions: ["a01","b02","c03","d04"],
+      institutions: ["a01", "b02", "c03", "d04"],
       institutions_selected: [],
     };
   },
-  methods: {},
+  methods: {
+    handleChange: function () {
+      if(this.Year1 != "" && this.Year2 != "" ){
+        var d2 = new Date(Date.parse(this.Year2)); //取今天的日期  
+        var d1 = new Date(Date.parse(this.Year1));
+        if (d1 > d2) {
+            this.$notify({
+              title: "起止日期",
+              message: "起始日期大于截至日期",
+              type: "warning",
+            });
+        }  
+      }
+    },
+  },
 };
 </script>
 
@@ -137,14 +131,14 @@ export default {
   align-content: center;
   font-size: 10%;
 }
-.checkboxLabel{
+.checkboxLabel {
   margin-top: 10px;
   margin-bottom: 10px;
 }
-.checkboxItem{
+.checkboxItem {
   margin: 3px;
 }
-.checkbox{
+.checkbox {
   margin-left: 15px;
 }
 </style>
