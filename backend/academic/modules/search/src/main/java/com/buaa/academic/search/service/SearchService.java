@@ -1,6 +1,5 @@
 package com.buaa.academic.search.service;
 
-import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.search.model.request.Condition;
 import com.buaa.academic.search.model.request.Filter;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -17,9 +16,7 @@ import java.util.List;
 
 public interface SearchService {
 
-    <T> SearchHits<T> advancedSearch(Class<T> target, QueryBuilder query, QueryBuilder filter, SortBuilder<?> sort, HighlightBuilder hlt, Pageable page);
-
-    SearchHits<Paper> smartSearch(String[] keywords, QueryBuilder filter, SortBuilder<?> sort, Pageable page);
+    <T> SearchHits<T> runSearch(Class<T> target, QueryBuilder query, QueryBuilder filter, SortBuilder<?> sort, HighlightBuilder hlt, Pageable page);
 
     default QueryBuilder buildQuery(List<Condition> conditions, String strategy) {
         QueryBuilder query;
@@ -39,12 +36,12 @@ public interface SearchService {
         return query;
     }
 
-    default QueryBuilder buildFilter(List<Filter> filters) {
+    default QueryBuilder buildFilter(List<Filter> filters, String strategy) {
         BoolQueryBuilder filter = null;
         if (!filters.isEmpty()) {
             filter = QueryBuilders.boolQuery();
             for (Filter flt : filters) {
-                filter.must(flt.compile());
+                filter.must(flt.compile(strategy));
             }
         }
         return filter;

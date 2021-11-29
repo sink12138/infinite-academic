@@ -9,6 +9,7 @@ import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.ResearcherRepository;
 import com.buaa.academic.search.model.request.Condition;
 import com.buaa.academic.search.model.request.Filter;
+import com.buaa.academic.search.model.request.Filter.*;
 import com.buaa.academic.search.model.request.SearchRequest;
 import com.buaa.academic.search.model.request.SmartSearchRequest;
 import com.buaa.academic.search.model.response.HitPage;
@@ -92,26 +93,25 @@ public class SearchController {
             notes = "使用一条关键词搜索学术论文。</br>" +
                     "如果在其他实体上出现了精准的命中（例如学者、机构、期刊的名字），会将推荐信息一并返回。</br>" +
                     "返回值包括论文检索结果和可能的推荐信息。</br>" +
-                    "允许添加filter的字段：year (below, above, range, equal), citationNum (above)")
+                    "允许添加的filter和sort规则与学术论文检索接口相同。")
     public Result<SmartPage> smartSearch(@RequestBody @Valid SmartSearchRequest searchRequest,
                                          HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<SmartPage> result = new Result<>();
         SmartPage smartPage = new SmartPage();
 
-        // Param check for filters
         List<Filter> filters = searchRequest.getFilters();
-        for (Filter filter : filters) {
-            String type = filter.getType();
-            switch (type) {
-                case "below", "range", "equal" -> {
-                    if (!filter.getAttr().equals("year"))
-                        return result.withFailure(ExceptionType.INVALID_PARAM);
-                }
-                case "above" -> {
-                    if (!filter.getAttr().matches("^(year)|(citationNum)$"))
-                        return result.withFailure(ExceptionType.INVALID_PARAM);
-                }
+        String srt = searchRequest.getSort();
+
+        // Param check for filters
+        if (!validatePaperFilters(filters)) {
+            return result.withFailure(ExceptionType.INVALID_PARAM);
+        }
+
+        // Param check for sort
+        if (srt != null) {
+            switch (srt) {
+                case "date.asc", "date.desc", "citationNum.desc" -> {}
                 default -> {
                     return result.withFailure(ExceptionType.INVALID_PARAM);
                 }
@@ -171,8 +171,8 @@ public class SearchController {
 
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "paper");
-        QueryBuilder filter = searchService.buildFilter(filters);
-        SortBuilder<?> sort = searchService.buildSort(searchRequest.getSort());
+        QueryBuilder filter = searchService.buildFilter(filters, "paper");
+        SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
@@ -180,10 +180,9 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
         session.setAttribute("filter", filter);
-        session.setMaxInactiveInterval(60);
 
         // Run search
-        SearchHits<Paper> baseHits = searchService.advancedSearch(Paper.class, query, filter, sort, hlt, page);
+        SearchHits<Paper> baseHits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
 
         // Set items & statistics
         smartPage.setHits(baseHits);
@@ -247,9 +246,11 @@ public class SearchController {
                     <b>institutions.name</b> - 发表论文的机构名，不允许与其他scope共存</br>
                     <b>journal.title</b> - 刊登论文的期刊名，不允许与其他scope共存</br>
                     
-                    允许添加filter的字段：year (below, above, range, equal), citationNum (above)
+                    允许添加filter的字段：</br>
+                    数值型：<b>year</b> (below, above, range, equal), <b>citationNum</b> (above)</br>
+                    离散型：<b>subjects</b>, <b>topics</b>, <b>type</b>, <b>authors.name</b>, <b>institutions.name</b>, <b>journal.title</b>
                     
-                    允许设置sort的字段：date.asc（出版时间正序）, date.asc（出版时间倒序，最新论文）, citationNum.desc（被引量倒序，最高被引）""")
+                    允许设置sort的字段：<b>date.asc</b>（出版时间正序）, <b>date.asc</b>（出版时间倒序，最新论文）, <b>citationNum.desc</b>（被引量倒序，最高被引）""")
     public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest,
                                                    HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
@@ -305,21 +306,8 @@ public class SearchController {
         }
 
         // Param check for filters
-        for (Filter filter : filters) {
-            String type = filter.getType();
-            switch (type) {
-                case "below", "range", "equal" -> {
-                    if (!filter.getAttr().equals("year"))
-                        return result.withFailure(ExceptionType.INVALID_PARAM);
-                }
-                case "above" -> {
-                    if (!filter.getAttr().matches("^(year)|(citationNum)$"))
-                        return result.withFailure(ExceptionType.INVALID_PARAM);
-                }
-                default -> {
-                    return result.withFailure(ExceptionType.INVALID_PARAM);
-                }
-            }
+        if (!validatePaperFilters(filters)) {
+            return result.withFailure(ExceptionType.INVALID_PARAM);
         }
 
         // Sort check
@@ -334,7 +322,7 @@ public class SearchController {
 
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "paper");
-        QueryBuilder filter = searchService.buildFilter(filters);
+        QueryBuilder filter = searchService.buildFilter(filters, "paper");
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
@@ -343,10 +331,10 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
         session.setAttribute("filter", filter);
-        session.setMaxInactiveInterval(60);
+
 
         // Run search
-        SearchHits<Paper> hits = searchService.advancedSearch(Paper.class, query, filter, sort, hlt, page);
+        SearchHits<Paper> hits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
 
         // Items & statistics
         hitPage.setItems(HitsReducer.reducePaperHits(hits, preTag, postTag));
@@ -370,9 +358,11 @@ public class SearchController {
                     <b>currentInst.name</b> - 科研人员所属的机构名</br>
                     <b>institutions.name</b> - 科研人员的合作机构名</br>
                     
-                    允许添加filter的字段：hIndex, gIndex, paperNum, patentNum, citationNum（type均只能是above）
+                    允许添加filter的字段：</br>
+                    数值型：<b>hIndex</b>, <b>gIndex</b>, <b>paperNum</b>, <b>patentNum</b>, <b>citationNum</b>（type均只能是above）</br>
+                    离散型：<b>interests</b>, <b>currentInst.name</b>
                     
-                    允许设置sort的字段：hIndex.desc, gIndex.desc, paperNum.desc, patentNum.desc, citationNum.desc""")
+                    允许设置sort的字段：<b>hIndex.desc</b>, <b>gIndex.desc</b>, <b>paperNum.desc</b>, <b>patentNum.desc</b>, <b>citationNum.desc</b>""")
     public Result<HitPage<ResearcherItem>> searchResearcher(@RequestBody @Valid SearchRequest searchRequest,
                                                             HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
@@ -421,10 +411,27 @@ public class SearchController {
 
         // Param check for filters
         for (Filter filter : filters) {
-            if (!filter.getType().equals("above"))
-                return result.withFailure(ExceptionType.INVALID_PARAM);
-            switch (filter.getAttr()) {
-                case "hIndex", "gIndex", "paperNum", "patentNum", "citationNum" -> {}
+            FilterFormat format = filter.getFormat();
+            FilterType type = filter.getType();
+            switch (format) {
+                case NUMERIC -> {
+                    if (!type.equals(FilterType.ABOVE))
+                        return result.withFailure(ExceptionType.INVALID_PARAM);
+                    switch (filter.getAttr()) {
+                        case "hIndex", "gIndex", "paperNum", "patentNum", "citationNum" -> {}
+                        default -> {
+                            return result.withFailure(ExceptionType.INVALID_PARAM);
+                        }
+                    }
+                }
+                case DISCRETE -> {
+                    switch (filter.getAttr()) {
+                        case "interests", "currentInst.name" -> {}
+                        default -> {
+                            return result.withFailure(ExceptionType.INVALID_PARAM);
+                        }
+                    }
+                }
                 default -> {
                     return result.withFailure(ExceptionType.INVALID_PARAM);
                 }
@@ -443,7 +450,7 @@ public class SearchController {
 
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "researcher");
-        QueryBuilder filter = searchService.buildFilter(filters);
+        QueryBuilder filter = searchService.buildFilter(filters, "researcher");
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("name", "interests");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
@@ -452,10 +459,9 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
         session.setAttribute("filter", filter);
-        session.setMaxInactiveInterval(60);
 
         // Run search
-        SearchHits<Researcher> hits = searchService.advancedSearch(Researcher.class, query, filter, sort, hlt, page);
+        SearchHits<Researcher> hits = searchService.runSearch(Researcher.class, query, filter, sort, hlt, page);
 
         // Items & statistics
         hitPage.setItems(HitsReducer.reduceResearcherHits(hits));
@@ -517,10 +523,10 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
-        session.setMaxInactiveInterval(60);
+         
 
         // Run search
-        SearchHits<Journal> hits = searchService.advancedSearch(Journal.class, query, null, sort, hlt, page);
+        SearchHits<Journal> hits = searchService.runSearch(Journal.class, query, null, sort, hlt, page);
 
         // Items & statistics
         hitPage.setItems(HitsReducer.reduceJournalHits(hits));
@@ -582,10 +588,9 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
-        session.setMaxInactiveInterval(60);
 
         // Run search
-        SearchHits<Institution> hits = searchService.advancedSearch(Institution.class, query, null, sort, hlt, page);
+        SearchHits<Institution> hits = searchService.runSearch(Institution.class, query, null, sort, hlt, page);
 
         // Items & statistics
         hitPage.setItems(HitsReducer.reduceInstitutionHits(hits));
@@ -605,13 +610,16 @@ public class SearchController {
                     
                     条件中的scope参数允许的所有值的含义与限制规则如下：</br>
                     <b>title</b> - 专利标题</br>
+                    <b>type</b> - 专利类型，不允许开启模糊搜索和语种关联，且不允许与其他scope共存</br>
                     <b>abstract</b> - 专利摘要</br>
                     <b>applicant</b> - 专利申请人，不允许与其他scope共存</br>
                     <b>inventors.name</b> - 专利发明人，不允许开启模糊搜索和语种关联，且不允许与其他scope共存</br>
-
-                    不支持添加任何filter。
                     
-                    允许设置sort的字段：fillingDate.desc, fillingDate.asc（即申请日期正序或倒序）""")
+                    允许添加filter的字段：</br>
+                    数值型：无</br>
+                    离散型：<b>type</b>, <b>inventors.name</b>, <b>applicant</b>
+                    
+                    允许设置sort的字段：<b>fillingDate.desc</b>, <b>fillingDate.asc</b>（即申请日期正序或倒序）""")
     public Result<HitPage<PatentItem>> searchPatent(@RequestBody @Valid SearchRequest searchRequest,
                                                     HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
@@ -619,15 +627,16 @@ public class SearchController {
         HitPage<PatentItem> hitPage = new HitPage<>();
 
         List<Condition> conditions = searchRequest.getConditions();
+        List<Filter> filters = searchRequest.getFilters();
         String srt = searchRequest.getSort();
 
         // Condition tree depth check
         if (!validateDepth(conditions, maxDepth))
             return result.withFailure("条件复合不能超过" + maxDepth + "层");
         /* All fields that are allowed to be contained in the scope */
-        Set<String> allAllowedScopes = Set.of("title", "abstract", "applicant", "inventors.name");
+        Set<String> allAllowedScopes = Set.of("title", "type", "abstract", "applicant", "inventors.name");
         /* Fields that are not allowed to appear with any other field */
-        Set<String> soloFieldScopes = Set.of("applicant", "inventors.name");
+        Set<String> soloFieldScopes = Set.of("type", "applicant", "inventors.name");
 
         // Hierarchical iteration
         Queue<Condition> checkQueue = new LinkedList<>(conditions);
@@ -650,11 +659,29 @@ public class SearchController {
                 if (!Collections.disjoint(scope, soloFieldScopes))
                     return result.withFailure("非法的关键词范围组合");
             }
+            if (scope.contains("type")) {
+                if (condition.isFuzzy())
+                    return result.withFailure("发明人姓名不可开启模糊搜索");
+                if (condition.isTranslated())
+                    return result.withFailure("发明人姓名不可开启语种关联");
+            }
             if (scope.contains("inventors.name")) {
                 if (condition.isFuzzy())
                     return result.withFailure("发明人姓名不可开启模糊搜索");
                 if (condition.isTranslated())
                     return result.withFailure("发明人姓名不可开启语种关联");
+            }
+        }
+
+        // Param check for filters
+        for (Filter filter : filters) {
+            if (!filter.getFormat().equals(FilterFormat.DISCRETE))
+                return result.withFailure(ExceptionType.INVALID_PARAM);
+            switch (filter.getAttr()) {
+                case "type", "inventors.name", "applicant" -> {}
+                default -> {
+                    return result.withFailure(ExceptionType.INVALID_PARAM);
+                }
             }
         }
 
@@ -670,17 +697,18 @@ public class SearchController {
 
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "patent");
+        QueryBuilder filter = searchService.buildFilter(filters, "patent");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("title", "applicant");
+        HighlightBuilder hlt = searchService.buildHighlight("title");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("query", query);
-        session.setMaxInactiveInterval(60);
+        session.setAttribute("filter", filter);
 
         // Run search
-        SearchHits<Patent> hits = searchService.advancedSearch(Patent.class, query, null, sort, hlt, page);
+        SearchHits<Patent> hits = searchService.runSearch(Patent.class, query, filter, sort, hlt, page);
 
         // Items & statistics
         hitPage.setItems(HitsReducer.reducePatentHits(hits, preTag, postTag));
@@ -707,6 +735,43 @@ public class SearchController {
     private boolean validateScope(Set<String> scope, Set<String> allowed) {
         scope.retainAll(allowed);
         return !scope.isEmpty();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean validatePaperFilters(List<Filter> filters) {
+        for (Filter filter : filters) {
+            FilterFormat format = filter.getFormat();
+            FilterType type = filter.getType();
+            switch (format) {
+                case NUMERIC -> {
+                    switch (type) {
+                        case BELOW, RANGE, EQUAL -> {
+                            if (!filter.getAttr().equals("year"))
+                                return false;
+                        }
+                        case ABOVE -> {
+                            if (!filter.getAttr().matches("^(year)|(citationNum)$"))
+                                return false;
+                        }
+                        default -> {
+                            return false;
+                        }
+                    }
+                }
+                case DISCRETE -> {
+                    switch (filter.getAttr()) {
+                        case "subjects", "topics", "type", "authors.name", "institutions.name", "journal.title" -> {}
+                        default -> {
+                            return false;
+                        }
+                    }
+                }
+                default -> {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 }
