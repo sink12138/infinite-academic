@@ -1,7 +1,5 @@
 package com.buaa.academic.analysis.service.impl.fpg;
 
-import com.buaa.academic.analysis.model.Subject;
-import com.buaa.academic.analysis.model.Topic;
 import com.buaa.academic.analysis.repository.SubjectRepository;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
@@ -16,6 +14,9 @@ import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequency;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentReducer;
 import com.buaa.academic.document.entity.Paper;
+import com.buaa.academic.document.statistic.Association;
+import com.buaa.academic.document.statistic.Subject;
+import com.buaa.academic.document.statistic.Topic;
 import lombok.SneakyThrows;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -402,9 +403,9 @@ public class FPGMainClass implements Runnable{
             String[] associationItems = rule[1].split(FPGMainClass.splitChar);
             String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
             if (analysisObject.equals("topics")) {
-                ArrayList<Topic.AssociationTopic> associationTopics = new ArrayList<>();
+                ArrayList<Association> associationTopics = new ArrayList<>();
                 for (int index = 0; index < associationItems.length; index ++) {
-                    Topic.AssociationTopic associationTopic = new Topic.AssociationTopic(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                    Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
                     associationTopics.add(associationTopic);
                 }
                 Topic topic = topicRepository.findTopicByName(item);
@@ -415,9 +416,9 @@ public class FPGMainClass implements Runnable{
                 topic.setAssociationTopics(associationTopics);
                 topicRepository.save(topic);
             } else {
-                ArrayList<Subject.AssociationSubject> associationSubjects = new ArrayList<>();
+                ArrayList<Association> associationSubjects = new ArrayList<>();
                 for (int index = 0; index < associationItems.length; index ++) {
-                    Subject.AssociationSubject associationTopic = new Subject.AssociationSubject(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                    Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
                     associationSubjects.add(associationTopic);
                 }
                 Subject subject = subjectRepository.findSubjectByName(item);

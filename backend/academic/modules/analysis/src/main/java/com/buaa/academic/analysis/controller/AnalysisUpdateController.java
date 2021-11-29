@@ -4,6 +4,7 @@ import com.buaa.academic.analysis.repository.PaperRepository;
 import com.buaa.academic.analysis.service.AnalysisUpdateService;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.model.web.Result;
+import io.swagger.annotations.Api;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -19,6 +20,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.web.bind.annotation.*;
 
+@Api(tags = "管理员用，更新数据分析结果", value = "/analysis/update")
 @RequestMapping("/update")
 @RestController()
 public class AnalysisUpdateController {
@@ -51,9 +53,9 @@ public class AnalysisUpdateController {
     ElasticsearchRestTemplate template;
 
     @GetMapping("/test")
-    public Result<Object> testAgg(@RequestParam(value = "topic") String topic) {
-        ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("test").field("year");
-        TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("term").field("year").subAggregation(count);
+    public Result<Object> testAgg() {
+        ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("test").field("authors");
+        TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("term").field("authors").subAggregation(count);
         TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("topicTerm").field("topics.raw").subAggregation(termsAgg);
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
