@@ -14,6 +14,7 @@ import com.buaa.academic.search.model.request.SmartSearchRequest;
 import com.buaa.academic.search.model.response.HitPage;
 import com.buaa.academic.search.model.response.SmartPage;
 import com.buaa.academic.search.service.SearchService;
+import com.buaa.academic.search.service.SuggestService;
 import com.buaa.academic.search.util.HitsReducer;
 import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.util.StringUtils;
@@ -51,6 +52,9 @@ public class SearchController {
 
     @Autowired
     private SearchService searchService;
+
+    @Autowired
+    private SuggestService suggestService;
 
     @Autowired
     private ResearcherRepository researcherRepository;
@@ -116,7 +120,14 @@ public class SearchController {
         // Strip keyword
         String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
 
-        // TODO 2021/11/27: Add auto-correction feature
+        List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
+                new String[] { "title.phrase", "keywords.phrase", "subjects.phrase", "topics.phrase",
+                "title.raw", "keywords.raw", "subjects.raw", "topics.raw" }, 1);
+        String correctKeyword = keyword;
+        if (!corrections.isEmpty()) {
+            correctKeyword = corrections.get(0);
+            smartPage.setCorrection(correctKeyword);
+        }
 
         // Search for base items (papers)
         // Keywords
@@ -124,12 +135,12 @@ public class SearchController {
         if (searchRequest.isTranslated()) {
             Set<String> keySet = new HashSet<>(6);
             keySet.add(keyword);
-            keySet.add(Translator.translate(keyword, "auto", "zh"));
-            keySet.add(Translator.translate(keyword, "auto", "en"));
+            keySet.add(Translator.translate(correctKeyword, "auto", "zh"));
+            keySet.add(Translator.translate(correctKeyword, "auto", "en"));
             keywords = keySet.toArray(new String[0]);
         }
         else {
-            keywords = new String[]{ keyword };
+            keywords = new String[]{ correctKeyword };
         }
 
         // Filters

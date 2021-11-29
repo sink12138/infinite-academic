@@ -20,6 +20,9 @@ import java.util.List;
 @ApiModel(description = "智能搜索结果模型")
 public class SmartPage extends HitPage<PaperItem> {
 
+    @ApiModelProperty(value = "智能纠正后的检索词，例如\"数据哇掘\"会被纠正为\"数据挖掘\"后再执行搜索")
+    private String correction;
+
     @ApiModelProperty(value = "检测到并推荐的实体类型，若为null表示没有推荐。可能的值为researcher/institution/journal")
     protected String detection;
 
