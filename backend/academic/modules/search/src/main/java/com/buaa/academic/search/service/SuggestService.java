@@ -1,6 +1,5 @@
 package com.buaa.academic.search.service;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface SuggestService {

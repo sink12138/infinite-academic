@@ -1,6 +1,11 @@
 package com.buaa.academic.search.service.impl;
 
 import com.buaa.academic.search.service.SuggestService;
+import com.buaa.academic.search.util.HighlightManager;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.AnalyzeRequest;
+import org.elasticsearch.client.indices.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.Suggest.Suggestion;
 import org.elasticsearch.search.suggest.Suggest.Suggestion.Entry;
@@ -13,7 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -24,29 +31,38 @@ public class SuggestServiceImpl implements SuggestService {
     @Autowired
     private ElasticsearchRestTemplate template;
 
+    @Autowired
+    private RestHighLevelClient client;
+
     @Value("${spring.elasticsearch.highlight.pre-tag}")
-    String preTag;
+    private String preTag;
 
     @Value("${spring.elasticsearch.highlight.post-tag}")
-    String postTag;
+    private String postTag;
+
+    private final HighlightManager manager = new HighlightManager(preTag, postTag);
 
     @Override
     public <T> List<String> completionSuggest(Class<T> target, String text, String field, int size) {
         SuggestBuilder suggestBuilder = new SuggestBuilder()
                 .addSuggestion(prefix + field,
-                        SuggestBuilders.completionSuggestion("completion")
+                        SuggestBuilders.completionSuggestion(field)
                                 .prefix(text)
                                 .skipDuplicates(true)
                                 .size(size));
         Suggestion<Entry<Option>> suggestion = template
                 .suggest(suggestBuilder, target)
                 .getSuggest()
-                .getSuggestion(prefix + "completion");
+                .getSuggestion(prefix + field);
+        List<String> analyzedWords = analyze(target.getName().toLowerCase(), text);
         List<String> suggestionWords = new ArrayList<>();
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
-                // TODO 2021/11/27: add highlight to this feature
-                suggestionWords.add(option.getText().toString());
+                suggestionWords.add(manager
+                        .text(option.getText().toString())
+                        .highlight(analyzedWords)
+                        .reverse()
+                        .process());
             }
         }
         return suggestionWords;
@@ -91,6 +107,25 @@ public class SuggestServiceImpl implements SuggestService {
             suggestionWords.add(options.get(i).getHighlighted().toString());
         }
         return suggestionWords;
+    }
+
+    public List<String> analyze(String index, String text) {
+        try {
+            AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(index, "ik_smart", text);
+            List<AnalyzeToken> tokens = client.indices().analyze(request, RequestOptions.DEFAULT).getTokens();
+            List<String> words = new ArrayList<>();
+            int offset = 0;
+            for (AnalyzeToken token : tokens) {
+                if (token.getStartOffset() >= offset)
+                    words.add(token.getTerm());
+                offset = token.getEndOffset();
+            }
+            return words;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
 }
