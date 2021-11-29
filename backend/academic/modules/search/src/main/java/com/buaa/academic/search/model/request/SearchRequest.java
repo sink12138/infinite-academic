@@ -42,8 +42,4 @@ public class SearchRequest {
     @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "citationNum.desc")
     private String sort;
 
-    @Deprecated
-    @ApiModelProperty(value = "是否需要搜索结果高亮", example = "true")
-    private boolean highlight;
-
 }

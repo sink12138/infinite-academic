@@ -16,7 +16,6 @@ import com.buaa.academic.search.model.response.SmartPage;
 import com.buaa.academic.search.service.SearchService;
 import com.buaa.academic.search.service.SuggestService;
 import com.buaa.academic.search.util.HitsReducer;
-import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.util.StringUtils;
 import com.buaa.academic.tool.validator.AllowValues;
 import io.swagger.annotations.Api;
@@ -41,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
@@ -93,7 +93,8 @@ public class SearchController {
                     "如果在其他实体上出现了精准的命中（例如学者、机构、期刊的名字），会将推荐信息一并返回。</br>" +
                     "返回值包括论文检索结果和可能的推荐信息。</br>" +
                     "允许添加filter的字段：year (below, above, range, equal), citationNum (above)")
-    public Result<SmartPage> smartSearch(@RequestBody @Valid SmartSearchRequest searchRequest) {
+    public Result<SmartPage> smartSearch(@RequestBody @Valid SmartSearchRequest searchRequest,
+                                         HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<SmartPage> result = new Result<>();
         SmartPage smartPage = new SmartPage();
@@ -129,32 +130,60 @@ public class SearchController {
             smartPage.setCorrection(correctKeyword);
         }
 
-        // Search for base items (papers)
-        // Keywords
-        String[] keywords;
-        if (searchRequest.isTranslated()) {
-            Set<String> keySet = new HashSet<>(6);
-            keySet.add(keyword);
-            keySet.add(Translator.translate(correctKeyword, "auto", "zh"));
-            keySet.add(Translator.translate(correctKeyword, "auto", "en"));
-            keywords = keySet.toArray(new String[0]);
-        }
-        else {
-            keywords = new String[]{ correctKeyword };
-        }
+        // Build conditions
+        List<Condition> conditions = List.of(
+                new Condition(
+                        "or",
+                        false,
+                        correctKeyword,
+                        Set.of("title", "keyword", "abstract"),
+                        true,
+                        searchRequest.isTranslated(),
+                        searchRequest.isTranslated() ? Set.of("en", "zh") : null,
+                        null),
+                new Condition(
+                        "or",
+                        false,
+                        keyword,
+                        Set.of("authors.name"),
+                        false,
+                        false,
+                        null,
+                        null),
+                new Condition(
+                        "or",
+                        false,
+                        keyword,
+                        Set.of("journal.title"),
+                        true,
+                        false,
+                        null,
+                        null),
+                new Condition(
+                        "or",
+                        false,
+                        keyword,
+                        Set.of("institutions.name"),
+                        true,
+                        false,
+                        null,
+                        null));
 
-        // Filters
+        // Prepare search params
+        QueryBuilder query = searchService.buildQuery(conditions, "paper");
         QueryBuilder filter = searchService.buildFilter(filters);
-
-        // Sort
-        String srt = searchRequest.getSort();
-        SortBuilder<?> sort = searchService.buildSort(srt);
-
-        // Page
+        SortBuilder<?> sort = searchService.buildSort(searchRequest.getSort());
+        HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setAttribute("filter", filter);
+        session.setMaxInactiveInterval(60);
+
         // Run search
-        SearchHits<Paper> baseHits = searchService.smartSearch(keywords, filter, sort, page);
+        SearchHits<Paper> baseHits = searchService.advancedSearch(Paper.class, query, filter, sort, hlt, page);
 
         // Set items & statistics
         smartPage.setHits(baseHits);
@@ -221,7 +250,8 @@ public class SearchController {
                     允许添加filter的字段：year (below, above, range, equal), citationNum (above)
                     
                     允许设置sort的字段：date.asc（出版时间正序）, date.asc（出版时间倒序，最新论文）, citationNum.desc（被引量倒序，最高被引）""")
-    public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest,
+                                                   HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<PaperItem>> result = new Result<>();
         HitPage<PaperItem> hitPage = new HitPage<>();
@@ -309,6 +339,12 @@ public class SearchController {
         HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setAttribute("filter", filter);
+        session.setMaxInactiveInterval(60);
+
         // Run search
         SearchHits<Paper> hits = searchService.advancedSearch(Paper.class, query, filter, sort, hlt, page);
 
@@ -337,7 +373,8 @@ public class SearchController {
                     允许添加filter的字段：hIndex, gIndex, paperNum, patentNum, citationNum（type均只能是above）
                     
                     允许设置sort的字段：hIndex.desc, gIndex.desc, paperNum.desc, patentNum.desc, citationNum.desc""")
-    public Result<HitPage<ResearcherItem>> searchResearcher(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<ResearcherItem>> searchResearcher(@RequestBody @Valid SearchRequest searchRequest,
+                                                            HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<ResearcherItem>> result = new Result<>();
         HitPage<ResearcherItem> hitPage = new HitPage<>();
@@ -411,6 +448,12 @@ public class SearchController {
         HighlightBuilder hlt = searchService.buildHighlight("name", "interests");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setAttribute("filter", filter);
+        session.setMaxInactiveInterval(60);
+
         // Run search
         SearchHits<Researcher> hits = searchService.advancedSearch(Researcher.class, query, filter, sort, hlt, page);
 
@@ -436,7 +479,8 @@ public class SearchController {
                     不支持添加任何filter。
                     
                     不支持设置任何sort。""")
-    public Result<HitPage<JournalItem>> searchJournal(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<JournalItem>> searchJournal(@RequestBody @Valid SearchRequest searchRequest,
+                                                      HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<JournalItem>> result = new Result<>();
         HitPage<JournalItem> hitPage = new HitPage<>();
@@ -470,6 +514,11 @@ public class SearchController {
         HighlightBuilder hlt = searchService.buildHighlight("title");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setMaxInactiveInterval(60);
+
         // Run search
         SearchHits<Journal> hits = searchService.advancedSearch(Journal.class, query, null, sort, hlt, page);
 
@@ -495,7 +544,8 @@ public class SearchController {
                     不支持添加任何filter。
                     
                     不支持设置任何sort。""")
-    public Result<HitPage<InstitutionItem>> searchInstitution(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<InstitutionItem>> searchInstitution(@RequestBody @Valid SearchRequest searchRequest,
+                                                              HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<InstitutionItem>> result = new Result<>();
         HitPage<InstitutionItem> hitPage = new HitPage<>();
@@ -529,6 +579,11 @@ public class SearchController {
         HighlightBuilder hlt = searchService.buildHighlight("name");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setMaxInactiveInterval(60);
+
         // Run search
         SearchHits<Institution> hits = searchService.advancedSearch(Institution.class, query, null, sort, hlt, page);
 
@@ -557,7 +612,8 @@ public class SearchController {
                     不支持添加任何filter。
                     
                     允许设置sort的字段：fillingDate.desc, fillingDate.asc（即申请日期正序或倒序）""")
-    public Result<HitPage<PatentItem>> searchPatent(@RequestBody @Valid SearchRequest searchRequest) {
+    public Result<HitPage<PatentItem>> searchPatent(@RequestBody @Valid SearchRequest searchRequest,
+                                                    HttpServletRequest httpServletRequest) {
         long start = System.currentTimeMillis();
         Result<HitPage<PatentItem>> result = new Result<>();
         HitPage<PatentItem> hitPage = new HitPage<>();
@@ -617,6 +673,11 @@ public class SearchController {
         SortBuilder<?> sort = searchService.buildSort(srt);
         HighlightBuilder hlt = searchService.buildHighlight("title", "applicant");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
+
+        // Store to cache
+        HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("query", query);
+        session.setMaxInactiveInterval(60);
 
         // Run search
         SearchHits<Patent> hits = searchService.advancedSearch(Patent.class, query, null, sort, hlt, page);

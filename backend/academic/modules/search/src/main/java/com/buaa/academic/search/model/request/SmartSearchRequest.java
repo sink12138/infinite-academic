@@ -47,8 +47,4 @@ public class SmartSearchRequest {
     @ApiModelProperty(value = "排序依据，null默认为相关度排序，格式为${字段名}.${排序类型}", allowableValues = "date.asc, date.dsc, citationNum.desc", example = "year")
     private String sort;
 
-    @Deprecated
-    @ApiModelProperty(value = "是否需要搜索结果高亮（匹配部分添加b标签）", example = "true")
-    private boolean highlight;
-
 }
