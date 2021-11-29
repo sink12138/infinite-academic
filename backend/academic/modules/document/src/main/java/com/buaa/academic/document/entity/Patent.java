@@ -35,7 +35,7 @@ public class Patent implements Reducible<PatentItem> {
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 
-    @Field(type = FieldType.Keyword, index = false)
+    @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "专利类型", example = "外观设计")
     private String type;
 
@@ -65,9 +65,7 @@ public class Patent implements Reducible<PatentItem> {
 
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
-            otherFields = {
-                    @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+            otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
     @ApiModelProperty(value = "申请人", example = "宏碁股份有限公司")
     private String applicant;
 
