@@ -1,162 +1,62 @@
 <template>
-<div class="outer">
-    <div class="main">
-        <div class="title">{{paperdata.title}}</div>
-        <ul class="author wrapper">
-            <div class="lefttitle">作者:</div>
-            <div class="rightcontent" style="display:flex">
-                <li v-for="item in paperdata.authors" v-bind:key="item.id">
-                    <a>{{item[0][1]}}</a>&nbsp;&nbsp;
-                </li>
-            </div>
-        </ul>
-        <div class="wrapper">
-            <div class="lefttitle">摘要:</div>
-            <div class="rightcontent">{{paperdata.abstract}}</div>
-        </div>
-    <ul class="keywords wrapper">
-        <div class="lefttitle">关键词:</div>
-        <div class="rightcontent" style="display:flex">
-            <li v-for="item in paperdata.keywords" v-bind:key="item.id">
-               {{item}}&nbsp;&nbsp;
-            </li>
-        </div>
-    </ul>
-    <div class="doi wrapper">
-        <div class="lefttitle">DOI:</div>
-        <div class="rightcontent">
-            {{paperdata.doi}}
-        </div>
-    </div>
-    <div class="issn wrapper">
-        <div class="lefttitle">ISSN:</div>
-        <div class="rightcontent">
-            {{paperdata.issn}}
-        </div>
-    </div>
-    <div class="isbn wrapper">
-        <div class="lefttitle">ISBN:</div>
-        <div class="rightcontent">
-            {{paperdata.isbn}}
-        </div>
-    </div>
-    <div class="citationNum wrapper">
-        <div class="lefttitle">被引量:</div>
-        <div class="rightcontent">
-            {{paperdata.citationNum}}
-        </div>
-    </div>
-    <div class="year wrapper">
-        <div class="lefttitle">年份:</div>
-        <div class="rightcontent">
-            {{paperdata.year}}
-        </div>
-    </div>
-    <ul class="references wrapper">
-        <div class="lefttitle">参考文献:</div>
-        <div class="rightcontent">
-            <li v-for="item in paperdata.references" v-bind:key="item.id">
-               <a>{{item}}</a>&nbsp;&nbsp;
-            </li>
-        </div>
-    </ul>
-    <ul class="url wrapper">
-        <div class="lefttitle">论文来源:</div>
-        <div class="rightcontent">
-            <li v-for="item in paperdata.url" v-bind:key="item.id">
-               <a>{{item}}</a>&nbsp;&nbsp;
-            </li>
-        </div>
-    </ul>
-    </div>
-    <div class="right">
-        <div class="right-title">论文所属期刊</div>
-        <div class="right-content">
-        <div>
-            {{paperdata.journal.name}}
-        </div>
-        <div>
-            第{{paperdata.journal.volume}}卷第{{paperdata.journal.issue}}期{{paperdata.journal.startPage}}页到{{paperdata.journal.endPage}}页
-        </div>
-        论文出版单位:{{paperdata.publisher}}
-        </div>
-    </div>
-</div>
+  <v-card
+    class="mx-auto"
+    max-width="80%"
+  >
+    <v-card-text>
+      <!-- <div>Word of the Day</div> -->
+      <p class="display-1 text--primary">
+        {{paperdata.title}}
+      </p>
+      <div class="text-md-left"><span class="red--text">摘要:</span>&nbsp;&nbsp;{{paperdata.abstract}}</div>
+      <div class="text-md-left"><span class="red--text">作者:</span>&nbsp;&nbsp;<span v-for="item in paperdata.authors" v-bind:key="item.index">&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;</span></div>
+      <div class="text-md-left"><span class="red--text">论文被引量:</span>&nbsp;&nbsp;{{paperdata.citationNum}}</div>
+      <div class="text-md-left"><span class="red--text">发表日期:</span>&nbsp;&nbsp;{{paperdata.date}}</div>
+      <div class="text-md-left"><span class="red--text">DOI编号:</span>&nbsp;&nbsp;{{paperdata.doi}}</div>
+      <div class="text-md-left"><span class="red--text">数据库中ID:</span>&nbsp;&nbsp;{{paperdata.id}}</div>
+      <div class="text-md-left"><span class="red--text">论文所有机构:</span><span v-for="item in paperdata.institutions" v-bind:key="item.index">&nbsp;&nbsp;{{item.name}}&nbsp;&nbsp;</span></div>
+      <div class="text-md-left"><span class="red--text">ISBN编号:</span>&nbsp;&nbsp;{{paperdata.isbn}}</div>
+      <div class="text-md-left"><span class="red--text">ISSN编号:</span>&nbsp;&nbsp;{{paperdata.issn}}</div>
+      <div class="text-md-left"><span class="red--text">关键词:</span>&nbsp;&nbsp;<span v-for="item in paperdata.keywords" v-bind:key="item.index">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;</span></div>
+      <div class="text-md-left"><span class="red--text">出版商:</span>&nbsp;&nbsp;{{paperdata.publisher}}</div>
+      <div class="text-md-left"><span class="red--text">论文所有来源:</span>&nbsp;&nbsp;<a v-for="item in paperdata.sources" v-bind:key="item.index" :href="item.url">&nbsp;&nbsp;{{item.website}}&nbsp;&nbsp;</a></div>
+      <div class="text-md-left"><span class="red--text">学科分类:</span>&nbsp;&nbsp;<span v-for="item in paperdata.subjects" v-bind:key="item.index">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;</span></div>
+      <div class="text-md-left"><span class="red--text">话题分类:</span>&nbsp;&nbsp;<span v-for="item in paperdata.topics" v-bind:key="item.index">&nbsp;&nbsp;{{item}}&nbsp;&nbsp;</span></div>
+      <div class="text-md-left"><span class="red--text">论文的类别:</span>&nbsp;&nbsp;{{paperdata.type}}</div>
+      <div class="text-md-left"><span class="red--text">发表年份:</span>&nbsp;&nbsp;{{paperdata.year}}</div>
+    </v-card-text>
+    <v-expansion-panels>
+        <v-expansion-panel>
+          <v-expansion-panel-header>
+            <v-card-actions>
+            <v-btn text color="deep-purple accent-4">
+              论文所属期刊信息
+            </v-btn>
+            </v-card-actions>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <v-card-text height=0>
+              <div class="text-md-left">期刊标题:{{paperdata.journal.title}}</div>
+              <div class="text-md-left">期刊的数据库id:{{paperdata.journal.id}}</div>
+              <div class="text-md-left">论文在期刊中的卷号:{{paperdata.journal.volume}}</div>
+              <div class="text-md-left">论文在期刊中的期号:{{paperdata.journal.issue}}</div>
+              <div class="text-md-left">论文在期刊中的起始页码:{{paperdata.journal.startPage}}</div>
+              <div class="text-md-left">论文在期刊中的结束页码:{{paperdata.journal.endPage}}</div>
+            </v-card-text>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+  </v-card>
 </template>
 <script>
 export default{
     props:{
-        paperdata:{}
-    },
-    data(){
-        return{
-
-        }
+        paperdata:Object
     }
 }
 </script>
 <style scoped>
-ul{
-    margin:0;
-    padding:0;
-}
-.outer{
-    width:100%;
-    display: flex;
-    text-decoration: none;
-    padding-left:10%;
-    padding-right:10%;
-    line-height: 2.5;
-}
-.outer li{
-    list-style:none;
-}
-.main{
-    width:75%;
-    /* background-color: antiquewhite; */
-    padding: 10px;
-}
-.title{
-    color:#06c;
-    font-size:24px;
-}
-.right{
-    width: 25%;
-    /* background-color: burlywood; */
-    padding:10px;
-}
-.flexbox{
-    display:flex;
-}
-
-.wrapper{
-    width: 100%;
-    display: flex;
-}
-.lefttitle{
-    flex-basis:80px;
-    text-align:left;
-    font:14px Microsoft YaHei,Arial,Helvetica,sans-serif;
-    line-height: 2.7;
-}
-.rightcontent{
-    flex-basis:200px;
-    flex-grow:2;
-    text-align: left;
-}
-.right-title{
-    margin-bottom: 18px;
-    font-weight: initial;
-    font-size: 18px;
-    color: #333;
-}
-.right-content{
-    width: 70%;
-    max-height: 60px;
-    display: block;
-    padding-bottom: 10px;
-    overflow: hidden;
-    font-size: 14px;
-    color: #333;
+a{
+  text-decoration: none;
 }
 </style>

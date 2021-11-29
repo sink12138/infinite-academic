@@ -1,0 +1,58 @@
+{
+	"data": {
+		"abstract": "假装这是一大段摘要一大段摘要Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+		"authors": [
+			{
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"instOrders": [],
+				"name": "谭火彬"
+			},
+			{
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"instOrders": [],
+				"name": "谭火彬2"
+			}
+		],
+		"citationNum": 114,
+		"date": "2021-10-15",
+		"doi": "10.1007/BF02943174",
+		"id": "GF_4ynwBF-Mu8unTG1hc",
+		"institutions": [
+			{
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"name": "北京航空航天大学软件学院"
+			}
+		],
+		"isbn": "ISBN 978-7-302-12260-9",
+		"issn": "ISSN 1607-5161",
+		"journal": {
+			"endPage": 514,
+			"id": "GF_4ynwBF-Mu8unTG1hc",
+			"issue": "02",
+			"startPage": 114,
+			"title": "Science",
+			"volume": 43
+		},
+		"keywords": ["关键词1","关键词2"],
+		"publisher": "Elsevier",
+		"sources": [
+			{
+				"url": "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty",
+				"website": "ResearchGate1"
+			},{
+				"url": "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty",
+				"website": "ResearchGate2"
+			},{
+				"url": "http://www.researchgate.net/publication/273232093_The_Characteristics_of_Organizational_Environments_and_Perceived_Environmental_Uncertainty",
+				"website": "ResearchGate3"
+			}
+		],
+		"subjects": ["学科分类1","学科分类2"],
+		"title": "基于机器学习的无需人工编制词典的切词系统",
+		"topics": ["话题分类1","话题分类2","话题分类3"],
+		"type": "期刊论文",
+		"year": 2021
+	},
+	"message": "参数格式非法",
+	"success": true
+}
