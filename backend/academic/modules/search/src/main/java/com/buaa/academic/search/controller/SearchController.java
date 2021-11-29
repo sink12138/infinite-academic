@@ -9,7 +9,8 @@ import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.ResearcherRepository;
 import com.buaa.academic.search.model.request.Condition;
 import com.buaa.academic.search.model.request.Filter;
-import com.buaa.academic.search.model.request.Filter.*;
+import com.buaa.academic.search.model.request.Filter.FilterFormat;
+import com.buaa.academic.search.model.request.Filter.FilterType;
 import com.buaa.academic.search.model.request.SearchRequest;
 import com.buaa.academic.search.model.request.SmartSearchRequest;
 import com.buaa.academic.search.model.response.HitPage;
@@ -44,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @RestController
@@ -74,6 +76,8 @@ public class SearchController {
 
     @Value("${spring.elasticsearch.highlight.post-tag}")
     private String postTag;
+
+    private final Base64.Encoder encoder = Base64.getEncoder();
 
     @PostMapping("/")
     @ApiOperation(
@@ -178,8 +182,8 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
-        session.setAttribute("filter", filter);
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Paper> baseHits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -329,8 +333,8 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
-        session.setAttribute("filter", filter);
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
 
         // Run search
@@ -457,8 +461,8 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
-        session.setAttribute("filter", filter);
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Researcher> hits = searchService.runSearch(Researcher.class, query, filter, sort, hlt, page);
@@ -522,8 +526,8 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
-         
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+
 
         // Run search
         SearchHits<Journal> hits = searchService.runSearch(Journal.class, query, null, sort, hlt, page);
@@ -587,7 +591,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Institution> hits = searchService.runSearch(Institution.class, query, null, sort, hlt, page);
@@ -704,8 +708,8 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("query", query);
-        session.setAttribute("filter", filter);
+        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Patent> hits = searchService.runSearch(Patent.class, query, filter, sort, hlt, page);

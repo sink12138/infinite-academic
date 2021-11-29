@@ -32,7 +32,7 @@ public class Paper implements Reducible<PaperItem> {
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(required = true, value = "论文标题", example = "基于机器学习的无需人工编制词典的切词系统")
     private String title;
 
@@ -98,7 +98,7 @@ public class Paper implements Reducible<PaperItem> {
                     positionIncrementGap = 100, copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(required = true, value = "论文的所有关键词")
     private List<String> keywords;
 
@@ -107,7 +107,7 @@ public class Paper implements Reducible<PaperItem> {
                     positionIncrementGap = 100, copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
@@ -116,7 +116,7 @@ public class Paper implements Reducible<PaperItem> {
                     positionIncrementGap = 100, copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(value = "论文的话题分类")
     private List<String> topics;
 

@@ -31,7 +31,7 @@ public class Patent implements Reducible<PatentItem> {
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(value = "专利标题", required = true, example = "笔记本电脑")
     private String title;
 

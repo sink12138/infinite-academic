@@ -28,7 +28,7 @@ public class Institution implements Reducible<InstitutionItem> {
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized", copyTo = "completion"),
             otherFields = {
                     @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "jcseg_nlp", searchAnalyzer = "jcseg_nlp")})
+                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
     @ApiModelProperty(value = "科研机构的名称", required = true, example = "北京航空航天大学软件学院")
     private String name;
 
