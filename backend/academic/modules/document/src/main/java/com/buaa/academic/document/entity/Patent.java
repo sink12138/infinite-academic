@@ -136,7 +136,8 @@ public class Patent implements Reducible<PatentItem> {
     public PatentItem reduce() {
         PatentItem item = new PatentItem();
         item.setId(id);
-        item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
+        if (title != null)
+            item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
         item.setType(type);
         item.setFilingDate(filingDate);
         item.setPublicationDate(publicationDate);

@@ -220,16 +220,19 @@ public class Paper implements Reducible<PaperItem> {
     public PaperItem reduce() {
         PaperItem item = new PaperItem();
         item.setId(id);
-        item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
+        if (title != null)
+            item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
         item.setType(type);
         if (authors != null) {
             List<PaperItem.Author> hitAuthors = new ArrayList<>();
             authors.forEach(author -> hitAuthors.add(new PaperItem.Author(author.id, author.name)));
             item.setAuthors(hitAuthors);
         }
-        item.setPaperAbstract(paperAbstract.length() > 128 ? paperAbstract.substring(0, 128) + "..." : paperAbstract);
+        if (paperAbstract != null)
+            item.setPaperAbstract(paperAbstract.length() > 128 ? paperAbstract.substring(0, 128) + "..." : paperAbstract);
         item.setKeywords(keywords);
-        item.setJournal(new PaperItem.Journal(journal.id, journal.title));
+        if (journal != null)
+            item.setJournal(new PaperItem.Journal(journal.id, journal.title));
         item.setDate(date == null ? year == null ? null : String.valueOf(year) : date);
         item.setCitationNum(citationNum);
         return item;
