@@ -38,8 +38,6 @@ public class SuggestServiceImpl implements SuggestService {
     @Value("${spring.elasticsearch.highlight.post-tag}")
     private String postTag;
 
-    private final HighlightManager manager = new HighlightManager(preTag, postTag);
-
     @Override
     public <T> List<String> completionSuggest(Class<T> target, String text, String field, int size) {
         SuggestBuilder suggestBuilder = new SuggestBuilder()
@@ -56,7 +54,7 @@ public class SuggestServiceImpl implements SuggestService {
         List<String> suggestionWords = new ArrayList<>();
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
-                suggestionWords.add(manager
+                suggestionWords.add(new HighlightManager(preTag, postTag)
                         .text(option.getText().toString())
                         .highlight(analyzedWords)
                         .reverse()
