@@ -1,7 +1,9 @@
 package com.buaa.academic.analysis.controller;
 
+import com.buaa.academic.analysis.model.SearchAggregation;
 import com.buaa.academic.analysis.repository.SubjectRepository;
 import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.service.AnalysisShowService;
 import com.buaa.academic.document.statistic.Association;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.ApiOperation;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 @RequestMapping("/show")
 @RestController()
 public class AnalysisShowController {
+    @Autowired
+    private AnalysisShowService analysisShowService;
 
     @Autowired
     private SubjectRepository subjectRepository;
@@ -32,17 +35,17 @@ public class AnalysisShowController {
     @GetMapping("/searchAgg")
     public Result<Object> searchAggregation() {
         HttpSession session = request.getSession();
-
-        return new Result<>();
+        SearchAggregation searchAggregation = analysisShowService.searchAggregating(session);
+        return new Result<>().withData(searchAggregation);
     }
 
-    @ApiOperation(value = "话题主页，包括关联分析、发表统计分析以及机构、杂志、学者排名分析")
+    @ApiOperation(value = "话题主页，包括关联分析、发表统计分析")
     @GetMapping("/topic")
     public Result<Object> showTopic(@RequestParam(value = "name") String name) {
         return new Result<>().withData(subjectRepository.findSubjectById(name));
     }
 
-    @ApiOperation(value = "学科主页，包括关联分析、发表统计分析以及机构、杂志、学者排名分析")
+    @ApiOperation(value = "学科主页，包括关联分析、发表统计分析")
     @GetMapping("/subject")
     public Result<Object> showSubject(@RequestParam(value = "name") String name) {
         return new Result<>().withData(topicRepository.findTopicById(name));

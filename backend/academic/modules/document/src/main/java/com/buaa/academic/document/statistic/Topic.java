@@ -34,13 +34,4 @@ public class Topic {
 
     @Field(type = FieldType.Nested)
     private ArrayList<PublicationData> publicationData = new ArrayList<>();
-
-    @Field(type = FieldType.Nested)
-    private ArrayList<ResearcherInfo> topResearchers = new ArrayList<>();
-
-    @Field(type = FieldType.Nested)
-    private ArrayList<InstitutionInfo> topInstitutions = new ArrayList<>();
-
-    @Field(type = FieldType.Nested)
-    private ArrayList<JournalInfo> topJournals = new ArrayList<>();
 }
