@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>gateway</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>gateway</name>
     <description>Gateway for routes, authority checks and api docs.</description>
     <packaging>jar</packaging>
