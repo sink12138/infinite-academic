@@ -4,7 +4,7 @@
     <div class="line"></div>
     <div>
       <el-date-picker
-        v-model="Year1"
+        v-model="filter.year1"
         type="year"
         placeholder="起始日期"
         value-format="yyyy"
@@ -82,7 +82,7 @@ export default {
     return {
       menu: false,
       filter:{
-        Year1: "",
+        year1: "",
         Year2: "",
         topics_selected: [],  
         authors_selected: [],
@@ -100,9 +100,9 @@ export default {
       this.$emit('handleFilter', 'filter');
     },
     handleChange: function () {
-      if(this.filter.Year1 != "" && this.filter.Year2 != "" ){
+      if(this.filter.year1 != "" && this.filter.Year2 != "" ){
         var d2 = new Date(Date.parse(this.filter.Year2)); //取今天的日期  
-        var d1 = new Date(Date.parse(this.filter.Year1));
+        var d1 = new Date(Date.parse(this.filter.year1));
         if (d1 > d2) {
             this.$notify({
               title: "起止日期",
