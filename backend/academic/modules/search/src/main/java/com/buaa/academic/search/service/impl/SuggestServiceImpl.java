@@ -19,9 +19,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SuggestServiceImpl implements SuggestService {
@@ -54,7 +52,7 @@ public class SuggestServiceImpl implements SuggestService {
                 .suggest(suggestBuilder, target)
                 .getSuggest()
                 .getSuggestion(prefix + field);
-        List<String> analyzedWords = analyze(target.getName().toLowerCase(), text);
+        List<String> analyzedWords = analyze(target.getSimpleName().toLowerCase(), text);
         List<String> suggestionWords = new ArrayList<>();
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
@@ -102,11 +100,11 @@ public class SuggestServiceImpl implements SuggestService {
                 return -1;
             return 0;
         });
-        List<String> suggestionWords = new ArrayList<>();
-        for (int i = 0; i < size && i < options.size(); ++i) {
+        Set<String> suggestionWords = new HashSet<>();
+        for (int i = 0; suggestionWords.size() < size && i < options.size(); ++i) {
             suggestionWords.add(options.get(i).getHighlighted().toString());
         }
-        return suggestionWords;
+        return new ArrayList<>(suggestionWords);
     }
 
     public List<String> analyze(String index, String text) {
