@@ -3,7 +3,7 @@ package com.buaa.academic.search.dao;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class TextMappings {
+public class TextFields {
 
     private final static HashMap<String, HashSet<String>> textMappings = new HashMap<>() {{
         put("paper", new HashSet<>() {{

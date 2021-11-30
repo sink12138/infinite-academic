@@ -1,6 +1,6 @@
 package com.buaa.academic.search.model.request;
 
-import com.buaa.academic.search.dao.TextMappings;
+import com.buaa.academic.search.dao.TextFields;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -94,7 +94,7 @@ public class Filter {
                 if (format.equals(FilterFormat.NUMERIC))
                     return QueryBuilders.termsQuery(attr, intParams);
                 else {
-                    if (TextMappings.contains(strategy, attr)) {
+                    if (TextFields.contains(strategy, attr)) {
                         attr += ".raw";
                     }
                     return QueryBuilders.termsQuery(attr, keyParams);

@@ -16,10 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -38,10 +35,11 @@ public class QueryController {
     @Autowired
     private PatentRepository patentRepository;
 
-    @GetMapping("/")
+    @PostMapping("/")
     @ApiOperation(
             value = "精确查询",
             notes = "使用DOI、ISSN、ISBN或专利号精确查询某一论文、期刊或专利。</br>" +
+                    "由于GET方法存在url不安全问题，本接口采用<b>POST</b>方法。</br>" +
                     "返回值格式为\"{entity}/{id}\"，其中entity为查询到的实体类别，id为查询到的实体ID。</br>" +
                     "可以直接将返回值拼接在\"/search/info/\"后面进行页面跳转。</br>" +
                     "<b>注意：若未找到对应实体，本接口返回success = false。</b>")

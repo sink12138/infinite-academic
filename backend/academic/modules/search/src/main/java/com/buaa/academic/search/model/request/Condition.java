@@ -1,6 +1,6 @@
 package com.buaa.academic.search.model.request;
 
-import com.buaa.academic.search.dao.TextMappings;
+import com.buaa.academic.search.dao.TextFields;
 import com.buaa.academic.tool.translator.Translator;
 import com.buaa.academic.tool.validator.AllowValues;
 import com.buaa.academic.search.validator.SearchCondition;
@@ -71,7 +71,7 @@ public class Condition {
             String[] fields = scope.toArray(new String[0]);
             if (!fuzzy) {
                 for (int i = 0; i < fields.length; ++i) {
-                    if (TextMappings.contains(strategy, fields[i]))
+                    if (TextFields.contains(strategy, fields[i]))
                         fields[i] += ".raw";
                 }
             }
