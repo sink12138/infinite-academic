@@ -95,7 +95,9 @@ public class HighlightManager {
         }
         if (index == sections.length && offset < this.range[1])
             throw new StringIndexOutOfBoundsException("begin " + this.range[0] + ", end " + this.range[1] + ", length " + length());
-        return builder.toString();
+        this.text = builder.toString();
+        this.optimize();
+        return this.text;
     }
 
     public HighlightManager highlight(List<String> reference) {
