@@ -46,7 +46,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @RestController
@@ -74,8 +73,6 @@ public class SearchController {
 
     @Value("${search.conditions.max-depth}")
     private int maxDepth;
-
-    private final Base64.Encoder encoder = Base64.getEncoder();
 
     @PostMapping("/")
     @ApiOperation(
@@ -181,9 +178,9 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "paper");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
         if (filter != null)
-            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+            session.setAttribute("filter", filter.toString());
 
         // Run search
         SearchHits<Paper> baseHits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -334,9 +331,9 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "paper");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
         if (filter != null)
-            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+            session.setAttribute("filter", filter.toString());
 
         // Run search
         SearchHits<Paper> hits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -463,9 +460,9 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "researcher");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
         if (filter != null)
-            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+            session.setAttribute("filter", filter.toString());
 
         // Run search
         SearchHits<Researcher> hits = searchService.runSearch(Researcher.class, query, filter, sort, hlt, page);
@@ -530,7 +527,7 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "journal");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
 
 
         // Run search
@@ -596,7 +593,7 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "institution");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
 
         // Run search
         SearchHits<Institution> hits = searchService.runSearch(Institution.class, query, null, sort, hlt, page);
@@ -714,9 +711,9 @@ public class SearchController {
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "patent");
-        session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
+        session.setAttribute("query", query.toString());
         if (filter != null)
-            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+            session.setAttribute("filter", filter.toString());
 
         // Run search
         SearchHits<Patent> hits = searchService.runSearch(Patent.class, query, filter, sort, hlt, page);
