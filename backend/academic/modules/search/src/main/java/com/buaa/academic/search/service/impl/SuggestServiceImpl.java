@@ -1,5 +1,6 @@
 package com.buaa.academic.search.service.impl;
 
+import com.buaa.academic.search.config.HighlightConfiguration;
 import com.buaa.academic.search.service.SuggestService;
 import com.buaa.academic.search.util.HighlightManager;
 import org.elasticsearch.client.RequestOptions;
@@ -14,7 +15,6 @@ import org.elasticsearch.search.suggest.SuggestBuilder;
 import org.elasticsearch.search.suggest.SuggestBuilders;
 import org.elasticsearch.search.suggest.phrase.DirectCandidateGeneratorBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +32,8 @@ public class SuggestServiceImpl implements SuggestService {
     @Autowired
     private RestHighLevelClient client;
 
-    @Value("${spring.elasticsearch.highlight.pre-tag}")
-    private String preTag;
-
-    @Value("${spring.elasticsearch.highlight.post-tag}")
-    private String postTag;
+    @Autowired
+    private HighlightConfiguration config;
 
     @Override
     public <T> List<String> completionSuggest(Class<T> target, String text, String field, int size) {
@@ -52,9 +49,10 @@ public class SuggestServiceImpl implements SuggestService {
                 .getSuggestion(prefix + field);
         List<String> analyzedWords = analyze(target.getSimpleName().toLowerCase(), text);
         List<String> suggestionWords = new ArrayList<>();
+        HighlightManager manager = new HighlightManager(config.preTag(), config.postTag());
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
-                suggestionWords.add(new HighlightManager(preTag, postTag)
+                suggestionWords.add(manager
                         .text(option.getText().toString())
                         .highlight(analyzedWords)
                         .reverse()
@@ -75,7 +73,7 @@ public class SuggestServiceImpl implements SuggestService {
                                     .suggestMode("popular"))
                             .text(text)
                             .confidence(1.2f)
-                            .highlight(preTag, postTag)
+                            .highlight(config.preTag(), config.postTag())
                             .size(size));
         }
         Suggest suggest = template

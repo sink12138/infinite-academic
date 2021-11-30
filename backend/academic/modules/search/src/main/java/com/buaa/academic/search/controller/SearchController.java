@@ -4,6 +4,7 @@ import com.buaa.academic.document.entity.*;
 import com.buaa.academic.document.entity.item.*;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
+import com.buaa.academic.search.config.HighlightConfiguration;
 import com.buaa.academic.search.dao.InstitutionRepository;
 import com.buaa.academic.search.dao.JournalRepository;
 import com.buaa.academic.search.dao.ResearcherRepository;
@@ -68,14 +69,11 @@ public class SearchController {
     @Autowired
     private InstitutionRepository institutionRepository;
 
+    @Autowired
+    private HighlightConfiguration hltConfig;
+
     @Value("${search.conditions.max-depth}")
     private int maxDepth;
-
-    @Value("${spring.elasticsearch.highlight.pre-tag}")
-    private String preTag;
-
-    @Value("${spring.elasticsearch.highlight.post-tag}")
-    private String postTag;
 
     private final Base64.Encoder encoder = Base64.getEncoder();
 
@@ -191,7 +189,7 @@ public class SearchController {
         SearchHits<Paper> baseHits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
 
         // Set items & statistics
-        smartPage.setHits(baseHits);
+        smartPage.setHits(baseHits, hltConfig.preTag(), hltConfig.postTag());
         smartPage.setStatistics(baseHits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
         // Detect recommendations
@@ -344,7 +342,7 @@ public class SearchController {
         SearchHits<Paper> hits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
 
         // Items & statistics
-        hitPage.setItems(HitsReducer.reducePaperHits(hits, preTag, postTag));
+        hitPage.setItems(HitsReducer.reducePaperHits(hits, hltConfig.preTag(), hltConfig.postTag()));
         hitPage.setStatistics(hits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
         // Time cost
@@ -724,7 +722,7 @@ public class SearchController {
         SearchHits<Patent> hits = searchService.runSearch(Patent.class, query, filter, sort, hlt, page);
 
         // Items & statistics
-        hitPage.setItems(HitsReducer.reducePatentHits(hits, preTag, postTag));
+        hitPage.setItems(HitsReducer.reducePatentHits(hits, hltConfig.preTag(), hltConfig.postTag()));
         hitPage.setStatistics(hits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
         // Time cost

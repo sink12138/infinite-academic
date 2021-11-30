@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -14,12 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @ApiModel(description = "搜索结果模型")
 public class HitPage<I> {
-
-    @Value("${spring.elasticsearch.highlight.pre-tag")
-    protected static String preTag;
-
-    @Value("${spring.elasticsearch.highlight.post-tag")
-    protected static String postTag;
 
     @ApiModelProperty(value = "搜索用时（毫秒）", required = true, example = "1919810")
     protected long timeCost;

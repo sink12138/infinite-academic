@@ -29,7 +29,7 @@ public class SmartPage extends HitPage<PaperItem> {
     @ApiModelProperty(value = "推荐实体列表，最多6个")
     protected List<?> recommendation;
 
-    public void setHits(SearchHits<Paper> hits) {
+    public void setHits(SearchHits<Paper> hits, String preTag, String postTag) {
         this.items = HitsReducer.reducePaperHits(hits, preTag, postTag);
     }
 
