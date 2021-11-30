@@ -10,15 +10,21 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchAggregation {
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class item {
         private String name;
         private Integer num;
     }
-    private ArrayList<item> subjects;
-    private ArrayList<item> topics;
-    private ArrayList<item> authors;
-    private ArrayList<item> institutions;
-    private ArrayList<item> journals;
-    private ArrayList<item> types;
-    private ArrayList<item> keywords;
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class aggregationTerm {
+        private String term;
+        private ArrayList<item> items;
+    }
+
+    private ArrayList<aggregationTerm> aggregationTerms;
 }
