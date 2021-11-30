@@ -78,7 +78,7 @@ public class SuggestServiceImpl implements SuggestService {
                             .addCandidateGenerator(new DirectCandidateGeneratorBuilder(field)
                                     .suggestMode("popular"))
                             .text(text)
-                            .maxErrors(2.0f)
+                            .confidence(1.2f)
                             .highlight(preTag, postTag)
                             .size(size));
         }
