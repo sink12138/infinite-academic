@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 import org.springframework.data.elasticsearch.core.completion.Completion;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -221,9 +222,11 @@ public class Paper implements Reducible<PaperItem> {
         item.setId(id);
         item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
         item.setType(type);
-        List<PaperItem.Author> hitAuthors = new ArrayList<>();
-        authors.forEach(author -> hitAuthors.add(new PaperItem.Author(author.id, author.name)));
-        item.setAuthors(hitAuthors);
+        if (authors != null) {
+            List<PaperItem.Author> hitAuthors = new ArrayList<>();
+            authors.forEach(author -> hitAuthors.add(new PaperItem.Author(author.id, author.name)));
+            item.setAuthors(hitAuthors);
+        }
         item.setPaperAbstract(paperAbstract.length() > 128 ? paperAbstract.substring(0, 128) + "..." : paperAbstract);
         item.setKeywords(keywords);
         item.setJournal(new PaperItem.Journal(journal.id, journal.title));
