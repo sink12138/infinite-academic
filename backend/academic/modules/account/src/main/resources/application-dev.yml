@@ -52,3 +52,6 @@ knife4j:
 logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+
+auth:
+  max-inactive-interval: 86400

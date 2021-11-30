@@ -28,6 +28,9 @@ public class AccountServiceImpl implements AccountService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Value("${auth.max-inactive-interval}")
+    private long maxInactiveInterval;
+
     @Override
     public void sendVerifyEmail(User user, String action) {
         new VerifyEmailThread(user, action).run();
@@ -38,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
         String token = generateRandomCode(64);
         Authority authority = new Authority(user.getId(), user.getResearcherId(), false);
         redisTemplate.opsForValue().set(token, authority);
-        redisTemplate.expire(token, Duration.ofDays(1));
+        redisTemplate.expire(token, Duration.ofSeconds(maxInactiveInterval));
         return token;
     }
 
