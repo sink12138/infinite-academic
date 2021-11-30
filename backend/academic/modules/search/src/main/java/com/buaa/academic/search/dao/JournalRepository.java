@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface JournalRepository extends ElasticsearchRepository<Journal, String> {
 
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Journal> findByTitleLike(String title, Pageable pageable);
+    SearchPage<Journal> findByTitleMatches(String title, Pageable pageable);
 
     Journal findTopByIssn(String issn);
 

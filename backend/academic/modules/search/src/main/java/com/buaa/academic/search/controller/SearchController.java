@@ -208,7 +208,7 @@ public class SearchController {
             float baseScore = baseHits.getMaxScore();
 
             // Search for journals
-            SearchPage<Journal> journalsByTitle = journalRepository.findByTitleLike(keyword, PageRequest.of(0, 6));
+            SearchPage<Journal> journalsByTitle = journalRepository.findByTitleMatches(keyword, PageRequest.of(0, 6));
             if (journalsByTitle.getSearchHits().getMaxScore() >= baseScore * 0.75) {
                 smartPage.setDetection("journal");
                 List<JournalItem> journals = new ArrayList<>();
@@ -219,7 +219,7 @@ public class SearchController {
             }
 
             // Search for institutions
-            SearchPage<Institution> institutionsByName = institutionRepository.findByNameLike(keyword, PageRequest.of(0, 6));
+            SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
             if (institutionsByName.getSearchHits().getMaxScore() >= baseScore * 0.75) {
                 smartPage.setDetection("institution");
                 List<InstitutionItem> institutions = new ArrayList<>();

@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface InstitutionRepository extends ElasticsearchRepository<Institution, String> {
 
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Institution> findByNameLike(String name, Pageable pageable);
+    SearchPage<Institution> findByNameMatches(String name, Pageable pageable);
 
 }
