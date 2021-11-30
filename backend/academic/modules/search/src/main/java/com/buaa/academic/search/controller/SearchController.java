@@ -184,7 +184,8 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "paper");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
-        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+        if (filter != null)
+            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Paper> baseHits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -336,7 +337,8 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "paper");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
-        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+        if (filter != null)
+            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Paper> hits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -464,7 +466,8 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "researcher");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
-        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+        if (filter != null)
+            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Researcher> hits = searchService.runSearch(Researcher.class, query, filter, sort, hlt, page);
@@ -714,7 +717,8 @@ public class SearchController {
         HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "patent");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
-        session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
+        if (filter != null)
+            session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
         SearchHits<Patent> hits = searchService.runSearch(Patent.class, query, filter, sort, hlt, page);
