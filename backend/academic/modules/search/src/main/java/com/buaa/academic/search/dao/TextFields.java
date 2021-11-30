@@ -8,11 +8,12 @@ public class TextFields {
     private final static HashMap<String, HashSet<String>> textMappings = new HashMap<>() {{
         put("paper", new HashSet<>() {{
             add("title");
-            add("institutions.name");
             add("abstract");
             add("keywords");
             add("subjects");
             add("topics");
+            add("institutions.name");
+            add("journal.title");
         }});
 
         put("researcher", new HashSet<>() {{

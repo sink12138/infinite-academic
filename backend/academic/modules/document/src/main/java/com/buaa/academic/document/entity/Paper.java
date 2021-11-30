@@ -154,7 +154,9 @@ public class Paper implements Reducible<PaperItem> {
         @ApiModelProperty(value = "期刊的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
-        @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized")
+        @MultiField(
+                mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized"),
+                otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
         @ApiModelProperty(required = true, value = "期刊标题", example = "Science")
         private String title;
 
