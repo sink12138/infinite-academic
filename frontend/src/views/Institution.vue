@@ -15,11 +15,20 @@
     </v-card>
     <div class="whole">
       <div class="message">
-        <h2>
-          {{name}}
-        </h2>
-        <h3>科研方向:{{interests}}</h3>
-        <h3>文章数量:{{paperNum}}  专利数量:{{patentNum}}</h3>
+        <v-row>
+          <v-col cols="3">
+            <div class="roundIMG" style="float:left;">
+              <img :src=logoUrl>
+            </div>
+          </v-col>
+          <v-col>
+            <div>
+              <h1>
+                {{name}}
+              </h1>
+            </div>
+          </v-col>
+        </v-row>
       </div>
       <BaseAnalytics :data0=data></BaseAnalytics>
     </div>
@@ -41,6 +50,7 @@ export default {
       interests:"科研方向",
       paperNum:0,
       patentNum:0,
+      logoUrl:"https://ma-v3-images.azureedge.net/images/149899117.png"
     }
   },
 }
