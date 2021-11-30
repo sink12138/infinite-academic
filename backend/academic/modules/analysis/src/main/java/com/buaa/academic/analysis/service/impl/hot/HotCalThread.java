@@ -1,14 +1,17 @@
 package com.buaa.academic.analysis.service.impl.hot;
 
-import com.buaa.academic.analysis.model.Subject;
-import com.buaa.academic.analysis.model.Topic;
 import com.buaa.academic.analysis.repository.SubjectRepository;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.JobType;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
+import com.buaa.academic.document.statistic.PublicationData;
+import com.buaa.academic.document.statistic.Subject;
+import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class HotCalThread implements Runnable{
@@ -46,24 +49,28 @@ public class HotCalThread implements Runnable{
                     return;
                 bucket = HotUpdateMainThread.targetTerm.getBuckets().get(index);
                 HotUpdateMainThread.finished.put(threadName, ++index);
-                StatusCtrl.runningStatus.put(threadName, "Hot rank calculating["+index+"/"+total+"]...");
+                StatusCtrl.runningStatus.put(threadName, "Statics analysis["+index+"/"+total+"]...");
             }
 
             String targetName = bucket.getKey().toString();
             double hot = 0.0;
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");
             ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
+            ArrayList<PublicationData> publicationData = new ArrayList<>();
             for (Terms.Bucket yearBucket : longTerms.getBuckets()) {
                 hot += yearBucket.getDocCount() * HotUpdateMainThread.rate.get(Integer.parseInt(yearBucket.getKey().toString()));
+                publicationData.add(new PublicationData(Integer.parseInt(yearBucket.getKey().toString()), (int)yearBucket.getDocCount()));
             }
 
             if (Objects.equals(threadName, JobType.HOT_TOPIC_ANALYSIS.name())) {
                 Topic topic = topicRepository.findTopicByName(targetName);
-                topic.setHot(hot);
+                topic.setHeat(hot);
+                topic.setPublicationData(publicationData);
                 topicRepository.save(topic);
             } else {
                 Subject subject = subjectRepository.findSubjectByName(targetName);
-                subject.setHot(hot);
+                subject.setHeat(hot);
+                subject.setPublicationData(publicationData);
                 subjectRepository.save(subject);
             }
         }

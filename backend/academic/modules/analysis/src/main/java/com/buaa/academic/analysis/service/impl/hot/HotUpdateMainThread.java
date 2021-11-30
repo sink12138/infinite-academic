@@ -69,11 +69,15 @@ public class HotUpdateMainThread implements Runnable{
         StatusCtrl.changeRunningStatusTo("Building search query...", threadName);
 
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
-        TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("year_term").field("year").subAggregation(count);
-        TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("term").field(targetIndex + ".raw").subAggregation(termsAgg);
+        TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term").field("year").subAggregation(count);
+
+        TermsAggregationBuilder authorAgg = new TermsAggregationBuilder("author_term").field("authors").subAggregation(count);
+        TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw").subAggregation(yearAgg);
+
+        term.subAggregation(authorAgg);
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
-                .addAggregation(topicTerm)
+                .addAggregation(term)
                 .build();
 
         StatusCtrl.changeRunningStatusTo("Aggregating " + targetIndex + "...", threadName);

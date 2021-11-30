@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
-
-import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -30,6 +29,17 @@ public class Subject {
     private double heat;
 
     @Field(type = FieldType.Nested)
-    private List<Association> associations;
+    private ArrayList<Association> associationSubjects = new ArrayList<>();
 
+    @Field(type = FieldType.Nested)
+    private ArrayList<PublicationData> publicationData = new ArrayList<>();
+
+    @Field(type = FieldType.Nested)
+    private ArrayList<ResearcherInfo> topResearchers = new ArrayList<>();
+
+    @Field(type = FieldType.Nested)
+    private ArrayList<InstitutionInfo> topInstitutions = new ArrayList<>();
+
+    @Field(type = FieldType.Nested)
+    private ArrayList<JournalInfo> topJournals = new ArrayList<>();
 }

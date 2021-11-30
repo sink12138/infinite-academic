@@ -1,20 +1,20 @@
 package com.buaa.academic.document.statistic;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Association {
+@Data
+@ApiModel(description = "对应年份文章发表量")
+public class PublicationData {
+    @Field(type = FieldType.Integer)
+    private Integer year;
 
-    @Field(type = FieldType.Keyword)
-    private String name;
-
-    @Field(type = FieldType.Double)
-    private double confidence;
-
+    @Field(type = FieldType.Integer)
+    private Integer publicationNum;
 }
