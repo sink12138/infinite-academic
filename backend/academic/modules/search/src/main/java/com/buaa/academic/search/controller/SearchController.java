@@ -182,6 +182,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "paper");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
         session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
@@ -333,9 +334,9 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "paper");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
         session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
-
 
         // Run search
         SearchHits<Paper> hits = searchService.runSearch(Paper.class, query, filter, sort, hlt, page);
@@ -461,6 +462,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "researcher");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
         session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
@@ -526,6 +528,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "journal");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
 
 
@@ -591,6 +594,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "institution");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
 
         // Run search
@@ -708,6 +712,7 @@ public class SearchController {
 
         // Store to cache
         HttpSession session = httpServletRequest.getSession();
+        session.setAttribute("index", "patent");
         session.setAttribute("query", encoder.encodeToString(query.toString().getBytes(StandardCharsets.UTF_8)));
         session.setAttribute("filter", encoder.encodeToString(filter.toString().getBytes(StandardCharsets.UTF_8)));
 
