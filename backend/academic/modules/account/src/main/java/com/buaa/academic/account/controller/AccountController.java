@@ -30,7 +30,6 @@ public class AccountController {
     @Autowired
     private AccountRepository accountRepository;
 
-
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
@@ -102,14 +101,14 @@ public class AccountController {
 
     @ApiOperation(value = "获取用户信息，包括用户id、用户名、邮箱、密码、学者id")
     @GetMapping("/profile")
-    public Result<User> profile(@RequestHeader(value = "Role-ID") String userId) {
+    public Result<User> profile(@RequestHeader(value = "Auth") String userId) {
         User user = accountRepository.findUserById(userId);
         return new Result<User>().withData(user);
     }
 
     @ApiOperation(value = "修改用户信息，可修改用户名和密码")
     @PostMapping("/profile/modify/info")
-    public Result<Void> modifyInfo( @RequestHeader(value = "Role-ID") @NotNull String userId,
+    public Result<Void> modifyInfo( @RequestHeader(value = "Auth") @NotNull String userId,
                                     @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10)  String username,
                                     @RequestParam(value = "password") @NotNull String password) {
         User user = accountRepository.findUserById(userId);
@@ -121,7 +120,7 @@ public class AccountController {
 
     @ApiOperation(value = "修改邮箱")
     @PostMapping("/profile/modify/email")
-    public Result<Void> modifyEmail(@RequestHeader(value = "Role-ID") @NotNull String userId,
+    public Result<Void> modifyEmail(@RequestHeader(value = "Auth") @NotNull String userId,
                                     @RequestParam(value = "email") @Email @NotNull String email) {
         User user = accountRepository.findUserById(userId);
         if (Objects.equals(email, user.getEmail())){
