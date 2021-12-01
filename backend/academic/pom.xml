@@ -25,6 +25,7 @@
         <module>modules/account</module>
         <module>modules/analysis</module>
         <module>modules/tool</module>
+        <module>modules/admin</module>
     </modules>
 
     <properties>

@@ -10,10 +10,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>search</artifactId>
-    <version>2.1.2-RELEASE</version>
-    <name>search</name>
-    <description>Search engine for data, entities and relations.</description>
+    <artifactId>admin</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>admin</name>
+    <description>Management for administrators.</description>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -47,12 +47,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.session</groupId>
-            <artifactId>spring-session-data-redis</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
