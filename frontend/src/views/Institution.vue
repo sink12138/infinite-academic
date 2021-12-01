@@ -37,10 +37,12 @@
 
 <script>
 import BaseGoBack from '../components/BaseGoBack.vue'
+import BaseAnalytics from "../components/BaseAnalytics.vue";
 
 export default {
   components: {
     BaseGoBack,
+    BaseAnalytics,
   },
   data() {
     return {
