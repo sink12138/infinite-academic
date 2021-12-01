@@ -35,7 +35,7 @@ public class SwaggerConfiguration {
                 .title("用户模块 - API文档")
                 .description("<div style='font-size:14px;'>登录、注册、用户主页、个人信息修改、密码管理</div>")
                 .contact(new Contact("lbh", "", ""))
-                .termsOfServiceUrl("http://localhost:8092/")
+                .termsOfServiceUrl("http://121.36.98.60:8092/")
                 .version("1.0")
                 .build();
     }
