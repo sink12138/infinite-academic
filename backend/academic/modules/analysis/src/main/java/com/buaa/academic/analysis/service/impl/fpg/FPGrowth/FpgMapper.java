@@ -42,8 +42,8 @@ public class FpgMapper extends Mapper<LongWritable, Text, Text, Text> {
                         StatusCtrl.stop(context.getJobName());
                     }
 
-                    String[] itemFreq = line.split("\\s+");//读出频繁一项集，以TreeNode类型保存到集合中
-                    itemsSorted.add(new FPTreeNode(itemFreq[0], Integer.parseInt(itemFreq[1])));
+                    String[] itemFreq = line.split(":");//读出频繁一项集，以TreeNode类型保存到集合中
+                    itemsSorted.add(new FPTreeNode(itemFreq[0], Integer.parseInt(itemFreq[1].split("\\s+")[1])));
                 }
             }catch (IOException e) {
                 System.err.println("Exception reading DistributedCache: " + e);

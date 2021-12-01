@@ -1,6 +1,6 @@
 package com.buaa.academic.analysis.service.impl.fpg.FilterAndSort;
 
-import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequency;
+import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.FpgWordFrequency;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -9,12 +9,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 
 public class SortMapper extends
-        Mapper<Text, Text, WordFrequency, IntWritable> {
+        Mapper<Text, Text, FpgWordFrequency, IntWritable> {
     private double support;
 
     @Override
     protected void setup(
-            Mapper<Text, Text, WordFrequency, IntWritable>.Context context)
+            Mapper<Text, Text, FpgWordFrequency, IntWritable>.Context context)
             throws IOException, InterruptedException {
         support = context.getConfiguration().getDouble("minSupport", 0);
 
@@ -33,6 +33,6 @@ public class SortMapper extends
 
         int val = Integer.parseInt(value.toString());
         if(val >= support)
-            context.write(new WordFrequency(key.toString(), val), new IntWritable(1));
+            context.write(new FpgWordFrequency(key.toString(), val), new IntWritable(1));
     }
 }

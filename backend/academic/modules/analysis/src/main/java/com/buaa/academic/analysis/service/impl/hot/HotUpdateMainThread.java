@@ -71,10 +71,8 @@ public class HotUpdateMainThread implements Runnable{
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
         TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term").field("year").subAggregation(count);
 
-        TermsAggregationBuilder authorAgg = new TermsAggregationBuilder("author_term").field("authors").subAggregation(count);
         TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw").subAggregation(yearAgg);
 
-        term.subAggregation(authorAgg);
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
                 .addAggregation(term)
@@ -96,6 +94,7 @@ public class HotUpdateMainThread implements Runnable{
         for (int i = 0; i < jobsNum; i++) {
             threads.add(new Thread(new HotCalThread(threadName)
                     .setSubjectRepository(subjectRepository)
+                    .setTemplate(template)
                     .setTopicRepository(topicRepository)));
         }
 

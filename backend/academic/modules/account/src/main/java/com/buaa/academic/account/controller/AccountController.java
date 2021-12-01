@@ -84,6 +84,9 @@ public class AccountController {
             return new Result<Void>().withFailure("当前账户已登录");
         }
         User user = accountRepository.findUserByEmail(email);
+        if (user == null) {
+            return new Result<Void>().withFailure("该邮箱未注册");
+        }
         if (!user.getPassword().equals(password)) {
             return new Result<Void>().withFailure("密码错误");
         }

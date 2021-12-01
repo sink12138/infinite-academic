@@ -1,12 +1,12 @@
-package com.buaa.academic.account.repository;
+package com.buaa.academic.analysis.repository;
 
-import com.buaa.academic.document.entity.User;
+import com.buaa.academic.document.entity.Researcher;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.stereotype.Repository;
 
-public interface AccountRepository extends ElasticsearchRepository<User, String> {
-    User findUserByEmail(String email);
-
+@Repository
+public interface ResearcherRepository extends ElasticsearchRepository<Researcher, String> {
     String pattern = "{\"constant_score\": {" +
             "      \"filter\": {" +
             "        \"term\": {" +
@@ -16,5 +16,5 @@ public interface AccountRepository extends ElasticsearchRepository<User, String>
             "    }" +
             "}";
     @Query(pattern)
-    User findUserById(String id);
+    Researcher findResearcherById(String id);
 }

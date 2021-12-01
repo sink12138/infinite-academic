@@ -1,6 +1,8 @@
 package com.buaa.academic.analysis.service.impl.fpg;
 
+import com.buaa.academic.analysis.repository.SubjectDao;
 import com.buaa.academic.analysis.repository.SubjectRepository;
+import com.buaa.academic.analysis.repository.TopicDao;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationMapper;
@@ -10,7 +12,7 @@ import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FpgMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FpgReducer;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortReducer;
-import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequency;
+import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.FpgWordFrequency;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentReducer;
 import com.buaa.academic.document.entity.Paper;
@@ -31,6 +33,8 @@ import org.apache.hadoop.util.StringUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -43,7 +47,7 @@ import java.util.List;
 
 public class FPGMainClass implements Runnable{
 
-    public static String splitChar = " ";
+    public static String splitChar = ",";
     private final String analysisObject; // 用于区分对话题还是学科进行分析
     private String name; // 用于获取当前作业的运行状态
     private final String inputPath;
@@ -120,6 +124,7 @@ public class FPGMainClass implements Runnable{
         try {
             getInputData();
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
         if(threadStopCheck())
@@ -130,8 +135,10 @@ public class FPGMainClass implements Runnable{
         try {
             countJob = frequencyCal();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             interruptStop("Stopped. ");
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
         if(threadStopCheck())
@@ -142,8 +149,10 @@ public class FPGMainClass implements Runnable{
             assert countJob != null;
             sortItem(countJob);
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             interruptStop("Stopped. ");
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
         if(threadStopCheck())
@@ -155,6 +164,7 @@ public class FPGMainClass implements Runnable{
         } catch (IllegalStateException e) {
             interruptStop("Stopped. ");
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
         if(threadStopCheck())
@@ -164,8 +174,10 @@ public class FPGMainClass implements Runnable{
         try {
             associationCal();
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             interruptStop("Stopped. ");
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
         if(threadStopCheck())
@@ -174,6 +186,7 @@ public class FPGMainClass implements Runnable{
         try {
             saveToEs();
         } catch (Exception e) {
+            e.printStackTrace();
             interruptStop(e.toString());
         }
 
@@ -196,6 +209,7 @@ public class FPGMainClass implements Runnable{
             StatusCtrl.changeRunningStatusToStop("Can't make file " + inputFile, name);
             throw new IOException();
         }
+
         FileWriter fileWriter = new FileWriter(inputFile);
 
         StatusCtrl.changeRunningStatusTo("Write data to local tmp file...", name);
@@ -207,6 +221,7 @@ public class FPGMainClass implements Runnable{
                 .build();
         SearchScrollHits<Paper> hits = template.searchScrollStart(3000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
         String scrollId = hits.getScrollId();
+
         do {
 
             // 检查线程是否终止
@@ -216,42 +231,53 @@ public class FPGMainClass implements Runnable{
                 return;
             }
 
+            List<SearchHit<Paper>> searchHits = hits.getSearchHits();
+
             // 写入
-            hits.forEach(hit -> {
+            for (SearchHit<Paper> hit : searchHits) {
                 List<String> items;
                 if (analysisObject.equals("topics")) {
                     items = hit.getContent().getTopics();
-                    for (String item : items) {
-                        Topic topic = topicRepository.findTopicByName(item);
-                        if (topic == null) {
-                            topic = new Topic();
-                            topic.setName(item);
-                            topicRepository.save(topic);
+                    if (items != null) {
+                        for (String item : items) {
+                            NativeSearchQuery query = new NativeSearchQueryBuilder()
+                                    .withQuery(QueryBuilders.boolQuery().must(
+                                            QueryBuilders.termQuery("name.raw", item)))
+                                    .build();
+                            SearchHits<Topic> topicHits = template.search(query, Topic.class);
+                            if (!topicHits.hasSearchHits()) {
+                                Topic topic = new Topic();
+                                topic.setName(item);
+                                topicRepository.save(topic);
+                            }
                         }
                     }
                 } else {
                     items = hit.getContent().getSubjects();
-                    for (String item : items) {
-                        Subject subject = subjectRepository.findSubjectByName(item);
-                        if (subject == null) {
-                            subject = new Subject();
-                            subject.setName(item);
-                            subjectRepository.save(subject);
+                    if (items != null) {
+                        for (String item : items) {
+                            NativeSearchQuery query = new NativeSearchQueryBuilder()
+                                    .withQuery(QueryBuilders.boolQuery().must(
+                                            QueryBuilders.termQuery("name.raw", item)))
+                                    .build();
+                            SearchHits<Subject> subjectHits = template.search(query, Subject.class);
+                            if (!subjectHits.hasSearchHits()) {
+                                Subject subject = new Subject();
+                                subject.setName(item);
+                                subjectRepository.save(subject);
+                            }
                         }
                     }
                 }
-                String inputData = StringUtils.join(FPGMainClass.splitChar, items) + "\n";
-                try {
+                if (items != null) {
+                    String inputData = StringUtils.join(FPGMainClass.splitChar, items) + "\n";
                     fileWriter.write(inputData);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-            });
+            }
             hits = template.searchScrollContinue(scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
         } while (hits.hasSearchHits());
-        fileWriter.close();
-
         StatusCtrl.changeRunningStatusTo("Data is ready!", name);
+        fileWriter.close();
     }
 
     private Job frequencyCal() throws IOException, InterruptedException, ClassNotFoundException {
@@ -288,7 +314,7 @@ public class FPGMainClass implements Runnable{
     private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
         StatusCtrl.changeRunningStatusTo("Generating and sorting frequent items...", name);
 
-        minSupport = minSupport * countJob.getCounters().findCounter(WordFrequency.Counter.LINE_LEN).getValue();
+        minSupport = minSupport * countJob.getCounters().findCounter(FpgWordFrequency.Counter.LINE_LEN).getValue();
         countJob.close();
         configuration.setDouble("minSupport", minSupport);
 
@@ -301,7 +327,7 @@ public class FPGMainClass implements Runnable{
         sortJob.setReducerClass(SortReducer.class);
 
         sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
-        sortJob.setMapOutputKeyClass(WordFrequency.class);
+        sortJob.setMapOutputKeyClass(FpgWordFrequency.class);
         sortJob.setMapOutputValueClass(IntWritable.class);
 
         sortJob.setOutputKeyClass(Text.class);
@@ -316,7 +342,6 @@ public class FPGMainClass implements Runnable{
             deleteDir(inputPath);
             System.exit(-1);
         }
-
         StatusCtrl.changeRunningStatusTo("Frequent items sorting finished!", name);
     }
 
@@ -397,42 +422,42 @@ public class FPGMainClass implements Runnable{
         FileReader fileReader = new FileReader(resFile);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         String line;
-        while ((line = bufferedReader.readLine()) != null) {
-            String[] rule = line.split(":");
-            String item = rule[0];
-            String[] associationItems = rule[1].split(FPGMainClass.splitChar);
-            String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
-            if (analysisObject.equals("topics")) {
-                ArrayList<Association> associationTopics = new ArrayList<>();
-                for (int index = 0; index < associationItems.length; index ++) {
-                    Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
-                    associationTopics.add(associationTopic);
+        try {
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] rule = line.split(":");
+                String item = rule[0];
+                String[] associationItems = rule[1].split(FPGMainClass.splitChar);
+                String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
+                if (analysisObject.equals("topics")) {
+                    ArrayList<Association> associationTopics = new ArrayList<>();
+                    for (int index = 0; index < associationItems.length; index++) {
+                        Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                        associationTopics.add(associationTopic);
+                    }
+                    Topic topic = TopicDao.getTopicByName(item, template);
+                    assert topic != null;
+                    topic.setAssociationTopics(associationTopics);
+                    topicRepository.save(topic);
+                } else {
+                    ArrayList<Association> associationSubjects = new ArrayList<>();
+                    for (int index = 0; index < associationItems.length; index++) {
+                        Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                        associationSubjects.add(associationTopic);
+                    }
+                    Subject subject = SubjectDao.getSubjectByName(item, template);
+                    assert subject != null;
+                    subject.setAssociationSubjects(associationSubjects);
+                    subjectRepository.save(subject);
                 }
-                Topic topic = topicRepository.findTopicByName(item);
-                if (topic == null) {
-                    topic = new Topic();
-                    topic.setName(item);
-                }
-                topic.setAssociationTopics(associationTopics);
-                topicRepository.save(topic);
-            } else {
-                ArrayList<Association> associationSubjects = new ArrayList<>();
-                for (int index = 0; index < associationItems.length; index ++) {
-                    Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
-                    associationSubjects.add(associationTopic);
-                }
-                Subject subject = subjectRepository.findSubjectByName(item);
-                if (subject == null) {
-                    subject = new Subject();
-                    subject.setName(item);
-                }
-                subject.setAssociationSubjects(associationSubjects);
-                subjectRepository.save(subject);
             }
+            StatusCtrl.changeRunningStatusTo("ALl data has been written to ElasticSearch!", name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileReader.close();
         }
-        fileReader.close();
-
-        StatusCtrl.changeRunningStatusTo("ALl data has been written to ElasticSearch!", name);
+        finally {
+            fileReader.close();
+        }
     }
 
     private void deleteDir(String dirPath) throws IOException {
@@ -473,8 +498,10 @@ public class FPGMainClass implements Runnable{
     }
 
     private void interruptStop(String reason) throws IOException {
-        deleteDir(inputPath);
-        deleteDir(resultDir);
+        if (deleteTmpFiles) {
+            deleteDir(inputPath);
+            deleteDir(resultDir);
+        }
         StatusCtrl.changeRunningStatusToStop(reason, name);
     }
 }

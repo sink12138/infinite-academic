@@ -11,10 +11,10 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Data
 @ApiModel(description = "对应年份文章发表量")
-public class PublicationData {
+public class DataPerYear {
     @Field(type = FieldType.Integer)
     private Integer year;
 
     @Field(type = FieldType.Integer)
-    private Integer publicationNum;
+    private Integer num;
 }

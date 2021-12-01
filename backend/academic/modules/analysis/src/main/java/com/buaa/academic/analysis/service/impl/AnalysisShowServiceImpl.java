@@ -1,21 +1,33 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.model.SearchAggregation;
+import com.buaa.academic.analysis.model.*;
+import com.buaa.academic.analysis.repository.InstitutionRepository;
+import com.buaa.academic.analysis.repository.JournalRepository;
+import com.buaa.academic.analysis.repository.ResearcherRepository;
 import com.buaa.academic.analysis.service.AnalysisShowService;
+import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Patent;
 import com.buaa.academic.document.entity.Researcher;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.buaa.academic.document.statistic.Subject;
+import com.buaa.academic.document.statistic.Topic;
+import com.buaa.academic.document.statistic.DataPerYear;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.WrapperQueryBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -30,46 +42,14 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     @Autowired
     private ElasticsearchRestTemplate template;
 
-    @AllArgsConstructor
-    @NoArgsConstructor
-    private static class AggInfo {
-        String target;
-        String aggName;
-        String countName;
-    }
+    @Autowired
+    private ResearcherRepository researcherRepository;
 
-    private static final TermsAggregationBuilder authorAgg = aggBuilderGen("authors", "authorTerm", "authorCount");
-    private static final TermsAggregationBuilder subjectAgg = aggBuilderGen("subjects.raw", "subjectTerm", "subjectCount");
-    private static final TermsAggregationBuilder topicAgg = aggBuilderGen("topics.raw", "topicTerm", "topicCount");
-    private static final TermsAggregationBuilder institutionAgg = aggBuilderGen("institutions", "institutionTerm", "institutionCount");
-    private static final TermsAggregationBuilder journalAgg = aggBuilderGen("journal", "journalTerm", "journalCount");
-    private static final TermsAggregationBuilder typeAgg = aggBuilderGen("type", "typeTerm", "typeCount");
-    private static final TermsAggregationBuilder keywordAgg = aggBuilderGen("keywords.raw", "keywordTerm", "keywordCount");
-    private static final List<AggInfo> paperAgg = List.of(
-            new AggInfo("author", "authorTerm", "authorCount"),
-            new AggInfo("subjects", "subjectTerm", "subjectCount"),
-            new AggInfo("topic", "topicTerm", "topicCount"),
-            new AggInfo("institution", "institutionTerm", "institutionCount"),
-            new AggInfo("journal", "journalTerm", "journalCount"),
-            new AggInfo("type", "typeTerm", "typeCount"),
-            new AggInfo("keywords", "keywordTerm", "keywordCount")
-            );
+    @Autowired
+    private InstitutionRepository institutionRepository;
 
-    private static final TermsAggregationBuilder interestAgg = aggBuilderGen("interests.raw", "interestTerm", "interestCount");
-    private static final TermsAggregationBuilder currentInstAgg = aggBuilderGen("currentInst", "currentInstTerm", "currentInstCount");
-    private static final List<AggInfo> researcherAgg = List.of(
-            new AggInfo("interests", "interestTerm", "interestCount"),
-            new AggInfo("currentInst", "currentInstTerm", "currentInstCount")
-    );
-
-    private static final TermsAggregationBuilder inventorAgg = aggBuilderGen("inventors", "inventorTerm", "inventorCount");
-    private static final TermsAggregationBuilder applicantAgg = aggBuilderGen("applicant", "applicantTerm", "applicantCount");
-    private static final List<AggInfo> patentAgg = List.of(
-            new AggInfo("type", "typeTerm", "typeCount"),
-            new AggInfo("inventors", "inventorTerm", "inventorCount"),
-            new AggInfo("applicant", "applicantTerm", "applicantCount")
-            );
-
+    @Autowired
+    private JournalRepository journalRepository;
 
     @Override
     public SearchAggregation searchAggregating(HttpSession session) {
@@ -81,55 +61,58 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         String index = (String) session.getAttribute("index");
 
         Aggregations aggregations;
-        List<AggInfo> aggInfos;
+        List<Agg.AggInfo> aggInfos;
         switch (index) {
             case "paper": {
-                NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
-                        .withQuery(QueryBuilders.wrapperQuery(queryStr))
-                        .withFilter(QueryBuilders.wrapperQuery(filterStr))
-                        .addAggregation(authorAgg)
-                        .addAggregation(subjectAgg)
-                        .addAggregation(topicAgg)
-                        .addAggregation(institutionAgg)
-                        .addAggregation(journalAgg)
-                        .addAggregation(typeAgg)
-                        .addAggregation(keywordAgg)
-                        .build();
+                NativeSearchQueryBuilder nativeSearchQueryBuilder = new  NativeSearchQueryBuilder()
+                        .withQuery(new WrapperQueryBuilder("{\"match_all\": {}}"))
+                        .addAggregation(Agg.authorAgg)
+                        .addAggregation(Agg.subjectAgg)
+                        .addAggregation(Agg.topicAgg)
+                        .addAggregation(Agg.institutionAgg)
+                        .addAggregation(Agg.journalAgg)
+                        .addAggregation(Agg.typeAgg)
+                        .addAggregation(Agg.keywordAgg);
+                if (filterStr != null && !filterStr.isEmpty())
+                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
+                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
                 SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
                 aggregations = searchHit.getAggregations();
-                aggInfos = paperAgg;
+                aggInfos = Agg.paperAgg;
                 break;
             }
             case "patent": {
-                NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
+                NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
                         .withQuery(QueryBuilders.wrapperQuery(queryStr))
-                        .withFilter(QueryBuilders.wrapperQuery(filterStr))
-                        .addAggregation(typeAgg)
-                        .addAggregation(inventorAgg)
-                        .addAggregation(applicantAgg)
-                        .build();
+                        .addAggregation(Agg.typeAgg)
+                        .addAggregation(Agg.inventorAgg)
+                        .addAggregation(Agg.applicantAgg);
+                if (filterStr != null && !filterStr.isEmpty())
+                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
+                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
                 SearchHits<Patent> searchHit = template.search(aggregationSearch, Patent.class);
                 aggregations = searchHit.getAggregations();
-                aggInfos = patentAgg;
+                aggInfos = Agg.patentAgg;
                 break;
             }
             case "researcher": {
-                NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
+                NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
                         .withQuery(QueryBuilders.wrapperQuery(queryStr))
-                        .withFilter(QueryBuilders.wrapperQuery(filterStr))
-                        .addAggregation(interestAgg)
-                        .addAggregation(currentInstAgg)
-                        .build();
+                        .addAggregation(Agg.interestAgg)
+                        .addAggregation(Agg.currentInstAgg);
+                if (filterStr != null && !filterStr.isEmpty())
+                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
+                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
                 SearchHits<Researcher> searchHit = template.search(aggregationSearch, Researcher.class);
                 aggregations = searchHit.getAggregations();
-                aggInfos = researcherAgg;
+                aggInfos = Agg.researcherAgg;
                 break;
             }
             default:
                 return null;
         }
 
-        for (AggInfo agg: aggInfos) {
+        for (Agg.AggInfo agg: aggInfos) {
 
             SearchAggregation.aggregationTerm aggregationTerm = new SearchAggregation.aggregationTerm();
             aggregationTerm.setTerm(agg.target);
@@ -137,15 +120,12 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
 
             assert aggregations != null;
             Aggregation aggregation = aggregations.asMap().get(agg.aggName);
+
             ParsedStringTerms terms = (ParsedStringTerms) aggregation;
             for (Terms.Bucket bucket : terms.getBuckets()) {
-                System.out.println(bucket.getKey().toString());
-                Aggregation aggregationCount = bucket.getAggregations().get(agg.countName);
-                ParsedLongTerms longTerms = (ParsedLongTerms) aggregationCount;
-                for (Terms.Bucket bucket1 : longTerms.getBuckets()) {
-                    items.add(new SearchAggregation.item(bucket1.getKey().toString(), (int) bucket1.getDocCount()));
-                }
+                items.add(new SearchAggregation.item(bucket.getKey().toString(), (int) bucket.getDocCount()));
             }
+
             aggregationTerm.setItems(items);
             aggregationTerms.add(aggregationTerm);
         }
@@ -154,8 +134,158 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         return searchAggregation;
     }
 
-    private static TermsAggregationBuilder aggBuilderGen(String field, String aggName, String countName) {
-        ValueCountAggregationBuilder count = new ValueCountAggregationBuilder(countName).field(field);
-        return new TermsAggregationBuilder(aggName).field(field).subAggregation(count);
+    @Override
+    public ArrayList<SimpleTopic> getHotTopics() {
+        FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort("heat").order(SortOrder.DESC);
+        PageRequest page = PageRequest.of(0, 10);
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchAllQuery())
+                .withSort(fieldSortBuilder)
+                .withFields("name", "heat")
+                .withPageable(page)
+                .build();
+        SearchHits<Topic> searchHits = template.search(nativeSearchQuery, Topic.class);
+        ArrayList<SimpleTopic> topics = new ArrayList<>();
+        searchHits.forEach(topicSearchHit ->
+                topics.add(new SimpleTopic(topicSearchHit.getContent().getName(), topicSearchHit.getContent().getHeat())));
+        return topics;
+    }
+
+    @Override
+    public ArrayList<SimpleSubject> getHotSubjects() {
+        FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort("heat").order(SortOrder.DESC);
+        PageRequest page = PageRequest.of(0, 10);
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.matchAllQuery())
+                .withSort(fieldSortBuilder)
+                .withFields("name", "heat")
+                .withPageable(page)
+                .build();
+        SearchHits<Subject> searchHits = template.search(nativeSearchQuery, Subject.class);
+        ArrayList<SimpleSubject> subjects = new ArrayList<>();
+        searchHits.forEach(subjectSearchHit ->
+                subjects.add(new SimpleSubject(subjectSearchHit.getContent().getName(), subjectSearchHit.getContent().getHeat())));
+        return subjects;
+    }
+
+    @Override
+    public ArrayList<DataPerYear> getPublicationStatic(String type, String id) {
+        Aggregation aggregation = aggFunc(type, id, "year", 200);
+        if (aggregation == null)
+            return null;
+        ParsedLongTerms terms = (ParsedLongTerms) aggregation;
+        ArrayList<DataPerYear> data = new ArrayList<>();
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            data.add(new DataPerYear(Integer.parseInt(bucket.getKey().toString()), (int) bucket.getDocCount()));
+        }
+        return data;
+    }
+
+    @Override
+    public ArrayList<WordFrequency> topicFrequencyStatic(String type, String id) {
+        Aggregation aggregation = aggFunc(type, id, "topics.raw", 10);
+        if (aggregation == null)
+            return null;
+        ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+        ArrayList<WordFrequency> wordFrequencies = new ArrayList<>();
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            wordFrequencies.add(new WordFrequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
+        }
+        return wordFrequencies;
+    }
+
+    @Override
+    public ArrayList<Cooperation> getCooperativeRelations(String type, String id) {
+        String  searchField;
+        if (type.equals("institution")) {
+            searchField = "institutions.id";
+        } else {
+            searchField = "authors.id";
+        }
+        Aggregation aggregation = aggFunc(type, id, searchField, 20);
+        if (aggregation == null)
+            return null;
+        ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+        ArrayList<Cooperation> cooperation = new ArrayList<>();
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            if (!id.equals(bucket.getKey().toString())) {
+                String aggId = bucket.getKey().toString();
+                String name = null;
+                if (type.equals("institution")) {
+                    Institution institution = institutionRepository.findInstitutionById(aggId);
+                    if (institution != null)
+                        name = institution.getName();
+                } else {
+                    Researcher researcher = researcherRepository.findResearcherById(aggId);
+                    if (researcher != null)
+                        name = researcher.getName();
+                }
+                if (name != null)
+                    cooperation.add(new Cooperation(aggId, name, (int) bucket.getDocCount()));
+            }
+        }
+        return cooperation;
+    }
+
+    @Override
+    public Boolean checkTargetExist(String type, String id) {
+        Object target;
+        switch (type) {
+            case "researcher": {
+                target= researcherRepository.findResearcherById(id);
+                break;
+            }
+            case "institution": {
+                target = institutionRepository.findInstitutionById(id);
+                break;
+            }
+            case "journal": {
+                target = journalRepository.findJournalById(id);
+                break;
+            }
+            default:
+                return null;
+        }
+        return target != null;
+    }
+
+    private Aggregation aggFunc(String type, String id, String field, Integer size) {
+        QueryBuilder queryBuilder = buildQueryByType(type, id);
+        if (queryBuilder == null)
+            return null;
+        ValueCountAggregationBuilder valueCountAggregationBuilder = new ValueCountAggregationBuilder("count").field(field);
+        TermsAggregationBuilder termsAggregationBuilder  =  new TermsAggregationBuilder("term").field(field)
+                .subAggregation(valueCountAggregationBuilder)
+                .order(BucketOrder.count(false))
+                .size(size);
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+                .addAggregation(termsAggregationBuilder)
+                .withQuery(queryBuilder)
+                .build();
+        SearchHits<Paper> searchHits = template.search(nativeSearchQuery, Paper.class);
+        Aggregations aggregations = searchHits.getAggregations();
+        assert aggregations != null;
+        return aggregations.asMap().get("term");
+    }
+
+    private QueryBuilder buildQueryByType(String type, String id) {
+        QueryBuilder queryBuilder;
+        switch (type) {
+            case "researcher": {
+                queryBuilder = QueryBuilders.termQuery("authors.id", id);
+                break;
+            }
+            case "institution": {
+                queryBuilder = QueryBuilders.termQuery("institutions.id", id);
+                break;
+            }
+            case "journal": {
+                queryBuilder = QueryBuilders.termQuery("journal.id", id);
+                break;
+            }
+            default:
+                return null;
+        }
+        return queryBuilder;
     }
 }

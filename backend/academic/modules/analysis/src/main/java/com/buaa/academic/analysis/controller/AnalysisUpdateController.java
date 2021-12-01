@@ -7,12 +7,13 @@ import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
+import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
+import org.elasticsearch.search.aggregations.bucket.nested.ParsedReverseNested;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
@@ -54,25 +55,25 @@ public class AnalysisUpdateController {
 
     @GetMapping("/test")
     public Result<Object> testAgg() {
-        ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("test").field("authors");
-        TermsAggregationBuilder termsAgg = new TermsAggregationBuilder("term").field("authors").subAggregation(count);
-        TermsAggregationBuilder topicTerm = new TermsAggregationBuilder("topicTerm").field("topics.raw").subAggregation(termsAgg);
+
+        NestedAggregationBuilder nested = AggregationBuilders.nested("author","institutions");
+        nested.subAggregation(AggregationBuilders.terms("authorsCount").field("institutions.name.raw")
+                .subAggregation(AggregationBuilders.reverseNested("reversed_author")));
+
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
-                .addAggregation(topicTerm)
+                .addAggregation(nested)
                 .build();
         SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
         Aggregations aggregations = searchHit.getAggregations();
         assert aggregations != null;
-        Aggregation aggregation = aggregations.asMap().get("topicTerm");
-        ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+        Aggregation aggregation = aggregations.asMap().get("author");
+        Aggregation aggregation1 = ((ParsedNested) aggregation).getAggregations().asMap().get("authorsCount");
+
+        ParsedStringTerms terms = (ParsedStringTerms) aggregation1;
         for (Terms.Bucket bucket: terms.getBuckets()) {
-            System.out.println(bucket.getKey().toString());
-            Aggregation aggregationYear = bucket.getAggregations().get("term");
-            ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
-            for (Terms.Bucket bucket1: longTerms.getBuckets()) {
-                System.out.println(bucket1.getKey().toString() + ": " + bucket1.getDocCount());
-            }
+            ParsedReverseNested reversed = (ParsedReverseNested) bucket.getAggregations().asMap().get("reversed_author");
+            System.out.println(bucket.getKey().toString() + ":" + reversed.getDocCount());
         }
         return new Result<>();
     }
@@ -82,7 +83,6 @@ public class AnalysisUpdateController {
 
     @PostMapping("/add")
     public Result<Void> add(@RequestBody Paper request) {
-        //template.indexOps(Paper.class).putMapping();
         paperRepository.save(request);
         return new Result<>();
     }

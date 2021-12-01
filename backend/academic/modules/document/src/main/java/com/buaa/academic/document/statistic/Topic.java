@@ -20,7 +20,6 @@ public class Topic {
     @Field(type = FieldType.Keyword)
     private String id;
 
-    @JsonProperty("abstract")
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized"),
             otherFields = @InnerField(suffix = "raw", type = FieldType.Keyword))
@@ -33,5 +32,5 @@ public class Topic {
     private ArrayList<Association> associationTopics = new ArrayList<>();
 
     @Field(type = FieldType.Object)
-    private ArrayList<PublicationData> publicationData = new ArrayList<>();
+    private ArrayList<DataPerYear> publicationData = new ArrayList<>();
 }
