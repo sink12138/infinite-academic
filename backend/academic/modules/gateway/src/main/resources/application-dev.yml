@@ -42,11 +42,11 @@ spring:
             - Path=/account/**
           filters:
             - StripPrefix=1
-        - id: 分析服务
-          uri: lb://client-analysis
-          order: 3
+        - id: 后台服务
+          uri: lb://client-admin
+          order: 6
           predicates:
-            - Path=/analysis/**
+            - Path=/admin/**
           filters:
             - StripPrefix=1
 
