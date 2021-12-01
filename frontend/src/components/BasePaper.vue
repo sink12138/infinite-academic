@@ -35,7 +35,7 @@
             </v-card-actions>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <v-card-text height=0>
+            <v-card-text height=0 v-if="paperdata.journal">
               <div class="text-md-left">期刊标题:{{paperdata.journal.title}}</div>
               <div class="text-md-left">期刊的数据库id:{{paperdata.journal.id}}</div>
               <div class="text-md-left">论文在期刊中的卷号:{{paperdata.journal.volume}}</div>
@@ -50,9 +50,12 @@
 </template>
 <script>
 export default{
-    props:{
-        paperdata:Object
+  props:{
+    paperdata: {
+      type: Object,
+      default:() => {}
     }
+  },
 }
 </script>
 <style scoped>

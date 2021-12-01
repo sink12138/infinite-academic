@@ -47,12 +47,21 @@
             <v-row>
               <v-col cols="12">
                 <v-text-field
+                  label="用户名*"
+                  required
+                  v-model="username"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="email"
                   label="邮箱*"
                   required
                 ></v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-text-field
+                  v-model="password"
                   label="密码*"
                   type="password"
                   required
@@ -63,6 +72,12 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            v-if="login === true"
+            @click="findPassword()"
+          >找回密码</v-btn>
           <v-btn
             color="blue darken-1"
             text
@@ -101,22 +116,56 @@
 <script>
 export default {
   data: () => ({
+    email: "",
+    password: "",
+    username: "",
     dialog: false,
-    login:true,
+    login: true,
   }),
-  methods:{
-    closeDialog(){
+  methods: {
+    closeDialog() {
       this.dialog = false;
       this.login = true;
     },
-    accountLogin(){
+    accountLogin() {
+      let token = window.localStorage.token;
+      this.$axios({
+        method: "post",
+        url: "/account/login",
+        params: {
+          email: this.email,
+          password: this.password,
+        },
+        headers:{
+          'token':token
+        }
+      }).then((response) => {
+        console.log(this.email);
+        console.log(this.password);
+        console.log(token);
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "登陆成功",
+            type: "success",
+          });
+          this.dialog = false;
+          this.login = true;
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "登录名或密码错误",
+            type: "warning",
+          });
+        }
+      });
+    },
+    accountRegister() {
       this.dialog = false;
       this.login = true;
     },
-    accountRegister(){
-      this.dialog = false;
-      this.login = true;
-    }
-  }
+    findPassword() {},
+  },
 };
 </script>

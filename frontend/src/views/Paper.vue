@@ -8,19 +8,19 @@
 import BaseGoBack from '../components/BaseGoBack.vue'
 import BasePaper from '../components/BasePaper.vue'
 export default {
-  data(){
-    return{
-      paperdata:{}
-    }
-  },
   components: {
     BaseGoBack,BasePaper
   },
-  mounted(){
+  data(){
+    return{
+      paperdata: {}
+    }
+  },
+  mounted() {
     this.$axios.get('../../paper.json').then(res=>{
       this.paperdata=res.data.data;
     })
-  }
+  },
 }
 </script>
 <style scoped>
