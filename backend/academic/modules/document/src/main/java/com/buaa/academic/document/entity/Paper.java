@@ -60,7 +60,7 @@ public class Paper implements Reducible<PaperItem> {
 
     }
 
-    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    @Field(type = FieldType.Object, positionIncrementGap = 100)
     @ApiModelProperty(value = "论文的所有作者信息", required = true)
     private List<Author> authors;
 
@@ -82,7 +82,7 @@ public class Paper implements Reducible<PaperItem> {
 
     }
 
-    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    @Field(type = FieldType.Object, positionIncrementGap = 100)
     @ApiModelProperty(value = "论文的所有机构")
     private List<Institution> institutions;
 
@@ -207,7 +207,7 @@ public class Paper implements Reducible<PaperItem> {
     }
 
     @ApiModelProperty(value = "论文的所有来源")
-    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    @Field(type = FieldType.Object, positionIncrementGap = 100)
     private List<Source> sources;
 
     @JsonIgnore

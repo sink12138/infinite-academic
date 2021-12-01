@@ -55,7 +55,7 @@ public class Researcher implements Reducible<ResearcherItem> {
     @ApiModelProperty(value = "当前所属机构的信息")
     private Institution currentInst;
 
-    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    @Field(type = FieldType.Object, positionIncrementGap = 100)
     @ApiModelProperty(value = "有合作关系的所有机构的信息")
     private List<Institution> institutions;
 

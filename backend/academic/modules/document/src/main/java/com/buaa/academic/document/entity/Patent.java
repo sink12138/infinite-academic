@@ -89,7 +89,7 @@ public class Patent implements Reducible<PatentItem> {
 
     }
 
-    @Field(type = FieldType.Nested, positionIncrementGap = 100)
+    @Field(type = FieldType.Object, positionIncrementGap = 100)
     @ApiModelProperty(value = "发明人信息列表")
     private List<Inventor> inventors;
 

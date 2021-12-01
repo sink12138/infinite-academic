@@ -29,9 +29,9 @@ public class Topic {
     @Field(type = FieldType.Double)
     private double heat;
 
-    @Field(type = FieldType.Nested)
+    @Field(type = FieldType.Object)
     private ArrayList<Association> associationTopics = new ArrayList<>();
 
-    @Field(type = FieldType.Nested)
+    @Field(type = FieldType.Object)
     private ArrayList<PublicationData> publicationData = new ArrayList<>();
 }
