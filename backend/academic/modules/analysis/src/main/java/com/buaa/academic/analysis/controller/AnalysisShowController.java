@@ -9,6 +9,8 @@ import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -48,6 +50,7 @@ public class AnalysisShowController {
     }
 
     @ApiOperation(value = "话题主页", notes = "包括关联分析、发表统计分析")
+    @ApiImplicitParam(name = "name", value = "要访问的话题名称", example = "人工智能")
     @GetMapping("/topic")
     public Result<Topic> showTopic(@RequestParam(value = "name") @NotNull String name) {
         Result<Topic> result = new Result<>();
@@ -58,6 +61,7 @@ public class AnalysisShowController {
     }
 
     @ApiOperation(value = "学科主页", notes = "包括关联分析、发表统计分析")
+    @ApiImplicitParam(name = "name", value = "要访问的学科名称", example = "数学")
     @GetMapping("/subject")
     public Result<Subject> showSubject(@RequestParam(value = "name") @NotNull String name) {
         Result<Subject> result = new Result<>();
@@ -80,6 +84,7 @@ public class AnalysisShowController {
     }
 
     @ApiOperation(value = "话题关联分析", notes = "用于搜索时相关推荐")
+    @ApiImplicitParam(name = "name", value = "要获取关联话题的话题名称", example = "数据挖掘")
     @GetMapping("/topicAssociation")
     public Result<List<Association>> topicAssociationAnalysis(@RequestParam(value = "name") @NotNull String name) {
         Result<List<Association>> result = new Result<>();
@@ -91,6 +96,7 @@ public class AnalysisShowController {
     }
 
     @ApiOperation(value = "学科关联分析", notes = "用于搜索时相关推荐")
+    @ApiImplicitParam(name = "name", value = "要获取关联学科的学科名称", example = "计算机科学")
     @GetMapping("/subjectAssociation")
     public Result<List<Association>> subjectAssociationAnalysis(@RequestParam(value = "name") @NotNull String name) {
         Result<List<Association>> result = new Result<>();
@@ -101,8 +107,11 @@ public class AnalysisShowController {
         return result.withData(associations);
     }
 
-    @ApiOperation(value = "每年发文统计", notes = "用于机构、学者、期刊的发文统计图，" +
-            "type类型可为researcher、institution和journal，id即为分析目标的id")
+    @ApiOperation(value = "每年发文统计", notes = "用于机构、学者、期刊的发文统计图")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "type", value = "要进行统计的目标的类别", allowableValues = "researcher, journal, institution"),
+        @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc")
+    })
     @GetMapping("/pubStaticByYear")
     public Result<ArrayList<DataPerYear>> publicationStaticByYear(@RequestParam(value = "type") @NotNull String type,
                                                   @RequestParam(value = "id") @NotNull String id) {
@@ -118,6 +127,10 @@ public class AnalysisShowController {
 
     @ApiOperation(value = "话题统计", notes = "学者、机构、期刊发文参与的话题统计")
     @GetMapping("/topicStatic")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "要进行统计的目标的类别", allowableValues = "researcher, journal, institution"),
+            @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc")
+    })
     public Result<ArrayList<WordFrequency>> topicStatic(@RequestParam(value = "type") @NotNull String type,
                                       @RequestParam(value = "id") @NotNull String id) {
         Result<ArrayList<WordFrequency>> result = new Result<>();
@@ -130,7 +143,12 @@ public class AnalysisShowController {
         return result.withData(wordFrequencies);
     }
 
+    @ApiOperation(value = "合作关系统计", notes = "学者和机构的合作关系网络统计")
     @GetMapping("/cooperation")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "type", value = "要进行统计的目标的类别", allowableValues = "researcher, institution"),
+            @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc")
+    })
     public Result<ArrayList<Cooperation>> getCooperation(@RequestParam(value = "type") @NotNull String type,
                                          @RequestParam(value = "id") @NotNull String id) {
         Result<ArrayList<Cooperation>> result = new Result<>();
