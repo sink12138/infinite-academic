@@ -31,6 +31,13 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/../model/target/model-1.0.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.buaa</groupId>
+            <artifactId>tool</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../tool/target/tool-1.0.jar</systemPath>
+        </dependency>
 
         <!-- mapreduce 核心jar包  -->
         <dependency>

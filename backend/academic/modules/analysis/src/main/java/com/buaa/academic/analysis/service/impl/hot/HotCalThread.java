@@ -6,15 +6,15 @@ import com.buaa.academic.analysis.repository.TopicDao;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.JobType;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
-import com.buaa.academic.document.statistic.DataPerYear;
+import com.buaa.academic.document.statistic.DataByYear;
 import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class HotCalThread implements Runnable{
@@ -65,12 +65,18 @@ public class HotCalThread implements Runnable{
             double hot = 0.0;
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");
             ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
-            ArrayList<DataPerYear> publicationData = new ArrayList<>();
+            DataByYear publicationData = new DataByYear();
+            List<Integer> years = new ArrayList<>();
+            List<Integer> numbers = new ArrayList<>();
             for (Terms.Bucket yearBucket : longTerms.getBuckets()) {
-                hot += yearBucket.getDocCount() * HotUpdateMainThread.rate.get(Integer.parseInt(yearBucket.getKey().toString()));
-                publicationData.add(new DataPerYear(Integer.parseInt(yearBucket.getKey().toString()), (int)yearBucket.getDocCount()));
+                Double rate = HotUpdateMainThread.rate.get(Integer.parseInt(yearBucket.getKey().toString()));
+                if (rate != null)
+                    hot += yearBucket.getDocCount() * rate;
+                years.add(Integer.parseInt(yearBucket.getKey().toString()));
+                numbers.add((int)yearBucket.getDocCount());
             }
-
+            publicationData.setYears(years);
+            publicationData.setNums(numbers);
             if (Objects.equals(threadName, JobType.HOT_TOPIC_ANALYSIS.name())) {
                 Topic topic = TopicDao.getTopicByName(targetName, template);
                 assert topic != null;

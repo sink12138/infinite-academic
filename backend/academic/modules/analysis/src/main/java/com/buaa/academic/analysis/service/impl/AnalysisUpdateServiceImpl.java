@@ -1,9 +1,9 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.model.Status;
 import com.buaa.academic.analysis.repository.SubjectRepository;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.AnalysisUpdateService;
+import com.buaa.academic.model.web.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
     }
 
     @Override
-    public Status getStatus() {
+    public Schedule getStatus() {
         return StatusCtrl.getStatus();
     }
 

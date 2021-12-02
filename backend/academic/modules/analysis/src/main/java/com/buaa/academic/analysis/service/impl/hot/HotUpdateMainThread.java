@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
@@ -69,9 +70,11 @@ public class HotUpdateMainThread implements Runnable{
         StatusCtrl.changeRunningStatusTo("Building search query...", threadName);
 
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
-        TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term").field("year").subAggregation(count);
+        TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term")
+                .field("year").subAggregation(count).order(BucketOrder.key(true));
 
-        TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw").subAggregation(yearAgg);
+        TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw")
+                .subAggregation(yearAgg);
 
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())

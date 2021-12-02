@@ -40,5 +40,5 @@ public class Subject {
 
     @ApiModelProperty(value = "该学科下每年发文数量")
     @Field(type = FieldType.Object)
-    private List<DataPerYear> publicationData = new ArrayList<>();
+    private DataByYear publicationData = new DataByYear();
 }

@@ -5,13 +5,10 @@ import com.buaa.academic.analysis.repository.InstitutionRepository;
 import com.buaa.academic.analysis.repository.JournalRepository;
 import com.buaa.academic.analysis.repository.ResearcherRepository;
 import com.buaa.academic.analysis.service.AnalysisShowService;
-import com.buaa.academic.document.entity.Institution;
-import com.buaa.academic.document.entity.Paper;
-import com.buaa.academic.document.entity.Patent;
-import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.entity.*;
 import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
-import com.buaa.academic.document.statistic.DataPerYear;
+import com.buaa.academic.document.statistic.DataByYear;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WrapperQueryBuilder;
@@ -59,6 +56,9 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         String filterStr = (String) session.getAttribute("filter");
         String queryStr = (String) session.getAttribute("query");
         String index = (String) session.getAttribute("index");
+
+        if (queryStr == null || index == null)
+            return null;
 
         Aggregations aggregations;
         List<Agg.AggInfo> aggInfos;
@@ -116,14 +116,14 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
 
             SearchAggregation.aggregationTerm aggregationTerm = new SearchAggregation.aggregationTerm();
             aggregationTerm.setTerm(agg.target);
-            ArrayList<SearchAggregation.item> items = new ArrayList<>();
+            ArrayList<Frequency> items = new ArrayList<>();
 
             assert aggregations != null;
             Aggregation aggregation = aggregations.asMap().get(agg.aggName);
 
             ParsedStringTerms terms = (ParsedStringTerms) aggregation;
             for (Terms.Bucket bucket : terms.getBuckets()) {
-                items.add(new SearchAggregation.item(bucket.getKey().toString(), (int) bucket.getDocCount()));
+                items.add(new Frequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
             }
 
             aggregationTerm.setItems(items);
@@ -135,7 +135,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     }
 
     @Override
-    public ArrayList<SimpleTopic> getHotTopics() {
+    public ArrayList<HotWord> getHotWords(String field) {
         FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort("heat").order(SortOrder.DESC);
         PageRequest page = PageRequest.of(0, 10);
         NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
@@ -144,69 +144,110 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                 .withFields("name", "heat")
                 .withPageable(page)
                 .build();
-        SearchHits<Topic> searchHits = template.search(nativeSearchQuery, Topic.class);
-        ArrayList<SimpleTopic> topics = new ArrayList<>();
-        searchHits.forEach(topicSearchHit ->
-                topics.add(new SimpleTopic(topicSearchHit.getContent().getName(), topicSearchHit.getContent().getHeat())));
-        return topics;
+        if (field.equals("topics")) {
+            SearchHits<Topic> searchHits = template.search(nativeSearchQuery, Topic.class);
+            ArrayList<HotWord> hotTopics = new ArrayList<>();
+            searchHits.forEach(topicSearchHit ->
+                    hotTopics.add(new HotWord(topicSearchHit.getContent().getName(), topicSearchHit.getContent().getHeat())));
+            return hotTopics;
+        } else {
+            SearchHits<Subject> searchHits = template.search(nativeSearchQuery, Subject.class);
+            ArrayList<HotWord> subjects = new ArrayList<>();
+            searchHits.forEach(subjectSearchHit ->
+                    subjects.add(new HotWord(subjectSearchHit.getContent().getName(), subjectSearchHit.getContent().getHeat())));
+            return subjects;
+        }
     }
 
     @Override
-    public ArrayList<SimpleSubject> getHotSubjects() {
-        FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort("heat").order(SortOrder.DESC);
-        PageRequest page = PageRequest.of(0, 10);
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.matchAllQuery())
-                .withSort(fieldSortBuilder)
-                .withFields("name", "heat")
-                .withPageable(page)
-                .build();
-        SearchHits<Subject> searchHits = template.search(nativeSearchQuery, Subject.class);
-        ArrayList<SimpleSubject> subjects = new ArrayList<>();
-        searchHits.forEach(subjectSearchHit ->
-                subjects.add(new SimpleSubject(subjectSearchHit.getContent().getName(), subjectSearchHit.getContent().getHeat())));
-        return subjects;
-    }
-
-    @Override
-    public ArrayList<DataPerYear> getPublicationStatic(String type, String id) {
-        Aggregation aggregation = aggFunc(type, id, "year", 200);
+    public DataByYear getPublicationStatic(String type, String id) {
+        QueryBuilder queryBuilder = buildQueryByType(type, id);
+        Aggregation aggregation = aggFunc(queryBuilder, "year", 200, false);
         if (aggregation == null)
             return null;
         ParsedLongTerms terms = (ParsedLongTerms) aggregation;
-        ArrayList<DataPerYear> data = new ArrayList<>();
+        DataByYear data = new DataByYear();
+        List<Integer> years = new ArrayList<>();
+        List<Integer> numbers = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            data.add(new DataPerYear(Integer.parseInt(bucket.getKey().toString()), (int) bucket.getDocCount()));
+            years.add(Integer.parseInt(bucket.getKey().toString()));
+            numbers.add((int) bucket.getDocCount());
         }
+        data.setYears(years);
+        data.setNums(numbers);
         return data;
     }
 
     @Override
-    public ArrayList<WordFrequency> topicFrequencyStatic(String type, String id) {
-        Aggregation aggregation = aggFunc(type, id, "topics.raw", 10);
+    public ArrayList<Frequency> wordFrequencyStatic(String type, String id, String field) {
+        QueryBuilder queryBuilder = buildQueryByType(type, id);
+        Aggregation aggregation = aggFunc(queryBuilder, field + ".raw", 10, true);
+        return getFrequency(aggregation);
+    }
+
+    private ArrayList<Frequency> getFrequency(Aggregation aggregation) {
         if (aggregation == null)
             return null;
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
-        ArrayList<WordFrequency> wordFrequencies = new ArrayList<>();
+        ArrayList<Frequency> wordFrequencies = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            wordFrequencies.add(new WordFrequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
+            wordFrequencies.add(new Frequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
         }
         return wordFrequencies;
     }
 
     @Override
-    public ArrayList<Cooperation> getCooperativeRelations(String type, String id) {
+    public ArrayList<EntityFrequency> topEntities(String field, String name, String type) {
+        QueryBuilder queryBuilder = buildQueryByField(field, name);
+        String aggField = switch (type) {
+            case "researchers"->"authors.id";
+            case "institutions"->"institutions.id";
+            case "journals"->"journal.title";
+            default -> null;
+        };
+        if (aggField == null)
+            return null;
+        Aggregation aggregation = aggFunc(queryBuilder, aggField, 10, true);
+        if (aggregation == null)
+            return null;
+        ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+        ArrayList<EntityFrequency> topEntities = new ArrayList<>();
+        for (Terms.Bucket bucket : terms.getBuckets()) {
+            String aggId = bucket.getKey().toString();
+            String entityName = null;
+            if (type.equals("institutions")) {
+                Institution institution = institutionRepository.findInstitutionById(aggId);
+                if (institution != null)
+                    entityName = institution.getName();
+            } else if (type.equals("researchers")){
+                Researcher researcher = researcherRepository.findResearcherById(aggId);
+                if (researcher != null)
+                    entityName = researcher.getName();
+            } else {
+                Journal journal = journalRepository.findJournalById(aggId);
+                if (journal != null)
+                    entityName = journal.getTitle();
+            }
+            if (entityName != null)
+                topEntities.add(new EntityFrequency(entityName, (int) bucket.getDocCount(), aggId));
+        }
+        return topEntities;
+    }
+
+    @Override
+    public ArrayList<EntityFrequency> getCooperativeRelations(String type, String id) {
         String  searchField;
         if (type.equals("institution")) {
             searchField = "institutions.id";
         } else {
             searchField = "authors.id";
         }
-        Aggregation aggregation = aggFunc(type, id, searchField, 20);
+        QueryBuilder queryBuilder = buildQueryByType(type, id);
+        Aggregation aggregation = aggFunc(queryBuilder, searchField, 20, true);
         if (aggregation == null)
             return null;
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
-        ArrayList<Cooperation> cooperation = new ArrayList<>();
+        ArrayList<EntityFrequency> cooperation = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (!id.equals(bucket.getKey().toString())) {
                 String aggId = bucket.getKey().toString();
@@ -221,7 +262,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                         name = researcher.getName();
                 }
                 if (name != null)
-                    cooperation.add(new Cooperation(aggId, name, (int) bucket.getDocCount()));
+                    cooperation.add(new EntityFrequency(name, (int) bucket.getDocCount(), aggId));
             }
         }
         return cooperation;
@@ -244,24 +285,26 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                 break;
             }
             default:
-                return null;
+                return false;
         }
         return target != null;
     }
 
-    private Aggregation aggFunc(String type, String id, String field, Integer size) {
-        QueryBuilder queryBuilder = buildQueryByType(type, id);
+    private Aggregation aggFunc(QueryBuilder queryBuilder, String field, Integer size, Boolean bucketCountSort) {
         if (queryBuilder == null)
             return null;
         ValueCountAggregationBuilder valueCountAggregationBuilder = new ValueCountAggregationBuilder("count").field(field);
         TermsAggregationBuilder termsAggregationBuilder  =  new TermsAggregationBuilder("term").field(field)
                 .subAggregation(valueCountAggregationBuilder)
-                .order(BucketOrder.count(false))
                 .size(size);
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
+        if (bucketCountSort)
+            termsAggregationBuilder.order(BucketOrder.count(false));
+        else
+            termsAggregationBuilder.order(BucketOrder.key(true));
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
                 .addAggregation(termsAggregationBuilder)
-                .withQuery(queryBuilder)
-                .build();
+                .withQuery(queryBuilder);
+        NativeSearchQuery nativeSearchQuery = nativeSearchQueryBuilder.build();
         SearchHits<Paper> searchHits = template.search(nativeSearchQuery, Paper.class);
         Aggregations aggregations = searchHits.getAggregations();
         assert aggregations != null;
@@ -286,6 +329,15 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
             default:
                 return null;
         }
+        return queryBuilder;
+    }
+
+    private QueryBuilder buildQueryByField(String field, String name) {
+        QueryBuilder queryBuilder;
+        if (field.equals("topic"))
+            queryBuilder = QueryBuilders.termQuery("topics.raw", name);
+        else
+            queryBuilder = QueryBuilders.termQuery("subjects.raw", name);
         return queryBuilder;
     }
 }

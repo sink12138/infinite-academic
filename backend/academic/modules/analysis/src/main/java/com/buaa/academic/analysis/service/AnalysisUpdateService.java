@@ -1,9 +1,9 @@
 package com.buaa.academic.analysis.service;
 
-import com.buaa.academic.analysis.model.Status;
+import com.buaa.academic.model.web.Schedule;
 
 public interface AnalysisUpdateService {
     boolean start();
-    Status getStatus();
+    Schedule getStatus();
     void stop();
 }

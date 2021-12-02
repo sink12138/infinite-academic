@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 import org.springframework.data.elasticsearch.core.completion.Completion;
-
 import java.util.ArrayList;
 import java.util.List;
 

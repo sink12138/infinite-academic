@@ -11,20 +11,8 @@ import java.util.ArrayList;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(description = "用于搜索过滤的搜索结果聚合")
+@ApiModel(description = "用于搜索条件过滤的搜索结果聚合")
 public class SearchAggregation {
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @ApiModel(description = "聚合结果中的一项")
-    public static class item {
-        @ApiModelProperty(value = "名称", example = "计算机科学")
-        private String name;
-
-        @ApiModelProperty(value = "结果中包含该项的文章数量", example = "5")
-        private Integer num;
-    }
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -34,7 +22,7 @@ public class SearchAggregation {
         private String term;
 
         @ApiModelProperty(value = "在该类别下的所有聚合结果")
-        private ArrayList<item> items;
+        private ArrayList<Frequency> items;
     }
 
     @ApiModelProperty(value = "所有聚合结果")

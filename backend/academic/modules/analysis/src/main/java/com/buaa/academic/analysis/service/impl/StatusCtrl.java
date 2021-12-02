@@ -1,15 +1,15 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.model.Status;
 import com.buaa.academic.analysis.repository.SubjectRepository;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.hot.HotUpdateMainThread;
+import com.buaa.academic.model.web.Schedule;
+import com.buaa.academic.model.web.Task;
 import lombok.SneakyThrows;
 import org.apache.hadoop.mapreduce.Job;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,8 @@ StatusCtrl implements Runnable{
     public static final Map<String, String> runningStatus = new HashMap<>();
     public static final Map<String, Job> currentJob = new HashMap<>();
     public static boolean analysisStarted = false;
+
+    private static Date lastRunningDate;
 
     private ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
@@ -72,8 +74,7 @@ StatusCtrl implements Runnable{
     public static void changeRunningStatusToStop(String runningStatus, String threadName) {
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.remove(threadName);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
-            StatusCtrl.runningStatus.put(threadName, runningStatus + simpleDateFormat.format(new Date()));
+            StatusCtrl.runningStatus.put(threadName, runningStatus);
         }
     }
 
@@ -83,15 +84,16 @@ StatusCtrl implements Runnable{
         isRunning.clear();
         currentJob.clear();
         runningStatus.clear();
-
+        lastRunningDate = new Date();
         analysisStarted = true;
         associationAnalysis();
         hotRankAnalysis();
         analysisStarted = false;
     }
 
-    public static Status getStatus() {
-        Status status = new Status();
+    public static Schedule getStatus() {
+        Schedule schedule = new Schedule();
+        boolean scheduleRunning = false;
         Map<String, String> jobs = new HashMap<>();
         Map<String, Boolean> isR;
         synchronized (STATUS_LOCK) {
@@ -105,9 +107,15 @@ StatusCtrl implements Runnable{
             if (isR.containsKey(entry.getKey())) {
                 isRunning = isR.get(entry.getKey());
             }
-            status.addJObStatus(new Status.JobStatus(entry.getKey(), entry.getValue(), isRunning));
+            if (isRunning)
+                scheduleRunning = true;
+            schedule.addTask(new Task(entry.getKey(), entry.getValue()));
         }
-        return status;
+        schedule.setName("数据分析");
+        schedule.setLastRun(lastRunningDate);
+        schedule.setFrequency("暂无");
+        schedule.setRunning(scheduleRunning);
+        return schedule;
     }
 
     public static void associationStop() {

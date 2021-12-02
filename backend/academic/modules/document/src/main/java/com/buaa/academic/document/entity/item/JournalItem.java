@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Data
 @AllArgsConstructor
@@ -23,6 +20,4 @@ public class JournalItem {
 
     @ApiModelProperty(value = "主办单位", example = "华北计算技术研究所")
     private String sponsor;
-
-
 }

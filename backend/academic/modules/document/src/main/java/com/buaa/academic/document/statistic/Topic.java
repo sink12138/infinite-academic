@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,5 +39,5 @@ public class Topic {
 
     @ApiModelProperty(value = "该话题下每年发文量")
     @Field(type = FieldType.Object)
-    private List<DataPerYear> publicationData = new ArrayList<>();
+    private DataByYear publicationData = new DataByYear();
 }
