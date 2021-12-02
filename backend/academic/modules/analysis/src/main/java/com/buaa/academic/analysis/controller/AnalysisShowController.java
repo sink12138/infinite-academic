@@ -10,6 +10,7 @@ import com.buaa.academic.document.statistic.Topic;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.tool.validator.AllowValues;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RequestMapping("/show")
 @RestController()
+@Api(tags = "获取数据分析结果", value = "/analysis/show")
 @Validated
 public class AnalysisShowController {
     @Autowired

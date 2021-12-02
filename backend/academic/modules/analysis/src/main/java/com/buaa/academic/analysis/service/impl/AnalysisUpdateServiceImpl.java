@@ -41,4 +41,9 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
         StatusCtrl.associationStop();
     }
 
+    @Override
+    public void autoStart(String cron) {
+        StatusCtrl.cron = cron;
+    }
+
 }

@@ -6,4 +6,5 @@ public interface AnalysisUpdateService {
     boolean start();
     Schedule getStatus();
     void stop();
+    void autoStart(String cron);
 }
