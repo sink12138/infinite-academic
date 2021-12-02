@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Result<Void> handleOtherException(Exception exception) {
         exception.printStackTrace();
-        return new Result<Void>().withFailure(ExceptionType.INTERNAL_SERVER_ERROR);
+        return new Result<Void>().withFailure(ExceptionType.INTERNAL_ERROR);
     }
 
 }

@@ -29,6 +29,10 @@ eureka:
       defaultZone: http://eureka:eureka-academic-2021@121.36.98.60:8100/eureka/
     register-with-eureka: false
 
+feign:
+  httpclient:
+    connection-timeout: 5000
+
 knife4j:
   basic:
     enable: true

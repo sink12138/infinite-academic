@@ -32,7 +32,7 @@ public class SwaggerConfiguration {
 
     private ApiInfo groupApiInfo() {
         return new ApiInfoBuilder()
-                .title("后台模块 - API文档")
+                .title("管理员模块 - API文档")
                 .description("<div style='font-size:14px;'>管理员后台浏览、审核、管理</div>")
                 .contact(new Contact("yq", "", ""))
                 .termsOfServiceUrl("http://121.36.98.60:8096/")
