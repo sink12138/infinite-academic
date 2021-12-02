@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.List;
 
 @RequestMapping("/show")
 @RestController()
@@ -82,7 +83,7 @@ public class AnalysisShowController {
         Topic topic = TopicDao.getTopicByName(name, template);
         if (topic == null)
             return new Result<>().withFailure("话题不存在");
-        ArrayList<Association> associations = topic.getAssociationTopics();
+        List<Association> associations = topic.getAssociationTopics();
         return new Result<>().withData(associations);
     }
 
@@ -92,7 +93,7 @@ public class AnalysisShowController {
         Subject subject = SubjectDao.getSubjectByName(name, template);
         if (subject == null)
             return new Result<>().withFailure("学科不存在");
-        ArrayList<Association> associations = subject.getAssociationSubjects();
+        List<Association> associations = subject.getAssociationSubjects();
         return new Result<>().withData(associations);
     }
 
@@ -123,7 +124,6 @@ public class AnalysisShowController {
         return new Result<>().withData(wordFrequencies);
     }
 
-
     @GetMapping("/cooperation")
     public Result<Object> getCooperation(@RequestParam(value = "type") @NotNull String type,
                                          @RequestParam(value = "id") @NotNull String id) {
@@ -137,6 +137,5 @@ public class AnalysisShowController {
         ArrayList<Cooperation> cooperation = analysisShowService.getCooperativeRelations(type, id);
         return new Result<>().withData(cooperation);
     }
-
 
 }

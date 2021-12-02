@@ -1,6 +1,5 @@
 package com.buaa.academic.document.statistic;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,8 +29,8 @@ public class Topic {
     private double heat;
 
     @Field(type = FieldType.Object)
-    private ArrayList<Association> associationTopics = new ArrayList<>();
+    private List<Association> associationTopics = new ArrayList<>();
 
     @Field(type = FieldType.Object)
-    private ArrayList<DataPerYear> publicationData = new ArrayList<>();
+    private List<DataPerYear> publicationData = new ArrayList<>();
 }

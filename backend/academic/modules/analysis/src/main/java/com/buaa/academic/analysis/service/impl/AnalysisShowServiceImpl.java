@@ -65,7 +65,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         switch (index) {
             case "paper": {
                 NativeSearchQueryBuilder nativeSearchQueryBuilder = new  NativeSearchQueryBuilder()
-                        .withQuery(new WrapperQueryBuilder("{\"match_all\": {}}"))
+                        .withQuery(new WrapperQueryBuilder(queryStr))
                         .addAggregation(Agg.authorAgg)
                         .addAggregation(Agg.subjectAgg)
                         .addAggregation(Agg.topicAgg)
