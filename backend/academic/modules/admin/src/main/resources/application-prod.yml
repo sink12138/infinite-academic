@@ -37,6 +37,10 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/
 
+feign:
+  httpclient:
+    connection-timeout: 5000
+
 knife4j:
   basic:
     enable: true

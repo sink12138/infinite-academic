@@ -129,7 +129,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                 }
                 case "admin" -> {
                     switch (secondaryUrl) {
-                        case "login", "logout" -> {}
+                        case "login", "logout", "auth" -> {}
                         default -> {
                             if (!authority.isAdmin())
                                 throw new AcademicException(ExceptionType.UNAUTHORIZED);
