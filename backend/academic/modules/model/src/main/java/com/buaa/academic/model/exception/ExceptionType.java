@@ -5,7 +5,8 @@ public enum ExceptionType {
     INVALID_PARAM("参数格式非法"),
     UNAUTHORIZED("无权访问"),
     NOT_FOUND("未找到对象"),
-    INTERNAL_SERVER_ERROR("操作失败");
+    FORWARD_TIMEOUT("请求转发超时"),
+    INTERNAL_ERROR("操作失败");
 
     private final String message;
 
