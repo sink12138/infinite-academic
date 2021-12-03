@@ -62,7 +62,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
         String pathValue = path.value();
 
         /* Frequently requested non-auth APIs */
-        if (pathValue.startsWith("/search") || pathValue.matches("^/analysis/(?!update).*"))
+        if (pathValue.startsWith("/search") || pathValue.matches("^/analysis/(?!schedule).*"))
             return chain.filter(exchange);
 
         /* API docs */

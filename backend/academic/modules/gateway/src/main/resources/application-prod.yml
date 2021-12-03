@@ -59,6 +59,13 @@ spring:
             - Path=/account/**
           filters:
             - StripPrefix=1
+        - id: 分析服务
+          uri: lb://client-analysis
+          order: 3
+          predicates:
+            - Path=/analysis/**
+          filters:
+            - StripPrefix=1
         - id: 后台服务
           uri: lb://client-admin
           order: 6
