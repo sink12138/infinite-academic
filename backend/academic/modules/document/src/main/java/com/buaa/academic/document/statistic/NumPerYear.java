@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @ApiModel(description = "对应年份文章发表量")
-public class SumPerYear {
+public class NumPerYear {
 
     @ApiModelProperty(value = "年份", example = "1979")
     @Field(type = FieldType.Integer)

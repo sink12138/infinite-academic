@@ -1,7 +1,7 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.repository.SubjectRepository;
-import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.dao.SubjectRepository;
+import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.AnalysisUpdateService;
 import com.buaa.academic.model.web.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;

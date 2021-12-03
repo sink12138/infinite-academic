@@ -1,9 +1,8 @@
 package com.buaa.academic.analysis.service.impl.fpg.FPTree;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
-public class FPTreeNode {
+public class FPTreeNode implements Comparable<FPTreeNode> {
     private final String content;
     private int support;
     private final FPTreeNode fatherNode;
@@ -70,15 +69,12 @@ public class FPTreeNode {
     public String toString() {
         return this.getContent() + ": " + this.getSupport();
     }
-}
 
-class FPTreeNodeSort implements Comparator<FPTreeNode> {
     @Override
-    public int compare(FPTreeNode o1, FPTreeNode o2) {
-        int result = Integer.compare(o2.getSupport(), o1.getSupport());
+    public int compareTo(FPTreeNode another) {
+        int result = Integer.compare(another.getSupport(), this.getSupport());
         if (result != 0)
             return result;
-        return o1.getContent().compareTo(o2.getContent());
+        return this.getContent().compareTo(another.getContent());
     }
 }
-

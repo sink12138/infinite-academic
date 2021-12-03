@@ -1,16 +1,15 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.model.EntityFrequency;
-import com.buaa.academic.analysis.model.Frequency;
+import com.buaa.academic.analysis.dao.InstitutionRepository;
+import com.buaa.academic.analysis.dao.JournalRepository;
+import com.buaa.academic.analysis.dao.ResearcherRepository;
+import com.buaa.academic.analysis.model.EntityBucket;
+import com.buaa.academic.analysis.model.Bucket;
 import com.buaa.academic.analysis.model.HotWord;
-import com.buaa.academic.analysis.model.SearchAggregation;
-import com.buaa.academic.analysis.repository.InstitutionRepository;
-import com.buaa.academic.analysis.repository.JournalRepository;
-import com.buaa.academic.analysis.repository.ResearcherRepository;
 import com.buaa.academic.analysis.service.AnalysisShowService;
 import com.buaa.academic.document.entity.*;
-import com.buaa.academic.document.statistic.SumPerYear;
 import com.buaa.academic.document.statistic.Subject;
+import com.buaa.academic.document.statistic.NumPerYear;
 import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -34,12 +33,14 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AnalysisShowServiceImpl implements AnalysisShowService {
+
     @Autowired
     private ElasticsearchRestTemplate template;
 
@@ -53,22 +54,18 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     private JournalRepository journalRepository;
 
     @Override
-    public List<SearchAggregation> searchAggregating(HttpSession session) {
-        List<SearchAggregation> searchAggregations = new ArrayList<>();
+    public Map<String, List<Bucket>> searchAggregate(String indexName, WrapperQueryBuilder query, WrapperQueryBuilder filter) {
+        Map<String, List<Bucket>> searchAggregations = new HashMap<>();
 
-        String filterStr = (String) session.getAttribute("filter");
-        String queryStr = (String) session.getAttribute("query");
-        String index = (String) session.getAttribute("index");
-
-        if (queryStr == null || index == null)
-            return null;
-
-        Aggregations aggregations;
+        Class<?> target;
         List<Agg.AggInfo> aggInfos;
-        switch (index) {
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(query)
+                .withFilter(filter);
+
+        switch (indexName) {
             case "paper" -> {
-                NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
-                        .withQuery(new WrapperQueryBuilder(queryStr))
+                nativeSearchQueryBuilder
                         .addAggregation(Agg.authorAgg)
                         .addAggregation(Agg.subjectAgg)
                         .addAggregation(Agg.topicAgg)
@@ -76,59 +73,41 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                         .addAggregation(Agg.journalAgg)
                         .addAggregation(Agg.typeAgg)
                         .addAggregation(Agg.keywordAgg);
-                if (filterStr != null && !filterStr.isEmpty())
-                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
-                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
-                SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
-                aggregations = searchHit.getAggregations();
+                target = Paper.class;
                 aggInfos = Agg.paperAgg;
             }
+            case "researcher" -> {
+                nativeSearchQueryBuilder
+                        .addAggregation(Agg.interestAgg)
+                        .addAggregation(Agg.currentInstAgg);
+                target = Researcher.class;
+                aggInfos = Agg.researcherAgg;
+            }
             case "patent" -> {
-                NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
-                        .withQuery(QueryBuilders.wrapperQuery(queryStr))
+                nativeSearchQueryBuilder
                         .addAggregation(Agg.typeAgg)
                         .addAggregation(Agg.inventorAgg)
                         .addAggregation(Agg.applicantAgg);
-                if (filterStr != null && !filterStr.isEmpty())
-                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
-                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
-                SearchHits<Patent> searchHit = template.search(aggregationSearch, Patent.class);
-                aggregations = searchHit.getAggregations();
+                target = Patent.class;
                 aggInfos = Agg.patentAgg;
             }
-            case "researcher" -> {
-                NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
-                        .withQuery(QueryBuilders.wrapperQuery(queryStr))
-                        .addAggregation(Agg.interestAgg)
-                        .addAggregation(Agg.currentInstAgg);
-                if (filterStr != null && !filterStr.isEmpty())
-                    nativeSearchQueryBuilder.withFilter(QueryBuilders.wrapperQuery(filterStr));
-                NativeSearchQuery aggregationSearch = nativeSearchQueryBuilder.build();
-                SearchHits<Researcher> searchHit = template.search(aggregationSearch, Researcher.class);
-                aggregations = searchHit.getAggregations();
-                aggInfos = Agg.researcherAgg;
-            }
-            default -> {
-                return null;
-            }
+            default -> throw new IllegalArgumentException("index name must be 'paper', 'researcher' or 'patent'");
         }
 
-        for (Agg.AggInfo agg : aggInfos) {
+        Aggregations aggregations = template.search(nativeSearchQueryBuilder.build(), target).getAggregations();
 
-            SearchAggregation searchAggregation = new SearchAggregation();
-            searchAggregation.setField(agg.target);
-            List<Frequency> items = new ArrayList<>();
+        for (Agg.AggInfo aggInfo : aggInfos) {
+            List<Bucket> buckets = new ArrayList<>();
 
             assert aggregations != null;
-            Aggregation aggregation = aggregations.asMap().get(agg.aggName);
+            Aggregation aggregation = aggregations.get(aggInfo.aggName);
 
             ParsedStringTerms terms = (ParsedStringTerms) aggregation;
             for (Terms.Bucket bucket : terms.getBuckets()) {
-                items.add(new Frequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
+                buckets.add(new Bucket(bucket.getKey().toString(), (int) bucket.getDocCount()));
             }
 
-            searchAggregation.setBuckets(items);
-            searchAggregations.add(searchAggregation);
+            searchAggregations.put(aggInfo.field, buckets);
         }
 
         return searchAggregations;
@@ -160,13 +139,13 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     }
 
     @Override
-    public SumPerYear getPublicationStatic(String type, String id) {
+    public NumPerYear getPublicationStatic(String type, String id) {
         QueryBuilder queryBuilder = buildQueryByType(type, id);
         Aggregation aggregation = aggFunc(queryBuilder, "year", 200, false);
         if (aggregation == null)
             return null;
         ParsedLongTerms terms = (ParsedLongTerms) aggregation;
-        SumPerYear data = new SumPerYear();
+        NumPerYear data = new NumPerYear();
         List<Integer> years = new ArrayList<>();
         List<Integer> numbers = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
@@ -179,25 +158,25 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     }
 
     @Override
-    public List<Frequency> wordFrequencyStatistics(String type, String id, String field, int num) {
+    public List<Bucket> wordFrequencyStatistics(String type, String id, String field, int num) {
         QueryBuilder queryBuilder = buildQueryByType(type, id);
         Aggregation aggregation = aggFunc(queryBuilder, field + ".raw", num, true);
         return getFrequency(aggregation);
     }
 
-    private List<Frequency> getFrequency(Aggregation aggregation) {
+    private List<Bucket> getFrequency(Aggregation aggregation) {
         if (aggregation == null)
             return null;
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
-        List<Frequency> wordFrequencies = new ArrayList<>();
+        List<Bucket> wordFrequencies = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
-            wordFrequencies.add(new Frequency(bucket.getKey().toString(), (int) bucket.getDocCount()));
+            wordFrequencies.add(new Bucket(bucket.getKey().toString(), (int) bucket.getDocCount()));
         }
         return wordFrequencies;
     }
 
     @Override
-    public List<EntityFrequency> topEntities(String field, String name, String type, int num) {
+    public List<EntityBucket> topEntities(String field, String name, String type, int num) {
         QueryBuilder queryBuilder = buildQueryByField(field, name);
         String aggField = switch (type) {
             case "researcher" -> "authors.id";
@@ -211,7 +190,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         if (aggregation == null)
             return null;
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
-        List<EntityFrequency> topEntities = new ArrayList<>();
+        List<EntityBucket> topEntities = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             String aggId = bucket.getKey().toString();
             String entityName = null;
@@ -233,13 +212,13 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                 }
             }
             if (entityName != null)
-                topEntities.add(new EntityFrequency(entityName, (int) bucket.getDocCount(), aggId));
+                topEntities.add(new EntityBucket(entityName, (int) bucket.getDocCount(), aggId));
         }
         return topEntities;
     }
 
     @Override
-    public List<EntityFrequency> getCooperativeRelations(String type, String id, int num) {
+    public List<EntityBucket> getCooperativeRelations(String type, String id, int num) {
         String searchField;
         if (type.equals("institution")) {
             searchField = "institutions.id";
@@ -251,7 +230,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         if (aggregation == null)
             return null;
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
-        List<EntityFrequency> cooperation = new ArrayList<>();
+        List<EntityBucket> cooperation = new ArrayList<>();
         for (Terms.Bucket bucket : terms.getBuckets()) {
             if (!id.equals(bucket.getKey().toString())) {
                 String aggId = bucket.getKey().toString();
@@ -266,7 +245,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                         name = researcher.getName();
                 }
                 if (name != null)
-                    cooperation.add(new EntityFrequency(name, (int) bucket.getDocCount(), aggId));
+                    cooperation.add(new EntityBucket(name, (int) bucket.getDocCount(), aggId));
             }
         }
         return cooperation;

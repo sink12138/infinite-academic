@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FpgReducer extends Reducer<Text, Text, NullWritable, Text> {
+public class FPGReducer extends Reducer<Text, Text, NullWritable, Text> {
     private double support;
 
     @Override

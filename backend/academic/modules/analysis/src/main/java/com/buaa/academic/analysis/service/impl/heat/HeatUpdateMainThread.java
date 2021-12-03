@@ -1,7 +1,7 @@
-package com.buaa.academic.analysis.service.impl.hot;
+package com.buaa.academic.analysis.service.impl.heat;
 
-import com.buaa.academic.analysis.repository.SubjectRepository;
-import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.dao.SubjectRepository;
+import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.document.entity.Paper;
 import lombok.SneakyThrows;
@@ -21,7 +21,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HotUpdateMainThread implements Runnable{
+public class HeatUpdateMainThread implements Runnable{
     public static Map<String, Integer> total = new HashMap<>();
     public static Map<String, Integer> finished = new HashMap<>();
     public static ParsedStringTerms targetTerm = null;
@@ -33,26 +33,26 @@ public class HotUpdateMainThread implements Runnable{
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
 
-    public HotUpdateMainThread(ElasticsearchRestTemplate template) {
+    public HeatUpdateMainThread(ElasticsearchRestTemplate template) {
         this.template = template;
     }
 
-    public HotUpdateMainThread setJobsNum(Integer jobsNum) {
+    public HeatUpdateMainThread setJobsNum(Integer jobsNum) {
         this.jobsNum = jobsNum;
         return this;
     }
 
-    public HotUpdateMainThread setTargetIndex(String targetIndex) {
+    public HeatUpdateMainThread setTargetIndex(String targetIndex) {
         this.targetIndex = targetIndex;
         return this;
     }
 
-    public HotUpdateMainThread setTopicRepository(TopicRepository topicRepository) {
+    public HeatUpdateMainThread setTopicRepository(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;
         return this;
     }
 
-    public HotUpdateMainThread setSubjectRepository(SubjectRepository subjectRepository) {
+    public HeatUpdateMainThread setSubjectRepository(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
         return this;
     }
@@ -95,9 +95,8 @@ public class HotUpdateMainThread implements Runnable{
         StatusCtrl.changeRunningStatusTo( "Building threads...", threadName);
         ArrayList<Thread> threads = new ArrayList<>();
         for (int i = 0; i < jobsNum; i++) {
-            threads.add(new Thread(new HotCalThread(threadName)
+            threads.add(new Thread(new HeatCalThread(threadName)
                     .setSubjectRepository(subjectRepository)
-                    .setTemplate(template)
                     .setTopicRepository(topicRepository)));
         }
 
@@ -134,7 +133,7 @@ public class HotUpdateMainThread implements Runnable{
         for (int year = minYear; year <= maxYear; year++){
             double t = solve(a, b, c, minYear - year);
             double rate = 3 * (1 - t) * Math.pow(t, 3) + Math.pow(t, 3);
-            HotUpdateMainThread.rate.put(year, rate);
+            HeatUpdateMainThread.rate.put(year, rate);
         }
     }
 

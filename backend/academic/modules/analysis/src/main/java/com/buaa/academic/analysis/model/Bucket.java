@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "频次统计")
-public class Frequency {
+public class Bucket {
 
     @ApiModelProperty(value = "实体或话题、学科名称", example = "人工智能")
     private String term;

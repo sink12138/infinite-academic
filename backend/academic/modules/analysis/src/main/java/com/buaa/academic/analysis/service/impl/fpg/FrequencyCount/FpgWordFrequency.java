@@ -1,30 +1,27 @@
 package com.buaa.academic.analysis.service.impl.fpg.FrequencyCount;
 
+import com.buaa.academic.analysis.model.Bucket;
+import org.apache.hadoop.io.WritableComparable;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import com.buaa.academic.analysis.model.Frequency;
-import org.apache.hadoop.io.WritableComparable;
 
-public class FpgWordFrequency extends Frequency implements WritableComparable<FpgWordFrequency>{
+public class FpgWordFrequency extends Bucket implements WritableComparable<FpgWordFrequency> {
 
-    public enum Counter{
-        LINE_LEN												//用来保存总行数
+    public enum Counter {
+        LINE_LEN                                                //用来保存总行数
     }
 
-    public FpgWordFrequency() {
-        super();
+    public FpgWordFrequency(String word, int frequency) {
+        super(word, frequency);
     }
 
-    public FpgWordFrequency(String word, int frequence) {
-        super(word,frequence);
-    }
-
-    public String getTerm(){
+    public String getTerm() {
         return super.getTerm();
     }
 
-    public int getFrequency(){
+    public int getFrequency() {
         return super.getFrequency();
     }
 
@@ -41,8 +38,8 @@ public class FpgWordFrequency extends Frequency implements WritableComparable<Fp
     }
 
     @Override
-    public int compareTo(FpgWordFrequency o) {							//重写compareTo方法，该类型排序时，按词频降序，当词频相同时，按单词字典序排序
-        return (super.getFrequency() != o.getFrequency()) ? Integer.compare( o.getFrequency(), super.getFrequency())
+    public int compareTo(FpgWordFrequency o) {                            //重写compareTo方法，该类型排序时，按词频降序，当词频相同时，按单词字典序排序
+        return (super.getFrequency() != o.getFrequency()) ? Integer.compare(o.getFrequency(), super.getFrequency())
                 : super.getTerm().compareTo(o.getTerm());
     }
 

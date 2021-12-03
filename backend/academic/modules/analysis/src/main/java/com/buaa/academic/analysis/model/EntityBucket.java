@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "实体频次统计")
-public class EntityFrequency extends Frequency {
+public class EntityBucket extends Bucket {
 
     @ApiModelProperty(value = "实体id")
     private String id;
 
-    public EntityFrequency(String name, int docCount, String id) {
+    public EntityBucket(String name, int docCount, String id) {
         super(name, docCount);
         this.id = id;
     }

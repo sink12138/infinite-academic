@@ -1,15 +1,13 @@
 package com.buaa.academic.analysis.service.impl.fpg;
 
-import com.buaa.academic.analysis.repository.SubjectDao;
-import com.buaa.academic.analysis.repository.SubjectRepository;
-import com.buaa.academic.analysis.repository.TopicDao;
-import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.dao.SubjectRepository;
+import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationMapper;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationReducer;
 import com.buaa.academic.analysis.service.impl.fpg.AssociationCal.AssociationRule;
-import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FpgMapper;
-import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FpgReducer;
+import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FPGMapper;
+import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FPGReducer;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortReducer;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.FpgWordFrequency;
@@ -25,8 +23,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -39,13 +37,14 @@ import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FPGMainClass implements Runnable{
+public class FPGMainClass implements Runnable {
 
     public static String splitChar = ",";
     private final String analysisObject; // 用于区分对话题还是学科进行分析
@@ -70,9 +69,9 @@ public class FPGMainClass implements Runnable{
         this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject + "Data";
         String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         resultDir = "./modules/analysis/src/main/resources/fpgResult_" + analysisObject + time;
-        countPath =  resultDir +"\\count";
+        countPath = resultDir + "\\count";
         frequentItemsPath = resultDir + "\\frequentItems";
-        frequentSetsPath =  resultDir + "\\frequentSets";
+        frequentSetsPath = resultDir + "\\frequentSets";
         associationRulesPath = resultDir + "\\associationRules";
         configuration = new Configuration(true);
     }
@@ -127,7 +126,7 @@ public class FPGMainClass implements Runnable{
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if(threadStopCheck())
+        if (threadStopCheck())
             return;
 
         // 词频统计
@@ -141,7 +140,7 @@ public class FPGMainClass implements Runnable{
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if(threadStopCheck())
+        if (threadStopCheck())
             return;
 
         // 去除非频繁项，根据词频对原数据排序
@@ -155,7 +154,7 @@ public class FPGMainClass implements Runnable{
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if(threadStopCheck())
+        if (threadStopCheck())
             return;
 
         // fp-growth生成频繁项集
@@ -167,7 +166,7 @@ public class FPGMainClass implements Runnable{
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if(threadStopCheck())
+        if (threadStopCheck())
             return;
 
         // 计算关联规则
@@ -180,7 +179,7 @@ public class FPGMainClass implements Runnable{
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if(threadStopCheck())
+        if (threadStopCheck())
             return;
 
         try {
@@ -196,7 +195,7 @@ public class FPGMainClass implements Runnable{
             deleteDir(inputPath);
         }
 
-        double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
+        double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
         StatusCtrl.changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s. ", name);
     }
 
@@ -355,8 +354,8 @@ public class FPGMainClass implements Runnable{
         fpJob.setJarByClass(FPGMainClass.class);
         fpJob.addCacheFile(new Path(frequentItemsPath + "/part-r-00000").toUri());
 
-        fpJob.setMapperClass(FpgMapper.class);
-        fpJob.setReducerClass(FpgReducer.class);
+        fpJob.setMapperClass(FPGMapper.class);
+        fpJob.setReducerClass(FPGReducer.class);
 
         fpJob.setMapOutputKeyClass(Text.class);
         fpJob.setMapOutputValueClass(Text.class);
@@ -434,7 +433,7 @@ public class FPGMainClass implements Runnable{
                         Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
                         associationTopics.add(associationTopic);
                     }
-                    Topic topic = TopicDao.getTopicByName(item, template);
+                    Topic topic = topicRepository.findTopicByName(item);
                     assert topic != null;
                     topic.setAssociationTopics(associationTopics);
                     topicRepository.save(topic);
@@ -444,7 +443,7 @@ public class FPGMainClass implements Runnable{
                         Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
                         associationSubjects.add(associationTopic);
                     }
-                    Subject subject = SubjectDao.getSubjectByName(item, template);
+                    Subject subject = subjectRepository.findSubjectByName(item);
                     assert subject != null;
                     subject.setAssociationSubjects(associationSubjects);
                     subjectRepository.save(subject);
@@ -454,8 +453,7 @@ public class FPGMainClass implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
             fileReader.close();
-        }
-        finally {
+        } finally {
             fileReader.close();
         }
     }

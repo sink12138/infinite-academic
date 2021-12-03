@@ -1,4 +1,4 @@
-package com.buaa.academic.analysis.repository;
+package com.buaa.academic.analysis.dao;
 
 import com.buaa.academic.document.entity.Researcher;
 import org.springframework.data.elasticsearch.annotations.Query;

@@ -10,7 +10,7 @@ public abstract class Agg {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class AggInfo {
-        String target;
+        String field;
         String aggName;
         String countName;
     }
@@ -23,10 +23,10 @@ public abstract class Agg {
     public static final TermsAggregationBuilder typeAgg = aggBuilderGen("type", "typeTerm", "typeCount");
     public static final TermsAggregationBuilder keywordAgg = aggBuilderGen("keywords.raw", "keywordTerm", "keywordCount");
     public static final List<AggInfo> paperAgg = List.of(
-            new AggInfo("author", "authorTerm", "authorCount"),
+            new AggInfo("authors.name", "authorTerm", "authorCount"),
             new AggInfo("subjects", "subjectTerm", "subjectCount"),
-            new AggInfo("topic", "topicTerm", "topicCount"),
-            new AggInfo("institution", "institutionTerm", "institutionCount"),
+            new AggInfo("topics", "topicTerm", "topicCount"),
+            new AggInfo("institutions", "institutionTerm", "institutionCount"),
             new AggInfo("journal", "journalTerm", "journalCount"),
             new AggInfo("type", "typeTerm", "typeCount"),
             new AggInfo("keywords", "keywordTerm", "keywordCount")

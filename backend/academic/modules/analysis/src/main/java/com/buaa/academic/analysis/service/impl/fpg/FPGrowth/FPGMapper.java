@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class FpgMapper extends Mapper<LongWritable, Text, Text, Text> {
+public class FPGMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     private LinkedList<FPTreeNode> itemsSorted;
     private FPTree fpTree;

@@ -1,21 +1,21 @@
 package com.buaa.academic.analysis.service.impl;
 
-import com.buaa.academic.analysis.repository.SubjectRepository;
-import com.buaa.academic.analysis.repository.TopicRepository;
+import com.buaa.academic.analysis.dao.SubjectRepository;
+import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
-import com.buaa.academic.analysis.service.impl.hot.HotUpdateMainThread;
+import com.buaa.academic.analysis.service.impl.heat.HeatUpdateMainThread;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import lombok.SneakyThrows;
 import org.apache.hadoop.mapreduce.Job;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class
-StatusCtrl implements Runnable{
+public class StatusCtrl implements Runnable {
     public static final Object STATUS_LOCK = new Object();
 
     public static final Map<String, Boolean> isRunning = new HashMap<>();
@@ -164,7 +164,7 @@ StatusCtrl implements Runnable{
     private void hotRankAnalysis() throws InterruptedException {
         int jobNumber = 10;
 
-        HotUpdateMainThread topicMainThread = new HotUpdateMainThread(template)
+        HeatUpdateMainThread topicMainThread = new HeatUpdateMainThread(template)
                 .setTopicRepository(topicRepository)
                 .setJobsNum(jobNumber)
                 .setTargetIndex("topics");
@@ -176,7 +176,7 @@ StatusCtrl implements Runnable{
         topicThread.start();
         topicThread.join();
 
-        HotUpdateMainThread subjectMainThread = new HotUpdateMainThread(template)
+        HeatUpdateMainThread subjectMainThread = new HeatUpdateMainThread(template)
                 .setSubjectRepository(subjectRepository)
                 .setJobsNum(jobNumber)
                 .setTargetIndex("subjects");

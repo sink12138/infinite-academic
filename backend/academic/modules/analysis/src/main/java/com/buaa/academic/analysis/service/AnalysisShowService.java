@@ -1,25 +1,29 @@
 package com.buaa.academic.analysis.service;
 
-import com.buaa.academic.analysis.model.*;
-import com.buaa.academic.document.statistic.SumPerYear;
-import javax.servlet.http.HttpSession;
+import com.buaa.academic.analysis.model.EntityBucket;
+import com.buaa.academic.analysis.model.Bucket;
+import com.buaa.academic.analysis.model.HotWord;
+import com.buaa.academic.document.statistic.NumPerYear;
+import org.elasticsearch.index.query.WrapperQueryBuilder;
+
 import java.util.List;
+import java.util.Map;
 
 public interface AnalysisShowService {
 
-    List<SearchAggregation> searchAggregating(HttpSession session);
+    Map<String, List<Bucket>> searchAggregate(String indexName, WrapperQueryBuilder query, WrapperQueryBuilder filter);
 
     List<HotWord> getHotWords(String field, int num);
 
-    SumPerYear getPublicationStatic(String type, String id);
+    NumPerYear getPublicationStatic(String type, String id);
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean existsTarget(Class<?> target, String id);
 
-    List<Frequency> wordFrequencyStatistics(String type, String id, String field, int num);
+    List<Bucket> wordFrequencyStatistics(String type, String id, String field, int num);
 
-    List<EntityFrequency> getCooperativeRelations(String type, String id, int num);
+    List<EntityBucket> getCooperativeRelations(String type, String id, int num);
 
-    List<EntityFrequency> topEntities(String field, String name, String type, int num);
+    List<EntityBucket> topEntities(String field, String name, String type, int num);
 
 }
