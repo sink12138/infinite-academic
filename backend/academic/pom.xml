@@ -17,15 +17,16 @@
     </parent>
 
     <modules>
-        <module>modules/document</module>
-        <module>modules/model</module>
         <module>modules/eureka</module>
         <module>modules/gateway</module>
         <module>modules/search</module>
         <module>modules/account</module>
         <module>modules/analysis</module>
-        <module>modules/tool</module>
+        <module>modules/scholar</module>
         <module>modules/admin</module>
+        <module>modules/document</module>
+        <module>modules/model</module>
+        <module>modules/tool</module>
     </modules>
 
     <properties>
