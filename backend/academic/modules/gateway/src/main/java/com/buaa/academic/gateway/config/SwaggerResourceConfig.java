@@ -20,8 +20,8 @@ import java.util.List;
 public class SwaggerResourceConfig implements SwaggerResourcesProvider {
 
     private final RouteLocator routeLocator;
-    private final GatewayProperties gatewayProperties;
 
+    private final GatewayProperties gatewayProperties;
 
     @Override
     public List<SwaggerResource> get() {

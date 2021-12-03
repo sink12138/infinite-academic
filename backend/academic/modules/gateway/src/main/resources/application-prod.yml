@@ -39,14 +39,11 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOrigins:
+              - http://localhost:8080
               - http://121.36.98.60
-              - http://106.39.*.*
-              - http://219.142.*.*
             allowedHeaders: "*"
             allowCredentials: true
-            allowedMethods:
-              - GET
-              - POST
+            allowedMethods: "*"
       routes:
         - id: 搜索服务
           uri: lb://client-search
