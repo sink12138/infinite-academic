@@ -95,7 +95,7 @@ public class AnalysisShowController {
     @ApiOperation(value = "获取顶级机构、期刊、学者", notes = "在某一学科或话题下参与（发文）量前十的机构、期刊或者学者（top entities in the field）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "要进行统计的实体的类别（researcher/journal/institution）"),
-            @ApiImplicitParam(name = "field", value = "要进行统计的方面（topic/subject）"),
+            @ApiImplicitParam(name = "type", value = "要进行统计的方面（topic/subject）"),
             @ApiImplicitParam(name = "name", value = "学科或者话题名称", example = "机器学习"),
             @ApiImplicitParam(name = "num", value = "\"热门Top N\"中的\"N\"，最大为20。")})
     public Result<List<EntityFrequency>> topParticipants(@PathVariable("entity") @AllowValues({"researcher", "journal", "institution"}) String entity,
