@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BaseNavigation></BaseNavigation>
+    <BaseNavigation :router="this.router"></BaseNavigation>
     <div class="big-font">Infinite Acadmic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
     <div>
@@ -18,7 +18,16 @@ export default {
     BaseNavigation
   },
   data:() =>  ({
-    expand: false
+    expand: false,
+    router: [
+        { href: "/paper", icon: "mdi-book-open-blank-variant", title: "Paper" },
+        { href: "/author", icon: "mdi-clipboard-account", title: "Author" },
+        { href: "/institution", icon: "mdi-home", title: "Institution" },
+        { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },
+        { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
+        { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
+        { href: "/about", icon: "mdi-account", title: "About" },
+      ],
   }),
   methods: {
     echo() {
