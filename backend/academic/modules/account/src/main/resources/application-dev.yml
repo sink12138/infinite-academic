@@ -17,8 +17,8 @@ spring:
   elasticsearch:
     rest:
       username: elastic
-      password: 114514
-      uris: localhost:9200
+      password: elastic-academic-2021
+      uris: http://120.46.154.200:9200
   mail:
     host: smtp.163.com
     username: ruangong202105@163.com

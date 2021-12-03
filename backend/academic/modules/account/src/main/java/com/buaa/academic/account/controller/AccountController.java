@@ -24,6 +24,7 @@ import java.util.Objects;
 @Validated
 @Api(tags = "用户接口", value = "/account")
 public class AccountController {
+
     @Autowired
     private AccountService accountService;
 
