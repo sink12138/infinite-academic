@@ -4,6 +4,7 @@ import com.buaa.academic.analysis.service.AnalysisUpdateService;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.model.web.Schedule;
+import com.buaa.academic.tool.validator.CronExpr;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -13,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -84,7 +84,7 @@ public class AnalysisUpdateController {
     @ApiImplicitParam(name = "cron", value = "定时任务cron表达式", example = "0 0 1 ? * L")
     @PostMapping("/timing")
     public Result<Void> autoUpdateSetting(@RequestHeader(name = "Auth") String auth,
-                                          @RequestParam(value = "cron") @NotNull String cron) {
+                                          @RequestParam(value = "cron") @CronExpr String cron) {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);

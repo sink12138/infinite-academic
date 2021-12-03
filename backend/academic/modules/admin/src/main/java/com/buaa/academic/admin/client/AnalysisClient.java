@@ -6,6 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient("client-analysis")
 public interface AnalysisClient {
@@ -18,5 +19,9 @@ public interface AnalysisClient {
 
     @PostMapping("/update/stop")
     Result<Void> stop(@RequestHeader(name = "Auth") String auth);
+
+    @PostMapping("/update/timing")
+    Result<Void> timing(@RequestHeader(name = "Auth") String auth,
+                               @RequestParam(value = "cron") String cron);
 
 }

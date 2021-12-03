@@ -1,4 +1,4 @@
-package com.buaa.academic.admin.controller;
+package com.buaa.academic.admin.client;
 
 import com.buaa.academic.model.web.Result;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ public abstract class FeignOperation<D> extends Thread {
 
     public FeignOperation(String tag) {
         super(String.format("feign-thread-%02x", (count++) % 0xff));
+        count %= 0xff;
         this.tag = tag;
     }
 
