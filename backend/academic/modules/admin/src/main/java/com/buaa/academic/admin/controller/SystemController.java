@@ -73,8 +73,9 @@ public class SystemController {
             Result<Schedule> operationResult = operation.getResult();
             if (operationResult == null) {
                 logger.warn("Timeout when retrieving status of '" + operation.getTag() + '\'');
+                continue;
             }
-            if (operationResult == null || !operationResult.isSuccess()) {
+            if (!operationResult.isSuccess()) {
                 failures.add(operation.getTag());
                 continue;
             }
@@ -186,9 +187,7 @@ public class SystemController {
                     name = "code",
                     value = "定时任务代号，当前可用值：</br>" +
                             "<b>ANALYSIS-ASSOCIATION</b> - 学科话题热点关联分析"),
-            @ApiImplicitParam(
-                    name = "cron",
-                    value = "一串6位的cron表达式")})
+            @ApiImplicitParam(name = "cron", value = "一串6位的cron表达式")})
     public Result<Void> timingSchedule(@RequestHeader(name = "Auth") String auth,
                                        @RequestParam("code") String code,
                                        @RequestParam("cron") @CronExpr String cron) {

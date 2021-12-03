@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("client-analysis")
 public interface AnalysisClient {
 
-    @GetMapping("/update/status")
+    @GetMapping("/schedule/status")
     Result<Schedule> status(@RequestHeader(name = "Auth") String auth);
 
-    @PostMapping("/update/start")
+    @PostMapping("/schedule/start")
     Result<Void> start(@RequestHeader(name = "Auth") String auth);
 
-    @PostMapping("/update/stop")
+    @PostMapping("/schedule/stop")
     Result<Void> stop(@RequestHeader(name = "Auth") String auth);
 
-    @PostMapping("/update/timing")
+    @PostMapping("/schedule/timing")
     Result<Void> timing(@RequestHeader(name = "Auth") String auth,
-                               @RequestParam(value = "cron") String cron);
+                        @RequestParam(value = "cron") String cron);
 
 }
