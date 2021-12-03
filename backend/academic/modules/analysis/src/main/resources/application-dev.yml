@@ -44,3 +44,6 @@ auth:
   username: admin
   password: admin-academic-2021
   max-valid-interval: 1800
+
+schedule:
+  cache-directory: ./modules/analysis/.tmp

@@ -16,12 +16,13 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HeatUpdateMainThread implements Runnable{
+public class HeatUpdateMainThread implements Runnable {
     public static Map<String, Integer> total = new HashMap<>();
     public static Map<String, Integer> finished = new HashMap<>();
     public static ParsedStringTerms targetTerm = null;
@@ -92,7 +93,7 @@ public class HeatUpdateMainThread implements Runnable{
         total.put(threadName, terms.getBuckets().size());
         finished.put(threadName, 0);
 
-        StatusCtrl.changeRunningStatusTo( "Building threads...", threadName);
+        StatusCtrl.changeRunningStatusTo("Building threads...", threadName);
         ArrayList<Thread> threads = new ArrayList<>();
         for (int i = 0; i < jobsNum; i++) {
             threads.add(new Thread(new HeatCalThread(threadName)
@@ -116,8 +117,8 @@ public class HeatUpdateMainThread implements Runnable{
             return;
         }
 
-        double costTime = ((double)(System.currentTimeMillis() - start_time) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All down! Cost " + costTime + "s. ", threadName);
+        double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
+        StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s. ", threadName);
 
     }
 
@@ -130,7 +131,7 @@ public class HeatUpdateMainThread implements Runnable{
         int a = maxYear - minYear + 3 * farYear - 3 * recentYear;
         int b = 3 * minYear - 6 * farYear + 3 * recentYear;
         int c = -3 * minYear + 3 * farYear;
-        for (int year = minYear; year <= maxYear; year++){
+        for (int year = minYear; year <= maxYear; year++) {
             double t = solve(a, b, c, minYear - year);
             double rate = 3 * (1 - t) * Math.pow(t, 3) + Math.pow(t, 3);
             HeatUpdateMainThread.rate.put(year, rate);
@@ -146,13 +147,13 @@ public class HeatUpdateMainThread implements Runnable{
         double judge = Math.pow(B, 2) - 4 * A * C;
 
         if (A == B && A == 0) {
-            return  ((double) -b )/ 3 * (a);
+            return ((double) -b) / 3 * (a);
         } else if (judge > 0) {
             double tmp = Math.sqrt(judge);
             double Y1 = A * b + 3 * a * (-B + tmp) / 2;
             double Y2 = A * b + 3 * a * (-B - tmp) / 2;
-            double y1 = Y1 < 0 ? -Math.pow(-Y1, 1/3.0) : Math.pow(Y1, 1/3.0);
-            double y2 = Y2 < 0 ? -Math.pow(-Y2, 1/3.0) : Math.pow(Y2, 1/3.0);
+            double y1 = Y1 < 0 ? -Math.pow(-Y1, 1 / 3.0) : Math.pow(Y1, 1 / 3.0);
+            double y2 = Y2 < 0 ? -Math.pow(-Y2, 1 / 3.0) : Math.pow(Y2, 1 / 3.0);
             return (-b - y1 - y2) / (3 * a);
         } else if (judge == 0) {
             double K = B / A;

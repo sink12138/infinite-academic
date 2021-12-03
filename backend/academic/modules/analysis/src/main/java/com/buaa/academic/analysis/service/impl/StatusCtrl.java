@@ -8,6 +8,7 @@ import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import lombok.SneakyThrows;
 import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class StatusCtrl implements Runnable {
     private ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
+    private String cacheDirectory;
 
     public StatusCtrl setTemplate(ElasticsearchRestTemplate template) {
         this.template = template;
@@ -42,6 +44,11 @@ public class StatusCtrl implements Runnable {
 
     public StatusCtrl setSubjectRepository(SubjectRepository subjectRepository) {
         this.subjectRepository = subjectRepository;
+        return this;
+    }
+
+    public StatusCtrl setCacheDirectory(String directory) {
+        this.cacheDirectory = directory;
         return this;
     }
 
@@ -90,6 +97,7 @@ public class StatusCtrl implements Runnable {
         associationAnalysis();
         hotRankAnalysis();
         analysisStarted = false;
+        LoggerFactory.getLogger(StatusCtrl.class).info("Finished schedule task");
     }
 
     public static Schedule getStatus() {
@@ -136,7 +144,8 @@ public class StatusCtrl implements Runnable {
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
                 .setDeleteTmpFiles(true)
                 .setTemplate(template)
-                .setTopicRepository(topicRepository);
+                .setTopicRepository(topicRepository)
+                .setCacheDirectory(cacheDirectory);
         Thread topicFPGThread = new Thread(topicFPG);
         topicFPGThread.setName(JobType.TOPIC_FPG_ANALYSIS.name());
         synchronized (StatusCtrl.STATUS_LOCK) {
@@ -149,7 +158,8 @@ public class StatusCtrl implements Runnable {
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
                 .setDeleteTmpFiles(true)
                 .setTemplate(template)
-                .setSubjectRepository(subjectRepository);
+                .setSubjectRepository(subjectRepository)
+                .setCacheDirectory(cacheDirectory);
         Thread subjectFPGThread = new Thread(subjectFPG);
         subjectFPGThread.setName(JobType.SUBJECT_FPG_ANALYSIS.name());
         synchronized (StatusCtrl.STATUS_LOCK) {

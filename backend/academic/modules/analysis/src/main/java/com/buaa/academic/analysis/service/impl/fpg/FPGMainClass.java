@@ -10,7 +10,7 @@ import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FPGMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FPGrowth.FPGReducer;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FilterAndSort.SortReducer;
-import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.FpgWordFrequency;
+import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.FPGWordFrequency;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentMapper;
 import com.buaa.academic.analysis.service.impl.fpg.FrequencyCount.WordFrequentReducer;
 import com.buaa.academic.document.entity.Paper;
@@ -49,15 +49,15 @@ public class FPGMainClass implements Runnable {
     public static String splitChar = ",";
     private final String analysisObject; // 用于区分对话题还是学科进行分析
     private String name; // 用于获取当前作业的运行状态
-    private final String inputPath;
+    private String inputPath;
     private double minSupport;
     private double minConfidence;
     private boolean deleteTmpFiles;
-    private final String resultDir;
-    private final String countPath;
-    private final String frequentItemsPath;
-    private final String frequentSetsPath;
-    private final String associationRulesPath;
+    private String resultDir;
+    private String countPath;
+    private String frequentItemsPath;
+    private String frequentSetsPath;
+    private String associationRulesPath;
     private ElasticsearchRestTemplate template;
     private final Configuration configuration;
 
@@ -66,13 +66,6 @@ public class FPGMainClass implements Runnable {
 
     public FPGMainClass(String analysisObject) {
         this.analysisObject = analysisObject;
-        this.inputPath = "./modules/analysis/src/main/resources/" + analysisObject + "Data";
-        String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        resultDir = "./modules/analysis/src/main/resources/fpgResult_" + analysisObject + time;
-        countPath = resultDir + "\\count";
-        frequentItemsPath = resultDir + "\\frequentItems";
-        frequentSetsPath = resultDir + "\\frequentSets";
-        associationRulesPath = resultDir + "\\associationRules";
         configuration = new Configuration(true);
     }
 
@@ -93,6 +86,20 @@ public class FPGMainClass implements Runnable {
 
     public FPGMainClass setTemplate(ElasticsearchRestTemplate template) {
         this.template = template;
+        return this;
+    }
+
+    public FPGMainClass setCacheDirectory(String directory) {
+        File cache = new File(directory);
+        if (!cache.exists() && !cache.mkdirs())
+            throw new RuntimeException("Cannot create cache directory");
+        this.inputPath = new File(directory, analysisObject + "-data").getPath();
+        String time = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+        this.resultDir = new File(directory, "FPGResult-" + analysisObject + '-' + time).getPath();
+        this.countPath = new File(this.resultDir, "count").getPath();
+        this.frequentItemsPath = new File(this.resultDir, "frequentItems").getPath();
+        this.frequentSetsPath = new File(this.resultDir, "frequentSets").getPath();
+        this.associationRulesPath = new File(resultDir, "associationRules").getPath();
         return this;
     }
 
@@ -118,7 +125,7 @@ public class FPGMainClass implements Runnable {
 
         StatusCtrl.changeRunningStatusTo("FP-Growth analysis starting...", name);
 
-        long start_time = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         try {
             getInputData();
@@ -195,8 +202,8 @@ public class FPGMainClass implements Runnable {
             deleteDir(inputPath);
         }
 
-        double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All Down! " + "Cost " + costTime + "s. ", name);
+        double costTime = ((double) (System.currentTimeMillis() - startTime) / 1000);
+        StatusCtrl.changeRunningStatusToStop("All done! " + "Cost " + costTime + "s. ", name);
     }
 
     private void getInputData() throws IOException {
@@ -313,7 +320,7 @@ public class FPGMainClass implements Runnable {
     private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
         StatusCtrl.changeRunningStatusTo("Generating and sorting frequent items...", name);
 
-        minSupport = minSupport * countJob.getCounters().findCounter(FpgWordFrequency.Counter.LINE_LEN).getValue();
+        minSupport = minSupport * countJob.getCounters().findCounter(FPGWordFrequency.Counter.LINE_LEN).getValue();
         countJob.close();
         configuration.setDouble("minSupport", minSupport);
 
@@ -326,7 +333,7 @@ public class FPGMainClass implements Runnable {
         sortJob.setReducerClass(SortReducer.class);
 
         sortJob.setInputFormatClass(KeyValueTextInputFormat.class);
-        sortJob.setMapOutputKeyClass(FpgWordFrequency.class);
+        sortJob.setMapOutputKeyClass(FPGWordFrequency.class);
         sortJob.setMapOutputValueClass(IntWritable.class);
 
         sortJob.setOutputKeyClass(Text.class);

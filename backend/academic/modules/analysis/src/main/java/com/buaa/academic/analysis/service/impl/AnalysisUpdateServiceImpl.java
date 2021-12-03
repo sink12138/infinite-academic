@@ -5,11 +5,13 @@ import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.AnalysisUpdateService;
 import com.buaa.academic.model.web.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
+
     @Autowired
     private ElasticsearchRestTemplate template;
 
@@ -19,6 +21,9 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
     @Autowired
     private SubjectRepository subjectRepository;
 
+    @Value("${schedule.cache-directory}")
+    private String cacheDirectory;
+
     @Override
     public boolean start() {
         if (StatusCtrl.hasRunningJob())
@@ -26,7 +31,8 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
         StatusCtrl statusCtrl = new StatusCtrl()
                 .setTemplate(template)
                 .setTopicRepository(topicRepository)
-                .setSubjectRepository(subjectRepository);
+                .setSubjectRepository(subjectRepository)
+                .setCacheDirectory(cacheDirectory);
         new Thread(statusCtrl).start();
         return true;
     }

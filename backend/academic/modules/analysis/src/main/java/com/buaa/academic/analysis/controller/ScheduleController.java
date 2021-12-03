@@ -50,9 +50,9 @@ public class ScheduleController {
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
 
-        boolean notStarted = analysisUpdateService.start();
+        boolean started = analysisUpdateService.start();
 
-        if (notStarted)
+        if (started)
             return result;
         else
             return result.withFailure("当前任务已在运行");

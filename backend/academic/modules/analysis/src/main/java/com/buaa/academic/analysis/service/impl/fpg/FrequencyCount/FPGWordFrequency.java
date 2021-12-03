@@ -1,19 +1,21 @@
 package com.buaa.academic.analysis.service.impl.fpg.FrequencyCount;
 
 import com.buaa.academic.analysis.model.Bucket;
+import lombok.NoArgsConstructor;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class FpgWordFrequency extends Bucket implements WritableComparable<FpgWordFrequency> {
+@NoArgsConstructor
+public class FPGWordFrequency extends Bucket implements WritableComparable<FPGWordFrequency> {
 
     public enum Counter {
         LINE_LEN                                                //用来保存总行数
     }
 
-    public FpgWordFrequency(String word, int frequency) {
+    public FPGWordFrequency(String word, int frequency) {
         super(word, frequency);
     }
 
@@ -38,7 +40,7 @@ public class FpgWordFrequency extends Bucket implements WritableComparable<FpgWo
     }
 
     @Override
-    public int compareTo(FpgWordFrequency o) {                            //重写compareTo方法，该类型排序时，按词频降序，当词频相同时，按单词字典序排序
+    public int compareTo(FPGWordFrequency o) {                            //重写compareTo方法，该类型排序时，按词频降序，当词频相同时，按单词字典序排序
         return (super.getFrequency() != o.getFrequency()) ? Integer.compare(o.getFrequency(), super.getFrequency())
                 : super.getTerm().compareTo(o.getTerm());
     }

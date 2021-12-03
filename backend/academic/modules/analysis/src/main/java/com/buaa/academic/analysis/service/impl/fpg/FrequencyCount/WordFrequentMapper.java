@@ -24,6 +24,6 @@ public class WordFrequentMapper
 
             context.write(new Text(tmp), new IntWritable(1));
         }
-        context.getCounter(FpgWordFrequency.Counter.LINE_LEN).increment(1);		//每处理一行数据，计数，LINE_LEN保存总事务数
+        context.getCounter(FPGWordFrequency.Counter.LINE_LEN).increment(1);		//每处理一行数据，计数，LINE_LEN保存总事务数
     }
 }
