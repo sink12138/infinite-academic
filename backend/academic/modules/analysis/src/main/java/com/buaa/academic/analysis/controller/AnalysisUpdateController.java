@@ -17,10 +17,10 @@ import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-@Api(tags = "管理员用，更新数据分析结果", value = "/analysis/update")
+@Api(tags = "管理员用，更新数据分析结果")
 @RequestMapping("/update")
 @Validated
-@RestController()
+@RestController
 public class AnalysisUpdateController {
 
     private static String authHeader;

@@ -25,7 +25,7 @@ public class SwaggerConfiguration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(groupApiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.buaa.academic.account.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.buaa.academic.analysis.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -33,9 +33,9 @@ public class SwaggerConfiguration {
     private ApiInfo groupApiInfo() {
         return new ApiInfoBuilder()
                 .title("数据分析模块 - API文档")
-                .description("<div style='font-size:14px;'>聚合、关联、统计…………</div>")
+                .description("<div style='font-size:14px;'>聚合、关联、统计分析等</div>")
                 .contact(new Contact("lbh", "", ""))
-                .termsOfServiceUrl("http://localhost:8092/")
+                .termsOfServiceUrl("http://120.46.154.200:8093/")
                 .version("1.0")
                 .build();
     }

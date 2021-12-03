@@ -6,7 +6,7 @@ import com.buaa.academic.analysis.repository.TopicDao;
 import com.buaa.academic.analysis.repository.TopicRepository;
 import com.buaa.academic.analysis.service.impl.JobType;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
-import com.buaa.academic.document.statistic.DataByYear;
+import com.buaa.academic.document.statistic.SumPerYear;
 import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -65,7 +65,7 @@ public class HotCalThread implements Runnable{
             double hot = 0.0;
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");
             ParsedLongTerms longTerms = (ParsedLongTerms) aggregationYear;
-            DataByYear publicationData = new DataByYear();
+            SumPerYear publicationData = new SumPerYear();
             List<Integer> years = new ArrayList<>();
             List<Integer> numbers = new ArrayList<>();
             for (Terms.Bucket yearBucket : longTerms.getBuckets()) {

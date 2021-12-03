@@ -47,3 +47,8 @@ knife4j:
 logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+
+auth:
+  username: admin
+  password: admin-academic-2021
+  max-valid-interval: 1800

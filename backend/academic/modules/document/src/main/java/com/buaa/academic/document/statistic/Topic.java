@@ -39,5 +39,5 @@ public class Topic {
 
     @ApiModelProperty(value = "该话题下每年发文量")
     @Field(type = FieldType.Object)
-    private DataByYear publicationData = new DataByYear();
+    private SumPerYear publicationData = new SumPerYear();
 }

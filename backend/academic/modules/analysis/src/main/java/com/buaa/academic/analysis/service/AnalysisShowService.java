@@ -1,16 +1,25 @@
 package com.buaa.academic.analysis.service;
 
 import com.buaa.academic.analysis.model.*;
-import com.buaa.academic.document.statistic.DataByYear;
+import com.buaa.academic.document.statistic.SumPerYear;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface AnalysisShowService {
-    SearchAggregation searchAggregating(HttpSession session);
-    ArrayList<HotWord> getHotWords(String field);
-    DataByYear getPublicationStatic(String type, String id);
-    Boolean checkTargetExist(String type, String id);
-    ArrayList<Frequency> wordFrequencyStatic(String type, String id, String field);
-    ArrayList<EntityFrequency> getCooperativeRelations(String type, String id);
-    ArrayList<EntityFrequency> topEntities(String field, String name, String type);
+
+    List<SearchAggregation> searchAggregating(HttpSession session);
+
+    List<HotWord> getHotWords(String field, int num);
+
+    SumPerYear getPublicationStatic(String type, String id);
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean existsTarget(Class<?> target, String id);
+
+    List<Frequency> wordFrequencyStatistics(String type, String id, String field, int num);
+
+    List<EntityFrequency> getCooperativeRelations(String type, String id, int num);
+
+    List<EntityFrequency> topEntities(String field, String name, String type, int num);
+
 }

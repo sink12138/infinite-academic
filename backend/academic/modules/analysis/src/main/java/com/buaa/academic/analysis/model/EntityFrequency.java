@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "实体频次统计")
-public class EntityFrequency extends Frequency{
+public class EntityFrequency extends Frequency {
+
     @ApiModelProperty(value = "实体id")
     private String id;
 
@@ -20,4 +21,5 @@ public class EntityFrequency extends Frequency{
         super(name, docCount);
         this.id = id;
     }
+
 }

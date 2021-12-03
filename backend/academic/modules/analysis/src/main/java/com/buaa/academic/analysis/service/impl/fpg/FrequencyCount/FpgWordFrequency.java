@@ -20,8 +20,8 @@ public class FpgWordFrequency extends Frequency implements WritableComparable<Fp
         super(word,frequence);
     }
 
-    public String getName(){
-        return super.getName();
+    public String getTerm(){
+        return super.getTerm();
     }
 
     public int getFrequency(){
@@ -30,25 +30,25 @@ public class FpgWordFrequency extends Frequency implements WritableComparable<Fp
 
     @Override
     public void readFields(DataInput in) throws IOException {
-        super.setName(in.readUTF());
+        super.setTerm(in.readUTF());
         super.setFrequency(in.readInt());
     }
 
     @Override
     public void write(DataOutput out) throws IOException {
-        out.writeUTF(super.getName());
+        out.writeUTF(super.getTerm());
         out.writeInt(super.getFrequency());
     }
 
     @Override
     public int compareTo(FpgWordFrequency o) {							//重写compareTo方法，该类型排序时，按词频降序，当词频相同时，按单词字典序排序
         return (super.getFrequency() != o.getFrequency()) ? Integer.compare( o.getFrequency(), super.getFrequency())
-                : super.getName().compareTo(o.getName());
+                : super.getTerm().compareTo(o.getTerm());
     }
 
     @Override
     public String toString() {
-        return super.getName() + ":" + super.getFrequency();
+        return super.getTerm() + ":" + super.getFrequency();
     }
 
 }
