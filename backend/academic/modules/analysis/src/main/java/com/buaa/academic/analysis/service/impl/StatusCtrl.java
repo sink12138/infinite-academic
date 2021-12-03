@@ -22,7 +22,7 @@ StatusCtrl implements Runnable{
     public static final Map<String, String> runningStatus = new HashMap<>();
     public static final Map<String, Job> currentJob = new HashMap<>();
     public static boolean analysisStarted = false;
-    public static String cron = "0 0/1 * * * ?";
+    public static String cron = "0 0 23 * * L";
     public static Date nextRunningDate;
     private static Date lastRunningDate;
 
