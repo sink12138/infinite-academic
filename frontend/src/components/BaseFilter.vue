@@ -125,13 +125,6 @@ export default {
 </script>
 
 <style scoped>
-.datePicker {
-  margin-left: 15px;
-  height: 5%;
-  width: 100px;
-  align-content: center;
-  font-size: 10%;
-}
 .checkboxLabel {
   margin-top: 10px;
   margin-bottom: 10px;
