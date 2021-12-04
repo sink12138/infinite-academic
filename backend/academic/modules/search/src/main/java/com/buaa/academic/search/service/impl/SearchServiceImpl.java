@@ -38,6 +38,7 @@ public class SearchServiceImpl implements SearchService {
                         .withSort(sort)
                         .withHighlightBuilder(hlt)
                         .withPageable(page)
+                        .withTrackTotalHits(page.getPageNumber() == 0)
                         .build(),
                 target);
     }
