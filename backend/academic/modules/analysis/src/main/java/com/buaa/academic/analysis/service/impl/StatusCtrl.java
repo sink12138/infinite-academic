@@ -6,6 +6,7 @@ import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.heat.HeatUpdateMainThread;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
+import com.buaa.academic.tool.util.NaturalCron;
 import lombok.SneakyThrows;
 import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,7 @@ public class StatusCtrl implements Runnable {
         schedule.setName("数据分析");
         schedule.setLastRun(lastRunningDate);
         schedule.setNextRun(nextRunningDate);
-        schedule.setFrequency("");
+        schedule.setFrequency(NaturalCron.describe(cron));
         schedule.setRunning(scheduleRunning);
         return schedule;
     }

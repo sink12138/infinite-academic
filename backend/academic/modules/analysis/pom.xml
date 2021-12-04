@@ -39,7 +39,6 @@
             <systemPath>${project.basedir}/../tool/target/tool-1.0.jar</systemPath>
         </dependency>
 
-        <!-- mapreduce 核心jar包  -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
@@ -66,7 +65,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 引入hadoop-common Jar包 -->
+
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
@@ -112,7 +111,6 @@
             <version>3.0.3</version>
         </dependency>
 
-        <!--redis session -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -123,7 +121,6 @@
         </dependency>
 
     </dependencies>
-
 
     <build>
         <plugins>
