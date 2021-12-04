@@ -3,6 +3,7 @@ package com.buaa.academic.analysis.service.impl;
 import com.buaa.academic.analysis.dao.SubjectRepository;
 import com.buaa.academic.analysis.dao.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,6 +18,7 @@ import java.util.Date;
 @Component
 @EnableScheduling
 public class ScheduleTask implements SchedulingConfigurer {
+
     @Autowired
     private ElasticsearchRestTemplate template;
 
@@ -26,6 +28,9 @@ public class ScheduleTask implements SchedulingConfigurer {
     @Autowired
     private SubjectRepository subjectRepository;
 
+    @Value("${schedule.cache-directory}")
+    private String cacheDirectory;
+
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.addTriggerTask(() -> {
@@ -34,7 +39,8 @@ public class ScheduleTask implements SchedulingConfigurer {
             StatusCtrl statusCtrl = new StatusCtrl()
                     .setTemplate(template)
                     .setTopicRepository(topicRepository)
-                    .setSubjectRepository(subjectRepository);
+                    .setSubjectRepository(subjectRepository)
+                    .setCacheDirectory(cacheDirectory);
             new Thread(statusCtrl).start();
         }, triggerContext -> {
             // 任务触发，可修改任务的执行周期
@@ -44,4 +50,5 @@ public class ScheduleTask implements SchedulingConfigurer {
             return nextExec;
         });
     }
+
 }
