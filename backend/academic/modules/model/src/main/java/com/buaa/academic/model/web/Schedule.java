@@ -48,7 +48,7 @@ public class Schedule {
     @JsonDeserialize(using = TaskListDeserializer.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @ApiModelProperty(value = "所有正在运行的子任务信息。<b>注意：这个字段是一个列表</b>")
+    @ApiModelProperty(value = "所有子任务的状态信息。<b>注意：这个字段是一个列表</b>")
     private Map<String, Task> tasks = new LinkedHashMap<>();
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -61,6 +61,11 @@ public class Schedule {
 
     public Schedule removeTask(String taskName) {
         this.tasks.remove(taskName);
+        return this;
+    }
+
+    public Schedule clearTasks() {
+        this.tasks.clear();
         return this;
     }
 
