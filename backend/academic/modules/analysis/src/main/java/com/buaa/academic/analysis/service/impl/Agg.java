@@ -23,12 +23,12 @@ public abstract class Agg {
     public static final TermsAggregationBuilder typeAgg = aggBuilderGen("type", "typeTerm", "typeCount");
     public static final TermsAggregationBuilder keywordAgg = aggBuilderGen("keywords.raw", "keywordTerm", "keywordCount");
     public static final List<AggInfo> paperAgg = List.of(
-            new AggInfo("authors.name", "authorTerm", "authorCount"),
+            new AggInfo("authors", "authorTerm", "authorCount"),
             new AggInfo("subjects", "subjectTerm", "subjectCount"),
             new AggInfo("topics", "topicTerm", "topicCount"),
             new AggInfo("institutions", "institutionTerm", "institutionCount"),
-            new AggInfo("journal", "journalTerm", "journalCount"),
-            new AggInfo("type", "typeTerm", "typeCount"),
+            new AggInfo("journals", "journalTerm", "journalCount"),
+            new AggInfo("types", "typeTerm", "typeCount"),
             new AggInfo("keywords", "keywordTerm", "keywordCount")
     );
 
@@ -36,15 +36,15 @@ public abstract class Agg {
     public static final TermsAggregationBuilder currentInstAgg = aggBuilderGen("currentInst.name.raw", "currentInstTerm", "currentInstCount");
     public static final List<AggInfo> researcherAgg = List.of (
             new AggInfo("interests", "interestTerm", "interestCount"),
-            new AggInfo("currentInst", "currentInstTerm", "currentInstCount")
+            new AggInfo("institutions", "currentInstTerm", "currentInstCount")
     );
 
-    public static final TermsAggregationBuilder inventorAgg = aggBuilderGen("inventors", "inventorTerm", "inventorCount");
-    public static final TermsAggregationBuilder applicantAgg = aggBuilderGen("applicant", "applicantTerm", "applicantCount");
+    public static final TermsAggregationBuilder inventorAgg = aggBuilderGen("inventors.name", "inventorTerm", "inventorCount");
+    public static final TermsAggregationBuilder applicantAgg = aggBuilderGen("applicant.raw", "applicantTerm", "applicantCount");
     public static final List<AggInfo> patentAgg = List.of(
-            new AggInfo("type", "typeTerm", "typeCount"),
+            new AggInfo("types", "typeTerm", "typeCount"),
             new AggInfo("inventors", "inventorTerm", "inventorCount"),
-            new AggInfo("applicant", "applicantTerm", "applicantCount")
+            new AggInfo("applicants", "applicantTerm", "applicantCount")
     );
 
     private static TermsAggregationBuilder aggBuilderGen(String field, String aggName, String countName) {

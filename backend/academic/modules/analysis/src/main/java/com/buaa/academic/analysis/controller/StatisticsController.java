@@ -40,22 +40,19 @@ public class StatisticsController {
     @Autowired
     private AnalysisShowService analysisShowService;
 
-    @GetMapping("/hotspots")
-    @ApiOperation(value = "热点学科和话题", notes = "获取当前热度最高的若干个学科或话题")
-    @ApiImplicitParam(name = "num", value = "\"热门Top N\"中的\"N\"，最大为20。")
-    public Result<TopRanks<HotWord>> hotspots(@RequestParam("num") @Positive @Max(20) int num) {
-        Result<TopRanks<HotWord>> result = new Result<>();
-        TopRanks<HotWord> ranks = new TopRanks<>();
-        ranks.setSubjects(analysisShowService.getHotWords("subjects", num));
-        ranks.setTopics(analysisShowService.getHotWords("topics", num));
-        return result.withData(ranks);
-    }
-
     @GetMapping("/aggregations")
     @ApiOperation(
             value = "搜索结果聚合",
             notes = "展示搜索结果的聚合，例如年份统计、领域统计、作者统计等。</br>" +
-                    "本接口依赖于搜索模块的缓存，因此不需要传递任何额外参数，但需先请求搜索模块的对应接口后再请求本接口。")
+                    "本接口依赖于搜索模块的缓存，因此不需要传递任何额外参数，但需先请求搜索模块的对应接口后再请求本接口。</br>" +
+                    "<b>注意返回值类型是 <code>Map&lt;String, List&lt;Bucket&gt;&gt;</code></b>" +
+                    "（示例显示成了 <code>Map&lt;String, Bucket&gt;</code>，是错的）。</br>" +
+                    "其中，键是聚合的字段名，值是该字段聚合的结果（聚合桶的列表）。</br>" +
+                    "根据搜索目标实体的不同，返回值的各键如下（含义就是字面意思）：</br>" +
+                    "论文检索（包括智能检索）：authors, subjects, topics, institutions, journals, types, keywords</br>" +
+                    "科研人员检索：interests, institutions</br>" +
+                    "专利检索：types, inventors, applicants</br>" +
+                    "<b>其余两种实体的检索是没有聚合的，也不应当申请本接口。</b>")
     public Result<Map<String, List<Bucket>>> searchAggregation(HttpServletRequest request) {
         Result<Map<String, List<Bucket>>> result = new Result<>();
 
@@ -65,13 +62,30 @@ public class StatisticsController {
         String filterDSL = (String) session.getAttribute("filter");
 
         if (indexName == null || queryDSL == null)
-            return result.withFailure("该搜索不支持结果过滤或尚未进行搜索");
+            return result.withFailure("尚未进行搜索");
+        switch (indexName) {
+            case "paper", "researcher", "patent" -> {}
+            default -> {
+                return result.withFailure("该类型搜索不支持结果聚合");
+            }
+        }
 
         WrapperQueryBuilder wrapperQuery = new WrapperQueryBuilder(queryDSL);
         WrapperQueryBuilder wrapperFilter = filterDSL == null ? null : new WrapperQueryBuilder(filterDSL);
         Map<String, List<Bucket>> searchAggregations = analysisShowService.searchAggregate(indexName, wrapperQuery, wrapperFilter);
 
         return result.withData(searchAggregations);
+    }
+
+    @GetMapping("/hotspots")
+    @ApiOperation(value = "热点学科和话题", notes = "获取当前热度最高的若干个学科或话题")
+    @ApiImplicitParam(name = "num", value = "\"热门Top N\"中的\"N\"，最大为20。")
+    public Result<TopRanks<HotWord>> hotspots(@RequestParam("num") @Positive @Max(20) int num) {
+        Result<TopRanks<HotWord>> result = new Result<>();
+        TopRanks<HotWord> ranks = new TopRanks<>();
+        ranks.setSubjects(analysisShowService.getHotWords("subjects", num));
+        ranks.setTopics(analysisShowService.getHotWords("topics", num));
+        return result.withData(ranks);
     }
 
     @GetMapping("/statistics/{entity}/{id}")
