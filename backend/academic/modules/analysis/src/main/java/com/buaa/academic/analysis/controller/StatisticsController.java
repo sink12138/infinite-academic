@@ -47,7 +47,7 @@ public class StatisticsController {
         Result<TopRanks<HotWord>> result = new Result<>();
         TopRanks<HotWord> ranks = new TopRanks<>();
         ranks.setSubjects(analysisShowService.getHotWords("subjects", num));
-        ranks.setSubjects(analysisShowService.getHotWords("topics", num));
+        ranks.setTopics(analysisShowService.getHotWords("topics", num));
         return result.withData(ranks);
     }
 

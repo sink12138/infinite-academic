@@ -1,5 +1,6 @@
 package com.buaa.academic.document.statistic;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class Subject {
 
     @Id
     @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
+    @JsonIgnore
     private String id;
 
     @MultiField(
@@ -40,5 +41,5 @@ public class Subject {
 
     @ApiModelProperty(value = "该学科下每年发文数量")
     @Field(type = FieldType.Object)
-    private NumPerYear publicationData = new NumPerYear();
+    private NumPerYear pubsPerYear = new NumPerYear();
 }

@@ -73,13 +73,13 @@ public class HeatCalThread implements Runnable{
                 Topic topic = topicRepository.findTopicByName(targetName);
                 assert topic != null;
                 topic.setHeat(heat);
-                topic.setPublicationData(publicationData);
+                topic.setPubsPerYear(publicationData);
                 topicRepository.save(topic);
             } else {
                 Subject subject = subjectRepository.findSubjectByName(targetName);
                 assert subject != null;
                 subject.setHeat(heat);
-                subject.setPublicationData(publicationData);
+                subject.setPubsPerYear(publicationData);
                 subjectRepository.save(subject);
             }
         }
