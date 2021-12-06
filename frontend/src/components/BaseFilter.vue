@@ -1,7 +1,6 @@
 <template>
-  <div style="overflow-y: scroll; overflow-x: hidden; height: 80%; width: 30%">
-    <div class="title">Filter</div>
-    <div class="line"></div>
+  <v-card>
+    <FilterYearPicker></FilterYearPicker>
     <div>
       <el-date-picker
         v-model="filter.year1"
@@ -12,7 +11,7 @@
       >
       </el-date-picker>
       <el-date-picker
-        v-model="Year2"
+        v-model="filter.year2"
         type="year"
         placeholder="结束日期"
         value-format="yyyy"
@@ -20,7 +19,7 @@
       >
       </el-date-picker>
     </div>
-    <div class="line"></div>
+    <v-divider></v-divider>
     <div class="checkbox">
       <header class="checkboxLabel">学科</header>
       <v-checkbox
@@ -33,7 +32,7 @@
         @change="emit()"
       ></v-checkbox>
     </div>
-    <div class="line"></div>
+    <v-divider></v-divider>
     <div class="checkbox">
       <header class="checkboxLabel">作者</header>
       <v-checkbox
@@ -46,7 +45,7 @@
         @change="emit()"
       ></v-checkbox>
     </div>
-    <div class="line"></div>
+    <v-divider></v-divider>
     <div class="checkbox">
       <header class="checkboxLabel">期刊</header>
       <v-checkbox
@@ -59,7 +58,7 @@
         @change="emit()"
       ></v-checkbox>
     </div>
-    <div class="line"></div>
+    <v-divider></v-divider>
     <div class="checkbox">
       <header class="checkboxLabel">机构</header>
       <v-checkbox
@@ -72,12 +71,16 @@
         @change="emit()"
       ></v-checkbox>
     </div>
-    <div class="line"></div>
-  </div>
+  </v-card>
 </template>
 
 <script>
+import FilterYearPicker from '../components/FilterYearPicker.vue'
+
 export default {
+  components: {
+    FilterYearPicker
+  },
   data() {
     return {
       menu: false,
@@ -122,29 +125,6 @@ export default {
 </script>
 
 <style scoped>
-.title {
-  margin-left: 15px;
-  font-size: 20;
-  width: 5px;
-  height: 30px;
-}
-.line {
-  margin-left: 15px;
-  position: relative;
-  width: 85%;
-  height: 1px;
-  background-color: #d4d4d4;
-  text-align: center;
-  font-size: 16px;
-  color: rgba(101, 101, 101, 1);
-}
-.datePicker {
-  margin-left: 15px;
-  height: 5%;
-  width: 100px;
-  align-content: center;
-  font-size: 10%;
-}
 .checkboxLabel {
   margin-top: 10px;
   margin-bottom: 10px;

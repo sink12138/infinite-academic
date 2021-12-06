@@ -1,16 +1,13 @@
 <template>
   <div>
-    <h1>
-      <v-icon class="mdi-magnify text-h3">
-        mdi-home
-      </v-icon>
-      Search
-    </h1>
-    <BaseGoBack class="back"></BaseGoBack>
-    <BaseSearchBar class="search" ref="searchBar"></BaseSearchBar>
-    <div>
+    <BaseNavigation :router="this.router"></BaseNavigation>
+    <v-card>
+      <BaseSearchBar ref="searchBar"></BaseSearchBar>
+      <BaseFilter class="filter" ref="filter"></BaseFilter>
+    </v-card>
+    <!--<div>
       <div>
-        <BaseFilter class="filter" ref="filter"></BaseFilter>
+        
       </div>
       <div class="result">
         <v-row v-for="item in results" :key="item">
@@ -86,19 +83,19 @@
           </div>
         </v-row>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import BaseFilter from "../components/BaseFilter.vue";
-import BaseGoBack from "../components/BaseGoBack.vue";
 import BaseSearchBar from "../components/BaseSearchBar.vue";
+import BaseNavigation from '../components/BaseNavigation.vue'
 
 export default {
   components: {
-    BaseGoBack,
     BaseFilter,
+    BaseNavigation,
     BaseSearchBar,
   },
   data() {
@@ -111,6 +108,9 @@ export default {
         { title: "aaa", journal: "b", abstract: "114514" , name: "name"},
       ],
       data:{},
+      router: [
+        { href: "/", icon: "mdi-arrow-left", title: "Back" },
+      ],
     };
   },
   methods:{
@@ -129,14 +129,6 @@ export default {
 <style>
 .filter {
   float: left;
-  left: 0;
-}
-.back {
-  position: fixed;
-  left: 20px;
-}
-.search {
-  margin-bottom: 30px;
 }
 .result {
   float: right;

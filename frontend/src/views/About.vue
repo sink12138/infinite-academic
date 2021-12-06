@@ -1,20 +1,26 @@
 <template>
   <div>
     <base-navigation></base-navigation>
+    <filter-year-picker></filter-year-picker>
+  </div>
+  <!--<div>
+    
     <v-btn @click="addCitationItem(data1)">Data1</v-btn>
     <v-btn @click="addCitationItem(data2)">Data2</v-btn>
     <v-btn @click="addCitationItem(data3)">Data3</v-btn>
-  </div>
+  </div>-->
 </template>
 
 <script>
 import {addCitation} from '../components/mixins/mixin'
 import BaseNavigation from '../components/BaseNavigation.vue'
+import FilterYearPicker from '../components/FilterYearPicker.vue'
 
 export default {
   mixins: [addCitation],
   components: {
-    BaseNavigation
+    BaseNavigation,
+    FilterYearPicker
   },
   data:() =>  ({
     data1: {
