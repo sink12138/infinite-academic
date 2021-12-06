@@ -27,20 +27,14 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-<<<<<<< HEAD
                 v-model="email"
-=======
->>>>>>> 3d823222f622aa033989dafdf740557410e7c001
                 label="邮箱*"
                 required
               ></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-text-field
-<<<<<<< HEAD
                 v-model="password"
-=======
->>>>>>> 3d823222f622aa033989dafdf740557410e7c001
                 label="密码*"
                 type="password"
                 required
