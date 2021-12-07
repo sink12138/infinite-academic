@@ -9,6 +9,8 @@ const Search = () => import("../views/Search.vue")
 const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
+const Register = () => import("../views/Register.vue")
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -52,6 +54,11 @@ const routes = [
     name: 'About',
     component: About
   },
+  {
+    path:'/register',
+    name: 'Register',
+    component: Register
+  }
 ]
 
 const router = new VueRouter({
