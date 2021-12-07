@@ -29,6 +29,8 @@ import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -63,6 +65,8 @@ public class FPGMainClass implements Runnable {
 
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
+
+    private final static Logger logger = LoggerFactory.getLogger(FPGMainClass.class);
 
     public FPGMainClass(String analysisObject) {
         this.analysisObject = analysisObject;
@@ -122,6 +126,7 @@ public class FPGMainClass implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
+        logger.info("FP-Growth started");
 
         StatusCtrl.changeRunningStatusTo("FP-Growth analysis starting...", name);
 
@@ -204,6 +209,8 @@ public class FPGMainClass implements Runnable {
 
         double costTime = ((double) (System.currentTimeMillis() - startTime) / 1000);
         StatusCtrl.changeRunningStatusToStop("All done! " + "Cost " + costTime + "s. ", name);
+
+        logger.info("FP-Growth finished");
     }
 
     private void getInputData() throws IOException {
@@ -490,7 +497,7 @@ public class FPGMainClass implements Runnable {
                 StatusCtrl.changeRunningStatusToStop("Can't delete files at" + resultDir.getPath(), name);
                 throw new IOException(analysisObject + " analysis: Can't delete files at" + resultDir.getPath());
             }
-            System.out.println(analysisObject + " analysis: Delete tmp files at " + dirPath);
+            logger.info("Deleted temp files at " + dirPath);
         }
     }
 

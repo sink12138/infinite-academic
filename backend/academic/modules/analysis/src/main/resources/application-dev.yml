@@ -39,6 +39,7 @@ knife4j:
 logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    org.apache.hadoop: warn
 
 auth:
   username: admin

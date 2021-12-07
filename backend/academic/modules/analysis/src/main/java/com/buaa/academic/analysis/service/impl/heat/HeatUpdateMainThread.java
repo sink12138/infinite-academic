@@ -12,6 +12,8 @@ import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -33,6 +35,8 @@ public class HeatUpdateMainThread implements Runnable {
     private final ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
+
+    private final static Logger logger = LoggerFactory.getLogger(HeatUpdateMainThread.class);
 
     public HeatUpdateMainThread(ElasticsearchRestTemplate template) {
         this.template = template;
@@ -61,6 +65,8 @@ public class HeatUpdateMainThread implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
+        logger.info("Heat update started");
+
         String threadName = Thread.currentThread().getName();
 
         long start_time = System.currentTimeMillis();
@@ -120,6 +126,7 @@ public class HeatUpdateMainThread implements Runnable {
         double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
         StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s. ", threadName);
 
+        logger.info("Heat update finished");
     }
 
     private void rateGen() {
