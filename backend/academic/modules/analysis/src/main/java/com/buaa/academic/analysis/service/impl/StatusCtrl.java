@@ -9,6 +9,7 @@ import com.buaa.academic.model.web.Task;
 import com.buaa.academic.tool.util.NaturalCron;
 import lombok.SneakyThrows;
 import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 
@@ -32,6 +33,8 @@ public class StatusCtrl implements Runnable {
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
     private String cacheDirectory;
+
+    private static final Logger logger = LoggerFactory.getLogger(StatusCtrl.class);
 
     public StatusCtrl setTemplate(ElasticsearchRestTemplate template) {
         this.template = template;
@@ -76,12 +79,14 @@ public class StatusCtrl implements Runnable {
 
     public static void changeRunningStatusTo(String runningStatus, String threadName) {
         synchronized (StatusCtrl.STATUS_LOCK) {
+            logger.info("Status change: " + threadName + " -> " + runningStatus);
             StatusCtrl.runningStatus.put(threadName, runningStatus);
         }
     }
 
     public static void changeRunningStatusToStop(String runningStatus, String threadName) {
         synchronized (StatusCtrl.STATUS_LOCK) {
+            logger.info("Status change: " + threadName + " -> " + runningStatus);
             StatusCtrl.isRunning.remove(threadName);
             StatusCtrl.runningStatus.put(threadName, runningStatus);
         }
@@ -90,15 +95,16 @@ public class StatusCtrl implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
+        logger.info("Started schedule task");
         isRunning.clear();
         currentJob.clear();
         runningStatus.clear();
         lastRunningDate = new Date();
         analysisStarted = true;
         associationAnalysis();
-        hotRankAnalysis();
+        heatRankAnalysis();
         analysisStarted = false;
-        LoggerFactory.getLogger(StatusCtrl.class).info("Finished schedule task");
+        logger.info("Finished schedule task");
     }
 
     public static Schedule getStatus() {
@@ -137,6 +143,8 @@ public class StatusCtrl implements Runnable {
     }
 
     private void associationAnalysis() throws InterruptedException {
+        logger.info("Association analysis started");
+
         double minSupport = 0.4;
         double minConfidence = 0.6;
 
@@ -148,7 +156,7 @@ public class StatusCtrl implements Runnable {
                 .setTopicRepository(topicRepository)
                 .setCacheDirectory(cacheDirectory);
         Thread topicFPGThread = new Thread(topicFPG);
-        topicFPGThread.setName(JobType.TOPIC_FPG_ANALYSIS.name());
+        topicFPGThread.setName("fpg-topic");
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.put(JobType.TOPIC_FPG_ANALYSIS.name(), true);
         }
@@ -162,7 +170,7 @@ public class StatusCtrl implements Runnable {
                 .setSubjectRepository(subjectRepository)
                 .setCacheDirectory(cacheDirectory);
         Thread subjectFPGThread = new Thread(subjectFPG);
-        subjectFPGThread.setName(JobType.SUBJECT_FPG_ANALYSIS.name());
+        subjectFPGThread.setName("fpg-subject");
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.put(JobType.SUBJECT_FPG_ANALYSIS.name(), true);
         }
@@ -170,9 +178,13 @@ public class StatusCtrl implements Runnable {
 
         topicFPGThread.join();
         subjectFPGThread.join();
+
+        logger.info("Association analysis finished");
     }
 
-    private void hotRankAnalysis() throws InterruptedException {
+    private void heatRankAnalysis() throws InterruptedException {
+        logger.info("Heat rank analysis started");
+
         int jobNumber = 10;
 
         HeatUpdateMainThread topicMainThread = new HeatUpdateMainThread(template)
@@ -180,23 +192,26 @@ public class StatusCtrl implements Runnable {
                 .setJobsNum(jobNumber)
                 .setTargetIndex("topics");
         Thread topicThread = new Thread(topicMainThread);
-        topicThread.setName(JobType.HOT_TOPIC_ANALYSIS.name());
+        topicThread.setName("heat-topic");
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.put(JobType.HOT_TOPIC_ANALYSIS.name(), true);
         }
         topicThread.start();
-        topicThread.join();
 
         HeatUpdateMainThread subjectMainThread = new HeatUpdateMainThread(template)
                 .setSubjectRepository(subjectRepository)
                 .setJobsNum(jobNumber)
                 .setTargetIndex("subjects");
         Thread subjectThread = new Thread(subjectMainThread);
-        subjectThread.setName(JobType.HOT_SUBJECT_ANALYSIS.name());
+        subjectThread.setName("heat-subject");
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.put(JobType.HOT_SUBJECT_ANALYSIS.name(), true);
         }
         subjectThread.start();
+
+        topicThread.join();
         subjectThread.join();
+
+        logger.info("Heat rank analysis finished");
     }
 }

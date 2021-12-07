@@ -33,7 +33,7 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
                 .setTopicRepository(topicRepository)
                 .setSubjectRepository(subjectRepository)
                 .setCacheDirectory(cacheDirectory);
-        new Thread(statusCtrl).start();
+        new Thread(statusCtrl, "schedule-ctrl").start();
         return true;
     }
 
