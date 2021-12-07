@@ -31,7 +31,7 @@ public class Schedule {
     @ApiModelProperty(value = "运行状态，true代表正在运行", example = "true")
     private boolean running;
 
-    @ApiModelProperty(value = "预定的运行频率", example = "每天")
+    @ApiModelProperty(value = "预定的运行频率", example = "每天23:00")
     private String frequency;
 
     @JsonSerialize(using = DateFormatSerializer.class)
