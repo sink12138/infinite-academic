@@ -217,6 +217,10 @@ public class Paper implements Reducible<PaperItem> {
     @CompletionField(analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     private Completion completion;
 
+    @JsonIgnore
+    @Field(type = FieldType.Boolean, index = false)
+    private boolean crawled;
+
     @Override
     public PaperItem reduce() {
         PaperItem item = new PaperItem();
