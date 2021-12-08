@@ -9,20 +9,23 @@ import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.script.Script;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.ScriptType;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.document.Document;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.*;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Validated
@@ -31,15 +34,15 @@ import java.util.*;
 public class MessageController {
 
     @Autowired
-    ElasticsearchRestTemplate template;
+    private ElasticsearchRestTemplate template;
 
     @Autowired
-    MessageRepository messageRepository;
+    private MessageRepository messageRepository;
 
     @GetMapping("/all")
     public Result<MessagePage> getMessages(@RequestHeader(value = "Auth") String userId,
-                                           @RequestParam(value = "page") Integer page,
-                                           @RequestParam(value = "size") Integer size,
+                                           @RequestParam(value = "page") int page,
+                                           @RequestParam(value = "size") int size,
                                            @RequestParam(value = "read") Boolean read) {
         QueryBuilder queryBuilder;
         if (read == null) {
@@ -57,25 +60,25 @@ public class MessageController {
         return new Result<MessageStatistic>().withData(statistic(userId));
     }
 
-
     @PostMapping("/read")
     public Result<Void> readMessage(@RequestHeader(value = "Auth") String userId,
                                     @RequestBody MessageIdList idList) {
-        Map<String, Object> params = new HashMap<>();
-        //Script script = new Script(Script.DEFAULT_SCRIPT_TYPE, "painless", , params);
         if (idList.getIdList().isEmpty()) {
             NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.termQuery("ownerId", userId))
                     .build();
-
-            SearchHits<Message> messageSearchHits = template.search(nativeSearchQuery, Message.class);
-            UpdateQuery.Builder query  = UpdateQuery.builder(nativeSearchQuery).withScript("ctx._source.read = true");
-            ByQueryResponse response = template.updateByQuery(query.build(), IndexCoordinates.of("message"));
+            UpdateQuery query = UpdateQuery.builder(nativeSearchQuery)
+                    .withScript("ctx._source.read=true")
+                    .withScriptType(ScriptType.INLINE)
+                    .build();
+            template.updateByQuery(query, IndexCoordinates.of("message"));
             return new Result<>();
         }
         for (String id: idList.getIdList()) {
-            UpdateQuery.Builder query = UpdateQuery.builder(id).withScript("ctx._source.read = true");
-            template.update(query.build(), IndexCoordinates.of("message"));
+            UpdateQuery query = UpdateQuery.builder(id)
+                    .withScript("ctx._source.read=true")
+                    .build();
+            template.update(query, IndexCoordinates.of("message"));
         }
         return new Result<>();
     }
