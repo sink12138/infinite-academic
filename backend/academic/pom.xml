@@ -27,6 +27,7 @@
         <module>modules/document</module>
         <module>modules/model</module>
         <module>modules/tool</module>
+        <module>modules/spider</module>
     </modules>
 
     <properties>
