@@ -7,10 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nonapi.io.github.classgraph.json.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
+import org.springframework.data.elasticsearch.annotations.*;
 
 @Data
 @AllArgsConstructor
@@ -36,6 +33,9 @@ public class Message {
     @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "消息正文", example = "尊敬的用户 野兽仙贝，您的学者身份认证成功。")
     private String content;
+
+    @Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm:ss")
+    private String time;
 
     @Field(type = FieldType.Boolean)
     @ApiModelProperty(value = "是否已读", example = "false")
