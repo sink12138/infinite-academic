@@ -10,7 +10,6 @@ import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +47,7 @@ public class HeatCalThread implements Runnable {
                 int total = HeatUpdateMainThread.total.get(threadName);
                 if (index >= total)
                     return;
-                bucket = HeatUpdateMainThread.targetTerm.getBuckets().get(index);
+                bucket = HeatUpdateMainThread.targetTerm.get(threadName).getBuckets().get(index);
                 HeatUpdateMainThread.finished.put(threadName, ++index);
                 StatusCtrl.runningStatus.put(threadName, "Statics analysis[" + index + "/" + total + "]...");
             }

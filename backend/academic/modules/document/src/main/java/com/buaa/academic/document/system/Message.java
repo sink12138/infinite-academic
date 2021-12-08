@@ -24,7 +24,7 @@ public class Message {
 
     @JsonIgnore
     @Field(type = FieldType.Keyword)
-    private String owner;
+    private String ownerId;
 
     @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(value = "消息标题", example = "学者认证成功")

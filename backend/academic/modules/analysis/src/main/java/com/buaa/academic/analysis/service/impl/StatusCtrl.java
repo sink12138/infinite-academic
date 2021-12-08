@@ -12,7 +12,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;

@@ -18,16 +18,16 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HeatUpdateMainThread implements Runnable {
     public static Map<String, Integer> total = new ConcurrentHashMap<>();
     public static Map<String, Integer> finished = new ConcurrentHashMap<>();
-    public static ParsedStringTerms targetTerm = null;
+    public static Map<String, ParsedStringTerms> targetTerm =  new HashMap<>();
     public static Map<Integer, Double> rate = new ConcurrentHashMap<>();
 
     private String name;
@@ -99,7 +99,7 @@ public class HeatUpdateMainThread implements Runnable {
         Aggregation aggregation = aggregations.asMap().get("term");
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
 
-        targetTerm = terms;
+        targetTerm.put(name, terms);
         total.put(name, terms.getBuckets().size());
         finished.put(name, 0);
 
