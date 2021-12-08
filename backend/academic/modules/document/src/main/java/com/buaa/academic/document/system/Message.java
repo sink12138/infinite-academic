@@ -34,7 +34,7 @@ public class Message {
     @ApiModelProperty(value = "消息正文", example = "尊敬的用户 野兽仙贝，您的学者身份认证成功。")
     private String content;
 
-    @Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm:ss")
+    @Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm")
     private String time;
 
     @Field(type = FieldType.Boolean)
