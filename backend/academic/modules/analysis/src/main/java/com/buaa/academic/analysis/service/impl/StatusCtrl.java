@@ -17,13 +17,14 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StatusCtrl implements Runnable {
     public static final Object STATUS_LOCK = new Object();
 
-    public static final Map<String, Boolean> isRunning = new HashMap<>();
-    public static final Map<String, String> runningStatus = new HashMap<>();
-    public static final Map<String, Job> currentJob = new HashMap<>();
+    public static final Map<String, Boolean> isRunning = new ConcurrentHashMap<>();
+    public static final Map<String, String> runningStatus = new ConcurrentHashMap<>();
+    public static final Map<String, Job> currentJob = new ConcurrentHashMap<>();
     public static boolean analysisStarted = false;
     public static String cron = "0 0 23 * * ?";
     public static Date nextRunningDate;
@@ -57,11 +58,9 @@ public class StatusCtrl implements Runnable {
     }
 
     public static boolean isStopped(String threadName) {
-        boolean res;
         synchronized (STATUS_LOCK) {
-            res = isRunning.getOrDefault(threadName, false);
+            return !isRunning.getOrDefault(threadName, false);
         }
-        return !res;
     }
 
     public static void stop(String jobName) throws IOException {
@@ -69,12 +68,10 @@ public class StatusCtrl implements Runnable {
         job.close();
     }
 
-    public static boolean hasRunningJob() {
-        boolean hasRunningJob;
+    public synchronized static boolean hasRunningJob() {
         synchronized (StatusCtrl.STATUS_LOCK) {
-            hasRunningJob = analysisStarted;
+            return analysisStarted;
         }
-        return hasRunningJob;
     }
 
     public static void changeRunningStatusTo(String runningStatus, String threadName) {
@@ -137,7 +134,7 @@ public class StatusCtrl implements Runnable {
 
     public static void associationStop() {
         synchronized (STATUS_LOCK) {
-            isRunning.replaceAll((j, v) -> false);
+            isRunning.replaceAll((k, v) -> false);
             analysisStarted = false;
         }
     }
@@ -188,6 +185,7 @@ public class StatusCtrl implements Runnable {
         int jobNumber = 10;
 
         HeatUpdateMainThread topicMainThread = new HeatUpdateMainThread(template)
+                .setName(JobType.HOT_TOPIC_ANALYSIS.name())
                 .setTopicRepository(topicRepository)
                 .setJobsNum(jobNumber)
                 .setTargetIndex("topics");
@@ -199,6 +197,7 @@ public class StatusCtrl implements Runnable {
         topicThread.start();
 
         HeatUpdateMainThread subjectMainThread = new HeatUpdateMainThread(template)
+                .setName(JobType.HOT_SUBJECT_ANALYSIS.name())
                 .setSubjectRepository(subjectRepository)
                 .setJobsNum(jobNumber)
                 .setTargetIndex("subjects");

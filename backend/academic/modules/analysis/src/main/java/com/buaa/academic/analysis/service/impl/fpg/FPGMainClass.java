@@ -138,7 +138,7 @@ public class FPGMainClass implements Runnable {
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if (threadStopCheck())
+        if (threadStopCheck(name))
             return;
 
         // 词频统计
@@ -152,7 +152,7 @@ public class FPGMainClass implements Runnable {
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if (threadStopCheck())
+        if (threadStopCheck(name))
             return;
 
         // 去除非频繁项，根据词频对原数据排序
@@ -166,7 +166,7 @@ public class FPGMainClass implements Runnable {
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if (threadStopCheck())
+        if (threadStopCheck(name))
             return;
 
         // fp-growth生成频繁项集
@@ -178,7 +178,7 @@ public class FPGMainClass implements Runnable {
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if (threadStopCheck())
+        if (threadStopCheck(name))
             return;
 
         // 计算关联规则
@@ -191,7 +191,7 @@ public class FPGMainClass implements Runnable {
             e.printStackTrace();
             interruptStop(e.toString());
         }
-        if (threadStopCheck())
+        if (threadStopCheck(name))
             return;
 
         try {
@@ -238,7 +238,7 @@ public class FPGMainClass implements Runnable {
         do {
 
             // 检查线程是否终止
-            if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
+            if (StatusCtrl.isStopped(name)) {
                 StatusCtrl.changeRunningStatusToStop("Stopped. ", name);
                 fileWriter.close();
                 return;
@@ -501,8 +501,8 @@ public class FPGMainClass implements Runnable {
         }
     }
 
-    private boolean threadStopCheck() throws IOException {
-        if (StatusCtrl.isStopped(Thread.currentThread().getName())) {
+    private boolean threadStopCheck(String name) throws IOException {
+        if (StatusCtrl.isStopped(name)) {
             interruptStop("Stopped");
             return true;
         }

@@ -21,17 +21,18 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class HeatUpdateMainThread implements Runnable {
-    public static Map<String, Integer> total = new HashMap<>();
-    public static Map<String, Integer> finished = new HashMap<>();
+    public static Map<String, Integer> total = new ConcurrentHashMap<>();
+    public static Map<String, Integer> finished = new ConcurrentHashMap<>();
     public static ParsedStringTerms targetTerm = null;
-    public static Map<Integer, Double> rate = new HashMap<>();
+    public static Map<Integer, Double> rate = new ConcurrentHashMap<>();
 
+    private String name;
     private String targetIndex;
-    private Integer jobsNum;
+    private int jobsNum;
     private final ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
@@ -41,8 +42,13 @@ public class HeatUpdateMainThread implements Runnable {
     public HeatUpdateMainThread(ElasticsearchRestTemplate template) {
         this.template = template;
     }
+    
+    public HeatUpdateMainThread setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-    public HeatUpdateMainThread setJobsNum(Integer jobsNum) {
+    public HeatUpdateMainThread setJobsNum(int jobsNum) {
         this.jobsNum = jobsNum;
         return this;
     }
@@ -67,14 +73,12 @@ public class HeatUpdateMainThread implements Runnable {
     public void run() {
         logger.info("Heat update started");
 
-        String threadName = Thread.currentThread().getName();
-
         long start_time = System.currentTimeMillis();
 
-        StatusCtrl.changeRunningStatusTo("Rate rules generating...", threadName);
+        StatusCtrl.changeRunningStatusTo("Rate rules generating...", name);
         rateGen();
 
-        StatusCtrl.changeRunningStatusTo("Building search query...", threadName);
+        StatusCtrl.changeRunningStatusTo("Building search query...", name);
 
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
         TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term")
@@ -88,7 +92,7 @@ public class HeatUpdateMainThread implements Runnable {
                 .addAggregation(term)
                 .build();
 
-        StatusCtrl.changeRunningStatusTo("Aggregating " + targetIndex + "...", threadName);
+        StatusCtrl.changeRunningStatusTo("Aggregating " + targetIndex + "...", name);
         SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
         Aggregations aggregations = searchHit.getAggregations();
         assert aggregations != null;
@@ -96,13 +100,13 @@ public class HeatUpdateMainThread implements Runnable {
         ParsedStringTerms terms = (ParsedStringTerms) aggregation;
 
         targetTerm = terms;
-        total.put(threadName, terms.getBuckets().size());
-        finished.put(threadName, 0);
+        total.put(name, terms.getBuckets().size());
+        finished.put(name, 0);
 
-        StatusCtrl.changeRunningStatusTo("Building threads...", threadName);
+        StatusCtrl.changeRunningStatusTo("Building threads...", name);
         ArrayList<Thread> threads = new ArrayList<>();
         for (int i = 0; i < jobsNum; i++) {
-            threads.add(new Thread(new HeatCalThread(threadName)
+            threads.add(new Thread(new HeatCalThread(name)
                     .setSubjectRepository(subjectRepository)
                     .setTopicRepository(topicRepository)));
         }
@@ -115,16 +119,16 @@ public class HeatUpdateMainThread implements Runnable {
                 thread.join();
             }
         } catch (Exception e) {
-            StatusCtrl.changeRunningStatusToStop(e.toString(), threadName);
+            StatusCtrl.changeRunningStatusToStop(e.toString(), name);
         }
 
-        if (finished.get(threadName) < total.get(threadName)) {
-            StatusCtrl.changeRunningStatusToStop("Stopped.", threadName);
+        if (finished.get(name) < total.get(name)) {
+            StatusCtrl.changeRunningStatusToStop("Stopped.", name);
             return;
         }
 
         double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s. ", threadName);
+        StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s. ", name);
 
         logger.info("Heat update finished");
     }

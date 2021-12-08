@@ -4,8 +4,8 @@ import com.buaa.academic.analysis.dao.SubjectRepository;
 import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.impl.JobType;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
-import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.NumPerYear;
+import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HeatCalThread implements Runnable{
+public class HeatCalThread implements Runnable {
     private final String threadName;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
@@ -36,7 +36,7 @@ public class HeatCalThread implements Runnable{
 
     @Override
     public void run() {
-        while (true){
+        while (true) {
 
             if (StatusCtrl.isStopped(threadName))
                 return;
@@ -50,7 +50,7 @@ public class HeatCalThread implements Runnable{
                     return;
                 bucket = HeatUpdateMainThread.targetTerm.getBuckets().get(index);
                 HeatUpdateMainThread.finished.put(threadName, ++index);
-                StatusCtrl.runningStatus.put(threadName, "Statics analysis["+index+"/"+total+"]...");
+                StatusCtrl.runningStatus.put(threadName, "Statics analysis[" + index + "/" + total + "]...");
             }
 
             String targetName = bucket.getKey().toString();
@@ -65,7 +65,7 @@ public class HeatCalThread implements Runnable{
                 if (rate != null)
                     heat += yearBucket.getDocCount() * rate;
                 years.add(Integer.parseInt(yearBucket.getKey().toString()));
-                numbers.add((int)yearBucket.getDocCount());
+                numbers.add((int) yearBucket.getDocCount());
             }
             publicationData.setYears(years);
             publicationData.setNums(numbers);
