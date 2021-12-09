@@ -7,6 +7,9 @@ import com.buaa.academic.account.repository.MessageRepository;
 import com.buaa.academic.document.system.Message;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -23,14 +26,13 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @Validated
 @RequestMapping("/message")
-@Api(tags = "用户消息接口", value = "/account/message")
+@Api(tags = "用户消息处理接口", value = "/account/message")
 public class MessageController {
 
     @Autowired
@@ -39,11 +41,17 @@ public class MessageController {
     @Autowired
     private MessageRepository messageRepository;
 
+    @ApiOperation(value = "查看所有消息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "要查看第几页的消息"),
+            @ApiImplicitParam(name = "size", value = "每一页的消息数量"),
+            @ApiImplicitParam(name = "read", value = "是否只查看已读/未读消息，不传该参数默认查看所有消息，read为true查看所有已读消息，否则为未读")
+    })
     @GetMapping("/all")
     public Result<MessagePage> getMessages(@RequestHeader(value = "Auth") String userId,
                                            @RequestParam(value = "page") int page,
                                            @RequestParam(value = "size") int size,
-                                           @RequestParam(value = "read") Boolean read) {
+                                           @RequestParam(value = "read", required = false)  Boolean read) {
         QueryBuilder queryBuilder;
         if (read == null) {
             queryBuilder = QueryBuilders.termQuery("ownerId", userId);
@@ -56,11 +64,14 @@ public class MessageController {
     }
 
     @GetMapping("/statistic")
+    @ApiOperation(value = "统计未读消息", notes = "用于显示一共有多少条消息未读")
     public Result<MessageStatistic> messageStatistic(@RequestHeader(value = "Auth") String userId) {
         return new Result<MessageStatistic>().withData(statistic(userId));
     }
 
     @PostMapping("/read")
+    @ApiOperation(value = "标记已读", notes = "将idList中id对应的消息标记为已读，如果idList为空则将全部消息标为已读")
+    @ApiImplicitParam(name = "idList", value = "要标为已读的消息的id列表，如果为空则表明要将全部消息标为已读")
     public Result<Void> readMessage(@RequestHeader(value = "Auth") String userId,
                                     @RequestBody MessageIdList idList) {
         if (idList.getIdList().isEmpty()) {
@@ -84,19 +95,19 @@ public class MessageController {
     }
 
     @PostMapping("/remove")
+    @ApiOperation(value = "删除消息", notes = "将idList中id对应的消息删除，idList为空则删除所有消息")
+    @ApiImplicitParam(name = "idList", value = "要删除的消息的id列表，为空则删除所有消息")
     public Result<Void> removeMessage(@RequestHeader(value = "Auth") String userId,
                                       @RequestBody MessageIdList idList) {
-        NativeSearchQuery query;
         if (idList.getIdList().isEmpty()) {
-            query = new NativeSearchQueryBuilder()
+            NativeSearchQuery query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.termQuery("ownerId", userId))
                     .build();
+            template.delete(query, Message.class);
         } else  {
-            query = new NativeSearchQueryBuilder()
-                    .withIds(idList.getIdList())
-                    .build();
+            for (String id: idList.getIdList())
+                template.delete(id, Message.class);
         }
-        template.delete(query, Message.class);
         return new Result<>();
     }
 
@@ -117,9 +128,6 @@ public class MessageController {
     }
 
     private MessageStatistic statistic(String userId) {
-        NativeSearchQuery query = new NativeSearchQueryBuilder().
-                withQuery(QueryBuilders.termQuery("ownerId", userId)).build();
-        long messageCount = template.count(query, Message.class);
         NativeSearchQuery unreadQuery = new NativeSearchQueryBuilder()
                 .withQuery(
                         QueryBuilders.boolQuery()
@@ -127,6 +135,6 @@ public class MessageController {
                                 .must(QueryBuilders.termQuery("read", false))
                 ).build();
         long unreadCount = template.count(unreadQuery, Message.class);
-        return new MessageStatistic((int) messageCount, (int) unreadCount);
+        return new MessageStatistic((int) unreadCount);
     }
 }
