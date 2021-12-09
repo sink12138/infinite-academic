@@ -62,7 +62,7 @@ public class RelationController {
     public Result<ScrollPage<PaperItem>> citations(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                    @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<PaperItem>> result = new Result<>();
-        if (!infoService.hasDocument(Paper.class, id))
+        if (!infoService.existsDocument(Paper.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
         Relations<PaperItem> relations = relationService.searchRelations(Paper.class, id, "references", page);
         ScrollPage<PaperItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getRelations());
@@ -87,17 +87,17 @@ public class RelationController {
         String field;
         switch (entity) {
             case "researcher" -> {
-                if (!infoService.hasDocument(Researcher.class, id))
+                if (!infoService.existsDocument(Researcher.class, id))
                     return result.withFailure(ExceptionType.NOT_FOUND);
                 field = "authors.id";
             }
             case "journal" -> {
-                if (!infoService.hasDocument(Journal.class, id))
+                if (!infoService.existsDocument(Journal.class, id))
                     return result.withFailure(ExceptionType.NOT_FOUND);
                 field = "journal.id";
             }
             case "institution" -> {
-                if (!infoService.hasDocument(Institution.class, id))
+                if (!infoService.existsDocument(Institution.class, id))
                     return result.withFailure(ExceptionType.NOT_FOUND);
                 field = "institutions.id";
             }
@@ -118,7 +118,7 @@ public class RelationController {
     public Result<ScrollPage<ResearcherItem>> scholars(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                        @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<ResearcherItem>> result = new Result<>();
-        if (!infoService.hasDocument(Researcher.class, id))
+        if (!infoService.existsDocument(Researcher.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
         Relations<ResearcherItem> relations = relationService.searchRelations(Researcher.class, id, "currentInst.id", page);
         ScrollPage<ResearcherItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getRelations());
@@ -133,7 +133,7 @@ public class RelationController {
     public Result<ScrollPage<PatentItem>> inventions(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                      @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<PatentItem>> result = new Result<>();
-        if (!infoService.hasDocument(Patent.class, id))
+        if (!infoService.existsDocument(Patent.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
         Relations<PatentItem> relations = relationService.searchRelations(Patent.class, id, "inventors.id", page);
         ScrollPage<PatentItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getRelations());

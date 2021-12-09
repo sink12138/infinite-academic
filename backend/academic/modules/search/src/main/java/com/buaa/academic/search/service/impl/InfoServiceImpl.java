@@ -17,7 +17,7 @@ public class InfoServiceImpl implements InfoService {
     }
 
     @Override
-    public <T> boolean hasDocument(Class<T> target, String id) {
+    public <T> boolean existsDocument(Class<T> target, String id) {
         return template.exists(id, target);
     }
 
