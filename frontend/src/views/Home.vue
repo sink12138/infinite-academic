@@ -27,6 +27,7 @@ export default {
         { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
         { href: "/about", icon: "mdi-account", title: "About" },
+        { href: "/topic", icon: "mdi-tooltip-check", title: "Topic" },
       ],
   }),
   methods: {

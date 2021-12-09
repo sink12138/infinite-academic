@@ -1,9 +1,11 @@
 <template>
-  <v-btn 
-    fab
-    color="grey lighten-2"
-    elevation="4"
+  <v-btn
+    class="ml-1"
     small
+    dark
+    outlined
+    fab
+    elevation="0"
     @click="goBack()"
   >
     <v-icon>mdi-arrow-left</v-icon>

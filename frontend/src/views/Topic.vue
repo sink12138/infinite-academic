@@ -1,6 +1,7 @@
 <template>
   <div class="chart">
-    <p>topic</p>
+    <Banner></Banner>
+    <v-divider></v-divider>
     <div 
       id="publish"
       class="ma-auto"
@@ -9,21 +10,26 @@
     <div 
       id="association"
       class="ma-auto"
-      style="width: 400px;height:400px;"
+      style="width: 400px;height:300px;"
     ></div>
   </div>
 </template>
 
 <script>
+import Banner from "../components/BaseBanner.vue"
 export default {
+  components: {
+    Banner
+  },
   data:()=> ({
+    name: null,
     associations: [
       {
 				"confidence": 0.98,
 				"name": "人工智能"
 			},
       {
-				"confidence": 0.99,
+				"confidence": 1,
 				"name": "物理"
 			},
       {
@@ -43,12 +49,12 @@ export default {
     pubsPerYear: [],
   }),
   mounted() {
-    /*let name = this.$route.query.name;
+    /*this.name = this.$route.query.name;
     this.$axios({
       method: "get",
       url: "/api/analysis/topic",
       params: {
-        name: name
+        name: this.name
       }
     }).then(response => {
       console.log(response.data)
@@ -64,6 +70,9 @@ export default {
     myEcharts() {
       var publishEchart = this.$echarts.init(document.getElementById('publish'), null, { renderer: 'svg' });
       var publishOption = {
+        title: {
+          text: '出版物数量/年'
+        },
         xAxis: {
           data: ['2012','2013','2014']
         },
@@ -75,8 +84,8 @@ export default {
       }
       publishEchart.setOption(publishOption);
 
-      var associationEchart = this.$echarts.init(document.getElementById('association'), null, { renderer: 'svg'});
-      var associationOption = {
+      var assEchart = this.$echarts.init(document.getElementById('association'), null, { renderer: 'svg'});
+      var assOption = {
         title: {
           text: '关联关系'
         },
@@ -84,32 +93,41 @@ export default {
           type: 'graph',
           layout: 'force',
           force: {
-            repulsion: 100,
+            repulsion: 150,
             gravity: 0.1,
-            edgeLength: 100
+            edgeLength: [60, 80]
           },
           symbolSize: 30,
           label: {
             show: true
           },
-          data: this.associations.map(function (node) {
-            node.symbolSize = node.confidence*50;
-            return node;
-          }),
-          links: this.associations.map(function (node, idx) {
-            var link = {}
-            link.source = 0;
-            link.target = idx;
-            link.value = node.confidence;
-            return link;
-          }),
+          data: [],
+          links: [],
           lineStyle: {
-            width: 4,
+            width: 2,
             curveness: 0
           }
         }
       }
-      associationEchart.setOption(associationOption);
+      var topic = {
+        name: this.name,
+        symbolSize: 60
+      }
+      assOption.series.data.push(topic);
+      this.associations.forEach(function(item) {
+        var node = {}
+        node.name = item.name
+        node.symbolSize = 50;
+        assOption.series.data.push(node);
+      })
+      assOption.series.links = this.associations.map(function (data, idx) {
+        var link = {}
+        link.source = 0;
+        link.target = (idx+1);
+        link.value = data.confidence;
+        return link;
+      });
+      assEchart.setOption(assOption);
     }
   }
 }
