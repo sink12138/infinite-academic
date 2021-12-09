@@ -1,0 +1,46 @@
+server:
+  port: 8097
+
+spring:
+  application:
+    name: client-resource
+  jackson:
+    default-property-inclusion: non_null
+  redis:
+    password: 114514
+    timeout: 5000
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 2
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:eureka-academic-2021@121.36.98.60:8100/eureka/
+    register-with-eureka: false
+
+knife4j:
+  basic:
+    enable: true
+    username: knife4j
+    password: knife4j-academic-2021
+  enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    com.netflix.discovery.DiscoveryClient: warn
+
+resource:
+  storage-directory: ./modules/resource/.storage
+  allowed-suffixes: jpg, png, bmp, gif, tif, doc, docx, pdf, zip, rar

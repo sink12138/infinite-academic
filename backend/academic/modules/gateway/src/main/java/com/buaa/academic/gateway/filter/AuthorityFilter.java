@@ -65,6 +65,10 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
         if (pathValue.startsWith("/search") || pathValue.matches("^/analysis/(?!schedule).*"))
             return chain.filter(exchange);
 
+        /* Resource APIs */
+        if (pathValue.startsWith("/resource"))
+            return chain.filter(exchange);
+
         /* API docs */
         if (pathValue.matches("^/(?!/).*/v2/api-docs$"))
             return chain.filter(exchange);

@@ -56,6 +56,13 @@ spring:
             - Path=/admin/**
           filters:
             - StripPrefix=1
+        - id: 资源服务
+          uri: lb://client-resource
+          order: 7
+          predicates:
+            - Path=/resource/**
+          filters:
+            - StripPrefix=1
 
 logging:
   level:

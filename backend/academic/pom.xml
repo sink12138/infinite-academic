@@ -24,6 +24,7 @@
         <module>modules/analysis</module>
         <module>modules/scholar</module>
         <module>modules/admin</module>
+        <module>modules/resource</module>
         <module>modules/document</module>
         <module>modules/model</module>
         <module>modules/tool</module>
