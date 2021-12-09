@@ -1,10 +1,10 @@
 package com.buaa.academic.account.controller;
 
-import com.buaa.academic.account.model.TransferInfo;
 import com.buaa.academic.account.model.ApplicationPage;
 import com.buaa.academic.account.repository.ApplicationRepository;
 import com.buaa.academic.document.system.Application;
-import com.buaa.academic.model.Application.TransferApplication;
+import com.buaa.academic.model.application.ApplicationInfo;
+import com.buaa.academic.model.application.TransferApp;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
@@ -24,27 +24,30 @@ import java.util.Date;
 @Api(value = "专利转让")
 public class TransferController {
     @Resource
-    RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    private ApplicationRepository applicationRepository;
 
     @Autowired
-    ElasticsearchRestTemplate template;
+    private ElasticsearchRestTemplate template;
 
     @PostMapping("/submit")
     public Result<Void> transferSubmit(@RequestHeader(value = "Auth") String userId,
-                                       @RequestBody TransferInfo transferInfo) {
+                                       @RequestBody ApplicationInfo<TransferApp> transferInfo) {
+        // todo 检查文件是否成功上传
         Application application = new Application();
         Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         application.setUserId(userId);
         application.setEmail(transferInfo.getContactEmail());
         application.setTime(simpleDateFormat.format(date));
         application.setType("专利转让");
+        application.setStatus("审核中");
         application.setFileToken(transferInfo.getFileToken());
         applicationRepository.save(application);
-        redisTemplate.opsForValue().set(application.getId(), transferInfo.getTransferApplication());
+        TransferApp transferApp = transferInfo.getApplication();
+        redisTemplate.opsForValue().set(application.getId(), transferApp);
         return new Result<>();
     }
 
@@ -70,14 +73,14 @@ public class TransferController {
     }
 
     @GetMapping("/details")
-    public Result<TransferApplication> getTransferDetails(@RequestHeader(value = "Auth") String userId,
-                                                          @RequestParam(value = "applicationId") String appId) {
-        Result<TransferApplication> result = new Result<>();
+    public Result<TransferApp> getTransferDetails(@RequestHeader(value = "Auth") String userId,
+                                                  @RequestParam(value = "applicationId") String appId) {
+        Result<TransferApp> result = new Result<>();
         Application application = template.get(appId, Application.class);
         if (application == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         if (!application.getUserId().equals(userId))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        return result.withData((TransferApplication) redisTemplate.opsForValue().get(appId));
+        return result.withData((TransferApp) redisTemplate.opsForValue().get(appId));
     }
 }

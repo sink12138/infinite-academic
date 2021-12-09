@@ -42,4 +42,7 @@ public class Application {
 
     @Field(type = FieldType.Keyword)
     private String fileToken;
+
+    @Field(type = FieldType.Keyword)
+    private String websiteLink;
 }
