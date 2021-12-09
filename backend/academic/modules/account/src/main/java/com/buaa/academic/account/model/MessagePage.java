@@ -19,5 +19,6 @@ public class MessagePage {
     List<Message> messages;
 
     @ApiModelProperty(value = "总页数")
-    Integer pageCount;
+    int totalPages;
+
 }
