@@ -51,9 +51,9 @@ public class MessageController {
         MessagePage messagePage = new MessagePage();
         SearchPage<Message> searchPage;
         if (read == null) {
-            searchPage = messageRepository.findByOwnerIdEquals(userId, PageRequest.of(page, size));
+            searchPage = messageRepository.findByOwnerIdOrderByTimeDesc(userId, PageRequest.of(page, size));
         } else {
-            searchPage = messageRepository.findByOwnerIdEqualsAndRead(userId, read, PageRequest.of(page, size));
+            searchPage = messageRepository.findByOwnerIdAndReadOrderByTimeDesc(userId, read, PageRequest.of(page, size));
         }
         messagePage.setTotalPages(searchPage.getTotalPages());
         List<Message> messages = new ArrayList<>();
@@ -65,7 +65,7 @@ public class MessageController {
     @GetMapping("/count")
     @ApiOperation(value = "统计未读消息", notes = "用于显示一共有多少条消息未读")
     public Result<Long> countMessages(@RequestHeader(value = "Auth") String userId) {
-        return new Result<Long>().withData(messageRepository.countByOwnerIdEqualsAndRead(userId, false));
+        return new Result<Long>().withData(messageRepository.countByOwnerIdAndRead(userId, false));
     }
 
     @PostMapping("/read")
@@ -99,7 +99,7 @@ public class MessageController {
     public Result<Void> removeMessage(@RequestHeader(value = "Auth") String userId,
                                       @RequestBody MessageIdList idList) {
         if (idList.getIdList().isEmpty())
-            messageRepository.deleteByOwnerIdEquals(userId);
+            messageRepository.deleteByOwnerId(userId);
         else for (String id : idList.getIdList()) {
             Message message = template.get(id, Message.class);
             if (message == null || !message.getOwnerId().equals(userId))

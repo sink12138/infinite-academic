@@ -35,6 +35,7 @@ public class Message {
     private String content;
 
     @Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm")
+    @ApiModelProperty(value = "消息时间", example = "2021-12-09 14:27")
     private String time;
 
     @Field(type = FieldType.Boolean)

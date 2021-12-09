@@ -7,14 +7,14 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 public interface MessageRepository extends ElasticsearchRepository<Message, String> {
 
-    long countByOwnerIdEqualsAndRead(String ownerId, boolean read);
+    long countByOwnerIdAndRead(String ownerId, boolean read);
 
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Message> findByOwnerIdEquals(String owner, Pageable pageable);
+    SearchPage<Message> findByOwnerIdOrderByTimeDesc(String owner, Pageable pageable);
 
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Message> findByOwnerIdEqualsAndRead(String ownerId, boolean read, Pageable pageable);
+    SearchPage<Message> findByOwnerIdAndReadOrderByTimeDesc(String ownerId, boolean read, Pageable pageable);
 
-    void deleteByOwnerIdEquals(String ownerId);
+    void deleteByOwnerId(String ownerId);
 
 }
