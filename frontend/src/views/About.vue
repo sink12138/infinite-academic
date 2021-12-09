@@ -1,6 +1,7 @@
 <template>
   <div>
     <base-navigation></base-navigation>
+    <img class="ui image avatar qianjianglei-avatar" id="avatar-change" thumbnail="200" src="http://c61.cnki.net/CMFD/GBFJU.jpg" alt="8989449 qianjianglei 1622348465">
     <filter-year-picker></filter-year-picker>
   </div>
   <!--<div>

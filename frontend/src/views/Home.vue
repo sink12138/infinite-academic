@@ -35,7 +35,7 @@ export default {
         method: "get",
         url: "/api/account/echo",
         params: {
-          str: "echo hello"
+          str: "echo success"
         }
       }).then(response => {
         console.log(response.data)
