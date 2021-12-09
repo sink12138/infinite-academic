@@ -10,6 +10,7 @@ const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
+const Door = () => import("../views/Door.vue")
 
 Vue.use(VueRouter)
 
@@ -58,6 +59,11 @@ const routes = [
     path:'/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path:'/door',
+    name: 'Door',
+    component: Door
   }
 ]
 
