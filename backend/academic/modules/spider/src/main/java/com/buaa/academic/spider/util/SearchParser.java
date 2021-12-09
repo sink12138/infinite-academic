@@ -25,7 +25,7 @@ public class SearchParser {
 
     // 本部分用于初始化爬取队列
     public void wanFangSpider() throws InterruptedException {
-        ChromeOptions options = new ChromeOptions();
+        ChromeOptions options = new ChromeOptions().setHeadless(true);
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.url);
         Thread.sleep(2000);

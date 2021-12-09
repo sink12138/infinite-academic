@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: client-search
+    name: client-spider
   jackson:
     default-property-inclusion: non_null
   redis:
@@ -19,9 +19,6 @@ spring:
       username: elastic
       password: elastic-academic-2021
       uris: http://120.46.154.200:9200
-    highlight:
-      pre-tag: <b>
-      post-tag: </b>
 
 eureka:
   instance:
