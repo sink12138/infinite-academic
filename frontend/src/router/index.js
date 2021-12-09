@@ -5,6 +5,7 @@ const Home = () => import("../views/Home.vue")
 const Author = () => import("../views/Author.vue")
 const Institution = () => import("../views/Institution.vue")
 const Journal = () => import("../views/Journal.vue")
+const Topic = () => import("../views/Topic.vue")
 const Search = () => import("../views/Search.vue")
 const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
@@ -33,6 +34,11 @@ const routes = [
     path: '/journal',
     name: 'Journal',
     component: Journal
+  },
+  {
+    path: '/topic',
+    name: 'Topic',
+    component: Topic
   },
   {
     path: '/search',
