@@ -3,11 +3,13 @@ package com.buaa.academic.account.controller;
 import com.buaa.academic.account.repository.AccountRepository;
 import com.buaa.academic.account.service.AccountService;
 import com.buaa.academic.document.entity.User;
+import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,6 +32,9 @@ public class AccountController {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private ElasticsearchRestTemplate template;
 
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
@@ -106,7 +111,7 @@ public class AccountController {
     @ApiOperation(value = "获取用户信息", notes = "包括用户id、用户名、邮箱、密码、学者id")
     @GetMapping("/profile")
     public Result<User> profile(@RequestHeader(value = "Auth") String userId) {
-        User user = accountRepository.findUserById(userId);
+        User user = template.get(userId, User.class);
         return new Result<User>().withData(user);
     }
 
@@ -115,7 +120,9 @@ public class AccountController {
     public Result<Void> modifyInfo( @RequestHeader(value = "Auth") @NotNull String userId,
                                     @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10)  String username,
                                     @RequestParam(value = "password") @NotNull String password) {
-        User user = accountRepository.findUserById(userId);
+        User user = template.get(userId, User.class);
+        if (user == null)
+            return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
         user.setUsername(username);
         user.setPassword(password);
         accountRepository.save(user);
@@ -126,7 +133,9 @@ public class AccountController {
     @PostMapping("/profile/modify/email")
     public Result<Void> modifyEmail(@RequestHeader(value = "Auth") @NotNull String userId,
                                     @RequestParam(value = "email") @Email @NotNull String email) {
-        User user = accountRepository.findUserById(userId);
+        User user = template.get(userId, User.class);
+        if (user == null)
+            return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
         if (Objects.equals(email, user.getEmail())){
             return new Result<Void>().withFailure("不可修改为当前邮箱");
         }
