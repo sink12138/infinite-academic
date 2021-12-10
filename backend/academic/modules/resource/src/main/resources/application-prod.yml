@@ -6,23 +6,11 @@ spring:
     name: client-resource
   jackson:
     default-property-inclusion: non_null
-  redis:
-    password: redis-academic-2021
-    timeout: 5000
-    cluster:
-      nodes:
-        - 192.168.0.228:7001
-        - 192.168.0.228:7002
-        - 192.168.0.228:7003
-        - 192.168.0.239:7001
-        - 192.168.0.239:7002
-        - 192.168.0.239:7003
-      max-redirects: 3
-    jedis:
-      pool:
-        max-idle: 10
-        max-wait: -1ms
-        min-idle: 2
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 eureka:
   instance:

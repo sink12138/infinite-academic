@@ -6,14 +6,6 @@ spring:
     name: client-resource
   jackson:
     default-property-inclusion: non_null
-  redis:
-    password: 114514
-    timeout: 5000
-    jedis:
-      pool:
-        max-idle: 10
-        max-wait: -1ms
-        min-idle: 2
   servlet:
     multipart:
       enabled: true
