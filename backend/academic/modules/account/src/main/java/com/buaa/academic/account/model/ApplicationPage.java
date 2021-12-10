@@ -11,6 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplicationPage {
+
     private List<Application> applications;
-    private Integer pageCount;
+
+    private int pageCount;
+
 }

@@ -8,16 +8,19 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/app")
+@RequestMapping("/application")
 @Validated
 @Api(tags = "申请相关")
 public class ApplicationController {
@@ -30,11 +33,10 @@ public class ApplicationController {
             @ApiImplicitParam(name = "page", value = "页数"),
             @ApiImplicitParam(name = "size", value = "一页数量"),
             @ApiImplicitParam(name = "type", value = "申请类型, 不传则默认返回所有类型", example = "学者认证"),
-            @ApiImplicitParam(name = "status", value = "处理状态, 不传则默认返回所有状态", example = "审核中")
-    })
+            @ApiImplicitParam(name = "status", value = "处理状态, 不传则默认返回所有状态", example = "审核中")})
     public Result<ApplicationPage> getAllApp(@RequestHeader(value = "Auth") String userId,
-                                             @RequestParam(value = "page") Integer page,
-                                             @RequestParam(value = "size") Integer size,
+                                             @RequestParam(value = "page") @PositiveOrZero int page,
+                                             @RequestParam(value = "size") @Range(min = 1, max = 30) int size,
                                              @RequestParam(value = "type", required = false) String type,
                                              @RequestParam(value = "status", required = false) String status) {
         Result<ApplicationPage> result = new Result<>();
