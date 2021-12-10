@@ -1,8 +1,9 @@
 <template>
-  <v-toolbar
+  <v-app-bar
     dark
     dense
     elevation="0"
+    style="position: sticky; top: 0; z-index: 999"
   >
     <BaseGoBack></BaseGoBack>
     <v-spacer></v-spacer>
@@ -15,7 +16,7 @@
     </div>
     <v-spacer></v-spacer>
     <BaseCitation></BaseCitation>
-  </v-toolbar>
+  </v-app-bar>
 </template>
 
 <script>

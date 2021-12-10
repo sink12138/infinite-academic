@@ -1,20 +1,65 @@
 <template>
-  <div class="chart">
+  <v-main>
     <Banner></Banner>
-    <v-divider></v-divider>
-    <span>{{this.name}}</span>
-    <v-btn @click="push">push</v-btn>
-    <div 
-      id="publish"
-      class="ma-auto"
-      style="width: 600px;height:300px;"
-    ></div>
-    <div 
-      id="association"
-      class="ma-auto"
-      style="width: 600px;height:600px;"
-    ></div>
-  </div>
+    <v-row no-gutters>
+      <v-col cols="4">
+        <v-card outlined>
+          <div class="my-3 my-font text-no-wrap">
+            <v-icon
+              class="text-h4"
+              color="indigo darken-4"
+            >mdi-message
+            </v-icon>
+            {{this.name}}
+          </div>
+          <v-img
+            id="publish"
+            class="ma-auto"
+            height="400"
+            aspect-ratio="16/9"
+          ></v-img>
+        </v-card>
+      </v-col>
+      <v-col cols="8">
+        <v-card 
+          color="light-blue lighten-5"
+          height="100%"
+          outlined
+        >
+          <v-tabs
+            v-model="tab"
+            background-color="light-blue lighten-5"
+            color="teal darken-4"
+            grow  
+          >
+            <v-tab class="font-weight-bold">
+              出版物
+            </v-tab>
+            <v-tab class="font-weight-bold">
+              相关学科
+            </v-tab>
+            <v-tab class="font-weight-bold">
+              学者
+            </v-tab>
+            <v-tab class="font-weight-bold">
+              期刊
+            </v-tab>
+            <v-tab class="font-weight-bold">
+              机构
+            </v-tab>
+          </v-tabs>
+          
+          <v-img
+            id="analysis"
+            v-if="tab != 0"
+            class="ma-auto"
+            height="500"
+            aspect-ratio="16/9"
+          ></v-img>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-main>
 </template>
 
 <script>
@@ -50,13 +95,25 @@ export default {
       ],
       heat: null,
       pubsPerYear: [],
-      publishEchart: null,
-      assEchart: null
+      chart1: null,
+      chart2: null,
+      tab: null,
     }
   },
   watch: {
     $route() {
       this.loadData();
+      this.chartReload();
+    },
+    tab() {
+      if (this.tab != 0) {
+        if (this.chart2 == null) 
+          this.$nextTick(() => { 
+            this.initChart2();
+            this.reload2();
+          })
+        else this.reload2();
+      }
     }
   },
   mounted() {
@@ -64,6 +121,10 @@ export default {
   },
   methods: {
     init() {
+      this.loadData();
+      this.initChart1();
+    },
+    loadData() {
       this.name = this.$route.query.name;
       /*this.$axios({
         method: "get",
@@ -79,29 +140,16 @@ export default {
       }).catch(error => {
         console.log(error)
       })*/
-      this.myEcharts();
     },
-    push() {
-      this.$router.push({ path: 'topic', query: { name: 'hello'}})
+    initChart1() {
+      this.chart1 = this.$echarts.init(document.getElementById('publish'), 'infinite', { renderer: 'svg' });
+      this.reload1();
+      window.addEventListener('resize', () => { this.chart1.resize(); })
     },
-    myEcharts() {
-      this.publishEchart = this.$echarts.init(document.getElementById('publish'), 'infinite', { renderer: 'svg' });
-      this.assEchart = this.$echarts.init(document.getElementById('association'), 'infinite', { renderer: 'svg'});
-      
-      this.loadData();
-
-      var _this = this;
-      this.assEchart.on('click', function(param) {
-        var target = param.data.name + 'hello';
-        if (target != _this.name)
-          _this.$router.push({ path: 'topic', query: { name: target}})
-      })
-    },
-    loadData() {
-      this.name = this.$route.query.name;
-      var publishOption = {
+    reload1() {
+      var option = {
         title: {
-          text: '出版物数量/年'
+          text: '发文趋势'
         },
         xAxis: {
           data: ['2012','2013','2014']
@@ -110,21 +158,47 @@ export default {
         series: [
           {
             type: 'line',
-            data: [100,500,2000]
+            areaStyle: {
+              color: '#9fe6f3de'
+            },
+            smooth: 0.3,
+            data: [100,500,400]
           },
-          {
-            type: 'line',
-            data: [500,30,200]
-          },
-          {
-            type: 'line',
-            data: [400,1000,600]
-          }
         ]
       }
-      var assOption = {
+      this.chart1.setOption(option);
+    },
+    initChart2() {
+      this.chart2 = this.$echarts.init(document.getElementById('analysis'), 'infinite', { renderer: 'svg'});
+      var _this = this;
+      this.chart2.on('click', function(param) {
+        var target = param.data.name + 'hello';
+        if (target != _this.name)
+          _this.$router.push({ path: 'topic', query: { name: target}})
+      })
+      window.addEventListener('resize', () => { this.chart2.resize(); })
+    },
+    reload2() {
+      switch (this.tab) {
+        case 1:
+          this.loadRelated();
+          break;
+        case 2:
+          this.loadAuthor();
+          break;
+        case 3:
+          this.loadJournal();
+          break;
+        case 4:
+          this.loadInstitution();
+          break;
+      }
+    },
+    loadRelated() {
+      var option = {
         title: {
-          text: '关联关系'
+          text: '关联关系',
+          left: 'center'
         },
         series: {
           type: 'graph',
@@ -150,13 +224,13 @@ export default {
         name: this.name,
         symbolSize: 120
       }
-      assOption.series.data.push(topic);
+      option.series.data.push(topic);
       this.associations.forEach(function(item) {
         var node = {}
         node.name = item.name
-        assOption.series.data.push(node);
+        option.series.data.push(node);
       })
-      assOption.series.links = this.associations.map(function (data, idx) {
+      option.series.links = this.associations.map(function (data, idx) {
         var link = {}
         link.source = 0;
         link.target = (idx+1);
@@ -164,13 +238,120 @@ export default {
         return link;
       });
       
-      this.publishEchart.setOption(publishOption);
-      this.assEchart.setOption(assOption);
+      this.chart2.setOption(option);
+    },
+    loadAuthor() {
+      var option = {
+        title: {
+          text: '学者发文数',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left'
+        },
+        series: {
+          type: 'pie',
+          radius: '80%',
+          data: [
+            { value: 1048, name: 'Search Engine' },
+            { value: 735, name: 'Direct' },
+            { value: 580, name: 'Email' },
+            { value: 484, name: 'Union Ads' },
+            { value: 300, name: 'Video Ads' }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      }
+      this.chart2.setOption(option);
+    },
+    loadJournal() {
+      var option = {
+        title: {
+          text: '期刊发文数',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left'
+        },
+        series: {
+          type: 'pie',
+          radius: '80%',
+          data: [
+            { value: 1048, name: 'Search Engine' },
+            { value: 735, name: 'Direct' },
+            { value: 580, name: 'Email' },
+            { value: 484, name: 'Union Ads' },
+            { value: 300, name: 'Video Ads' }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      }
+      this.chart2.setOption(option);
+    },
+    loadInstitution() {
+      var option = {
+        title: {
+          text: '机构发文数',
+          left: 'center'
+        },
+        tooltip: {
+          trigger: 'item'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'left'
+        },
+        series: {
+          type: 'pie',
+          radius: '80%',
+          data: [
+            { value: 1048, name: 'Search Engine' },
+            { value: 735, name: 'Direct' },
+            { value: 580, name: 'Email' },
+            { value: 484, name: 'Union Ads' },
+            { value: 300, name: 'Video Ads' }
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      }
+      this.chart2.setOption(option);
+    },
+    chartReload() {
+      this.reload1();
+      this.reload2();
     }
   }
 }
 </script>
 
 <style>
-
+.class {
+  color: #9fe6f3de;
+}
 </style>
