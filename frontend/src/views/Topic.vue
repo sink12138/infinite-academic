@@ -107,12 +107,21 @@ export default {
     },
     tab() {
       if (this.tab != 0) {
+        console.log(this.tab);
         if (this.chart2 == null) 
           this.$nextTick(() => { 
             this.initChart2();
             this.reload2();
           })
-        else this.reload2();
+        else {
+          this.reload2();
+          this.chart2.resize();
+        }
+      } else {
+        if (this.chart2 != null) {
+          this.chart2.dispose();
+          this.chart2 = null;
+        }
       }
     }
   },
@@ -192,9 +201,12 @@ export default {
         case 4:
           this.loadInstitution();
           break;
+        default:
+          this.chart2.resize();
       }
     },
     loadRelated() {
+      console.log('hello')
       var option = {
         title: {
           text: '关联关系',
