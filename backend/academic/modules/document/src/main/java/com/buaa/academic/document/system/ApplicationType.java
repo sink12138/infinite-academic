@@ -17,9 +17,9 @@ public enum ApplicationType {
     UPDATE_PAPER("修改论文信息"),
     TRANSFER("专利转让");
 
+    @JsonValue
     private final String value;
 
-    @JsonValue
     public String getValue() {
         return this.value;
     }
