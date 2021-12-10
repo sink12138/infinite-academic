@@ -16,6 +16,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -123,12 +124,76 @@ public class ResearcherParser {
         }
         //todo add researcher into database
         driver.close();
-        //todo 到其他网站查询作者研究方向
+        ResearcherParser researcherParser=new ResearcherParser();
+        researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
+        researcherParser.setResearcher(researcher);
+        researcherParser.baiDuSpider();
+        this.researcher=researcherParser.getResearcher();
     }
 
-    // todo 获取作者研究领域
+    //获取作者研究领域
     // https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page
     public void baiDuSpider() throws InterruptedException{
-
+        ChromeOptions options=new ChromeOptions().setHeadless(true);
+        RemoteWebDriver driver=new ChromeDriver(options);
+        driver.get(this.url);
+        Thread.sleep(2000);
+        String researcherName=this.researcher.getName();
+        String curInstName=this.researcher.getCurrentInst().getName();
+        List<WebElement> searchText=driver.findElementsByXPath("//form[@class=\"searchForm\"]//p[@class=\"formItem\"]");
+        if(searchText.size()>=2){
+            for(WebElement submitText:searchText) {
+                String type = submitText.findElement(By.xpath(".//span[@class=\"label\"]")).getText();
+                WebElement text = submitText.findElement(By.xpath(".//input[@type=\"text\"]"));
+                if (type.equals("姓名")) {
+                    text.sendKeys(researcherName);
+                } else if (type.equals("机构")) {
+                    text.sendKeys(curInstName);
+                }
+            }
+        }
+        WebElement searchButton=driver.findElementByXPath("//form[@class=\"searchForm\"]//input[@type=\"submit\"]");
+        Actions actions=new Actions(driver);
+        actions.click(searchButton).perform();
+        Thread.sleep(2000);
+        List<WebElement> matchResearchers=driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
+        if(matchResearchers.size()==0){
+            driver.close();
+            return;
+        }
+        WebElement target=null;
+        for(WebElement matchResearcher:matchResearchers){
+            String name=matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]")).getText();
+            String instName=matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//p[contains(@class,\"personInstitution\")]")).getText();
+            List<WebElement> interest=matchResearcher.findElements(By.xpath(".//div[@class=\"searchResult_text\"]//p[@class=\"personField\"]"));
+            if(name.equals(researcherName)&&curInstName.contains(instName)&&interest.size()!=0){
+                target=matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]"));
+                break;
+            }
+        }
+        if(target==null){
+            driver.close();
+            return;
+        }
+        //切换页面
+        actions.click(target).perform();
+        String originalHandle = driver.getWindowHandle();
+        Set<String> allHandles = driver.getWindowHandles();
+        allHandles.remove(originalHandle);
+        assert allHandles.size() == 1;
+        driver.switchTo().window((String) allHandles.toArray()[0]);
+        Thread.sleep(1000);
+        List<WebElement> majorElement=driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
+        List<String> interests=new ArrayList<>();
+        if(majorElement.size()!=0){
+            for(WebElement major:majorElement){
+                interests.add(major.getText());
+            }
+            this.researcher.setInterests(interests);
+            //todo modify researcher.interests by researcher.id
+        }
+        driver.close();
+        driver.switchTo().window(originalHandle);
+        driver.close();
     }
 }

@@ -101,10 +101,10 @@ public class PaperParser {
                 System.out.println("作者姓名： " + authorName);
                 System.out.println("作者主页： " + authorUrl);
                 partAuthor.setName(authorName);
-//                ResearcherParser researcherParser=new ResearcherParser();
-//                researcherParser.setUrl(authorUrl);
-//                researcherParser.wanFangSpider();
-//                partAuthor.setId(researcherParser.getResearcher().getId());
+                ResearcherParser researcherParser=new ResearcherParser();
+                researcherParser.setUrl(authorUrl);
+                researcherParser.wanFangSpider();
+                partAuthor.setId(researcherParser.getResearcher().getId());
                 authors.add(partAuthor);
             }
             paper.setAuthors(authors);
@@ -132,7 +132,7 @@ public class PaperParser {
                     Institution newInst = new Institution();
                     newInst.setName(instName);
                     //todo insert inst(with name) into database
-//                    inst.setId(newInst.getId());
+                    inst.setId(newInst.getId());
                     inst.setName(instName);
                 }
                 institutions.add(inst);
@@ -156,7 +156,7 @@ public class PaperParser {
                 JournalParser journalParser = new JournalParser();
                 journalParser.setUrl(journalUrl);
                 journalParser.wanFangSpider();
-//                journal.setId(journalParser.getJournal().getId());
+                journal.setId(journalParser.getJournal().getId());
             }
 
         }
@@ -274,7 +274,7 @@ public class PaperParser {
                             PaperObject paperObject = new PaperObject(referUrl, foundReferPaper);
                             toCrawPaperList.add(paperObject);
                         }
-//                        referenceID.add(foundReferPaper.getId());
+                        referenceID.add(foundReferPaper.getId());
                     }
                 }
             }
@@ -305,6 +305,12 @@ public class PaperParser {
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.paperCraw.getUrl());
         Thread.sleep(2000);
+        String title=this.paperCraw.getPaper().getTitle();
+        List<Paper.Author> paperAuthors=this.paperCraw.getPaper().getAuthors();
+        List<String> authors=new ArrayList<>();
+        for(Paper.Author paperAuthor:paperAuthors){
+            authors.add(paperAuthor.getName());
+        }
         WebElement curSearchType = driver.findElementByXPath("//div[@class=\"search-box\"]//div[@class=\"sort-default\"]");
         Actions actions = new Actions(driver);
         actions.click(curSearchType).perform();
@@ -324,12 +330,50 @@ public class PaperParser {
             WebElement searchText = searchTextElement.get(0);
             searchText.sendKeys(this.paperCraw.getPaper().getTitle());
         }
-        //todo small bug
+        //todo maybe small bug
         WebElement searchButton = driver.findElementByXPath("//input[@class=\"search-btn\"]");
         actions.click(searchButton).perform();
-        //todo 匹配页面元素，查找标题、作者列表在实体中的项，否则取第一个
-
+        Thread.sleep(2000);
+        WebElement target = null;
+        int flag=0;
+        List<WebElement> matchElement=driver.findElementsByXPath("//table[@class=\"result-table-list\"]//tbody//tr");
+        if(matchElement.size()==0){
+            driver.close();
+            return;
+        }
+        for(WebElement match:matchElement){
+            WebElement matchTitle=match.findElement(By.xpath(".//td[@class=\"name\"]//a"));
+            String matchTitleText=matchTitle.getText();
+            if(!matchTitleText.equals(title)){
+                continue;
+            }
+            List<WebElement> matchAuthors=match.findElements(By.xpath(".//td[@class=\"author\"]//a"));
+            List<String> matchNames=new ArrayList<>();
+            if(matchAuthors.size()!=0){
+                for(WebElement matchAuthor:matchAuthors){
+                    matchNames.add(matchAuthor.getText());
+                }
+            }
+            for(String matchName:matchNames){
+                if(authors.contains(matchName)){
+                    target=matchTitle;
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==1){
+                break;
+            }
+        }
+        if(flag==0){
+            target=matchElement.get(0).findElement(By.xpath(".//td[@class=\"name\"]//a"));
+        }
+        if(target==null){
+            driver.close();
+            return ;
+        }
         // 切换页面
+        actions.click(target).perform();
         String originalHandle = driver.getWindowHandle();
         Set<String> allHandles = driver.getWindowHandles();
         allHandles.remove(originalHandle);

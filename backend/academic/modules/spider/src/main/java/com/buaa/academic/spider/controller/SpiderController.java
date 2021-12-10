@@ -1,6 +1,7 @@
 package com.buaa.academic.spider.controller;
 
 import com.buaa.academic.spider.model.queueObject.PaperObject;
+import com.buaa.academic.spider.model.queueObject.ResearcherObject;
 import com.buaa.academic.spider.util.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ public class SpiderController {
 
         List<PaperObject> paperCraw = new ArrayList<>();
         List<PaperObject> subjectAndTopic = new ArrayList<>();
+        List<ResearcherObject> researcherInterest = new ArrayList<>();
 
         String url = "https://s.wanfangdata.com.cn/periodical?q=" + keyword + "&style=table&s=50";
         SearchParser searchParser = new SearchParser();
@@ -50,7 +52,5 @@ public class SpiderController {
             System.out.println("正在获取论文学科话题信息：" + paperObject.getPaper().getTitle());
             paperParser.zhiWangSpider();
         }
-
-        //todo 百度学术获取科研人员研究领域
     }
 }
