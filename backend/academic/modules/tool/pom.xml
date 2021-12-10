@@ -20,6 +20,14 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>net.redhogs.cronparser</groupId>
+            <artifactId>cron-parser-core</artifactId>
+            <version>3.5</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

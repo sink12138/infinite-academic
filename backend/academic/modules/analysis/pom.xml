@@ -120,6 +120,11 @@
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.redhogs.cronparser</groupId>
+            <artifactId>cron-parser-core</artifactId>
+            <version>3.5</version>
+        </dependency>
     </dependencies>
 
     <build>
