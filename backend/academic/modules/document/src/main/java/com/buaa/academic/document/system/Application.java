@@ -34,7 +34,7 @@ public class Application {
 
     @ApiModelProperty(value = "申请类型", example = "专利转让")
     @Field(type = FieldType.Keyword)
-    private String type;
+    private ApplicationType type;
 
     @ApiModelProperty(value = "申请处理状态", example = "审核中")
     @Field(type = FieldType.Keyword)
