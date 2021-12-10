@@ -1,10 +1,13 @@
-package com.buaa.academic.scholar.controller;
+package com.buaa.academic.account.controller;
 
 import com.buaa.academic.document.system.Application;
 import com.buaa.academic.model.web.Result;
-import com.buaa.academic.scholar.model.ApplicationPage;
-import com.buaa.academic.scholar.repository.AppRepository;
+import com.buaa.academic.account.model.ApplicationPage;
+import com.buaa.academic.account.repository.ApplicationRepository;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +22,16 @@ import java.util.ArrayList;
 @Api(tags = "申请相关")
 public class ApplicationController {
     @Autowired
-    AppRepository appRepository;
+    ApplicationRepository appRepository;
 
+    @ApiOperation(value = "查看所有申请")
     @GetMapping("/list")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数"),
+            @ApiImplicitParam(name = "size", value = "一页数量"),
+            @ApiImplicitParam(name = "type", value = "申请类型, 不传则默认返回所有类型", example = "学者认证"),
+            @ApiImplicitParam(name = "status", value = "处理状态, 不传则默认返回所有状态", example = "审核中")
+    })
     public Result<ApplicationPage> getAllApp(@RequestHeader(value = "Auth") String userId,
                                              @RequestParam(value = "page") Integer page,
                                              @RequestParam(value = "size") Integer size,

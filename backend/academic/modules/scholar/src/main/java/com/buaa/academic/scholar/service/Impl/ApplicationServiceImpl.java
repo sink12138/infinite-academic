@@ -20,21 +20,28 @@ public class ApplicationServiceImpl<T> implements ApplicationService<T> {
     RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public Boolean submitApp(ApplicationInfo<T> applicationInfo, String userId, String type) {
+    public Boolean submitAppWithCtf(ApplicationInfo<T> applicationInfo, String userId, String type) {
         String appId;
-        Application application = appBasicSetting(userId, applicationInfo.getContactEmail(), type);
-        if (applicationInfo.getFileToken() != null) {
-            application.setEmail(applicationInfo.getContactEmail());
-            appRepository.save(application);
-            appId = application.getId();
-        } else if (applicationInfo.getWebsiteLink() != null) {
-            application.setWebsiteLink(applicationInfo.getWebsiteLink());
-            appRepository.save(application);
-            appId = application.getId();
-        } else
+        Application application = appBasicSetting(userId, applicationInfo.getEmail(), type);
+        if (applicationInfo.getFileToken() == null && applicationInfo.getWebsiteLink() == null)
             return false;
+        if (applicationInfo.getFileToken() != null) {
+            application.setFileToken(applicationInfo.getFileToken());
+        }
+        if (applicationInfo.getWebsiteLink() != null) {
+            application.setWebsiteLink(applicationInfo.getWebsiteLink());
+        }
+        appRepository.save(application);
+        appId = application.getId();
         redisTemplate.opsForValue().set(appId, applicationInfo.getApplication());
         return true;
+    }
+
+    @Override
+    public void submitAppWithoutCtf(ApplicationInfo<T> applicationInfo, String userId, String type) {
+        Application application = appBasicSetting(userId, applicationInfo.getEmail(), type);
+        appRepository.save(application);
+        redisTemplate.opsForValue().set(application.getId(), applicationInfo.getApplication());
     }
 
     private Application appBasicSetting(String userId, String email, String type) {

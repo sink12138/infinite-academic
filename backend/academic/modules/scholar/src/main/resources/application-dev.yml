@@ -40,3 +40,8 @@ logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
     com.netflix.discovery.DiscoveryClient: warn
+
+auth:
+  username: admin
+  password: admin-academic-2021
+  max-inactive-interval: 86400

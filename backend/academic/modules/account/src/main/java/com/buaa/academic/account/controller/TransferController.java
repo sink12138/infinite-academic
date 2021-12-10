@@ -1,6 +1,5 @@
 package com.buaa.academic.account.controller;
 
-import com.buaa.academic.account.model.ApplicationPage;
 import com.buaa.academic.account.repository.ApplicationRepository;
 import com.buaa.academic.document.system.Application;
 import com.buaa.academic.model.application.ApplicationInfo;
@@ -8,20 +7,21 @@ import com.buaa.academic.model.application.TransferApp;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/transfer")
-@Api(value = "专利转让")
+@Api(value = "专利转让相关")
 public class TransferController {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -32,7 +32,8 @@ public class TransferController {
     @Autowired
     private ElasticsearchRestTemplate template;
 
-    @PostMapping("/submit")
+    @PostMapping("/transfer")
+    @ApiOperation(value = "专利转让申请提交")
     public Result<Void> transferSubmit(@RequestHeader(value = "Auth") String userId,
                                        @RequestBody ApplicationInfo<TransferApp> transferInfo) {
         // todo 检查文件是否成功上传
@@ -40,7 +41,7 @@ public class TransferController {
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         application.setUserId(userId);
-        application.setEmail(transferInfo.getContactEmail());
+        application.setEmail(transferInfo.getEmail());
         application.setTime(simpleDateFormat.format(date));
         application.setType("专利转让");
         application.setStatus("审核中");
@@ -51,36 +52,37 @@ public class TransferController {
         return new Result<>();
     }
 
-    @GetMapping("/list")
-    public Result<ApplicationPage> getTransfer(@RequestHeader(value = "Auth") String userId,
-                                               @RequestParam(value = "page") Integer page,
-                                               @RequestParam(value = "size") Integer size,
-                                               @RequestParam(value = "status", required = false) String status) {
-        ApplicationPage applicationPage = new ApplicationPage();
-        SearchPage<Application> applicationSearchPage;
-        if (status == null) {
-            applicationSearchPage = applicationRepository.findByUserIdEqualsOrderByTimeDesc(userId, PageRequest.of(page, size));
-        } else {
-            applicationSearchPage = applicationRepository.findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(userId, status, PageRequest.of(page, size));
-        }
-        applicationPage.setPageCount(applicationSearchPage.getTotalPages());
-        ArrayList<Application> applications = new ArrayList<>();
-        applicationSearchPage.getSearchHits().forEach(applicationSearchHit ->
-            applications.add(applicationSearchHit.getContent())
-        );
-        applicationPage.setApplications(applications);
-        return new Result<ApplicationPage>().withData(applicationPage);
+    private static String authHeader;
+
+    @Value("${auth.username}")
+    private String username;
+
+    @Value("${auth.password}")
+    private String password;
+
+    @PostConstruct
+    public void init() {
+        if (authHeader == null)
+            authHeader = Base64.getEncoder().encodeToString((username + '@' + password).getBytes(StandardCharsets.UTF_8));
     }
 
-    @GetMapping("/details")
-    public Result<TransferApp> getTransferDetails(@RequestHeader(value = "Auth") String userId,
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isAdminHeader(String auth) {
+        return auth.equals(authHeader);
+    }
+
+    @GetMapping("/detail/transfer")
+    @ApiOperation(value = "专利转让申请具体信息")
+    public Result<TransferApp> getTransferDetails(@RequestHeader(value = "Auth") String auth,
                                                   @RequestParam(value = "applicationId") String appId) {
         Result<TransferApp> result = new Result<>();
-        Application application = template.get(appId, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        if (!application.getUserId().equals(userId))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        if (!isAdminHeader(auth)) {
+            Application application = template.get(appId, Application.class);
+            if (application == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            if (!application.getUserId().equals(auth))
+                return result.withFailure(ExceptionType.UNAUTHORIZED);
+        }
         return result.withData((TransferApp) redisTemplate.opsForValue().get(appId));
     }
 }
