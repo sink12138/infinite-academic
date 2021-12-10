@@ -119,17 +119,14 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                     }
                 }
                 case "researcher" -> {
-                    if ("certify".equals(secondaryUrl)) {
-                        // These requests need userId instead of researcherId
-                        if (authority.getUserId() == null)
-                            throw new AcademicException(ExceptionType.UNAUTHORIZED);
-                        authHeader = authority.getUserId();
+                    if ("certify".equals(secondaryUrl) && authority.getUserId() == null) {
+                        // These requests do not need researcherId
+                        throw new AcademicException(ExceptionType.UNAUTHORIZED);
                     }
-                    else {
-                        if (authority.getResearcherId() == null)
-                            throw new AcademicException(ExceptionType.UNAUTHORIZED);
-                        authHeader = authority.getResearcherId();
+                    else if (authority.getResearcherId() == null) {
+                        throw new AcademicException(ExceptionType.UNAUTHORIZED);
                     }
+                    authHeader = authority.getUserId();
                 }
                 case "admin" -> {
                     switch (secondaryUrl) {
