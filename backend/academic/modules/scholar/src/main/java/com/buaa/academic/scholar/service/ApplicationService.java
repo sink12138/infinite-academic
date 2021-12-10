@@ -1,6 +1,7 @@
 package com.buaa.academic.scholar.service;
 
-public interface ApplicationService {
-    String saveAppWithFile(String userId, String email, String fileToken, String type);
-    String saveAppWithLink(String userId, String email, String websiteLink, String type);
+import com.buaa.academic.model.application.ApplicationInfo;
+
+public interface ApplicationService<T> {
+    Boolean submitApp(ApplicationInfo<T> applicationInfo, String userId, String type);
 }

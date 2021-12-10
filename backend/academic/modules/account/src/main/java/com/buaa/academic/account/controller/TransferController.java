@@ -59,9 +59,9 @@ public class TransferController {
         ApplicationPage applicationPage = new ApplicationPage();
         SearchPage<Application> applicationSearchPage;
         if (status == null) {
-            applicationSearchPage = applicationRepository.findByUserIdEquals(userId, PageRequest.of(page, size));
+            applicationSearchPage = applicationRepository.findByUserIdEqualsOrderByTimeDesc(userId, PageRequest.of(page, size));
         } else {
-            applicationSearchPage = applicationRepository.findByUserIdEqualsAndStatusEquals(userId, status, PageRequest.of(page, size));
+            applicationSearchPage = applicationRepository.findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(userId, status, PageRequest.of(page, size));
         }
         applicationPage.setPageCount(applicationSearchPage.getTotalPages());
         ArrayList<Application> applications = new ArrayList<>();

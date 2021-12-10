@@ -8,8 +8,8 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
 public interface ApplicationRepository extends ElasticsearchRepository<Application,String> {
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEqualsAndStatusEquals(String userId, String status, Pageable pageable);
+    SearchPage<Application> findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(String userId, String status, Pageable pageable);
 
     @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEquals(String userId, Pageable pageable);
+    SearchPage<Application> findByUserIdEqualsOrderByTimeDesc(String userId, Pageable pageable);
 }
