@@ -2,6 +2,8 @@
   <div class="chart">
     <Banner></Banner>
     <v-divider></v-divider>
+    <span>{{this.name}}</span>
+    <v-btn @click="push">push</v-btn>
     <div 
       id="publish"
       class="ma-auto"
@@ -10,7 +12,7 @@
     <div 
       id="association"
       class="ma-auto"
-      style="width: 400px;height:300px;"
+      style="width: 600px;height:600px;"
     ></div>
   </div>
 </template>
@@ -21,54 +23,82 @@ export default {
   components: {
     Banner
   },
-  data:()=> ({
-    name: null,
-    associations: [
-      {
-				"confidence": 0.98,
-				"name": "人工智能"
-			},
-      {
-				"confidence": 1,
-				"name": "物理"
-			},
-      {
-				"confidence": 0.88,
-				"name": "量子物理"
-			},
-      {
-				"confidence": 0.78,
-				"name": "宇宙学"
-			},
-      {
-				"confidence": 0.95,
-				"name": "黑洞"
-			}
-    ],
-    heat: null,
-    pubsPerYear: [],
-  }),
+  data() {
+    return {
+      name: null,
+      associations: [
+        {
+          "confidence": 0.98,
+          "name": "人工智能"
+        },
+        {
+          "confidence": 1,
+          "name": "物理"
+        },
+        {
+          "confidence": 0.88,
+          "name": "量子物理"
+        },
+        {
+          "confidence": 0.78,
+          "name": "宇宙学"
+        },
+        {
+          "confidence": 0.95,
+          "name": "白洞"
+        }
+      ],
+      heat: null,
+      pubsPerYear: [],
+      publishEchart: null,
+      assEchart: null
+    }
+  },
+  watch: {
+    $route() {
+      this.loadData();
+    }
+  },
   mounted() {
-    /*this.name = this.$route.query.name;
-    this.$axios({
-      method: "get",
-      url: "/api/analysis/topic",
-      params: {
-        name: this.name
-      }
-    }).then(response => {
-      console.log(response.data)
-      this.heat = response.data.heat;
-      this.pubsPerYear = response.data.pubsPerYear;
-      this.associations = response.data.associationTopics;
-    }).catch(error => {
-      console.log(error)
-    })*/
-    this.myEcharts();
+    this.init();
   },
   methods: {
+    init() {
+      this.name = this.$route.query.name;
+      /*this.$axios({
+        method: "get",
+        url: "/api/analysis/topic",
+        params: {
+          name: this.name
+        }
+      }).then(response => {
+        console.log(response.data)
+        this.heat = response.data.heat;
+        this.pubsPerYear = response.data.pubsPerYear;
+        this.associations = response.data.associationTopics;
+      }).catch(error => {
+        console.log(error)
+      })*/
+      this.myEcharts();
+    },
+    push() {
+      this.$router.push({ path: 'topic', query: { name: 'hello'}})
+    },
     myEcharts() {
-      var publishEchart = this.$echarts.init(document.getElementById('publish'), null, { renderer: 'svg' });
+      this.publishEchart = this.$echarts.init(document.getElementById('publish'), 'infinite', { renderer: 'svg' });
+      this.assEchart = this.$echarts.init(document.getElementById('association'), 'infinite', { renderer: 'svg'});
+      
+      this.loadData();
+
+      var _this = this;
+      this.assEchart.on('click', function(param) {
+        var target = param.data.name + 'hello';
+        if (target != _this.name)
+          _this.$router.push({ path: 'topic', query: { name: target}})
+      })
+    },
+    loadData() {
+      this.name = this.$route.query.name;
       var publishOption = {
         title: {
           text: '出版物数量/年'
@@ -77,14 +107,21 @@ export default {
           data: ['2012','2013','2014']
         },
         yAxis: {},
-        series: {
-          type: 'bar',
-          data: [100,500,2000]
-        }
+        series: [
+          {
+            type: 'line',
+            data: [100,500,2000]
+          },
+          {
+            type: 'line',
+            data: [500,30,200]
+          },
+          {
+            type: 'line',
+            data: [400,1000,600]
+          }
+        ]
       }
-      publishEchart.setOption(publishOption);
-
-      var assEchart = this.$echarts.init(document.getElementById('association'), null, { renderer: 'svg'});
       var assOption = {
         title: {
           text: '关联关系'
@@ -93,31 +130,30 @@ export default {
           type: 'graph',
           layout: 'force',
           force: {
-            repulsion: 150,
+            repulsion: 500,
             gravity: 0.1,
-            edgeLength: [60, 80]
           },
-          symbolSize: 30,
           label: {
-            show: true
+            show: true,
+            fontSize: 18
+          },
+          edgeLabel: {
+            show: true,
+            position: 'middle',
+            formatter: '相关度:{c}'
           },
           data: [],
           links: [],
-          lineStyle: {
-            width: 2,
-            curveness: 0
-          }
         }
       }
       var topic = {
         name: this.name,
-        symbolSize: 60
+        symbolSize: 120
       }
       assOption.series.data.push(topic);
       this.associations.forEach(function(item) {
         var node = {}
         node.name = item.name
-        node.symbolSize = 50;
         assOption.series.data.push(node);
       })
       assOption.series.links = this.associations.map(function (data, idx) {
@@ -127,7 +163,9 @@ export default {
         link.value = data.confidence;
         return link;
       });
-      assEchart.setOption(assOption);
+      
+      this.publishEchart.setOption(publishOption);
+      this.assEchart.setOption(assOption);
     }
   }
 }

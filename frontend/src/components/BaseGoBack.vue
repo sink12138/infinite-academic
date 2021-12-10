@@ -1,10 +1,7 @@
 <template>
   <v-btn
-    class="ml-1"
     small
-    dark
-    outlined
-    fab
+    height="100%"
     elevation="0"
     @click="goBack()"
   >
