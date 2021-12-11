@@ -1,5 +1,6 @@
 package com.buaa.academic.model.application;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -46,10 +47,12 @@ public class PortalForApp implements Serializable {
     private List<@NotNull Institution> institutions;
 
     @PositiveOrZero
+    @JsonProperty("hIndex")
     @ApiModelProperty(value = "h指数")
     private Integer hIndex;
 
     @PositiveOrZero
+    @JsonProperty("gIndex")
     @ApiModelProperty(value = "g指数")
     private Integer gIndex;
 

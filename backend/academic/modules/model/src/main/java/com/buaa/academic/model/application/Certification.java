@@ -24,7 +24,7 @@ public class Certification implements Serializable {
 
     @NotNull
     @Pattern(regexp = "^[0-9A-Za-z]{5}$")
-    @ApiModelProperty(value = "验证码")
+    @ApiModelProperty(value = "验证码，只在提交POST时需要，查看GET时没有这个字段")
     private String code;
 
 }

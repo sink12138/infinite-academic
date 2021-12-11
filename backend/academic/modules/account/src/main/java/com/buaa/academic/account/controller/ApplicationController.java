@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/application")
@@ -91,50 +93,77 @@ public class ApplicationController {
 
     @GetMapping("/details/certification")
     @ApiOperation(value = "学者认证详细信息示例", notes = "本接口仅用于演示学者认证申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<Certification>> certificationDetails() {
-        return new Result<ApplicationDetails<Certification>>()
-                .withFailure("本接口仅用于演示学者认证申请的响应体结构，请申请/details/{id}接口");
+    public Result<Certification> certificationDetails() {
+        Certification certification;
+        if (new Random().nextBoolean()) {
+            certification = new Certification(
+                    new PortalForApp(
+                            "谭火彬",
+                            new PortalForApp.Institution("1cb4l30BGFAD_tUkF_1d", null),
+                            List.of(
+                                    new PortalForApp.Institution(null, "北京航空航天大学"),
+                                    new PortalForApp.Institution("08b4l30BGFAD_tUkF_1S", null)),
+                            3,
+                            4,
+                            List.of("计算机科学", "智能化软件工程")),
+                    null,
+                    null);
+        }
+        else {
+            certification = new Certification(
+                    null,
+                    new Claim(List.of(
+                            "ocfwqX0BGFAD_tUkIHRi",
+                            "4McCqn0BGFAD_tUkCX0E",
+                            "Bse2qX0BGFAD_tUkGGkS")),
+                    null);
+        }
+        return new Result<Certification>().withData(certification);
     }
 
     @GetMapping("/details/claim")
     @ApiOperation(value = "门户认领详细信息示例", notes = "本接口仅用于演示门户认领申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<Claim>> claimDetails() {
-        return new Result<ApplicationDetails<Claim>>()
-                .withFailure("本接口仅用于演示门户认领申请的响应体结构，请申请/details/{id}接口");
+    public Result<Claim> claimDetails() {
+        Claim claim = new Claim(
+                List.of(
+                "ocfwqX0BGFAD_tUkIHRi",
+                "4McCqn0BGFAD_tUkCX0E",
+                "Bse2qX0BGFAD_tUkGGkS"));
+        return new Result<Claim>().withData(claim);
     }
 
     @GetMapping("/details/modification")
     @ApiOperation(value = "修改门户详细信息示例", notes = "本接口仅用于演示修改门户申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<Modification>> modificationDetails() {
-        return new Result<ApplicationDetails<Modification>>()
+    public Result<Modification> modificationDetails() {
+        return new Result<Modification>()
                 .withFailure("本接口仅用于演示修改门户申请的响应体结构，请申请/details/{id}接口");
     }
 
     @GetMapping("/details/paper/add")
     @ApiOperation(value = "添加论文详细信息示例", notes = "本接口仅用于演示添加论文申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<PaperAdd>> addPaperDetails() {
-        return new Result<ApplicationDetails<PaperAdd>>()
+    public Result<PaperAdd> addPaperDetails() {
+        return new Result<PaperAdd>()
                 .withFailure("本接口仅用于演示添加论文申请的响应体结构，请申请/details/{id}接口");
     }
 
     @GetMapping("/details/paper/edit")
     @ApiOperation(value = "修改论文详细信息示例", notes = "本接口仅用于演示修改论文申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<PaperEdit>> editPaper() {
-        return new Result<ApplicationDetails<PaperEdit>>()
+    public Result<PaperEdit> editPaper() {
+        return new Result<PaperEdit>()
                 .withFailure("本接口仅用于演示修改论文申请的响应体结构，请申请/details/{id}接口");
     }
 
     @GetMapping("/details/paper/remove")
     @ApiOperation(value = "移除论文详细信息示例", notes = "本接口仅用于演示移除论文申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<PaperRemove>> removePaper() {
-        return new Result<ApplicationDetails<PaperRemove>>()
+    public Result<PaperRemove> removePaper() {
+        return new Result<PaperRemove>()
                 .withFailure("本接口仅用于演示移除论文申请的响应体结构，请申请/details/{id}接口");
     }
 
     @GetMapping("/details/transfer")
     @ApiOperation(value = "专利转让详细信息示例", notes = "本接口仅用于演示专利转让申请的响应体结构，请申请/details/{id}接口")
-    public Result<ApplicationDetails<Transfer>> transfer() {
-        return new Result<ApplicationDetails<Transfer>>()
+    public Result<Transfer> transfer() {
+        return new Result<Transfer>()
                 .withFailure("本接口仅用于演示专利转让申请的响应体结构，请申请/details/{id}接口");
     }
 

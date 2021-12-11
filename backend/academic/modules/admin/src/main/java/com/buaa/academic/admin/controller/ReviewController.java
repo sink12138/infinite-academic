@@ -151,6 +151,8 @@ public class ReviewController {
     }
 
     @PostMapping("/accept/modification")
+    @ApiOperation(value = "接受门户修改申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是门户修改类型")
     public Result<Void> acceptModification(@RequestHeader(name = "Auth") String auth,
                                            @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
         Result<Void> result = new Result<>();
