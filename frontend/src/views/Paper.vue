@@ -1,15 +1,16 @@
 <template>
-  <div>
+  <v-main>
+    <Banner :title="{text: 'Paper', icon: 'mdi-book-open-blank-variant'}"></Banner>
     <BasePaper v-bind:paperdata="this.paperdata"></BasePaper>
-    <BaseGoBack></BaseGoBack>
-  </div>
+  </v-main>
 </template>
+
 <script>
-import BaseGoBack from '../components/BaseGoBack.vue'
+import Banner from '../components/BaseBanner.vue'
 import BasePaper from '../components/BasePaper.vue'
 export default {
   components: {
-    BaseGoBack,BasePaper
+    Banner,BasePaper
   },
   data(){
     return{

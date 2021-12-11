@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BaseNavigation :router="this.router"></BaseNavigation>
+    <Banner :title="{text: 'Search', icon: 'mdi-magnify-expand'}"></Banner>
     <v-card>
       <BaseSearchBar ref="searchBar"></BaseSearchBar>
       <BaseFilter class="filter" ref="filter"></BaseFilter>
@@ -90,12 +90,12 @@
 <script>
 import BaseFilter from "../components/BaseFilter.vue";
 import BaseSearchBar from "../components/BaseSearchBar.vue";
-import BaseNavigation from '../components/BaseNavigation.vue'
+import Banner from '../components/BaseBanner.vue'
 
 export default {
   components: {
     BaseFilter,
-    BaseNavigation,
+    Banner,
     BaseSearchBar,
   },
   data() {

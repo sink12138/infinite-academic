@@ -1,38 +1,12 @@
 <template>
   <div>
-    <v-card class="betop">
-      <BaseGoBack class="ml-6" style="float: left"></BaseGoBack>
-      <div class="ma-auto d-inline-flex">
-        <v-icon 
-          class="ml-5 text-h2"
-          color="indigo darken-4"
-        >mdi-account-cog
-        </v-icon>
-        <div
-          class="my-font my-5"
-        >
-          <div 
-            v-if="!isLogin"
-          >
-            管理员
-          </div>
-          <div 
-            v-if="isLogin"
-          >
-            {{ menu[menu_id - 1].title }}
-          </div>
-        </div>
-        
-      </div>
-      <div 
-        v-if="isLogin"
-        style="float: right"
-      >
-        {{ logoutTime }} 将自动登出，请注意休息喔！
-      </div>
-    </v-card>
-
-
+    <Banner 
+      :title="{
+        text: this.isLogin?this.menu[this.menu_id - 1].title:'管理员', 
+        icon: 'mdi-account-cog',
+        time: this.logoutTime
+      }"
+    ></Banner>
 
     <v-card
       v-if="this.isLogin"
@@ -401,12 +375,12 @@
 </template>
 
 <script>
-import BaseGoBack from '../components/BaseGoBack.vue'
+import Banner from '../components/AdminBanner.vue'
 import { sha256 } from "js-sha256";
 
 export default {
   components: {
-    BaseGoBack,
+    Banner
   },
   data() {
     return {
