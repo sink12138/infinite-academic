@@ -1,12 +1,15 @@
 package com.buaa.academic.spider.controller;
 
+import com.buaa.academic.model.web.Result;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherObject;
+import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import com.buaa.academic.spider.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class SpiderController {
     public void spider(@RequestParam String keyword) throws InterruptedException {
         //todo 多线程
 
+        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+
         List<PaperObject> paperCraw = new ArrayList<>();
         List<PaperObject> subjectAndTopic = new ArrayList<>();
         List<ResearcherObject> researcherInterest = new ArrayList<>();
@@ -27,7 +32,7 @@ public class SpiderController {
         searchParser.setUrl(url);
         searchParser.wanFangSpider();
 
-        paperCraw.addAll(searchParser.getRootPaperList());
+        //paperCraw.addAll(searchParser.getRootPaperList());
 
         int total = 0;
 
@@ -40,7 +45,7 @@ public class SpiderController {
             paperParser.wanFangSpider();
             total++;
             System.out.println("finish " + total + " : " + paperParser.getPaperCraw().getUrl());
-            paperCraw.addAll(paperParser.getToCrawPaperList());
+            //paperCraw.addAll(paperParser.getToCrawPaperList());
             paperParser.getPaperCraw().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
             subjectAndTopic.add(paperParser.getPaperCraw());
         }
@@ -52,5 +57,22 @@ public class SpiderController {
             System.out.println("正在获取论文学科话题信息：" + paperObject.getPaper().getTitle());
             paperParser.zhiWangSpider();
         }
+    }
+
+    @Autowired
+    StatusCtrl statusCtrl;
+
+    @PostMapping("/start")
+    public Result<Void> start() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        ArrayList<String> keywords = new ArrayList<>();
+        keywords.add("网络");
+        keywords.add("计算机");
+        keywords.add("大数据");
+        statusCtrl.setKeywords(keywords);
+        statusCtrl.setSubjectTopicThreadNum(1);
+        statusCtrl.setMainInfoThreadNum(1);
+        statusCtrl.start();
+        return new Result<>();
     }
 }

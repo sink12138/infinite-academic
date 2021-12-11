@@ -1,6 +1,8 @@
 package com.buaa.academic.account.controller;
 
 import com.buaa.academic.document.system.Application;
+import com.buaa.academic.document.system.ApplicationType;
+import com.buaa.academic.document.system.StatusType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.account.model.ApplicationPage;
 import com.buaa.academic.account.repository.ApplicationRepository;
@@ -10,12 +12,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 
@@ -37,25 +38,23 @@ public class ApplicationController {
     public Result<ApplicationPage> getAllApp(@RequestHeader(value = "Auth") String userId,
                                              @RequestParam(value = "page") @PositiveOrZero int page,
                                              @RequestParam(value = "size") @Range(min = 1, max = 30) int size,
-                                             @RequestParam(value = "type", required = false) String type,
-                                             @RequestParam(value = "status", required = false) String status) {
+                                             @RequestParam(value = "type", required = false)  ApplicationType type,
+                                             @RequestParam(value = "status", required = false) StatusType status) {
         Result<ApplicationPage> result = new Result<>();
         ApplicationPage applicationPage = new ApplicationPage();
-        SearchPage<Application> applicationSearchPage;
+        Page<Application> applicationSearchPage;
         Pageable pageable = PageRequest.of(page, size);
         if (type == null && status == null)
             applicationSearchPage = appRepository.findByUserIdEqualsOrderByTimeDesc(userId, pageable);
         else if (type != null && status != null)
-            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsAndTypeEqualsOrderByTimeDesc(userId, status, type, pageable);
+            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsAndTypeEqualsOrderByTimeDesc(userId, status.getDescription(), type.getDescription(), pageable);
         else if (type != null)
-            applicationSearchPage = appRepository.findByUserIdEqualsAndTypeEqualsOrderByTimeDesc(userId, type, pageable);
+            applicationSearchPage = appRepository.findByUserIdEqualsAndTypeEqualsOrderByTimeDesc(userId, type.getDescription(), pageable);
         else
-            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(userId, status, pageable);
+            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(userId, status.getDescription(), pageable);
         applicationPage.setPageCount(applicationSearchPage.getTotalPages());
         ArrayList<Application> applications = new ArrayList<>();
-        applicationSearchPage.getSearchHits().forEach(applicationSearchHit ->
-                applications.add(applicationSearchHit.getContent())
-        );
+        applicationSearchPage.forEach(applications::add);
         applicationPage.setApplications(applications);
         return result.withData(applicationPage);
     }

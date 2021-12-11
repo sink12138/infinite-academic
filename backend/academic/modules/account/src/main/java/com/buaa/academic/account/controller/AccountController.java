@@ -5,6 +5,7 @@ import com.buaa.academic.account.service.AccountService;
 import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
+import com.buaa.academic.tool.validator.AllowValues;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
@@ -148,12 +149,21 @@ public class AccountController {
         return new Result<>();
     }
 
-    @ApiOperation(value = "找回密码获取验证码", notes = "向用户邮箱发送验证码")
-    @PostMapping("/forget/apply")
-    public Result<Void> forgetApply(@RequestParam(value = "email") @Email String email) {
-        User tmpUser = new User();
+    @ApiOperation(value = "发送验证码", notes = "用于找回密码或学者认证")
+    @PostMapping("/sendVerifyCode")
+    public Result<Void> sendVerifyCode(@RequestHeader(value = "Auth", required = false) String userId,
+                                       @RequestParam(value = "email") @Email String email,
+                                       @RequestParam(value = "action") @AllowValues({"找回密码", "学者认证"})  @NotNull String action) {
+        User tmpUser;
+        if (userId != null) {
+            tmpUser = template.get(userId, User.class);
+            if (tmpUser == null)
+                return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
+        } else {
+            tmpUser = new User();
+        }
         tmpUser.setEmail(email);
-        accountService.sendVerifyEmail(tmpUser, "找回密码");
+        accountService.sendVerifyEmail(tmpUser, action);
         return new Result<>();
     }
 

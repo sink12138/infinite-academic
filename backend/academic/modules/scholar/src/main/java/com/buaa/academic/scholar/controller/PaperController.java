@@ -34,22 +34,12 @@ public class PaperController {
     @Autowired
     ApplicationService<PaperAddApp> paperAddService;
 
-    @ApiOperation(value = "增加文章", notes = "添加已发表的文章或在本网站首发文章" +
-            "<br>首发文章必传fileToken和application; " +
-            "添加已发表文章webSiteLink和fileToken必需有其中之一，支持爬虫的网站可不传application</br>")
-    @PostMapping("/{operation}")
+    @ApiOperation(value = "增加文章", notes = "添加已发表的文章或在本网站首发文章")
+    @PostMapping("/add")
     public Result<Void> addPaper(@RequestHeader(value = "Auth") String userId,
-                                 @RequestBody ApplicationInfo<PaperAddApp> paper,
-                                 @PathVariable("operation") @AllowValues({"add", "publish"}) String operation) {
+                                 @RequestBody ApplicationInfo<PaperAddApp> paper) {
         Result<Void> result = new Result<>();
-        String type;
-        if (operation.equals("publish")) {
-            if (paper.getFileToken() == null || paper.getApplication() == null)
-                return result.withFailure(ExceptionType.INVALID_PARAM);
-            type = "发表文章";
-        } else
-            type = "添加文章";
-        if (!paperAddService.submitAppWithCtf(paper, userId, type)) {
+        if (!paperAddService.submitAppWithCtf(paper, userId, ApplicationType.NEW_PAPER)) {
             return result.withFailure(ExceptionType.INVALID_PARAM);
         }
         return result;

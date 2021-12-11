@@ -1,20 +1,23 @@
 package com.buaa.academic.account.repository;
 
 import com.buaa.academic.document.system.Application;
+import com.buaa.academic.document.system.ApplicationType;
+import com.buaa.academic.document.system.StatusType;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
+@SuppressWarnings("SpringDataRepositoryMethodParametersInspection")
 public interface ApplicationRepository extends ElasticsearchRepository<Application,String> {
-    @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(String userId, String status, Pageable pageable);
 
-    @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEqualsOrderByTimeDesc(String userId, Pageable pageable);
+    Page<Application> findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(String userId, String status, Pageable pageable);
 
-    @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEqualsAndTypeEqualsOrderByTimeDesc(String userId, String type, Pageable pageable);
 
-    @SuppressWarnings("SpringDataRepositoryMethodReturnTypeInspection")
-    SearchPage<Application> findByUserIdEqualsAndStatusEqualsAndTypeEqualsOrderByTimeDesc(String userId, String status, String type,  Pageable pageable);
+    Page<Application> findByUserIdEqualsOrderByTimeDesc(String userId, Pageable pageable);
+
+
+    Page<Application> findByUserIdEqualsAndTypeEqualsOrderByTimeDesc(String userId, String type, Pageable pageable);
+
+    Page<Application> findByUserIdEqualsAndStatusEqualsAndTypeEqualsOrderByTimeDesc(String userId, String status, String type, Pageable pageable);
 }

@@ -4,6 +4,11 @@ import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
+import com.buaa.academic.spider.repository.InstitutionRepository;
+import com.buaa.academic.spider.repository.PaperRepository;
+import com.buaa.academic.spider.repository.ResearcherRepository;
+import com.buaa.academic.spider.service.ExistenceService;
+import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,28 +18,32 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Component
 public class PaperParser {
     private PaperObject paperCraw;
-    private List<PaperObject> toCrawPaperList;
+    //private List<PaperObject> toCrawPaperList;
+    private StatusCtrl statusCtrl;
+
+    private JournalParser journalParser;
+
 
     public void wanFangSpider() throws InterruptedException {
         ChromeOptions options = new ChromeOptions().setHeadless(true);
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.paperCraw.getUrl());
         Thread.sleep(2000);
-        //todo find paper by this.paperCraw.getPaper().id;
-        Paper paper = new Paper();
+        // find paper by this.paperCraw.getPaper().id;
+        Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaper().getId());
         // 已经爬完了
         if (paper.isCrawled()) {
             driver.close();
@@ -101,7 +110,8 @@ public class PaperParser {
                 System.out.println("作者姓名： " + authorName);
                 System.out.println("作者主页： " + authorUrl);
                 partAuthor.setName(authorName);
-                ResearcherParser researcherParser=new ResearcherParser();
+                ResearcherParser researcherParser = new ResearcherParser();
+                researcherParser.setStatusCtrl(this.statusCtrl);
                 researcherParser.setUrl(authorUrl);
                 researcherParser.wanFangSpider();
                 partAuthor.setId(researcherParser.getResearcher().getId());
@@ -123,15 +133,16 @@ public class PaperParser {
 
                 System.out.println("机构名称： " + instName);
                 System.out.println("机构主页： " + instUrl);
-                Institution foundInst = null;
-                //todo find inst by name
+                // find inst by name
+                Institution foundInst = statusCtrl.existenceService.findInstByName(instName);
                 if (foundInst != null) {
                     inst.setId(foundInst.getId());
                     inst.setName(instName);
                 } else {
                     Institution newInst = new Institution();
                     newInst.setName(instName);
-                    //todo insert inst(with name) into database
+                    // insert inst(with name) into database
+                    statusCtrl.institutionRepository.save(newInst);
                     inst.setId(newInst.getId());
                     inst.setName(instName);
                 }
@@ -148,17 +159,16 @@ public class PaperParser {
             journal.setTitle(journalName);
             System.out.println("期刊标题： " + journalName);
             System.out.println("期刊主页： " + journalUrl);
-            Journal foundJournal = null;
-            //todo find journal by name
+            // find journal by name
+            Journal foundJournal = statusCtrl.existenceService.findJournalByName(journalName);
             if (foundJournal != null) {
                 journal.setId(foundJournal.getId());
             } else {
-                JournalParser journalParser = new JournalParser();
+                // JournalParser journalParser = new JournalParser();
                 journalParser.setUrl(journalUrl);
                 journalParser.wanFangSpider();
                 journal.setId(journalParser.getJournal().getId());
             }
-
         }
         // 获取年份、期号、卷号
         List<WebElement> yearAndVolumeElement = driver.findElementsByXPath("//div[@class=\"getYear list\"]//div[@class=\"itemUrl\"]//a");
@@ -207,7 +217,7 @@ public class PaperParser {
         if (publishElement.size() != 0) {
             String date = publishElement.get(0).getText();
             date = date.replace("（万方平台首次上网日期，不代表论文的发表时间）", "");
-            date = date.replace("\n", "");
+            date = date.replace("\n", "").replace(" ", "");
             paper.setDate(date);
             System.out.println(date);
         } else {
@@ -234,7 +244,7 @@ public class PaperParser {
         List<String> referenceID = new ArrayList<>();
         List<WebElement> referenceElement;
         List<WebElement> ableElement;
-        toCrawPaperList = new ArrayList<>();
+        //toCrawPaperList = new ArrayList<>();
         int flag;
         do {
             flag = 0;
@@ -261,19 +271,24 @@ public class PaperParser {
                     }
                     // 只爬期刊
                     if (type.startsWith("[J]")) {
-                        Paper foundReferPaper = new Paper();
-                        //todo find paper by referTitle and referAuthorName
+                        // find paper by referTitle and referAuthorName
+                        Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
                         if (foundReferPaper == null) {
+                            foundReferPaper = new Paper();
                             foundReferPaper.setCrawled(false);
                             foundReferPaper.setTitle(referTitle);
                             foundReferPaper.setAuthors(referAuthorList);
                             foundReferPaper.setType("J");
-                            //todo 插入数据库
-
-                            // 把url塞进队列
-                            PaperObject paperObject = new PaperObject(referUrl, foundReferPaper);
-                            toCrawPaperList.add(paperObject);
+                            // 插入数据库
+                            statusCtrl.paperRepository.save(foundReferPaper);
                         }
+                        // 把url塞进队列
+                        PaperObject paperObject = new PaperObject(referUrl, foundReferPaper);
+                        //toCrawPaperList.add(paperObject);
+
+                        StatusCtrl.paperObjectQueue.add(paperObject);
+
+
                         referenceID.add(foundReferPaper.getId());
                     }
                 }
@@ -295,7 +310,8 @@ public class PaperParser {
             Thread.sleep(3000);
         } while (flag == 1);
         paper.setReferences(referenceID);
-        //todo modify the paper‘s properties by paperCraw.getPaper().id
+        // modify the paper‘s properties by paperCraw.getPaper().id
+        statusCtrl.paperRepository.save(paper);
         driver.close();
     }
 
@@ -305,10 +321,10 @@ public class PaperParser {
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.paperCraw.getUrl());
         Thread.sleep(2000);
-        String title=this.paperCraw.getPaper().getTitle();
-        List<Paper.Author> paperAuthors=this.paperCraw.getPaper().getAuthors();
-        List<String> authors=new ArrayList<>();
-        for(Paper.Author paperAuthor:paperAuthors){
+        String title = this.paperCraw.getPaper().getTitle();
+        List<Paper.Author> paperAuthors = this.paperCraw.getPaper().getAuthors();
+        List<String> authors = new ArrayList<>();
+        for (Paper.Author paperAuthor : paperAuthors) {
             authors.add(paperAuthor.getName());
         }
         WebElement curSearchType = driver.findElementByXPath("//div[@class=\"search-box\"]//div[@class=\"sort-default\"]");
@@ -335,42 +351,42 @@ public class PaperParser {
         actions.click(searchButton).perform();
         Thread.sleep(2000);
         WebElement target = null;
-        int flag=0;
-        List<WebElement> matchElement=driver.findElementsByXPath("//table[@class=\"result-table-list\"]//tbody//tr");
-        if(matchElement.size()==0){
+        int flag = 0;
+        List<WebElement> matchElement = driver.findElementsByXPath("//table[@class=\"result-table-list\"]//tbody//tr");
+        if (matchElement.size() == 0) {
             driver.close();
             return;
         }
-        for(WebElement match:matchElement){
-            WebElement matchTitle=match.findElement(By.xpath(".//td[@class=\"name\"]//a"));
-            String matchTitleText=matchTitle.getText();
-            if(!matchTitleText.equals(title)){
+        for (WebElement match : matchElement) {
+            WebElement matchTitle = match.findElement(By.xpath(".//td[@class=\"name\"]//a"));
+            String matchTitleText = matchTitle.getText();
+            if (!matchTitleText.equals(title)) {
                 continue;
             }
-            List<WebElement> matchAuthors=match.findElements(By.xpath(".//td[@class=\"author\"]//a"));
-            List<String> matchNames=new ArrayList<>();
-            if(matchAuthors.size()!=0){
-                for(WebElement matchAuthor:matchAuthors){
+            List<WebElement> matchAuthors = match.findElements(By.xpath(".//td[@class=\"author\"]//a"));
+            List<String> matchNames = new ArrayList<>();
+            if (matchAuthors.size() != 0) {
+                for (WebElement matchAuthor : matchAuthors) {
                     matchNames.add(matchAuthor.getText());
                 }
             }
-            for(String matchName:matchNames){
-                if(authors.contains(matchName)){
-                    target=matchTitle;
-                    flag=1;
+            for (String matchName : matchNames) {
+                if (authors.contains(matchName)) {
+                    target = matchTitle;
+                    flag = 1;
                     break;
                 }
             }
-            if(flag==1){
+            if (flag == 1) {
                 break;
             }
         }
-        if(flag==0){
-            target=matchElement.get(0).findElement(By.xpath(".//td[@class=\"name\"]//a"));
+        if (flag == 0) {
+            target = matchElement.get(0).findElement(By.xpath(".//td[@class=\"name\"]//a"));
         }
-        if(target==null){
+        if (target == null) {
             driver.close();
-            return ;
+            return;
         }
         // 切换页面
         actions.click(target).perform();
@@ -380,6 +396,9 @@ public class PaperParser {
         assert allHandles.size() == 1;
         driver.switchTo().window((String) allHandles.toArray()[0]);
         List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
+
+        Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaper().getId());
+
         if (subjectAndTopicElement.size() != 0) {
             for (WebElement subjectAndTopic : subjectAndTopicElement) {
                 String type = subjectAndTopic.findElement(By.xpath(".//span")).getText();
@@ -387,16 +406,20 @@ public class PaperParser {
                     String allTopic = subjectAndTopic.findElement(By.xpath(".//p")).getText();
                     allTopic = allTopic.replaceAll(" ", "");
                     List<String> topics = Arrays.asList(allTopic.split(";"));
-                    //todo modify paper's topics by this.paperCraw.getPaper().id
-
+                    // modify paper's topics by this.paperCraw.getPaper().id
+                    paper.setTopics(topics);
                 } else if (type.equals("专题：")) {
                     String allSubject = subjectAndTopic.findElement(By.xpath(".//p")).getText();
                     allSubject = allSubject.replaceAll(" ", "");
                     List<String> subjects = Arrays.asList(allSubject.split(";"));
-                    //todo modify paper's subjects by this.paperCraw.getPaper().id
+                    // modify paper's subjects by this.paperCraw.getPaper().id
+                    paper.setSubjects(subjects);
                 }
             }
         }
+
+        statusCtrl.paperRepository.save(paper);
+
         driver.close();
         driver.switchTo().window(originalHandle);
         driver.close();

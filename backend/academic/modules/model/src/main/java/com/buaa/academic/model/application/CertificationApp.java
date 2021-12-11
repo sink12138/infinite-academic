@@ -22,4 +22,7 @@ public class CertificationApp implements Serializable {
 
     @ApiModelProperty(value = "学者曾经所在机构")
     private List<String> institutionsName;
+
+    @ApiModelProperty(value = "验证码")
+    private String code;
 }

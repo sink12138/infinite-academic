@@ -1,6 +1,8 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Institution;
+import com.buaa.academic.spider.repository.InstitutionRepository;
+import com.buaa.academic.spider.service.ExistenceService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,15 +11,24 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.NoSuchElementException;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Component
 public class InstitutionParser {
     private String url;
     private Institution institution;
+
+    @Autowired
+    ExistenceService existenceService;
+
+    @Autowired
+    InstitutionRepository institutionRepository;
 
     //暂时都用不着
 
@@ -86,16 +97,20 @@ public class InstitutionParser {
 
         if (nameElement != null) {
             String name = nameElement.getText();
-            Institution institution = new Institution();
-            institution.setName(name);
-            System.out.println(name);
-            //todo 判断是否在数据库中
-            if (logoUrlElement != null) {
-                String logoUrl = logoUrlElement.getAttribute("src");
-                institution.setLogoUrl(logoUrl);
-                System.out.println(logoUrl);
+            Institution institution = existenceService.findInstByName(name);
+            if (institution == null) {
+                institution = new Institution();
+                institution.setName(name);
+                System.out.println(name);
+                // 判断是否在数据库中
+                if (logoUrlElement != null) {
+                    String logoUrl = logoUrlElement.getAttribute("src");
+                    institution.setLogoUrl(logoUrl);
+                    System.out.println(logoUrl);
+                }
+                // 存入数据库
+                institutionRepository.save(institution);
             }
-            //todo 存入数据库
         }
         driver.close();
     }
@@ -125,16 +140,20 @@ public class InstitutionParser {
         }
         if (nameElement != null) {
             String name = nameElement.getText();
-            Institution institution = new Institution();
-            institution.setName(name);
-            System.out.println(name);
-            //todo 判断是否在数据库中
-            if (logoUrlElement != null) {
-                String logoUrl = logoUrlElement.getAttribute("src");
-                institution.setLogoUrl(logoUrl);
-                System.out.println(logoUrl);
+            Institution institution = existenceService.findInstByName(name);
+            if (institution == null) {
+                institution = new Institution();
+                institution.setName(name);
+                System.out.println(name);
+                // 判断是否在数据库中
+                if (logoUrlElement != null) {
+                    String logoUrl = logoUrlElement.getAttribute("src");
+                    institution.setLogoUrl(logoUrl);
+                    System.out.println(logoUrl);
+                }
+                // 存入数据库
+                institutionRepository.save(institution);
             }
-            //todo 存入数据库
         }
         driver.close();
     }

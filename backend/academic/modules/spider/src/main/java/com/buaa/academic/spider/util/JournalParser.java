@@ -1,6 +1,8 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Journal;
+import com.buaa.academic.spider.repository.JournalRepository;
+import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +11,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +21,12 @@ import java.util.NoSuchElementException;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Component
 public class JournalParser {
     private String url;
     private Journal journal;
+
+    private StatusCtrl statusCtrl;
 
     // 现在没用
     public void zhiWangSpider() throws InterruptedException {
@@ -119,7 +126,9 @@ public class JournalParser {
                 }
             }
         }
-        //todo insert journal into database
+        // insert journal into database
+        statusCtrl.journalRepository.save(journal);
+        this.journal = journal;
         driver.close();
     }
 }

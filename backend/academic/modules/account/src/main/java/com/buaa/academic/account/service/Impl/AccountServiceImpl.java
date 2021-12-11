@@ -68,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
         return randomStringGenerator.generate(length);
     }
 
-    @Autowired
+    @Resource
     private JavaMailSender javaMailSender;
 
     @Autowired
@@ -90,7 +90,7 @@ public class AccountServiceImpl implements AccountService {
         @Override
         public void run() {
             String code;
-            if (!action.equals("找回密码")) {
+            if (!action.equals("找回密码") && !action.equals("学者认证")) {
                 code = generateRandomCode(16);
             } else {
                 code = generateRandomCode(5);
@@ -98,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
             redisTemplate.opsForValue().set(code, user);
             redisTemplate.expire(code, Duration.ofHours(1));
 
-            if (!action.equals("找回密码")) {
+            if (!action.equals("找回密码") && !action.equals("学者认证")) {
                 Date date = new Date();
 
                 MimeMessage mimeMessage = javaMailSender.createMimeMessage();
