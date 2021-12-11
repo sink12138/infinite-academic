@@ -1,12 +1,7 @@
 package com.buaa.academic.spider.util;
 
-
 import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Researcher;
-import com.buaa.academic.spider.repository.InstitutionRepository;
-import com.buaa.academic.spider.repository.ResearcherRepository;
-import com.buaa.academic.spider.service.ExistenceService;
-import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,38 +27,64 @@ public class ResearcherParser {
     private StatusCtrl statusCtrl;
 
     public void wanFangSpider() throws InterruptedException {
+        RemoteWebDriver driver = null;
+        boolean success = false;
         ChromeOptions options = new ChromeOptions().setHeadless(true);
-        RemoteWebDriver driver = new ChromeDriver(options);
+        while (!success) {
+            try {
+                driver = new ChromeDriver(options);
+                success = true;
+            } catch (Exception ignored) {}
+        }
         driver.get(this.url);
         Thread.sleep(2000);
-        Researcher researcher = new Researcher();
+
         // 获取作者姓名
         List<WebElement> nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show no-description\"]");
+        String researcherName = null;
+        String instName = null;
         if (nameElement.size() != 0) {
-            String name = nameElement.get(0).getText();
-            researcher.setName(name);
-            System.out.println("作者姓名： " + name);
+            researcherName = nameElement.get(0).getText();
+            System.out.println("作者姓名： " + researcherName);
         }
-        // 获取当前机构
+        // 获取当前机构名称
         List<WebElement> curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name \"]");
         if (curInstElement.size() != 0) {
-            String curInst = curInstElement.get(0).getText();
-            System.out.println("当前机构： " + curInst);
-            Researcher.Institution curInstitution = new Researcher.Institution();
+            instName = curInstElement.get(0).getText();
+            System.out.println("当前机构： " + instName);
+        }
+        if (researcherName == null || instName == null) {
+            driver.close();
+            driver.quit();
+            return;
+        }
 
+        // 检查数据库中是否已有相同姓名和机构的数据库
+        Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
+        if (researcher == null) {
+            researcher = new Researcher();
+            researcher.setName(researcherName);
+            researcher.setPaperNum(1);
+            Researcher.Institution curInstitution = new Researcher.Institution();
             // get inst by name.
-            Institution institution = statusCtrl.existenceService.findInstByName(curInst);
+            Institution institution = statusCtrl.existenceService.findInstByName(instName);
             if (institution == null) {
                 institution = new Institution();
-                institution.setName(curInst);
+                institution.setName(instName);
                 // add into database
                 statusCtrl.institutionRepository.save(institution);
             }
-
             curInstitution.setId(institution.getId());
-            curInstitution.setName(curInst);
+            curInstitution.setName(instName);
             researcher.setCurrentInst(curInstitution);
+        } else {
+            researcher.setPaperNum(researcher.getPaperNum() + 1);
+            statusCtrl.researcherRepository.save(researcher);
+            driver.close();
+            driver.quit();
+            return;
         }
+
         // 获取科研人员的H、G指数
         List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li");
         if (scholarIndexElement.size() != 0) {
@@ -88,6 +107,7 @@ public class ResearcherParser {
             }
         }
         // 获取科研人员成果信息
+        /*
         List<WebElement> citationElement = driver.findElementsByXPath("//div[@class=\"lt-num-text\"]");
         if (citationElement.size() != 0) {
             for (WebElement cit : citationElement) {
@@ -104,6 +124,8 @@ public class ResearcherParser {
                 }
             }
         }
+        */
+
         // 查看是否有“更多”按钮
         List<WebElement> moreElement = driver.findElementsByXPath("//div[@class=\"rt-bottom\"]//div[@class=\"more-wrapper\" and @style=\"display: block;\"]//a[@class=\"show-more\"]");
         if (moreElement.size() != 0) {
@@ -138,6 +160,7 @@ public class ResearcherParser {
         statusCtrl.researcherRepository.save(researcher);
 
         driver.close();
+        driver.quit();
         ResearcherParser researcherParser = new ResearcherParser();
         researcherParser.setStatusCtrl(statusCtrl);
         researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
@@ -150,8 +173,15 @@ public class ResearcherParser {
     //获取作者研究领域
     // https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page
     public void baiDuSpider() throws InterruptedException {
+        RemoteWebDriver driver = null;
+        boolean success = false;
         ChromeOptions options = new ChromeOptions().setHeadless(true);
-        RemoteWebDriver driver = new ChromeDriver(options);
+        while (!success) {
+            try {
+                driver = new ChromeDriver(options);
+                success = true;
+            } catch (Exception ignored) {}
+        }
         driver.get(this.url);
         Thread.sleep(2000);
         String researcherName = this.researcher.getName();
@@ -175,6 +205,7 @@ public class ResearcherParser {
         List<WebElement> matchResearchers = driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
         if (matchResearchers.size() == 0) {
             driver.close();
+            driver.quit();
             return;
         }
         WebElement target = null;
@@ -189,6 +220,7 @@ public class ResearcherParser {
         }
         if (target == null) {
             driver.close();
+            driver.quit();
             return;
         }
         //切换页面
@@ -216,5 +248,6 @@ public class ResearcherParser {
         driver.close();
         driver.switchTo().window(originalHandle);
         driver.close();
+        driver.quit();
     }
 }

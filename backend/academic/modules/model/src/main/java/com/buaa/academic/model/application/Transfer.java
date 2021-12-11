@@ -21,9 +21,11 @@ public class Transfer implements Serializable {
     @ApiModelProperty(value = "待操作的专利数据库ID")
     private String patentId;
 
+    @NotNull
     @ApiModelProperty(value = "转让方")
     private String transferor;
 
+    @NotNull
     @ApiModelProperty(value = "受让方")
     private String transferee;
 

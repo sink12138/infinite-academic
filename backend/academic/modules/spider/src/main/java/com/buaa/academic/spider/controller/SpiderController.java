@@ -3,7 +3,7 @@ package com.buaa.academic.spider.controller;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherObject;
-import com.buaa.academic.spider.service.Impl.StatusCtrl;
+import com.buaa.academic.spider.util.StatusCtrl;
 import com.buaa.academic.spider.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,16 +63,20 @@ public class SpiderController {
     StatusCtrl statusCtrl;
 
     @PostMapping("/start")
-    public Result<Void> start() {
+    public Result<Void> start(@RequestParam(value = "keyword") String keyword) {
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         ArrayList<String> keywords = new ArrayList<>();
-        keywords.add("网络");
-        keywords.add("计算机");
-        keywords.add("大数据");
+        keywords.add(keyword);
         statusCtrl.setKeywords(keywords);
-        statusCtrl.setSubjectTopicThreadNum(1);
-        statusCtrl.setMainInfoThreadNum(1);
+        statusCtrl.setSubjectTopicThreadNum(3);
+        statusCtrl.setMainInfoThreadNum(3);
         statusCtrl.start();
+        return new Result<>();
+    }
+
+    @PostMapping("/stop")
+    public Result<Void> stop()  {
+        statusCtrl.stop();
         return new Result<>();
     }
 }

@@ -2,6 +2,7 @@ package com.buaa.academic.analysis.service.impl;
 
 import com.buaa.academic.analysis.dao.SubjectRepository;
 import com.buaa.academic.analysis.dao.TopicRepository;
+import com.buaa.academic.analysis.service.impl.citatoinStatistics.CitationStatisticsThread;
 import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.heat.HeatUpdateMainThread;
 import com.buaa.academic.model.web.Schedule;
@@ -96,6 +97,7 @@ public class StatusCtrl implements Runnable {
         runningStatus.clear();
         lastRunningDate = new Date();
         analysisStarted = true;
+        researcherCitationStatistics();
         associationAnalysis();
         heatRankAnalysis();
         analysisStarted = false;
@@ -137,11 +139,24 @@ public class StatusCtrl implements Runnable {
         }
     }
 
+    private void researcherCitationStatistics() throws InterruptedException {
+        log.info("Citation statistics of researcher started");
+
+        Thread statisticsThread = new Thread(new CitationStatisticsThread(template, JobType.CITATION_STATISTICS.name()));
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            StatusCtrl.isRunning.put(JobType.CITATION_STATISTICS.name(), true);
+        }
+        statisticsThread.start();
+        statisticsThread.join();
+
+        log.info("Citation statistics of researcher finished");
+    }
+
     private void associationAnalysis() throws InterruptedException {
         log.info("Association analysis started");
 
-        double minSupport = 0.4;
-        double minConfidence = 0.6;
+        double minSupport = 0.2;
+        double minConfidence = 0.3;
 
         FPGMainClass topicFPG = new FPGMainClass("topics")
                 .setName(JobType.TOPIC_FPG_ANALYSIS.name())
