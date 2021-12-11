@@ -38,7 +38,7 @@ public class Application {
 
     @ApiModelProperty(value = "申请处理状态", example = "审核中")
     @Field(type = FieldType.Keyword)
-    private String status;
+    private StatusType status;
 
     @Field(type = FieldType.Keyword)
     private String fileToken;

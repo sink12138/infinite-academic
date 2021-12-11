@@ -1,5 +1,6 @@
 package com.buaa.academic.scholar.controller;
 
+import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.model.application.ApplicationInfo;
 import com.buaa.academic.model.application.PaperAddApp;
 import com.buaa.academic.model.application.PaperRemoveApp;
@@ -26,7 +27,7 @@ public class PaperController {
     @ApiOperation(value = "移除文章申请")
     public Result<Void> removePaper(@RequestHeader(value = "Auth") String userId,
                                     @RequestBody ApplicationInfo<PaperRemoveApp> paperRemoveAppInfo) {
-        paperRemoveAppService.submitAppWithoutCtf(paperRemoveAppInfo, userId, "文章删除");
+        paperRemoveAppService.submitAppWithoutCtf(paperRemoveAppInfo, userId, ApplicationType.REMOVE_PAPER);
         return new Result<>();
     }
 

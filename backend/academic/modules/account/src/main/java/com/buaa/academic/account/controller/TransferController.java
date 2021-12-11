@@ -2,6 +2,8 @@ package com.buaa.academic.account.controller;
 
 import com.buaa.academic.account.repository.ApplicationRepository;
 import com.buaa.academic.document.system.Application;
+import com.buaa.academic.document.system.ApplicationType;
+import com.buaa.academic.document.system.StatusType;
 import com.buaa.academic.model.application.ApplicationInfo;
 import com.buaa.academic.model.application.TransferApp;
 import com.buaa.academic.model.exception.ExceptionType;
@@ -43,8 +45,8 @@ public class TransferController {
         application.setUserId(userId);
         application.setEmail(transferInfo.getEmail());
         application.setTime(simpleDateFormat.format(date));
-        application.setType("专利转让");
-        application.setStatus("审核中");
+        application.setType(ApplicationType.TRANSFER);
+        application.setStatus(StatusType.UNDER_REVIEW);
         application.setFileToken(transferInfo.getFileToken());
         applicationRepository.save(application);
         TransferApp transferApp = transferInfo.getApplication();

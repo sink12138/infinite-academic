@@ -1,5 +1,6 @@
 package com.buaa.academic.scholar.controller;
 
+import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.model.application.ApplicationInfo;
 import com.buaa.academic.model.application.CertificationApp;
 import com.buaa.academic.model.application.ClaimApp;
@@ -29,7 +30,7 @@ public class IdentityController {
     public Result<Void> certify(@RequestHeader(value = "Auth") String userId,
                                 @RequestBody ApplicationInfo<CertificationApp> ctfApp) {
         Result<Void> result = new Result<>();
-        if (certifyAppService.submitAppWithCtf(ctfApp, userId, "学者认证"))
+        if (certifyAppService.submitAppWithCtf(ctfApp, userId, ApplicationType.CERTIFICATION))
             return result;
         else
             return result.withFailure(ExceptionType.INVALID_PARAM);
@@ -43,7 +44,7 @@ public class IdentityController {
     public Result<Void> claim(@RequestHeader(value = "Auth") String userId,
                               @RequestBody ApplicationInfo<ClaimApp> claimApp) {
         Result<Void> result = new Result<>();
-        if (claimAppService.submitAppWithCtf(claimApp, userId, "门户认领"))
+        if (claimAppService.submitAppWithCtf(claimApp, userId, ApplicationType.CLAIM))
             return result;
         else
             return result.withFailure(ExceptionType.INVALID_PARAM);
@@ -57,7 +58,7 @@ public class IdentityController {
     public Result<Void> modify(@RequestHeader(value = "Auth") String userId,
                                @RequestBody ApplicationInfo<ModificationApp> mdfApp) {
         Result<Void> result = new Result<>();
-        if (modificationAppService.submitAppWithCtf(mdfApp, userId, "学者信息修改"))
+        if (modificationAppService.submitAppWithCtf(mdfApp, userId, ApplicationType.MODIFICATION))
             return result;
         else
             return result.withFailure(ExceptionType.INVALID_PARAM);

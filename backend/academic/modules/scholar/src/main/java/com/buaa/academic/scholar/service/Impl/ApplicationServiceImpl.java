@@ -1,6 +1,8 @@
 package com.buaa.academic.scholar.service.Impl;
 
 import com.buaa.academic.document.system.Application;
+import com.buaa.academic.document.system.ApplicationType;
+import com.buaa.academic.document.system.StatusType;
 import com.buaa.academic.model.application.ApplicationInfo;
 import com.buaa.academic.scholar.repository.AppRepository;
 import com.buaa.academic.scholar.service.ApplicationService;
@@ -20,7 +22,7 @@ public class ApplicationServiceImpl<T> implements ApplicationService<T> {
     RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public Boolean submitAppWithCtf(ApplicationInfo<T> applicationInfo, String userId, String type) {
+    public Boolean submitAppWithCtf(ApplicationInfo<T> applicationInfo, String userId, ApplicationType type) {
         String appId;
         Application application = appBasicSetting(userId, applicationInfo.getEmail(), type);
         if (applicationInfo.getFileToken() == null && applicationInfo.getWebsiteLink() == null)
@@ -38,18 +40,18 @@ public class ApplicationServiceImpl<T> implements ApplicationService<T> {
     }
 
     @Override
-    public void submitAppWithoutCtf(ApplicationInfo<T> applicationInfo, String userId, String type) {
+    public void submitAppWithoutCtf(ApplicationInfo<T> applicationInfo, String userId, ApplicationType type) {
         Application application = appBasicSetting(userId, applicationInfo.getEmail(), type);
         appRepository.save(application);
         redisTemplate.opsForValue().set(application.getId(), applicationInfo.getApplication());
     }
 
-    private Application appBasicSetting(String userId, String email, String type) {
+    private Application appBasicSetting(String userId, String email, ApplicationType type) {
         Application application = new Application();
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         application.setTime(simpleDateFormat.format(date));
-        application.setStatus("审核中");
+        application.setStatus(StatusType.UNDER_REVIEW);
         application.setEmail(email);
         application.setUserId(userId);
         application.setType(type);
