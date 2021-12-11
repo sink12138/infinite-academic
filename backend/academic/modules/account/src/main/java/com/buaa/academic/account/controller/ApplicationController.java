@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.PositiveOrZero;
@@ -43,15 +44,15 @@ public class ApplicationController {
         Result<ApplicationPage> result = new Result<>();
         ApplicationPage applicationPage = new ApplicationPage();
         Page<Application> applicationSearchPage;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("time")));
         if (type == null && status == null)
-            applicationSearchPage = appRepository.findByUserIdEqualsOrderByTimeDesc(userId, pageable);
+            applicationSearchPage = appRepository.findByUserId(userId, pageable);
         else if (type != null && status != null)
-            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsAndTypeEqualsOrderByTimeDesc(userId, status.getDescription(), type.getDescription(), pageable);
+            applicationSearchPage = appRepository.findByUserIdAndStatusAndType(userId, status.getDescription(), type.getDescription(), pageable);
         else if (type != null)
-            applicationSearchPage = appRepository.findByUserIdEqualsAndTypeEqualsOrderByTimeDesc(userId, type.getDescription(), pageable);
+            applicationSearchPage = appRepository.findByUserIdAndType(userId, type.getDescription(), pageable);
         else
-            applicationSearchPage = appRepository.findByUserIdEqualsAndStatusEqualsOrderByTimeDesc(userId, status.getDescription(), pageable);
+            applicationSearchPage = appRepository.findByUserIdAndStatus(userId, status.getDescription(), pageable);
         applicationPage.setPageCount(applicationSearchPage.getTotalPages());
         ArrayList<Application> applications = new ArrayList<>();
         applicationSearchPage.forEach(applications::add);

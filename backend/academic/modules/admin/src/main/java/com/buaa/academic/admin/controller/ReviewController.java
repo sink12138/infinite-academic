@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
@@ -68,7 +69,7 @@ public class ReviewController {
         Result<ApplicationPage> result = new Result<>();
         if (!authValidator.headerCheck(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("time")));
         Page<Application> searchPage;
         if (type != null && status != null) {
             searchPage = applicationRepository.findByTypeAndStatus(type.getDescription(), status.getDescription(), pageable);
