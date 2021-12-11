@@ -1,8 +1,10 @@
 package com.buaa.academic.admin.client;
 
 import com.buaa.academic.model.web.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 public abstract class FeignOperation<D> extends Thread {
 
     private static int count;
@@ -31,8 +33,8 @@ public abstract class FeignOperation<D> extends Thread {
             this.result = apply();
         }
         catch (Exception e) {
+            log.warn("Failed to apply FeignOperation '" + this.getTag() + '\'');
             LoggerFactory.getLogger(e.getClass()).warn(e.getMessage());
-            LoggerFactory.getLogger(FeignOperation.class).warn("Failed to apply FeignOperation '" + this.getTag() + '\'');
         }
     }
 

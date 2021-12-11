@@ -12,8 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/system")
 @Validated
+@Slf4j
 @Api(tags = "系统控制相关")
 public class SystemController {
 
@@ -34,8 +34,6 @@ public class SystemController {
 
     @Autowired
     private AnalysisClient analysisClient;
-
-    private final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
     @GetMapping("/schedules")
     @ApiOperation(value = "获取定时任务列表", notes = "获取当前已注册的所有定时任务的概览和详细信息")
@@ -72,7 +70,7 @@ public class SystemController {
         for (FeignOperation<Schedule> operation : operations) {
             Result<Schedule> operationResult = operation.getResult();
             if (operationResult == null) {
-                logger.warn("Timeout when retrieving status of '" + operation.getTag() + '\'');
+                log.warn("Timeout when retrieving status of '" + operation.getTag() + '\'');
                 continue;
             }
             if (!operationResult.isSuccess()) {
@@ -124,7 +122,7 @@ public class SystemController {
         }
         Result<Void> operationResult = operation.getResult();
         if (operationResult == null) {
-            logger.warn("Timeout when starting schedule '" + operation.getTag() + '\'');
+            log.warn("Timeout when starting schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
         return operation.getResult();
@@ -169,7 +167,7 @@ public class SystemController {
         }
         Result<Void> operationResult = operation.getResult();
         if (operationResult == null) {
-            logger.warn("Timeout when stopping schedule '" + operation.getTag() + '\'');
+            log.warn("Timeout when stopping schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
         return operation.getResult();
@@ -219,7 +217,7 @@ public class SystemController {
         }
         Result<Void> operationResult = operation.getResult();
         if (operationResult == null) {
-            logger.warn("Timeout when setting timing of schedule '" + operation.getTag() + '\'');
+            log.warn("Timeout when setting timing of schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
         return operation.getResult();

@@ -5,6 +5,7 @@ import com.buaa.academic.analysis.dao.TopicRepository;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.document.entity.Paper;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -12,18 +13,18 @@ import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class HeatUpdateMainThread implements Runnable {
     public static Map<String, Integer> total = new ConcurrentHashMap<>();
     public static Map<String, Integer> finished = new ConcurrentHashMap<>();
@@ -36,8 +37,6 @@ public class HeatUpdateMainThread implements Runnable {
     private final ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
-
-    private final static Logger logger = LoggerFactory.getLogger(HeatUpdateMainThread.class);
 
     public HeatUpdateMainThread(ElasticsearchRestTemplate template) {
         this.template = template;
@@ -71,7 +70,7 @@ public class HeatUpdateMainThread implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        logger.info("Heat update started");
+        log.info("Heat update started");
 
         long start_time = System.currentTimeMillis();
 
@@ -130,7 +129,7 @@ public class HeatUpdateMainThread implements Runnable {
         double costTime = ((double) (System.currentTimeMillis() - start_time) / 1000);
         StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s. ", name);
 
-        logger.info("Heat update finished");
+        log.info("Heat update finished");
     }
 
     private void rateGen() {

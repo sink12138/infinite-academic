@@ -8,16 +8,17 @@ import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import com.buaa.academic.tool.util.NaturalCron;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.mapreduce.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class StatusCtrl implements Runnable {
     public static final Object STATUS_LOCK = new Object();
 
@@ -33,8 +34,6 @@ public class StatusCtrl implements Runnable {
     private TopicRepository topicRepository;
     private SubjectRepository subjectRepository;
     private String cacheDirectory;
-
-    private static final Logger logger = LoggerFactory.getLogger(StatusCtrl.class);
 
     public StatusCtrl setTemplate(ElasticsearchRestTemplate template) {
         this.template = template;
@@ -75,14 +74,14 @@ public class StatusCtrl implements Runnable {
 
     public static void changeRunningStatusTo(String runningStatus, String threadName) {
         synchronized (StatusCtrl.STATUS_LOCK) {
-            logger.info("Status change: " + threadName + " -> " + runningStatus);
+            log.info("Status change: " + threadName + " -> " + runningStatus);
             StatusCtrl.runningStatus.put(threadName, runningStatus);
         }
     }
 
     public static void changeRunningStatusToStop(String runningStatus, String threadName) {
         synchronized (StatusCtrl.STATUS_LOCK) {
-            logger.info("Status change: " + threadName + " -> " + runningStatus);
+            log.info("Status change: " + threadName + " -> " + runningStatus);
             StatusCtrl.isRunning.remove(threadName);
             StatusCtrl.runningStatus.put(threadName, runningStatus);
         }
@@ -91,7 +90,7 @@ public class StatusCtrl implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        logger.info("Started schedule task");
+        log.info("Started schedule task");
         isRunning.clear();
         currentJob.clear();
         runningStatus.clear();
@@ -100,7 +99,7 @@ public class StatusCtrl implements Runnable {
         associationAnalysis();
         heatRankAnalysis();
         analysisStarted = false;
-        logger.info("Finished schedule task");
+        log.info("Finished schedule task");
     }
 
     public static Schedule getStatus() {
@@ -139,7 +138,7 @@ public class StatusCtrl implements Runnable {
     }
 
     private void associationAnalysis() throws InterruptedException {
-        logger.info("Association analysis started");
+        log.info("Association analysis started");
 
         double minSupport = 0.4;
         double minConfidence = 0.6;
@@ -175,11 +174,11 @@ public class StatusCtrl implements Runnable {
         topicFPGThread.join();
         subjectFPGThread.join();
 
-        logger.info("Association analysis finished");
+        log.info("Association analysis finished");
     }
 
     private void heatRankAnalysis() throws InterruptedException {
-        logger.info("Heat rank analysis started");
+        log.info("Heat rank analysis started");
 
         int jobNumber = 10;
 
@@ -210,6 +209,6 @@ public class StatusCtrl implements Runnable {
         topicThread.join();
         subjectThread.join();
 
-        logger.info("Heat rank analysis finished");
+        log.info("Heat rank analysis finished");
     }
 }

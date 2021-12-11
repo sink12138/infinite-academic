@@ -1,12 +1,14 @@
 package com.buaa.academic.document.system;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
+@Getter
 public enum ApplicationType {
 
     CERTIFICATION("学者认证"),
@@ -18,14 +20,10 @@ public enum ApplicationType {
     TRANSFER("专利转让");
 
     @JsonValue
-    private final String value;
+    private final String description;
 
-    public String getValue() {
-        return this.value;
-    }
-
-    ApplicationType(String value) {
-        this.value = value;
+    ApplicationType(String description) {
+        this.description = description;
     }
 
     @WritingConverter
@@ -36,7 +34,7 @@ public enum ApplicationType {
         public String convert(@Nullable ApplicationType source) {
             if (source == null)
                 return null;
-            return source.value;
+            return source.description;
         }
 
     }
@@ -48,7 +46,7 @@ public enum ApplicationType {
         @Nullable
         public ApplicationType convert(@NonNull String source) {
             for (ApplicationType type : ApplicationType.values()) {
-                if (type.value.equals(source)) {
+                if (type.description.equals(source)) {
                     return type;
                 }
             }
