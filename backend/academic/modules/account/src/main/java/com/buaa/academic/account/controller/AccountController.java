@@ -150,7 +150,7 @@ public class AccountController {
     }
 
     @ApiOperation(value = "发送验证码", notes = "用于找回密码或学者认证")
-    @PostMapping("/sendVerifyCode")
+    @PostMapping("/code")
     public Result<Void> sendVerifyCode(@RequestHeader(value = "Auth", required = false) String userId,
                                        @RequestParam(value = "email") @Email String email,
                                        @RequestParam(value = "action") @AllowValues({"找回密码", "学者认证"})  @NotNull String action) {

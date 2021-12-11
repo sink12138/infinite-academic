@@ -13,8 +13,9 @@ import javax.validation.constraints.NotNull;
 @FeignClient("client-account")
 public interface AccountClient {
 
-    @PostMapping("/sendVerifyCode")
+    @PostMapping("/code")
     Result<Void> sendVerifyCode(@RequestHeader(value = "Auth", required = false) String userId,
                                 @RequestParam(value = "email") @Email String email,
                                 @RequestParam(value = "action") @AllowValues({"forgetPwd", "researcherCtf"})  @NotNull String action);
+
 }
