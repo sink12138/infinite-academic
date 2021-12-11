@@ -59,7 +59,7 @@ public class AuthController {
                               @RequestParam(value = "password") @NotNull @NotEmpty String password,
                               HttpServletResponse response) {
         Result<Void> result = new Result<>();
-        if (!authValidator.keyCheck(username, password)) {
+        if (!authValidator.passwordCheck(username, password)) {
             return result.withFailure("用户名或密码错误");
         }
         Authority auth = queryAdminAuth(token);
@@ -111,7 +111,7 @@ public class AuthController {
     public Result<Void> auth(@RequestParam(value = "username") @NotNull @NotEmpty String username,
                              @RequestParam(value = "password") @NotNull @NotEmpty String password) {
         Result<Void> result = new Result<>();
-        if (!authValidator.keyCheck(username, password)) {
+        if (!authValidator.passwordCheck(username, password)) {
             return result.withFailure("用户名或密码错误");
         }
         return result;

@@ -32,11 +32,11 @@ public class Application {
     @Field(type = FieldType.Date, pattern = "yyyy-MM-dd HH:mm")
     private String time;
 
-    @ApiModelProperty(value = "申请类型", example = "专利转让")
+    @ApiModelProperty(value = "申请类型（学者认证/门户认领/门户信息修改/添加论文/下架论文/修改论文信息/专利转让）", example = "专利转让")
     @Field(type = FieldType.Keyword)
     private ApplicationType type;
 
-    @ApiModelProperty(value = "申请处理状态", example = "审核中")
+    @ApiModelProperty(value = "申请处理状态（审核中/审核通过/审核不通过）", example = "审核中")
     @Field(type = FieldType.Keyword)
     private StatusType status;
 

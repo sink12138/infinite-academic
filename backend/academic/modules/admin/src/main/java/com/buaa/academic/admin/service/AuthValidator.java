@@ -11,7 +11,7 @@ import java.util.Base64;
 @Component
 public class AuthValidator {
 
-    private static final Object lock = new Object();
+    private static final Object AUTH_LOCK = new Object();
 
     private static boolean initialized = false;
 
@@ -27,7 +27,7 @@ public class AuthValidator {
 
     @PostConstruct
     public void init() {
-        synchronized (lock) {
+        synchronized (AUTH_LOCK) {
             if (!initialized) {
                 passwordSHA256 = DigestUtils.sha256Hex(password);
                 authHeader = Base64.getEncoder().encodeToString((username + '@' + password).getBytes(StandardCharsets.UTF_8));
@@ -37,7 +37,7 @@ public class AuthValidator {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean keyCheck(String username, String password) {
+    public boolean passwordCheck(String username, String password) {
         return this.username.equals(username) && passwordSHA256.equals(password);
     }
 
