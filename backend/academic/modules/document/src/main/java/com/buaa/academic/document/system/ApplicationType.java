@@ -13,10 +13,10 @@ public enum ApplicationType {
 
     CERTIFICATION("学者认证"),
     CLAIM("门户认领"),
-    MODIFICATION("门户信息修改"),
+    MODIFICATION("门户修改"),
     NEW_PAPER("添加论文"),
-    REMOVE_PAPER("下架论文"),
-    UPDATE_PAPER("修改论文信息"),
+    EDIT_PAPER("修改论文"),
+    REMOVE_PAPER("移除论文"),
     TRANSFER("专利转让");
 
     @JsonValue

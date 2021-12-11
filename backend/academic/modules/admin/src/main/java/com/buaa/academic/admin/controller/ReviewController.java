@@ -8,7 +8,6 @@ import com.buaa.academic.document.system.Application;
 import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.document.system.Message;
 import com.buaa.academic.document.system.StatusType;
-import com.buaa.academic.model.application.*;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
@@ -93,7 +92,7 @@ public class ReviewController {
     @ApiOperation(value = "查看申请详细信息", notes = "详细内容的结构还在设计中，可参考其他几个临时的详细信息API")
     @ApiImplicitParam(name = "id", value = "申请的ID")
     public Result<ApplicationDetails<Object>> details(@RequestHeader(name = "Auth") String auth,
-                                              @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
+                                                      @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
         Result<ApplicationDetails<Object>> result = new Result<>();
         if (!authValidator.headerCheck(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
@@ -102,120 +101,6 @@ public class ReviewController {
             return result.withFailure(ExceptionType.NOT_FOUND);
         Object content = redisTemplate.opsForValue().get(id);
         return result.withData(new ApplicationDetails<>(application, content));
-    }
-
-    @GetMapping("/certification/{id}")
-    @ApiOperation(value = "学者认证详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是学者认证类型")
-    public Result<CertificationApp> certification(@RequestHeader(name = "Auth") String auth,
-                                                  @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<CertificationApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.CERTIFICATION.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        CertificationApp certification = (CertificationApp) redisTemplate.opsForValue().get(id);
-        if (certification == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(certification);
-    }
-
-    @GetMapping("/claim/{id}")
-    @ApiOperation(value = "门户认领详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是门户认领类型")
-    public Result<ClaimApp> claim(@RequestHeader(name = "Auth") String auth,
-                                  @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<ClaimApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.CLAIM.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        ClaimApp claim = (ClaimApp) redisTemplate.opsForValue().get(id);
-        if (claim == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(claim);
-    }
-
-    @GetMapping("/modification/{id}")
-    @ApiOperation(value = "门户修改详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是门户信息修改类型")
-    public Result<ModificationApp> modification(@RequestHeader(name = "Auth") String auth,
-                                                @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<ModificationApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.MODIFICATION.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        ModificationApp modification = (ModificationApp) redisTemplate.opsForValue().get(id);
-        if (modification == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(modification);
-    }
-
-    @GetMapping("/paper/add/{id}")
-    @ApiOperation(value = "添加论文详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是添加论文类型")
-    public Result<PaperAddApp> addPaper(@RequestHeader(name = "Auth") String auth,
-                                            @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<PaperAddApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.NEW_PAPER.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        PaperAddApp paperAdd = (PaperAddApp) redisTemplate.opsForValue().get(id);
-        if (paperAdd == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(paperAdd);
-    }
-
-    @GetMapping("/paper/remove/{id}")
-    @ApiOperation(value = "下架论文详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是下架论文类型")
-    public Result<PaperRemoveApp> removePaper(@RequestHeader(name = "Auth") String auth,
-                                        @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<PaperRemoveApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.REMOVE_PAPER.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        PaperRemoveApp paperRemove = (PaperRemoveApp) redisTemplate.opsForValue().get(id);
-        if (paperRemove == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(paperRemove);
-    }
-
-    @GetMapping("/transfer/{id}")
-    @ApiOperation(value = "查看专利转让详细信息")
-    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是专利转让类型")
-    public Result<TransferApp> transfer(@RequestHeader(name = "Auth") String auth,
-                                                @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
-        Result<TransferApp> result = new Result<>();
-        if (!authValidator.headerCheck(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        else if (!ApplicationType.TRANSFER.equals(application.getType()))
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        TransferApp modification = (TransferApp) redisTemplate.opsForValue().get(id);
-        if (modification == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        return result.withData(modification);
     }
 
     @PostMapping("/reject")

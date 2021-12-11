@@ -5,7 +5,7 @@ import com.buaa.academic.model.application.ApplicationInfo;
 
 public interface ApplicationService<T> {
 
-    Boolean submitAppWithCtf(ApplicationInfo<T> applicationInfo, String userId, ApplicationType type);
+    boolean submitAppWithCtf(ApplicationInfo<T> applicationInfo, String userId, ApplicationType type);
 
     void submitAppWithoutCtf(ApplicationInfo<T> applicationInfo, String userId, ApplicationType type);
 

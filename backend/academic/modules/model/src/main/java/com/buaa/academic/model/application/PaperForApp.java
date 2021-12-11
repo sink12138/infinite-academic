@@ -6,39 +6,56 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.Serializable;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "新增文章具体内容")
-public class PaperAddApp implements Serializable {
+@ApiModel(description = "文章具体内容，用于新增和修改论文")
+public class PaperForApp implements Serializable {
+
+    @NotNull
+    @NotEmpty
+    @Length(max = 128)
+    @ApiModelProperty(value = "论文标题", required = true)
     private String title;
 
-    @ApiModelProperty(value = "论文的类别", allowableValues = "期刊论文, 学位论文, 图书", example = "期刊论文")
+    @NotNull
+    @NotEmpty
+    @ApiModelProperty(value = "论文的类别", required = true, allowableValues = "期刊论文, 学位论文, 图书", example = "期刊论文")
     private String type;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @ApiModel("PaperAddApp$Author")
-    public static class Author {
+    @ApiModel("PaperForApp$Author")
+    public static class Author implements Serializable {
 
-        @ApiModelProperty(value = "论文作者的ID", example = "GF_4ynwBF-Mu8unTG1hc")
+        @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
+        @ApiModelProperty(value = "论文作者的ID，若含有此字段代表绑定已有作者，否则需要给出其他字段代表新增作者", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
-        @ApiModelProperty(required = true, value = "作者姓名", example = "谭火彬")
+        @Length(max = 32)
+        @ApiModelProperty(value = "作者姓名", example = "谭火彬")
         private String name;
 
-        @ApiModelProperty(value = "作者所属机构的序号（从0开始），作为上标显示在作者名字之后")
-        private List<Integer> instOrders;
+        @Length(max = 64)
+        @ApiModelProperty(value = "作者机构名", example = "北京航空航天大学软件学院")
+        private String instName;
 
     }
 
     @ApiModelProperty(value = "论文的所有作者信息", required = true)
-    private List<Author> authors;
+    private List<@NotNull Author> authors;
 
     @Data
     @AllArgsConstructor
@@ -54,25 +71,33 @@ public class PaperAddApp implements Serializable {
 
     }
 
-    @ApiModelProperty(value = "论文的所有机构")
-    private List<Institution> institutions;
+    @NotNull
+    @NotEmpty
+    @ApiModelProperty(value = "论文的所有机构", required = true)
+    private List<@NotNull Institution> institutions;
 
+    @NotNull
+    @NotEmpty
     @JsonProperty("abstract")
     @ApiModelProperty(required = true, value = "论文摘要", example = "假装这是一大段摘要")
     private String paperAbstract;
 
+    @NotNull
+    @NotEmpty
     @ApiModelProperty(required = true, value = "论文的所有关键词")
-    private List<String> keywords;
+    private List<@NotNull @NotEmpty String> keywords;
 
     @ApiModelProperty(value = "论文的学科分类")
-    private List<String> subjects;
+    private List<@NotNull @NotEmpty String> subjects;
 
     @ApiModelProperty(value = "论文的话题分类")
-    private List<String> topics;
+    private List<@NotNull @NotEmpty String> topics;
 
+    @Range(min = 1970, max = 2025)
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
     private Integer year;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @ApiModelProperty(value = "论文的发表日期", example = "2021-10-15")
     private String date;
 
@@ -83,11 +108,13 @@ public class PaperAddApp implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @ApiModel("PaperAddApp$Journal")
-    public static class Journal {
+    public static class Journal implements Serializable {
 
-        @ApiModelProperty(value = "期刊的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
+        @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
+        @ApiModelProperty(value = "期刊的数据库ID，若含有此字段代表绑定已有期刊，否则需指定title代表新增期刊", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
+        @Length(max = 128)
         @ApiModelProperty(required = true, value = "期刊标题", example = "Science")
         private String title;
 
@@ -97,55 +124,40 @@ public class PaperAddApp implements Serializable {
         @ApiModelProperty(value = "论文在期刊中的期号", example = "02")
         private String issue;
 
+        @PositiveOrZero
         @ApiModelProperty(value = "论文在期刊中的起始页码", example = "114")
         private Integer startPage;
 
+        @PositiveOrZero
         @ApiModelProperty(value = "论文在期刊中的终止页码", example = "514")
         private Integer endPage;
+
     }
 
     @ApiModelProperty(value = "论文的所属期刊信息")
     private Journal journal;
 
+    @Length(max = 64)
     @ApiModelProperty(value = "论文的出版商", example = "Elsevier")
     private String publisher;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    @ApiModel("PaperAddApp$ReferencePaper")
-    public static class ReferencePaper {
-        @ApiModelProperty(value = "引用论文数据库id", notes = "数据库中存在的论文只需要id不需要以下信息，否则需要以下信息以保障引用功能")
+    @ApiModel("PaperForApp$Reference")
+    public static class ReferencePaper implements Serializable {
+
+        @Pattern(regexp = "^$[0-9A-Za-z_-]{20}")
+        @ApiModelProperty(value = "引用论文的数据库ID，若含有此字段代表绑定已有论文，否则需指定论文标题")
         private String id;
 
+        @Length(max = 128)
         @ApiModelProperty(value = "引用论文标题")
         private String title;
 
-        @ApiModelProperty(value = "引用论文类型")
-        private String type;
-
-        @ApiModelProperty(value = "引用论文的所有作者姓名")
-        private List<String> authorsName;
-
-        @ApiModelProperty(value = "引用论文的发表年份", example = "2021")
-        private Integer year;
-
-        @ApiModelProperty(value = "应用论文所属期刊标题")
-        private String journalTitle;
-
-        @ApiModelProperty(value = "引用论文在期刊中的卷号", example = "43")
-        private String journalVolume;
-
-        @ApiModelProperty(value = "引用论文在期刊中的期号", example = "02")
-        private String journalIssue;
-
-        @ApiModelProperty(value = "引用论文在期刊中的起始页码", example = "114")
-        private Integer journalStartPage;
-
-        @ApiModelProperty(value = "引用论文在期刊中的终止页码", example = "514")
-        private Integer journalEndPage;
     }
 
     @ApiModelProperty(value = "引用的文章")
-    private List<ReferencePaper> referencePapers;
+    private List<@NotNull ReferencePaper> referencePapers;
+
 }
