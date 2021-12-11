@@ -12,6 +12,7 @@
             </v-icon>
             {{this.name}}
           </div>
+
           <v-img
             id="publish"
             class="ma-auto"
@@ -26,6 +27,7 @@
           height="100%"
           outlined
         >
+          
           <v-tabs
             v-model="tab"
             background-color="light-blue lighten-5"
@@ -48,14 +50,33 @@
               机构
             </v-tab>
           </v-tabs>
-          
-          <v-img
-            id="analysis"
-            v-if="tab != 0"
-            class="ma-auto"
-            height="500"
-            aspect-ratio="16/9"
-          ></v-img>
+
+          <v-card-actions>
+
+            <v-img
+              id="analysis"
+              v-if="tab != 0"
+              class="ma-auto"
+              height="500"
+              aspect-ratio="16/9"
+            ></v-img>
+
+            <v-btn-toggle
+              v-if="tab > 1"
+              v-model="chartType"
+              tile
+              borderless
+              mandatory
+            >
+              <v-btn>
+                <v-icon color="blue accent-4">mdi-chart-pie</v-icon>
+              </v-btn>
+              <v-btn>
+                <v-icon color="blue accent-4">mdi-chart-bar</v-icon>
+              </v-btn>
+            </v-btn-toggle>
+
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -63,41 +84,22 @@
 </template>
 
 <script>
+import {getData, getChart} from "../components/mixins/mixin"
 import Banner from "../components/BaseBanner.vue"
 export default {
   components: {
     Banner
   },
+  mixins: [
+    getData, 
+    getChart
+  ],
   data() {
     return {
-      name: null,
-      associations: [
-        {
-          "confidence": 0.98,
-          "name": "人工智能"
-        },
-        {
-          "confidence": 1,
-          "name": "物理"
-        },
-        {
-          "confidence": 0.88,
-          "name": "量子物理"
-        },
-        {
-          "confidence": 0.78,
-          "name": "宇宙学"
-        },
-        {
-          "confidence": 0.95,
-          "name": "白洞"
-        }
-      ],
-      heat: null,
-      pubsPerYear: [],
       chart1: null,
       chart2: null,
       tab: null,
+      chartType: 0
     }
   },
   watch: {
@@ -107,7 +109,6 @@ export default {
     },
     tab() {
       if (this.tab != 0) {
-        console.log(this.tab);
         if (this.chart2 == null) 
           this.$nextTick(() => { 
             this.initChart2();
@@ -115,7 +116,6 @@ export default {
           })
         else {
           this.reload2();
-          this.chart2.resize();
         }
       } else {
         if (this.chart2 != null) {
@@ -123,6 +123,10 @@ export default {
           this.chart2 = null;
         }
       }
+    },
+    chartType() {
+      if (this.tab != 0)
+        this.reload2();
     }
   },
   mounted() {
@@ -134,236 +138,14 @@ export default {
       this.initChart1();
     },
     loadData() {
-      this.name = this.$route.query.name;
-      /*this.$axios({
-        method: "get",
-        url: "/api/analysis/topic",
-        params: {
-          name: this.name
-        }
-      }).then(response => {
-        console.log(response.data)
-        this.heat = response.data.heat;
-        this.pubsPerYear = response.data.pubsPerYear;
-        this.associations = response.data.associationTopics;
-      }).catch(error => {
-        console.log(error)
-      })*/
+      this.getBasic();
     },
-    initChart1() {
-      this.chart1 = this.$echarts.init(document.getElementById('publish'), 'infinite', { renderer: 'svg' });
-      this.reload1();
-      window.addEventListener('resize', () => { this.chart1.resize(); })
-    },
-    reload1() {
-      var option = {
-        title: {
-          text: '发文趋势'
-        },
-        xAxis: {
-          data: ['2012','2013','2014']
-        },
-        yAxis: {},
-        series: [
-          {
-            type: 'line',
-            areaStyle: {
-              color: '#9fe6f3de'
-            },
-            smooth: 0.3,
-            data: [100,500,400]
-          },
-        ]
-      }
-      this.chart1.setOption(option);
-    },
-    initChart2() {
-      this.chart2 = this.$echarts.init(document.getElementById('analysis'), 'infinite', { renderer: 'svg'});
-      var _this = this;
-      this.chart2.on('click', function(param) {
-        var target = param.data.name + 'hello';
-        if (target != _this.name)
-          _this.$router.push({ path: 'topic', query: { name: target}})
-      })
-      window.addEventListener('resize', () => { this.chart2.resize(); })
-    },
-    reload2() {
-      switch (this.tab) {
-        case 1:
-          this.loadRelated();
-          break;
-        case 2:
-          this.loadAuthor();
-          break;
-        case 3:
-          this.loadJournal();
-          break;
-        case 4:
-          this.loadInstitution();
-          break;
-        default:
-          this.chart2.resize();
-      }
-    },
-    loadRelated() {
-      console.log('hello')
-      var option = {
-        title: {
-          text: '关联关系',
-          left: 'center'
-        },
-        series: {
-          type: 'graph',
-          layout: 'force',
-          force: {
-            repulsion: 500,
-            gravity: 0.1,
-          },
-          label: {
-            show: true,
-            fontSize: 18
-          },
-          edgeLabel: {
-            show: true,
-            position: 'middle',
-            formatter: '相关度:{c}'
-          },
-          data: [],
-          links: [],
-        }
-      }
-      var topic = {
-        name: this.name,
-        symbolSize: 120
-      }
-      option.series.data.push(topic);
-      this.associations.forEach(function(item) {
-        var node = {}
-        node.name = item.name
-        option.series.data.push(node);
-      })
-      option.series.links = this.associations.map(function (data, idx) {
-        var link = {}
-        link.source = 0;
-        link.target = (idx+1);
-        link.value = data.confidence;
-        return link;
-      });
-      
-      this.chart2.setOption(option);
-    },
-    loadAuthor() {
-      var option = {
-        title: {
-          text: '学者发文数',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          orient: 'vertical',
-          left: 'left'
-        },
-        series: {
-          type: 'pie',
-          radius: '80%',
-          data: [
-            { value: 1048, name: 'Search Engine' },
-            { value: 735, name: 'Direct' },
-            { value: 580, name: 'Email' },
-            { value: 484, name: 'Union Ads' },
-            { value: 300, name: 'Video Ads' }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      }
-      this.chart2.setOption(option);
-    },
-    loadJournal() {
-      var option = {
-        title: {
-          text: '期刊发文数',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          orient: 'vertical',
-          left: 'left'
-        },
-        series: {
-          type: 'pie',
-          radius: '80%',
-          data: [
-            { value: 1048, name: 'Search Engine' },
-            { value: 735, name: 'Direct' },
-            { value: 580, name: 'Email' },
-            { value: 484, name: 'Union Ads' },
-            { value: 300, name: 'Video Ads' }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      }
-      this.chart2.setOption(option);
-    },
-    loadInstitution() {
-      var option = {
-        title: {
-          text: '机构发文数',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          orient: 'vertical',
-          left: 'left'
-        },
-        series: {
-          type: 'pie',
-          radius: '80%',
-          data: [
-            { value: 1048, name: 'Search Engine' },
-            { value: 735, name: 'Direct' },
-            { value: 580, name: 'Email' },
-            { value: 484, name: 'Union Ads' },
-            { value: 300, name: 'Video Ads' }
-          ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }
-      }
-      this.chart2.setOption(option);
-    },
-    chartReload() {
-      this.reload1();
-      this.reload2();
-    }
   }
 }
 </script>
 
-<style>
-.class {
-  color: #9fe6f3de;
+<style scoped>
+.v-btn-toggle {
+  flex-direction: column;
 }
 </style>
