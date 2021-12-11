@@ -1,6 +1,7 @@
 package com.buaa.academic.admin.config;
 
 import com.buaa.academic.document.system.ApplicationType;
+import com.buaa.academic.document.system.StatusType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
@@ -23,6 +24,8 @@ public class ConverterConfiguration {
             public void addFormatters(@NonNull FormatterRegistry registry) {
                 registry.addConverter(new ApplicationType.EnumToStringConverter());
                 registry.addConverter(new ApplicationType.StringToEnumConverter());
+                registry.addConverter(new StatusType.EnumToStringConverter());
+                registry.addConverter(new StatusType.StringToEnumConverter());
             }
         };
     }
@@ -31,7 +34,9 @@ public class ConverterConfiguration {
     public ElasticsearchCustomConversions elasticsearchCustomConversions() {
         return new ElasticsearchCustomConversions(List.of(
                 new ApplicationType.EnumToStringConverter(),
-                new ApplicationType.StringToEnumConverter()));
+                new ApplicationType.StringToEnumConverter(),
+                new StatusType.EnumToStringConverter(),
+                new StatusType.StringToEnumConverter()));
     }
 
     @Bean
