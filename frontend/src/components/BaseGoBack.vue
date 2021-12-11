@@ -13,7 +13,7 @@
 export default {
   methods: {
     goBack() {
-      window.history.back();
+      this.$router.push({ path: '/'})
     }
   }
 }

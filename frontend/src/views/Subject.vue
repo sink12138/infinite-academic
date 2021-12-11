@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <Banner :title="{text: 'Topic', icon: 'mdi-message'}"></Banner>
+    <Banner :title="{text: 'Subject', icon: 'mdi-flask-empty'}"></Banner>
     <v-row no-gutters>
       <v-col cols="4">
         <v-card outlined>
@@ -8,7 +8,7 @@
             <v-icon
               class="text-h4"
               color="indigo darken-4"
-            >mdi-message
+            >mdi-flask-empty
             </v-icon>
             {{this.name}}
           </div>
@@ -38,7 +38,7 @@
               出版物
             </v-tab>
             <v-tab class="font-weight-bold">
-              相关话题
+              相关学科
             </v-tab>
             <v-tab class="font-weight-bold">
               学者

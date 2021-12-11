@@ -38,7 +38,7 @@ export default {
   props: {
     router: {
       type: Array,
-      default:() => {}
+      default:() => []
     }
   },
 };

@@ -9,10 +9,10 @@
     <v-spacer></v-spacer>
     <v-icon 
       class="text-h4"
-    >mdi-tooltip-check
+    >{{title.icon}}
     </v-icon>
     <div class="my-font">
-      Topic
+      {{title.text}}
     </div>
     <v-spacer></v-spacer>
     <BaseCitation></BaseCitation>
@@ -26,7 +26,13 @@ export default {
   components: {
     BaseCitation,
     BaseGoBack
-  }
+  },
+  props: {
+    title: {
+      type: Object,
+      default:() => {}
+    }
+  },
 }
 </script>
 

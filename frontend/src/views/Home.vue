@@ -25,9 +25,10 @@ export default {
         { href: "/institution", icon: "mdi-home", title: "Institution" },
         { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },
         { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
+        { href: "/topic", icon: "mdi-tooltip-check", title: "Topic" },
+        { href: "/subject", icon: "mdi-flask-empty", title: "Subject" },
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
         { href: "/about", icon: "mdi-account", title: "About" },
-        { href: "/topic", icon: "mdi-tooltip-check", title: "Topic" },
       ],
   }),
   methods: {
