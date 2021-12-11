@@ -4,10 +4,12 @@ import com.buaa.academic.admin.dao.ApplicationRepository;
 import com.buaa.academic.admin.model.ApplicationDetails;
 import com.buaa.academic.admin.model.ApplicationPage;
 import com.buaa.academic.admin.service.AuthValidator;
+import com.buaa.academic.admin.service.ReviewService;
 import com.buaa.academic.document.system.Application;
 import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.document.system.Message;
 import com.buaa.academic.document.system.StatusType;
+import com.buaa.academic.model.application.PaperRemove;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
@@ -49,6 +51,9 @@ public class ReviewController {
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
 
+    @Autowired
+    private ReviewService reviewService;
+
     @GetMapping("/list")
     @ApiOperation(value = "查看所有申请")
     @ApiImplicitParams({
@@ -89,7 +94,7 @@ public class ReviewController {
     }
 
     @GetMapping("/details/{id}")
-    @ApiOperation(value = "查看申请详细信息", notes = "详细内容的结构还在设计中，可参考其他几个临时的详细信息API")
+    @ApiOperation(value = "查看申请详细信息", notes = "详细内容的结构可参考/account/application/details下几个临时的详细信息API")
     @ApiImplicitParam(name = "id", value = "申请的ID")
     public Result<ApplicationDetails<Object>> details(@RequestHeader(name = "Auth") String auth,
                                                       @PathVariable(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
@@ -120,9 +125,9 @@ public class ReviewController {
         if (reason == null)
             reason = "无";
         StatusType status = application.getStatus();
-        if (status.equals(StatusType.PASSED))
+        if (StatusType.PASSED.equals(status))
             return result.withFailure("已通过的申请不能拒绝");
-        else if (status.equals(StatusType.NOT_PASSED))
+        else if (StatusType.NOT_PASSED.equals(status))
             return result;
         application.setStatus(StatusType.NOT_PASSED);
         elasticTemplate.save(application);
@@ -137,6 +142,36 @@ public class ReviewController {
                 new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()),
                 false);
         elasticTemplate.save(message);
+        return result;
+    }
+
+    @PostMapping("/accept/paper/remove")
+    @ApiOperation(value = "接受移除论文申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是移除论文类型")
+    public Result<Void> acceptPaperRemove(@RequestHeader(name = "Auth") String auth,
+                                          @RequestParam(name = "id") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        // Existence
+        Application application = elasticTemplate.get(id, Application.class);
+        if (application == null || !ApplicationType.REMOVE_PAPER.equals(application.getType()))
+            return result.withFailure(ExceptionType.NOT_FOUND);
+
+        // Status
+        StatusType status = application.getStatus();
+        if (StatusType.NOT_PASSED.equals(status))
+            return result.withFailure("已拒绝的申请不能接受");
+        else if (StatusType.PASSED.equals(status))
+            return result;
+
+        PaperRemove paperRemove = (PaperRemove) redisTemplate.opsForValue().get(id);
+        if (paperRemove == null)
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        reviewService.removePaper(paperRemove.getPaperId());
         return result;
     }
 
