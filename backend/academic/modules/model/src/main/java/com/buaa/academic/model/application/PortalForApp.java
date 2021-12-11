@@ -43,7 +43,7 @@ public class PortalForApp implements Serializable {
     private Institution currentInst;
 
     @ApiModelProperty(value = "曾经所在机构")
-    private List<Institution> institutions;
+    private List<@NotNull Institution> institutions;
 
     @PositiveOrZero
     @ApiModelProperty(value = "h指数")
