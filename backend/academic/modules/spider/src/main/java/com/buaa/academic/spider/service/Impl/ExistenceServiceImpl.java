@@ -4,6 +4,7 @@ import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.system.Trash;
 import com.buaa.academic.spider.service.ExistenceService;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +42,22 @@ public class ExistenceServiceImpl implements ExistenceService {
     }
 
     @Override
-    public Researcher findResearcherById(String id) {
-        return template.get(id, Researcher.class);
+    public Researcher findResearcherByNameAndInst(String name, String inst) {
+        NativeSearchQuery query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.boolQuery()
+                        .must(QueryBuilders.termQuery("name", name))
+                        .must(QueryBuilders.termQuery("currentInst.name.raw", inst)))
+                .build();
+        SearchHit<Researcher> searchHit = template.searchOne(query, Researcher.class);
+        if (searchHit == null)
+            return null;
+        return searchHit.getContent();
     }
 
     @Override
     public Institution findInstByName(String name) {
         NativeSearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.termQuery("name,raw", name))
+                .withQuery(QueryBuilders.termQuery("name.raw", name))
                 .build();
         SearchHit<Institution> searchHit = template.searchOne(query, Institution.class);
         if (searchHit == null)
@@ -59,11 +68,24 @@ public class ExistenceServiceImpl implements ExistenceService {
     @Override
     public Journal findJournalByName(String name) {
         NativeSearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.termQuery("title,raw", name))
+                .withQuery(QueryBuilders.termQuery("title.raw", name))
                 .build();
         SearchHit<Journal> searchHit = template.searchOne(query, Journal.class);
         if (searchHit == null)
             return null;
         return searchHit.getContent();
+    }
+
+    @Override
+    public Boolean inTrash(String title, List<Paper.Author> authors) {
+        List<String> authorsNames = new ArrayList<>();
+        authors.forEach(author -> authorsNames.add(author.getName()));
+        NativeSearchQuery query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.boolQuery().must(
+                        QueryBuilders.termQuery("title", title)
+                ).must(QueryBuilders.termsQuery("authors", authorsNames.toArray())))
+                .build();
+        SearchHit<Trash> trashSearchHit = template.searchOne(query, Trash.class);
+        return trashSearchHit != null;
     }
 }

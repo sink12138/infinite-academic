@@ -1,6 +1,7 @@
 package com.buaa.academic.account.controller;
 
 import com.buaa.academic.account.client.ResourceClient;
+import com.buaa.academic.account.utils.ExistenceCheck;
 import com.buaa.academic.document.system.Application;
 import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.document.system.StatusType;
@@ -24,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 
@@ -55,6 +57,9 @@ public class TransferController {
     @Autowired
     private ResourceClient resourceClient;
 
+    @Autowired
+    ExistenceCheck existenceCheck;
+
     @PostMapping("/patent/transfer")
     @ApiOperation(value = "专利转让申请提交")
     public Result<Void> transferSubmit(@RequestHeader(value = "Auth") String userId,
@@ -64,6 +69,9 @@ public class TransferController {
         // File token existence check
         String fileToken = transferInfo.getFileToken();
         if (fileToken != null && !resourceClient.exists(fileToken).getData())
+            return result.withFailure(ExceptionType.INVALID_PARAM);
+
+        if (!existenceCheck.transferCheck(transferInfo.getContent()))
             return result.withFailure(ExceptionType.INVALID_PARAM);
 
         Application application = new Application(
@@ -77,7 +85,7 @@ public class TransferController {
                 transferInfo.getWebsiteLink());
         template.save(application);
         redisTemplate.opsForValue().set(application.getId(), transferInfo.getContent());
+        redisTemplate.expire(application.getId(), Duration.ofDays(30));
         return result;
     }
-
 }

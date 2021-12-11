@@ -8,10 +8,13 @@ import com.buaa.academic.model.application.Modification;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.scholar.client.AccountClient;
+import com.buaa.academic.scholar.client.ResourceClient;
 import com.buaa.academic.scholar.service.ApplicationService;
+import com.buaa.academic.scholar.utils.ExistenceCheck;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,9 @@ import javax.annotation.Resource;
 @Validated
 @Api(tags = "身份相关申请")
 public class IdentityController {
+
+    @Autowired
+    ElasticsearchRestTemplate template;
 
     @Autowired
     private ApplicationService<Certification> certifyAppService;
@@ -38,6 +44,12 @@ public class IdentityController {
     @Autowired
     private ApplicationService<Modification> modificationAppService;
 
+    @Autowired
+    ExistenceCheck existenceCheck;
+
+    @Autowired
+    ResourceClient resourceClient;
+
     @PostMapping("/certify/code")
     @ApiOperation(value = "学者认证获取验证码")
     public Result<Void> certifyCode(@RequestHeader(value = "Auth") String userId,
@@ -53,7 +65,15 @@ public class IdentityController {
         Object target = redisTemplate.opsForValue().get(ctfApp.getContent().getCode());
         if (target == null)
             return result.withFailure("验证码已失效");
+        if (!existenceCheck.certificationCheck(ctfApp.getContent()))
+            return result.withFailure(ExceptionType.NOT_FOUND);
         redisTemplate.delete(ctfApp.getContent().getCode());
+        ctfApp.getContent().setCode(null);
+        if (ctfApp.getFileToken() != null) {
+            Result<Boolean> fileExistRes = resourceClient.exists(ctfApp.getFileToken());
+            if (!fileExistRes.getData())
+                return result.withFailure(ExceptionType.NOT_FOUND);
+        }
         if (certifyAppService.submitAppWithCtf(ctfApp, userId, ApplicationType.CERTIFICATION))
             return result;
         else
@@ -65,6 +85,13 @@ public class IdentityController {
     public Result<Void> claim(@RequestHeader(value = "Auth") String userId,
                               @RequestBody ApplicationInfo<Claim> claimApp) {
         Result<Void> result = new Result<>();
+        if (claimApp.getFileToken() != null) {
+            Result<Boolean> fileExistRes = resourceClient.exists(claimApp.getFileToken());
+            if (!fileExistRes.getData())
+                return result.withFailure(ExceptionType.NOT_FOUND);
+        }
+        if (!existenceCheck.claimCheck(claimApp.getContent()))
+            return result.withFailure(ExceptionType.NOT_FOUND);
         if (claimAppService.submitAppWithCtf(claimApp, userId, ApplicationType.CLAIM))
             return result;
         else
@@ -76,11 +103,16 @@ public class IdentityController {
     public Result<Void> modify(@RequestHeader(value = "Auth") String userId,
                                @RequestBody ApplicationInfo<Modification> mdfApp) {
         Result<Void> result = new Result<>();
+        if (mdfApp.getFileToken() != null) {
+            Result<Boolean> fileExistRes = resourceClient.exists(mdfApp.getFileToken());
+            if (!fileExistRes.getData())
+                return result.withFailure(ExceptionType.NOT_FOUND);
+        }
+        if (!existenceCheck.modificationCheck(mdfApp.getContent()))
+            return result.withFailure(ExceptionType.NOT_FOUND);
         if (modificationAppService.submitAppWithCtf(mdfApp, userId, ApplicationType.MODIFICATION))
             return result;
         else
             return result.withFailure(ExceptionType.INVALID_PARAM);
     }
-
-
 }

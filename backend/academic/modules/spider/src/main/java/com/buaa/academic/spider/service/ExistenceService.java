@@ -10,7 +10,8 @@ import java.util.List;
 public interface ExistenceService {
     Paper findPaperByTileAndAuthors(String title, List<Paper.Author> authors);
     Paper findPaperById(String id);
-    Researcher findResearcherById(String id);
+    Researcher findResearcherByNameAndInst(String name, String inst);
     Institution findInstByName(String name);
     Journal findJournalByName(String name);
+    Boolean inTrash(String title, List<Paper.Author> authors);
 }

@@ -2,7 +2,6 @@ package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
-import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,72 +33,84 @@ public class SearchParser {
         driver.get(this.url);
         Thread.sleep(2000);
         boolean continueCrawl;
-        int totalPages = 0;
         do {
-            System.out.println("初始化!");
-            //this.rootPaperList = new ArrayList<>();
-            List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
-            if (searchResult.size() != 0) {
-                for (WebElement result : searchResult) {
-                    String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
-                    if (!type.equals("期刊论文")) {
-                        continue;
-                    }
-                    WebElement title = result.findElement(By.xpath(".//span[@class=\"title\"]"));
-                    String titleName = title.getText();
-                    PaperObject paperObject = new PaperObject();
+            try {
+                System.out.println("初始化!");
+                //this.rootPaperList = new ArrayList<>();
+                List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
+                if (searchResult.size() != 0) {
+                    for (WebElement result : searchResult) {
 
-                    List<Paper.Author> authorList = new ArrayList<>();
-                    List<WebElement> authors = result.findElements(By.xpath(".//td[@style=\"line-height: 20px;\"]"));
-                    if (authors.size() != 0) {
-                        for (WebElement author : authors) {
-                            String authorName = author.getText();
-                            Paper.Author paperAuthor = new Paper.Author();
-                            paperAuthor.setName(authorName);
-                            authorList.add(paperAuthor);
+                        if (StatusCtrl.jobStopped) {
+                            driver.close();
+                            driver.quit();
+                            return;
+                        }
+
+                        String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
+                        if (!type.equals("期刊论文")) {
+                            continue;
+                        }
+                        WebElement title = result.findElement(By.xpath(".//span[@class=\"title\"]"));
+                        String titleName = title.getText();
+                        PaperObject paperObject = new PaperObject();
+
+                        List<Paper.Author> authorList = new ArrayList<>();
+                        List<WebElement> authors = result.findElements(By.xpath(".//td[contains(@style,\"line-height\")]//span[@class=\"authors\"]"));
+                        if (authors.size() != 0) {
+                            for (WebElement author : authors) {
+                                String authorName = author.getText();
+                                Paper.Author paperAuthor = new Paper.Author();
+                                paperAuthor.setName(authorName);
+                                authorList.add(paperAuthor);
+                            }
+                        }
+                        // find paper by referTitle and referAuthorName
+                        Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
+                        if (paper == null && !statusCtrl.existenceService.inTrash(titleName, authorList)) {
+                            paper = new Paper();
+                            paper.setTitle(titleName);
+                            paper.setAuthors(authorList);
+                            paper.setCrawled(false);
+                            paper.setCitationNum(0);
+                            // insert paper into database
+                            statusCtrl.paperRepository.save(paper);
+                            paperObject.setPaper(paper);
+                            // 切换窗口,获取url，返回窗口
+                            String originalHandle = driver.getWindowHandle();
+                            Actions actions = new Actions(driver);
+                            actions.click(title).perform();
+                            Set<String> allHandles = driver.getWindowHandles();
+                            allHandles.remove(originalHandle);
+                            assert allHandles.size() == 1;
+                            driver.switchTo().window((String) allHandles.toArray()[0]);
+                            String url = driver.getCurrentUrl();
+                            System.out.println(url);
+                            driver.close();
+                            driver.switchTo().window(originalHandle);
+                            paperObject.setUrl(url);
+
+                            StatusCtrl.paperObjectQueue.add(paperObject);
+
+                            //rootPaperList.add(paperObject);
                         }
                     }
-                    // find paper by referTitle and referAuthorName
-                    Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
-                    if (paper == null) {
-                        paper = new Paper();
-                        paper.setTitle(titleName);
-                        paper.setAuthors(authorList);
-                        paper.setCrawled(false);
-                        // insert paper into database
-                        statusCtrl.paperRepository.save(paper);
-                        paperObject.setPaper(paper);
-                        // 切换窗口,获取url，返回窗口
-                        String originalHandle = driver.getWindowHandle();
-                        Actions actions = new Actions(driver);
-                        actions.click(title).perform();
-                        Set<String> allHandles = driver.getWindowHandles();
-                        allHandles.remove(originalHandle);
-                        assert allHandles.size() == 1;
-                        driver.switchTo().window((String) allHandles.toArray()[0]);
-                        String url = driver.getCurrentUrl();
-                        System.out.println(url);
-                        driver.close();
-                        driver.switchTo().window(originalHandle);
-                        paperObject.setUrl(url);
-
-                        StatusCtrl.paperObjectQueue.add(paperObject);
-
-                        //rootPaperList.add(paperObject);
-                    }
                 }
-            }
-            totalPages++;
-            WebElement next = driver.findElementByXPath("//span[@class=\"next\"]");
-            if (!next.getAttribute("style").equals("display: none;")) {
-                Actions actions = new Actions(driver);
-                actions.click(next).perform();
-                Thread.sleep(2000);
+                WebElement next = driver.findElementByXPath("//span[@class=\"next\"]");
+                if (!next.getAttribute("style").equals("display: none;")) {
+                    Actions actions = new Actions(driver);
+                    actions.click(next).perform();
+                    Thread.sleep(2000);
+                    continueCrawl = true;
+                } else {
+                    continueCrawl = false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 continueCrawl = true;
-            } else {
-                continueCrawl = false;
             }
         } while (continueCrawl/*&& totalPages <= maxPageCount*/);
         driver.close();
+        driver.quit();
     }
 }

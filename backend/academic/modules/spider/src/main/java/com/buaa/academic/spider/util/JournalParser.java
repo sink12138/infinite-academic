@@ -1,8 +1,6 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Journal;
-import com.buaa.academic.spider.repository.JournalRepository;
-import com.buaa.academic.spider.service.Impl.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +9,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,10 +27,15 @@ public class JournalParser {
 
     // 现在没用
     public void zhiWangSpider() throws InterruptedException {
-//        String driverPath = "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe";
-        ChromeOptions options = new ChromeOptions();
-//        System.setProperty("webdriver.chrome.driver",driverPath);
-        RemoteWebDriver driver = new ChromeDriver(options);
+        RemoteWebDriver driver = null;
+        boolean success = false;
+        ChromeOptions options = new ChromeOptions().setHeadless(true);
+        while (!success) {
+            try {
+                driver = new ChromeDriver(options);
+                success = true;
+            } catch (Exception ignored) {}
+        }
         driver.get(this.url);
         Thread.sleep(3000);
         WebElement nameElement = null;
@@ -85,8 +87,15 @@ public class JournalParser {
 
     //本地测试完成
     public void wanFangSpider() throws InterruptedException {
+        RemoteWebDriver driver = null;
+        boolean success = false;
         ChromeOptions options = new ChromeOptions().setHeadless(true);
-        RemoteWebDriver driver = new ChromeDriver(options);
+        while (!success) {
+            try {
+                driver = new ChromeDriver(options);
+                success = true;
+            } catch (Exception ignored) {}
+        }
         driver.get(this.url);
         Thread.sleep(3000);
         Journal journal = new Journal();
@@ -130,5 +139,6 @@ public class JournalParser {
         statusCtrl.journalRepository.save(journal);
         this.journal = journal;
         driver.close();
+        driver.quit();
     }
 }

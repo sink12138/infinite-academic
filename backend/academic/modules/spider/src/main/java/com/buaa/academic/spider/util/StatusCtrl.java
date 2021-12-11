@@ -1,4 +1,4 @@
-package com.buaa.academic.spider.service.Impl;
+package com.buaa.academic.spider.util;
 
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.repository.InstitutionRepository;
@@ -6,6 +6,9 @@ import com.buaa.academic.spider.repository.JournalRepository;
 import com.buaa.academic.spider.repository.PaperRepository;
 import com.buaa.academic.spider.repository.ResearcherRepository;
 import com.buaa.academic.spider.service.ExistenceService;
+import com.buaa.academic.spider.service.Impl.CrawlerQueueInitThread;
+import com.buaa.academic.spider.service.Impl.PaperMainInfoThread;
+import com.buaa.academic.spider.service.Impl.SubjectTopicThread;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ public class StatusCtrl {
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
     public static int runningQueueInitThreadNum = 0;
     public static int runningMainInfoThreadNum = 0;
+    public static boolean jobStopped = false;
 
     @Autowired
     public ElasticsearchRestTemplate template;
@@ -53,12 +57,11 @@ public class StatusCtrl {
     }
 
     public void start() {
+        StatusCtrl.jobStopped = false;
         StatusCtrl.paperObjectQueue.clear();
-        ArrayList<Thread> threads = new ArrayList<>();
         for (String keyword: keywords) {
             Thread thread = new Thread(new CrawlerQueueInitThread(keyword, this));
             thread.start();
-            threads.add(thread);
         }
         for (int i = 0; i < mainInfoThreadNum; i++) {
             new Thread(new PaperMainInfoThread(this)).start();
@@ -66,5 +69,9 @@ public class StatusCtrl {
         for (int i = 0; i < subjectTopicThreadNum; i++) {
             new Thread(new SubjectTopicThread(this)).start();
         }
+    }
+
+    public void stop() {
+        StatusCtrl.jobStopped = true;
     }
 }

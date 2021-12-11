@@ -1,8 +1,7 @@
 package com.buaa.academic.spider.service.Impl;
 
-import com.buaa.academic.spider.repository.PaperRepository;
-import com.buaa.academic.spider.service.ExistenceService;
 import com.buaa.academic.spider.util.SearchParser;
+import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
