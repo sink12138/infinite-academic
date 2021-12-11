@@ -21,6 +21,8 @@ public class HighlightManager {
     
     public HighlightManager text(String text) {
         this.text = text;
+        this.between = false;
+        this.range = null;
         return this.optimize();
     }
 
