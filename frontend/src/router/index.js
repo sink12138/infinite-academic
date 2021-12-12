@@ -10,11 +10,11 @@ const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
+const PersonalView = () => import("../views/PersonalView.vue");
 
 Vue.use(VueRouter)
 
-const routes = [
-  {
+const routes = [{
     path: '/',
     name: 'Home',
     component: Home
@@ -55,9 +55,14 @@ const routes = [
     component: About
   },
   {
-    path:'/register',
+    path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path:'/personalview',
+    name:'PersonalView',
+    component:PersonalView
   }
 ]
 
