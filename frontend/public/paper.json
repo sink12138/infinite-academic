@@ -8,7 +8,7 @@
 				"name": "谭火彬"
 			},
 			{
-				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"id": "GF_4ynwBF-Mu8unTG1hc2",
 				"instOrders": [],
 				"name": "谭火彬2"
 			}
@@ -16,10 +16,10 @@
 		"citationNum": 114,
 		"date": "2021-10-15",
 		"doi": "10.1007/BF02943174",
-		"id": "GF_4ynwBF-Mu8unTG1hc",
+		"id": "GF_4ynwBF-Mu8unTG1hc3",
 		"institutions": [
 			{
-				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"id": "GF_4ynwBF-Mu8unTG1hc4",
 				"name": "北京航空航天大学软件学院"
 			}
 		],
@@ -27,7 +27,7 @@
 		"issn": "ISSN 1607-5161",
 		"journal": {
 			"endPage": 514,
-			"id": "GF_4ynwBF-Mu8unTG1hc",
+			"id": "GF_4ynwBF-Mu8unTG1hc5",
 			"issue": "02",
 			"startPage": 114,
 			"title": "Science",

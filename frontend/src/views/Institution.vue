@@ -1,18 +1,6 @@
 <template>
   <div>
-    <v-card class="betop">
-      <BaseGoBack class="ml-6" style="float:left"></BaseGoBack>
-      <div class="ma-auto d-inline-flex">
-        <v-icon 
-          class="ml-5 text-h2"
-          color="indigo darken-4"
-        >mdi-home
-        </v-icon>
-        <div class="my-font my-5">
-          Institution
-        </div>
-      </div>
-    </v-card>
+    <Banner :title="{text: 'Institution', icon: 'mdi-home'}"></Banner>
     <div class="whole">
       <div class="message">
         <v-row>
@@ -36,12 +24,12 @@
 </template>
 
 <script>
-import BaseGoBack from '../components/BaseGoBack.vue'
+import Banner from '../components/BaseBanner.vue'
 import BaseAnalytics from "../components/BaseAnalytics.vue";
 
 export default {
   components: {
-    BaseGoBack,
+    Banner,
     BaseAnalytics,
   },
   data() {

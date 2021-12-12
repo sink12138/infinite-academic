@@ -1,20 +1,12 @@
 <template>
   <div>
-    <v-card class="betop">
-      <BaseGoBack class="ml-6" style="float: left"></BaseGoBack>
-      <div class="ma-auto d-inline-flex">
-        <v-icon 
-          class="ml-5 text-h2"
-          color="indigo darken-4"
-        >mdi-account-cog
-        </v-icon>
-        <div class="my-font my-5">
-          Admin
-        </div>
-      </div>
-    </v-card>
-
-
+    <Banner 
+      :title="{
+        text: this.isLogin?this.menu[this.menu_id - 1].title:'管理员', 
+        icon: 'mdi-account-cog',
+        time: this.logoutTime
+      }"
+    ></Banner>
 
     <v-card
       v-if="this.isLogin"
@@ -53,50 +45,70 @@
         flat
         outlined
       >
-        <v-cart-title>
-          <h1>欢迎来到管理员界面！</h1>
-        </v-cart-title>
+        <v-card-title>
+          <v-row 
+            justify="center" 
+            align="center"
+          >
+            <h1>欢迎来到管理员界面！</h1>
+          </v-row>
+        </v-card-title>
           
-        
         <v-card-text>
           <v-form
             ref="userForm"
             v-model="valid"
             lazy-validation
           >
-            <v-row>
-              <v-text-field
-                v-model="userName"
-                :counter="10"
-                :rules="userNameRules"
-                label="用户名"
-                required
-                
-              ></v-text-field>
-            </v-row>
-
-            <v-row>
-              <v-text-field
-                v-model="passWords"
-                :rules="passWordsRules"
-                label="密码"
-                type="password"
-                required
-              ></v-text-field>
-            </v-row>
-
-            <v-row>
-              <v-col></v-col>
-              <v-btn
-                v-if="!isLogin"
-                color="light-blue lighten-4"
-                @click="Login"
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
               >
-                <v-icon left>
-                  mdi-account-cog
-                </v-icon>
-                登录管理员账户
-              </v-btn>
+                <v-text-field
+                  v-model="userName"
+                  :counter="10"
+                  :rules="userNameRules"
+                  label="用户名"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="passWords"
+                  :rules="passWordsRules"
+                  label="密码"
+                  type="password"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <v-btn
+                  v-if="!isLogin"
+                  color="light-blue lighten-4"
+                  @click="Login"
+                >
+                  <v-icon left>
+                    mdi-account-cog
+                  </v-icon>
+                  登录管理员账户
+                </v-btn>
+              </v-col>
             </v-row>
           </v-form>
         </v-card-text>
@@ -106,52 +118,226 @@
         class="personal"
         v-if="menu_id == 1"
         flat
+        outlined
       >
-        <v-card-text>
-          <div>
-            欢迎进入，{{ this.userOldName }}！
-          </div>
-        </v-card-text>
+        <v-card-title>
+          <v-row 
+            justify="center" 
+            align="center"
+          >
+            <h1>欢迎进入，{{ this.userOldName }}！</h1>
+          </v-row>
+        </v-card-title>
 
-        <v-card-actions>
+        <v-card-text>
           <v-form
-            ref="userForm"
+            ref="userModifyForm"
             v-model="valid"
             lazy-validation
           >
-            <v-text-field
-              v-model="userName"
-              :counter="10"
-              :rules="userNameRules"
-              label="用户名"
-              required
-            ></v-text-field>
-
-            <v-text-field
-              v-model="passWords"
-              :rules="passWordsRules"
-              label="密码"
-              type="password"
-              required
-            ></v-text-field>
-
-            <v-btn
-              :disabled="!valid"
-              color="success"
-              @click="modify"
+            <v-row 
+              justify="center" 
+              align="center"
             >
-              修改
-            </v-btn>
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="userName"
+                  :counter="10"
+                  :rules="userNameRules"
+                  label="用户名"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="passWords"
+                  :rules="passWordsRules"
+                  label="密码"
+                  type="password"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col 
+                clos="12" 
+                sm="4"
+              ></v-col>
+              <v-col 
+                clos="12" 
+                sm="2"
+              >
+                <v-btn
+                  :disabled="!valid"
+                  color="success"
+                  @click="modify"
+                >
+                  修改
+                </v-btn>
+              </v-col>
+
+              <v-col 
+                clos="12" 
+                sm="2"
+              >
+                <v-btn
+                  color="primary"
+                  @click="Logout"
+                >
+                  登出
+                </v-btn>
+              </v-col>
+              <v-col 
+                clos="12" 
+                sm="4"
+              ></v-col>
+            </v-row>
           </v-form>
-        </v-card-actions>
+        </v-card-text>
       </v-card>
 
       <v-card
+        class="accountmanagement"
         v-if="menu_id == 2"
         flat
+        outlined
       >
-        <p>欢迎来到账号管理界面！</p>
+        <v-toolbar>
+          <v-row
+            justify="center" 
+            align="center"
+          >
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+            <v-text-field
+              label="账号搜索"
+              placeholder="请输入用户名或邮箱"
+              filled
+              rounded
+              dense
+              v-model="accountSearch"
+            ></v-text-field>
+            
+            <v-spacer></v-spacer>
+
+            <v-btn 
+              icon
+              @click="searchAccount"
+            >
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+          </v-row>
+        </v-toolbar>   
+
+        <v-card-text>
+          <v-form
+            ref="accountModifyForm"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="accountName"
+                  :counter="10"
+                  :rules="userNameRules"
+                  label="用户名"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="accountEmail"
+                  :rules="emailRules"
+                  label="邮箱"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row 
+              justify="center" 
+              align="center"
+            >
+              <v-col 
+                clos="12" 
+                sm="4"
+              >
+                <v-text-field
+                  v-model="accountPasswords"
+                  :rules="passWordsRules"
+                  label="密码"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col 
+                clos="12" 
+                sm="4"
+              ></v-col>
+              <v-col 
+                clos="12" 
+                sm="2"
+              >
+                <v-btn
+                  :disabled="!valid"
+                  color="success"
+                  @click="modify"
+                >
+                  修改
+                </v-btn>
+              </v-col>
+
+              <v-col 
+                clos="12" 
+                sm="2"
+              >
+                <v-btn
+                  color="primary"
+                  @click="Logout"
+                >
+                  登出
+                </v-btn>
+              </v-col>
+              <v-col 
+                clos="12" 
+                sm="4"
+              ></v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
       </v-card>
+
       <v-card
         v-if="menu_id == 3"
         flat
@@ -189,38 +375,43 @@
 </template>
 
 <script>
-import BaseGoBack from '../components/BaseGoBack.vue'
+import Banner from '../components/AdminBanner.vue'
+import { sha256 } from "js-sha256";
 
 export default {
   components: {
-    BaseGoBack,
+    Banner
   },
   data() {
     return {
       isLogin: false,
+      logoutTime: "",
       valid: true,
       userOldName: "管理员",
-      userName: "管理员",
+      userName: "admin",
       userNameRules: [
         v => !!v || "用户名不能为空",
         v => (v && v.length <= 10) || "用户名不能超过10个字符",
       ],
-      passWords: "123",
+      passWords: "admin-academic-2021",
       passWordsRules: [
         v => !!v || "密码不能为空",
-        v => (v && v.length <= 10) || "密码格式不合法",
       ],
+      accountSearch: "",
+      accountName: "无相关账号信息",
+      accountEmail: "无相关账号信息",
+      accountPasswords: "无相关账号信息",
       menu_id: 0,
       menu:[
         {
           menu_id: 1,
           title:"个人中心",
-          icon:"mdi-folder",
+          icon:"mdi-account-cog-outline",
         },
         {
           menu_id: 2,
           title:"账号管理",
-          icon:"mdi-folder",
+          icon:"mdi-account-box-multiple-outline",
         },
         {
           menu_id: 3,
@@ -259,10 +450,10 @@ export default {
       let token = window.localStorage.token;
       this.$axios({
         method: "post",
-        url: "/admin/login",
+        url: "api/admin/login",
         params: {
           username: this.userName,
-          password: this.passWords,
+          password: sha256(this.passWords),
         },
         headers:{
           'token':token
@@ -277,10 +468,86 @@ export default {
           });
           this.isLogin = true;
           this.menu_id = 1;
+          this.userOldName = this.userName;
+          this.logoutTime = new Date((new Date().getTime() + 1000 * 30 * 60)).toLocaleTimeString();
+          this.leftTime = 30 * 60;
+          this.timer = setInterval(() => {
+            this.leftTime--;
+
+            if (this.leftTime === 0) {
+              this.Logout();
+              clearInterval(this.timer);
+            }
+          }, 1000);
         } else {
           this.$notify({
             title: "失败",
             message: "登录名或密码错误",
+            type: "warning",
+          });
+        }
+      });
+    },
+    Logout() {
+      let token = window.localStorage.token;
+      this.$axios({
+        method: "post",
+        url: "api/admin/logout",
+        headers:{
+          'token':token
+        }
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "登出成功",
+            type: "success",
+          });
+          this.isLogin = false;
+          this.menu_id = 0;
+          this.userOldName = "管理员";
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "登出失败",
+            type: "warning",
+          });
+        }
+      });
+    },
+    searchAccount() {
+      if(this.accountSearch.search(/@/) < 0) {
+        this.accountName = this.accountSearch;
+        this.accountEmail = "123@qq.com";
+        this.accountPasswords = "123"
+      }
+      else {
+        this.accountName = "用户名";
+        this.accountEmail = this.accountSearch;
+        this.accountPasswords = "123"
+      }
+    },
+    isValid() {
+      this.$axios({
+        method: "post",
+        url: "api/admin/auth",
+        params: {
+          username: this.userName,
+          password: sha256(this.passWords),
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "验证成功",
+            type: "success",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "登出失败",
             type: "warning",
           });
         }
@@ -294,30 +561,7 @@ export default {
             type: "success",
       });
     }
-    /*
-    getInfo(){
-      this.$axios({
-        method: "get",
-        url: "api/search/info/researcher/"+this.id,
-        params: {
-          id: this.id
-        }
-      }).then(response => {
-        console.log(response.data)
-        this.avatarUrl=response.data.avatarUrl
-        this.citationNum=response.data.citationNum
-        this.name=response.data.name
-        this.position=response.data.position
-        this.interests=response.data.interests
-        this.email=response.data.email
-        this.hIndex=response.data.gIndex
-        this.paperNum=response.data.paperNum
-        this.patentNum=response.data.patentNum
-        this.currentInst=response.data.currentInst
-      }).catch(error => {
-        console.log(error)
-      })
-    }*/
+    
   }
 }
 </script>

@@ -5,12 +5,15 @@ const Home = () => import("../views/Home.vue")
 const Author = () => import("../views/Author.vue")
 const Institution = () => import("../views/Institution.vue")
 const Journal = () => import("../views/Journal.vue")
+const Topic = () => import("../views/Topic.vue")
+const Subject = () => import("../views/Subject.vue")
 const Search = () => import("../views/Search.vue")
 const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
 const PersonalView = () => import("../views/PersonalView.vue");
+const Door = () => import("../views/Door.vue")
 
 Vue.use(VueRouter)
 
@@ -33,6 +36,16 @@ const routes = [{
     path: '/journal',
     name: 'Journal',
     component: Journal
+  },
+  {
+    path: '/topic',
+    name: 'Topic',
+    component: Topic
+  },
+  {
+    path: '/subject',
+    name: 'Subject',
+    component: Subject
   },
   {
     path: '/search',
@@ -63,6 +76,11 @@ const routes = [{
     path:'/personalview',
     name:'PersonalView',
     component:PersonalView
+  },
+  {
+    path:'/door',
+    name: 'Door',
+    component: Door
   }
 ]
 

@@ -1,9 +1,8 @@
 <template>
-  <v-btn 
-    fab
-    color="grey lighten-2"
-    elevation="4"
+  <v-btn
     small
+    height="100%"
+    elevation="0"
     @click="goBack()"
   >
     <v-icon>mdi-arrow-left</v-icon>
@@ -14,7 +13,7 @@
 export default {
   methods: {
     goBack() {
-      window.history.back();
+      this.$router.push({ path: '/'})
     }
   }
 }

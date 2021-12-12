@@ -22,23 +22,23 @@
     <BaseCitation>
     </BaseCitation>
     <!-- 登录注册组件 -->
-    <BaseLogin>
-    </BaseLogin>
+    <!--<BaseLogin>
+    </BaseLogin>-->
   </v-toolbar>
 </template>
 
 <script>
 import BaseCitation from "./BaseCitation.vue";
-import BaseLogin from "./BaseLogin.vue";
+//import BaseLogin from "./BaseLogin.vue";
 export default {
   components: {
     BaseCitation,
-    BaseLogin,
+    //BaseLogin,
   },
   props: {
     router: {
       type: Array,
-      default:() => {}
+      default:() => []
     }
   },
 };
