@@ -201,7 +201,7 @@ public class StatusCtrl implements Runnable {
                 .setName(JobType.HOT_TOPIC_ANALYSIS.name())
                 .setTopicRepository(topicRepository)
                 .setJobsNum(jobNumber)
-                .setTargetIndex("topics");
+                .setTargetIndex("keywords");
         Thread topicThread = new Thread(topicMainThread);
         topicThread.setName("heat-topic");
         synchronized (StatusCtrl.STATUS_LOCK) {

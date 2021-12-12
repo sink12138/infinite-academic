@@ -68,7 +68,6 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
                 nativeSearchQueryBuilder
                         .addAggregation(Agg.authorAgg)
                         .addAggregation(Agg.subjectAgg)
-                        .addAggregation(Agg.topicAgg)
                         .addAggregation(Agg.institutionAgg)
                         .addAggregation(Agg.journalAgg)
                         .addAggregation(Agg.typeAgg)
@@ -109,7 +108,6 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
 
             searchAggregations.put(aggInfo.field, buckets);
         }
-
         return searchAggregations;
     }
 
@@ -301,7 +299,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
     private QueryBuilder buildQueryByField(String field, String name) {
         QueryBuilder queryBuilder;
         if (field.equals("topic"))
-            queryBuilder = QueryBuilders.termQuery("topics.raw", name);
+            queryBuilder = QueryBuilders.termQuery("keywords.raw", name);
         else
             queryBuilder = QueryBuilders.termQuery("subjects.raw", name);
         return queryBuilder;

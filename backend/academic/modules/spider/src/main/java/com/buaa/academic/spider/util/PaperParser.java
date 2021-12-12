@@ -425,18 +425,7 @@ public class PaperParser {
         if (subjectAndTopicElement.size() != 0) {
             for (WebElement subjectAndTopic : subjectAndTopicElement) {
                 String type = subjectAndTopic.findElement(By.xpath(".//span")).getText();
-                if (type.equals("专辑：")) {
-                    String allTopic = subjectAndTopic.findElement(By.xpath(".//p")).getText();
-                    allTopic = allTopic.replaceAll(" ", "");
-                    List<String> topics = Arrays.asList(allTopic.split(";"));
-                    for (int i = 0; i < topics.size(); i++) {
-                        String topic = topics.get(i);
-                        topic = topic.replaceAll("[ⅡⅠⅢⅣⅤ]+辑$", "");
-                        topics.set(i, topic);
-                    }
-                    // modify paper's topics by this.paperCraw.getPaper().id
-                    paper.setTopics(topics);
-                } else if (type.equals("专题：")) {
+                if (type.equals("专题：")) {
                     String allSubject = subjectAndTopic.findElement(By.xpath(".//p")).getText();
                     allSubject = allSubject.replaceAll(" ", "");
                     List<String> subjects = Arrays.asList(allSubject.split(";"));

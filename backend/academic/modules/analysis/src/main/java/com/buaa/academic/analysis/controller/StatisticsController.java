@@ -49,7 +49,7 @@ public class StatisticsController {
                     "（示例显示成了 <code>Map&lt;String, Bucket&gt;</code>，是错的）。</br>" +
                     "其中，键是聚合的字段名，值是该字段聚合的结果（聚合桶的列表）。</br>" +
                     "根据搜索目标实体的不同，返回值的各键如下（含义就是字面意思）：</br>" +
-                    "论文检索（包括智能检索）：authors, subjects, topics, institutions, journals, types, keywords</br>" +
+                    "论文检索（包括智能检索）：authors, subjects, institutions, journals, types, keywords</br>" +
                     "科研人员检索：interests, institutions</br>" +
                     "专利检索：types, inventors, applicants</br>" +
                     "<b>其余两种实体的检索是没有聚合的，也不应当申请本接口。</b>")

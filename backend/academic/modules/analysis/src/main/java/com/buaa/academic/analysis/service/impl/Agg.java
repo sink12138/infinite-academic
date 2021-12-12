@@ -19,13 +19,11 @@ public abstract class Agg {
     public static final  TermsAggregationBuilder institutionAgg = aggBuilderGen("institutions.name.raw", "institutionTerm", "institutionCount");
     public static final TermsAggregationBuilder journalAgg = aggBuilderGen("journal.title.raw", "journalTerm", "journalCount");
     public static final TermsAggregationBuilder subjectAgg = aggBuilderGen("subjects.raw", "subjectTerm", "subjectCount");
-    public static final TermsAggregationBuilder topicAgg = aggBuilderGen("topics.raw", "topicTerm", "topicCount");
     public static final TermsAggregationBuilder typeAgg = aggBuilderGen("type", "typeTerm", "typeCount");
     public static final TermsAggregationBuilder keywordAgg = aggBuilderGen("keywords.raw", "keywordTerm", "keywordCount");
     public static final List<AggInfo> paperAgg = List.of(
             new AggInfo("authors", "authorTerm", "authorCount"),
             new AggInfo("subjects", "subjectTerm", "subjectCount"),
-            new AggInfo("topics", "topicTerm", "topicCount"),
             new AggInfo("institutions", "institutionTerm", "institutionCount"),
             new AggInfo("journals", "journalTerm", "journalCount"),
             new AggInfo("types", "typeTerm", "typeCount"),
