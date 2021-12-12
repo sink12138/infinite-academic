@@ -2,6 +2,7 @@ package com.buaa.academic.admin.controller;
 
 import com.buaa.academic.admin.client.AnalysisClient;
 import com.buaa.academic.admin.client.FeignOperation;
+import com.buaa.academic.admin.client.SpiderClient;
 import com.buaa.academic.admin.model.ScheduleBoard;
 import com.buaa.academic.admin.service.AuthValidator;
 import com.buaa.academic.model.exception.ExceptionType;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,9 @@ public class SystemController {
     @Autowired
     private AnalysisClient analysisClient;
 
+    @Autowired
+    private SpiderClient spiderClient;
+
     @GetMapping("/schedules")
     @ApiOperation(value = "获取定时任务列表", notes = "获取当前已注册的所有定时任务的概览和详细信息")
     public Result<ScheduleBoard> schedules(@RequestHeader(name = "Auth") String auth) {
@@ -49,10 +54,10 @@ public class SystemController {
                         return analysisClient.status(auth);
                     }
                 },
-                new FeignOperation<>("数据库更新与扩充") {
+                new FeignOperation<>("数据更新与扩充") {
                     @Override
                     public Result<Schedule> apply() {
-                        return new Result<Schedule>().withFailure(ExceptionType.NOT_FOUND);
+                        return spiderClient.status(auth);
                     }
                 });
         for (FeignOperation<Schedule> operation : operations) {
@@ -94,22 +99,23 @@ public class SystemController {
     @ApiImplicitParam(
             name = "code",
             value = "定时任务代号，当前可用值：</br>" +
-                    "<b>ANALYSIS-ASSOCIATION</b> - 学科话题热点关联分析")
+                    "<b>analysis</b> - 学科话题热点关联分析</br>" +
+                    "<b>spider</b> - 数据更新与扩充")
     public Result<Void> startSchedule(@RequestHeader(name = "Auth") String auth,
                                       @RequestParam(name = "code") @NotNull @NotEmpty String code) {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation;
         switch (code) {
-            case "ANALYSIS-ASSOCIATION" -> operation = new FeignOperation<>(code) {
+            case "analysis" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return analysisClient.start(auth);
                 }
             };
-            case "UPDATE-CRAWLER" -> operation = new FeignOperation<>(code) {
+            case "spider" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
-                    return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
+                    return spiderClient.start(auth);
                 }
             };
             default -> {
@@ -128,18 +134,19 @@ public class SystemController {
             log.warn("Timeout when starting schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
-        return operation.getResult();
+        return operationResult;
     }
 
     @PostMapping("/stop")
     @ApiOperation(
             value = "停止定时任务",
             notes = "立即向某个定时任务发送停止信号。</br>" +
-                    "该任务接到信号后可能不会立即停止；如果该任务当前正在进行关键动作（例如将结果写入数据库），其有权拒绝停止命令。")
+                    "该任务接到信号后可能不会立即停止；如果该任务当前正在进行关键动作（例如将最终结果写入数据库），其有权拒绝停止命令。")
     @ApiImplicitParam(
             name = "code",
             value = "定时任务代号，当前可用值：</br>" +
-                    "<b>ANALYSIS-ASSOCIATION</b> - 学科话题热点关联分析")
+                    "<b>analysis</b> - 学科话题热点关联分析</br>" +
+                    "<b>spider</b> - 数据更新与扩充")
     public Result<Void> stopSchedule(@RequestHeader(name = "Auth") String auth,
                                      @RequestParam(name = "code") String code) {
         Result<Void> result = new Result<>();
@@ -154,7 +161,7 @@ public class SystemController {
             case "UPDATE-CRAWLER" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
-                    return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
+                    return spiderClient.stop(auth);
                 }
             };
             default -> {
@@ -173,7 +180,7 @@ public class SystemController {
             log.warn("Timeout when stopping schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
-        return operation.getResult();
+        return operationResult;
     }
 
     @PostMapping("/timing")
@@ -181,13 +188,14 @@ public class SystemController {
             value = "设置定时任务的执行频率",
             notes = "通过cron表达式设置某个定时任务的执行频率。</br>" +
                     "此处并不支持完全体的cron表达式，其中的通配符只允许使用*和?，表示星期几的最后一位只允许使用数字而非缩写。</br>" +
-                    "同时，设定的执行频率不得高于每日一次（即前两位必须为0，第三位必须为数字。</br>" +
+                    "同时，设定的执行频率不得高于每日一次（即前两位必须为0，第三位必须为数字）。</br>" +
                     "<a href='https://blog.csdn.net/sunnyzyq/article/details/98597252'>什么是cron表达式？</a>")
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "code",
                     value = "定时任务代号，当前可用值：</br>" +
-                            "<b>ANALYSIS-ASSOCIATION</b> - 学科话题热点关联分析"),
+                            "<b>analysis</b> - 学科话题热点关联分析</br>" +
+                            "<b>spider</b> - 数据更新与扩充"),
             @ApiImplicitParam(name = "cron", value = "一串6位的cron表达式")})
     public Result<Void> timingSchedule(@RequestHeader(name = "Auth") String auth,
                                        @RequestParam("code") String code,
@@ -195,13 +203,13 @@ public class SystemController {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation;
         switch (code) {
-            case "ANALYSIS-ASSOCIATION" -> operation = new FeignOperation<>(code) {
+            case "analysis" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return analysisClient.timing(auth, cron);
                 }
             };
-            case "UPDATE-CRAWLER" -> operation = new FeignOperation<>(code) {
+            case "spider" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
@@ -223,7 +231,32 @@ public class SystemController {
             log.warn("Timeout when setting timing of schedule '" + operation.getTag() + '\'');
             return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
         }
-        return operation.getResult();
+        return operationResult;
+    }
+
+    @PostMapping("/inspire")
+    public Result<Void> inspireSpider(@RequestHeader(name = "Auth") String auth,
+                                      @RequestBody List<@NotNull @NotEmpty @Length(max = 64) String> inspirations) {
+        Result<Void> result = new Result<>();
+        FeignOperation<Void> operation = new FeignOperation<>("INSPIRATION") {
+            @Override
+            public Result<Void> apply() {
+                return spiderClient.inspire(auth, inspirations);
+            }
+        };
+        operation.start();
+        try {
+            operation.join(3000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Result<Void> operationResult = operation.getResult();
+        if (operationResult == null) {
+            log.warn("Timeout when setting timing of schedule '" + operation.getTag() + '\'');
+            return result.withFailure(ExceptionType.FORWARD_TIMEOUT);
+        }
+        return operationResult;
     }
 
 }

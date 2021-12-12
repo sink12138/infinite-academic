@@ -124,7 +124,7 @@ public class StatusCtrl implements Runnable {
                 scheduleRunning = true;
             schedule.addTask(new Task(entry.getKey(), entry.getValue()));
         }
-        schedule.setName("数据分析");
+        schedule.setName("学科话题热点关联分析");
         schedule.setLastRun(lastRunningDate);
         schedule.setNextRun(nextRunningDate);
         schedule.setFrequency(NaturalCron.describe(cron));
