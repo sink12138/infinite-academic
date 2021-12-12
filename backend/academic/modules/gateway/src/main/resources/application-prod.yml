@@ -67,16 +67,23 @@ spring:
             - Path=/analysis/**
           filters:
             - StripPrefix=1
+        - id: 学者服务
+          uri: lb://client-scholar
+          order: 4
+          predicates:
+            - Path=/scholar/**
+          filters:
+            - StripPrefix=1
         - id: 后台服务
           uri: lb://client-admin
-          order: 6
+          order: 5
           predicates:
             - Path=/admin/**
           filters:
             - StripPrefix=1
         - id: 资源服务
           uri: lb://client-resource
-          order: 7
+          order: 6
           predicates:
             - Path=/resource/**
           filters:

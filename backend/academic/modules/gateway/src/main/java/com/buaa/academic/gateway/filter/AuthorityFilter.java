@@ -99,12 +99,6 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
 
             /* Switch url paths */
             switch (primaryUrl) {
-                case "analysis" -> {
-                    // When reaching this, request must have admin auth
-                    if (!authority.isAdmin())
-                        throw new AcademicException(ExceptionType.UNAUTHORIZED);
-                    authHeader = adminAuth;
-                }
                 case "account" -> {
                     switch (secondaryUrl) {
                         case "register", "login", "verify", "forget", "echo" -> {
