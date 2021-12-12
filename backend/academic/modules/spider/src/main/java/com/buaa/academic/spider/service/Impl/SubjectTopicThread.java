@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import java.util.Arrays;
 
 @Data
 @NoArgsConstructor
@@ -16,21 +17,30 @@ public class SubjectTopicThread implements Runnable{
 
     private StatusCtrl statusCtrl;
 
+    private Boolean headless;
+
     @SneakyThrows
     @Override
     public void run() {
+        String threadName = Thread.currentThread().getName();
+        statusCtrl.changeRunningStatusTo(threadName, "Subject crawler start...");
         PaperParser paperParser = new PaperParser();
         JournalParser journalParser = new JournalParser();
         journalParser.setStatusCtrl(statusCtrl);
+        journalParser.setHeadless(headless);
         paperParser.setJournalParser(journalParser);
         paperParser.setStatusCtrl(statusCtrl);
+        paperParser.setHeadless(headless);
         while (true) {
             try {
-                if (StatusCtrl.jobStopped)
+                if (StatusCtrl.jobStopped) {
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     return;
+                }
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.subjectAndTopicCrawlerQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
+                        statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
                         return;
                     }
                 }
@@ -38,9 +48,9 @@ public class SubjectTopicThread implements Runnable{
                 if (paperObject == null)
                     continue;
                 paperParser.setPaperCraw(paperObject);
-                System.out.println("正在获取论文学科话题信息：" + paperObject.getPaper().getTitle());
                 paperParser.zhiWangSpider();
             } catch (Exception e) {
+                statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
             }
         }

@@ -158,10 +158,10 @@ public class StatusCtrl implements Runnable {
         double minSupport = 0.2;
         double minConfidence = 0.3;
 
-        FPGMainClass topicFPG = new FPGMainClass("topics")
+        FPGMainClass topicFPG = new FPGMainClass("keywords")
                 .setName(JobType.TOPIC_FPG_ANALYSIS.name())
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
-                .setDeleteTmpFiles(true)
+                .setDeleteTmpFiles(false)
                 .setTemplate(template)
                 .setTopicRepository(topicRepository)
                 .setCacheDirectory(cacheDirectory);
@@ -175,7 +175,7 @@ public class StatusCtrl implements Runnable {
         FPGMainClass subjectFPG = new FPGMainClass("subjects")
                 .setName(JobType.SUBJECT_FPG_ANALYSIS.name())
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
-                .setDeleteTmpFiles(true)
+                .setDeleteTmpFiles(false)
                 .setTemplate(template)
                 .setSubjectRepository(subjectRepository)
                 .setCacheDirectory(cacheDirectory);

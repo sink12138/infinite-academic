@@ -52,11 +52,6 @@ public class Paper implements Reducible<PaperItem> {
         @Field(type = FieldType.Keyword)
         @ApiModelProperty(required = true, value = "作者姓名", example = "谭火彬")
         private String name;
-
-        @Field(type = FieldType.Integer, index = false)
-        @ApiModelProperty(value = "作者所属机构的序号（从0开始），作为上标显示在作者名字之后")
-        private List<Integer> instOrders;
-
     }
 
     @Field(type = FieldType.Object, positionIncrementGap = 100)
@@ -125,10 +120,6 @@ public class Paper implements Reducible<PaperItem> {
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "论文的DOI编号", example = "10.1007/BF02943174")
     private String doi;
-
-    @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "论文的ISSN编号", example = "ISSN 1607-5161")
-    private String issn;
 
     @Data
     @AllArgsConstructor
