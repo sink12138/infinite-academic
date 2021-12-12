@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.ScriptType;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -26,8 +28,196 @@ public class ReviewServiceImpl implements ReviewService {
     
     private static final Logger log = LoggerFactory.getLogger(ReviewService.class);
 
+    private static final String paperScript =
+            "for (int i = 0; i < ctx._source.authors.size(); ++i)" +
+                "if (ctx._source.authors[i].id == params.before)" +
+                    "ctx._source.authors[i].id = params.after";
+
+    private static final String patentScript =
+            "for (int i = 0; i < ctx._source.inventors.size(); ++i)" +
+                "if (ctx._source.inventors[i].id == params.before)" +
+                    "ctx._source.inventors[i].id = params.after";
+
     @Autowired
     private ElasticsearchRestTemplate template;
+
+    @Override
+    public void createResearcher(User user, PortalForApp portal) {
+        new Thread(() -> {
+            Researcher researcher = new Researcher();
+            editResearcher(researcher, portal);
+            template.save(researcher);
+            user.setResearcherId(researcher.getId());
+            template.save(user);
+        }, "create-portal").start();
+    }
+
+    @Override
+    public void mergeResearcher(String baseId, Iterable<String> otherIds) {
+        new Thread(() -> {
+            for (String otherId : otherIds) {
+                Researcher base = Objects.requireNonNull(template.get(baseId, Researcher.class));
+                Researcher other = template.get(otherId, Researcher.class);
+                if (other == null)
+                    continue;
+                /* current institution */
+                if (base.getCurrentInst() == null && other.getCurrentInst() != null) {
+                    base.setCurrentInst(other.getCurrentInst());
+                }
+                /* institutions */
+                if (base.getInstitutions() == null && other.getInstitutions() != null) {
+                    base.setInstitutions(other.getInstitutions());
+                }
+                else if (base.getInstitutions() != null && other.getInstitutions() != null) {
+                    List<Researcher.Institution> institutions = base.getInstitutions();
+                    other.getInstitutions().forEach(otherInst -> {
+                        boolean repeat = false;
+                        for (Researcher.Institution inst : institutions) {
+                            if (Objects.equals(inst.getId(), otherInst.getId())) {
+                                repeat = true;
+                                break;
+                            }
+                        }
+                        if (!repeat) {
+                            institutions.add(otherInst);
+                        }
+                    });
+                }
+                /* h index & g index */
+                Integer baseH = base.getHIndex(), otherH = other.getHIndex();
+                if (baseH == null && otherH != null) {
+                    base.setHIndex(other.getGIndex());
+                }
+                else if (baseH != null && otherH != null) {
+                    if (otherH > baseH)
+                        base.setHIndex(otherH);
+                }
+                Integer baseG = base.getGIndex(), otherG = other.getGIndex();
+                if (baseG == null && otherG != null) {
+                    base.setGIndex(other.getGIndex());
+                }
+                else if (baseG != null && otherG != null) {
+                    if (otherG > baseG)
+                        base.setGIndex(otherG);
+                }
+                /* interests */
+                if (base.getInterests() == null && other.getInterests() != null) {
+                    base.setInterests(other.getInterests());
+                }
+                else if (base.getInterests() != null && other.getInterests() != null) {
+                    List<String> interests = base.getInterests();
+                    other.getInterests().forEach(otherInterest -> {
+                        boolean repeat = false;
+                        for (String interest : interests) {
+                            if (Objects.equals(interest, otherInterest)) {
+                                repeat = true;
+                                break;
+                            }
+                        }
+                        if (!repeat) {
+                            interests.add(otherInterest);
+                        }
+                    });
+                }
+                /* paper num, patent num & citation num */
+                base.setPaperNum(base.getPaperNum() + other.getPaperNum());
+                base.setPatentNum(base.getPatentNum() + other.getPatentNum());
+                base.setCitationNum(base.getCitationNum() + other.getCitationNum());
+
+                // Do elasticsearch operations
+                template.save(base);
+                template.updateByQuery(UpdateQuery
+                        .builder(new NativeSearchQueryBuilder()
+                                .withQuery(QueryBuilders.termQuery("authors.id", otherId))
+                                .build())
+                        .withScript(paperScript)
+                        .withParams(Map.of("before", otherId, "after", baseId))
+                        .withScriptType(ScriptType.INLINE)
+                        .build(), IndexCoordinates.of("paper"));
+                template.updateByQuery(UpdateQuery
+                        .builder(new NativeSearchQueryBuilder()
+                                .withQuery(QueryBuilders.termQuery("inventors.id", otherId))
+                                .build())
+                        .withScript(patentScript)
+                        .withParams(Map.of("before", otherId, "after", baseId))
+                        .withScriptType(ScriptType.INLINE)
+                        .build(), IndexCoordinates.of("patent"));
+                template.delete(otherId, Researcher.class);
+
+                log.info("Successfully merged researcher {} to {}", otherId, baseId);
+            }
+        }, "merge-portal").start();
+    }
+
+    @Override
+    public void modifyResearcher(String researcherId, PortalForApp portal) {
+        new Thread(() -> {
+            Researcher researcher = template.get(researcherId, Researcher.class);
+            Objects.requireNonNull(researcher);
+            editResearcher(researcher, portal);
+            template.save(researcher);
+            log.info("Successfully modified researcher {}", researcher.getId());
+        }, "modify-portal").start();
+    }
+
+    private void editResearcher(Researcher researcher, PortalForApp portal) {
+        /* name */
+        researcher.setName(portal.getName());
+        /* currentInst */
+        PortalForApp.Institution portalCurInst = portal.getCurrentInst();
+        String curInstId = portalCurInst.getId();
+        if (curInstId != null) {
+            Institution curInst = template.get(curInstId, Institution.class);
+            Objects.requireNonNull(curInst);
+            Researcher.Institution researcherCurInst = new Researcher.Institution();
+            researcherCurInst.setId(curInstId);
+            researcherCurInst.setName(curInst.getName());
+            researcher.setCurrentInst(researcherCurInst);
+        }
+        else {
+            Institution curInst = new Institution();
+            curInst.setName(portalCurInst.getName());
+            template.save(curInst);
+            log.info("Added institution {}", curInst.getId());
+            Researcher.Institution researcherCurInst = new Researcher.Institution();
+            researcherCurInst.setId(curInst.getId());
+            researcherCurInst.setName(portalCurInst.getName());
+            researcher.setCurrentInst(researcherCurInst);
+        }
+        /* institutions */
+        if (portal.getInstitutions() != null) {
+            List<Researcher.Institution> institutions = new ArrayList<>();
+            portal.getInstitutions().forEach(portalInst -> {
+                String institutionId = portalInst.getId();
+                if (institutionId != null) {
+                    Institution institution = template.get(institutionId, Institution.class);
+                    Objects.requireNonNull(institution);
+                    Researcher.Institution researcherInst = new Researcher.Institution();
+                    researcherInst.setId(institutionId);
+                    researcherInst.setName(institution.getName());
+                    institutions.add(researcherInst);
+                }
+                else {
+                    Institution institution = new Institution();
+                    institution.setName(portalInst.getName());
+                    template.save(institution);
+                    log.info("Added institution {}", institution.getId());
+                    Researcher.Institution researcherInst = new Researcher.Institution();
+                    researcherInst.setId(institution.getId());
+                    researcherInst.setName(portalInst.getName());
+                    institutions.add(researcherInst);
+                }
+            });
+            researcher.setInstitutions(institutions);
+        }
+        else {
+            researcher.setInstitutions(null);
+        }
+        /* hIndex, gIndex, interests */
+        researcher.setHIndex(portal.getHIndex());
+        researcher.setGIndex(portal.getGIndex());
+        researcher.setInterests(portal.getInterests());
+    }
 
     @Override
     public void savePaper(String paperIdIfExists, PaperForApp paperForApp) {
@@ -192,72 +382,6 @@ public class ReviewServiceImpl implements ReviewService {
             template.delete(paperId, Paper.class);
             log.info("Successfully removed paper {}", paperId);
         }, "remove-paper").start();
-    }
-
-    @Override
-    public void modifyResearcher(String researcherId, PortalForApp portal) {
-        new Thread(() -> {
-            Researcher researcher = template.get(researcherId, Researcher.class);
-            Objects.requireNonNull(researcher);
-            /* name */
-            researcher.setName(portal.getName());
-            /* currentInst */
-            PortalForApp.Institution portalCurInst = portal.getCurrentInst();
-            String curInstId = portalCurInst.getId();
-            if (curInstId != null) {
-                Institution curInst = template.get(curInstId, Institution.class);
-                Objects.requireNonNull(curInst);
-                Researcher.Institution researcherCurInst = new Researcher.Institution();
-                researcherCurInst.setId(curInstId);
-                researcherCurInst.setName(curInst.getName());
-                researcher.setCurrentInst(researcherCurInst);
-            }
-            else {
-                Institution curInst = new Institution();
-                curInst.setName(portalCurInst.getName());
-                template.save(curInst);
-                log.info("Added institution {}", curInst.getId());
-                Researcher.Institution researcherCurInst = new Researcher.Institution();
-                researcherCurInst.setId(curInst.getId());
-                researcherCurInst.setName(portalCurInst.getName());
-                researcher.setCurrentInst(researcherCurInst);
-            }
-            /* institutions */
-            if (portal.getInstitutions() != null) {
-                List<Researcher.Institution> institutions = new ArrayList<>();
-                portal.getInstitutions().forEach(portalInst -> {
-                    String institutionId = portalInst.getId();
-                    if (institutionId != null) {
-                        Institution institution = template.get(institutionId, Institution.class);
-                        Objects.requireNonNull(institution);
-                        Researcher.Institution researcherInst = new Researcher.Institution();
-                        researcherInst.setId(institutionId);
-                        researcherInst.setName(institution.getName());
-                        institutions.add(researcherInst);
-                    }
-                    else {
-                        Institution institution = new Institution();
-                        institution.setName(portalInst.getName());
-                        template.save(institution);
-                        log.info("Added institution {}", institution.getId());
-                        Researcher.Institution researcherInst = new Researcher.Institution();
-                        researcherInst.setId(institution.getId());
-                        researcherInst.setName(portalInst.getName());
-                        institutions.add(researcherInst);
-                    }
-                });
-                researcher.setInstitutions(institutions);
-            }
-            else {
-                researcher.setInstitutions(null);
-            }
-            /* hIndex, gIndex, interests */
-            researcher.setHIndex(portal.getHIndex());
-            researcher.setGIndex(portal.getGIndex());
-            researcher.setInterests(portal.getInterests());
-            template.save(researcher);
-            log.info("Successfully modified researcher {}", researcher.getId());
-        }, "modify-portal").start();
     }
 
     @Override

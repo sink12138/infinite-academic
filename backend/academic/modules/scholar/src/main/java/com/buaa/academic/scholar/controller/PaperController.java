@@ -20,7 +20,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/paper")
 @Validated
-@Api(tags = "文章相关申请")
+@Api(tags = "提交论文相关申请")
 public class PaperController {
 
     @Autowired

@@ -20,7 +20,7 @@ public class Certification implements Serializable {
     private PortalForApp create;
 
     @ApiModelProperty(value = "待认证的学者编号，若需认领已有门户则含有此字段")
-    private Claim claims;
+    private Claim claim;
 
     @NotNull
     @Pattern(regexp = "^[0-9A-Za-z]{5}$")

@@ -5,20 +5,25 @@ import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.application.*;
+import com.buaa.academic.scholar.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public  class ExistenceCheck {
 
     @Autowired
     private ElasticsearchRestTemplate template;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public boolean certificationCheck(Certification certification) {
         if (certification.getCreate() == null)
-            return (certification.getClaims() != null && this.claimCheck(certification.getClaims()));
-        else if (certification.getClaims() == null)
+            return (certification.getClaim() != null && this.claimCheck(certification.getClaim()));
+        else if (certification.getClaim() == null)
             return certification.getCreate() != null && this.portalForAppCheck(certification.getCreate());
         else
             return false;
@@ -120,4 +125,15 @@ public  class ExistenceCheck {
         }
         return true;
     }
+
+    public boolean repetitiveClaimCheck(Claim claim) {
+        if (claim == null)
+            return true;
+        for (String id : claim.getPortals()) {
+            if (userRepository.existsByResearcherId(id))
+                return false;
+        }
+        return true;
+    }
+
 }

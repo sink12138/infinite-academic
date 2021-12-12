@@ -1,5 +1,6 @@
 package com.buaa.academic.scholar.controller;
 
+import com.buaa.academic.document.entity.User;
 import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.model.application.ApplicationInfo;
 import com.buaa.academic.model.application.Certification;
@@ -20,10 +21,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 @RestController
 @Validated
-@Api(tags = "身份相关申请")
+@Api(tags = "提交身份相关申请")
 public class IdentityController {
 
     @Autowired
@@ -31,6 +33,9 @@ public class IdentityController {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private ElasticsearchRestTemplate elasticTemplate;
 
     @Autowired
     private AccountClient accountClient;
@@ -59,11 +64,16 @@ public class IdentityController {
     public Result<Void> certifyCommit(@RequestHeader(value = "Auth") String userId,
                                       @RequestBody ApplicationInfo<Certification> ctfApp) {
         Result<Void> result = new Result<>();
+        User user = Objects.requireNonNull(elasticTemplate.get(userId, User.class));
+        if (user.getResearcherId() != null)
+            return result.withFailure("不能重复认证");
         Object target = redisTemplate.opsForValue().get(ctfApp.getContent().getCode());
         if (target == null)
             return result.withFailure("验证码已失效");
         if (!existenceCheck.certificationCheck(ctfApp.getContent()))
             return result.withFailure(ExceptionType.NOT_FOUND);
+        if (!existenceCheck.repetitiveClaimCheck(ctfApp.getContent().getClaim()))
+            return result.withFailure("部分门户已经被认领");
         redisTemplate.delete(ctfApp.getContent().getCode());
         ctfApp.getContent().setCode(null);
         if (ctfApp.getFileToken() != null) {
@@ -89,6 +99,8 @@ public class IdentityController {
         }
         if (!existenceCheck.claimCheck(claimApp.getContent()))
             return result.withFailure(ExceptionType.NOT_FOUND);
+        if (!existenceCheck.repetitiveClaimCheck(claimApp.getContent()))
+            return result.withFailure("部分门户已经被认领");
         if (claimAppService.submitAppWithCtf(claimApp, userId, ApplicationType.CLAIM))
             return result;
         else
@@ -112,4 +124,5 @@ public class IdentityController {
         else
             return result.withFailure(ExceptionType.INVALID_PARAM);
     }
+
 }

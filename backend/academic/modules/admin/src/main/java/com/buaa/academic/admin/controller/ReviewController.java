@@ -4,11 +4,11 @@ import com.buaa.academic.admin.dao.ApplicationRepository;
 import com.buaa.academic.admin.model.ApplicationDetails;
 import com.buaa.academic.admin.model.ApplicationPage;
 import com.buaa.academic.admin.service.AuthValidator;
+import com.buaa.academic.admin.service.MessageService;
 import com.buaa.academic.admin.service.ReviewService;
 import com.buaa.academic.document.entity.User;
 import com.buaa.academic.document.system.Application;
 import com.buaa.academic.document.system.ApplicationType;
-import com.buaa.academic.document.system.Message;
 import com.buaa.academic.document.system.StatusType;
 import com.buaa.academic.model.application.*;
 import com.buaa.academic.model.exception.ExceptionType;
@@ -31,8 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -55,6 +54,9 @@ public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private MessageService messageService;
 
     private static final Object REVIEW_LOCK = new Object();
 
@@ -138,17 +140,88 @@ public class ReviewController {
             application.setStatus(StatusType.NOT_PASSED);
             elasticTemplate.save(application);
         }
-        Message message = new Message(
-                null,
-                application.getUserId(),
-                application.getType().getDescription() + "被拒绝",
-                String.format("很遗憾，您于 %s 提交的 %s 申请未通过管理员审核，原因：%s\n您可以再次提交申请，或联系网站管理员。",
-                        application.getTime(),
-                        application.getType().getDescription(),
-                        reason),
-                new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()),
-                false);
-        elasticTemplate.save(message);
+        messageService.sendRejectMessage(application, reason);
+        return result;
+    }
+
+    @PostMapping("/accept/certification")
+    @ApiOperation(value = "接受学者认证申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是学者认证类型")
+    public Result<Void> acceptCertification(@RequestHeader(name = "Auth") String auth,
+                                            @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        synchronized (REVIEW_LOCK) {
+            // Existence
+            Application application = elasticTemplate.get(id, Application.class);
+            if (application == null || !ApplicationType.CERTIFICATION.equals(application.getType()))
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            Certification certification = (Certification) redisTemplate.opsForValue().get(id);
+            if (certification == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+
+            // Status
+            StatusType status = application.getStatus();
+            if (StatusType.NOT_PASSED.equals(status))
+                return result.withFailure("已拒绝的申请不能接受");
+            else if (StatusType.PASSED.equals(status))
+                return result;
+
+            User user = Objects.requireNonNull(elasticTemplate.get(application.getUserId(), User.class));
+            application.setStatus(StatusType.PASSED);
+            elasticTemplate.save(application);
+            Claim claim = certification.getClaim();
+            if (claim == null) {
+                reviewService.createResearcher(user, certification.getCreate());
+            }
+            else {
+                List<String> portals = claim.getPortals();
+                user.setResearcherId(portals.get(0));
+                reviewService.mergeResearcher(portals.get(0), portals.subList(1, portals.size()));
+            }
+            messageService.sendAcceptMessage(application);
+        }
+        return result;
+    }
+
+    @PostMapping("/accept/claim")
+    @ApiOperation(value = "接受门户认领申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是门户认领类型")
+    public Result<Void> acceptClaim(@RequestHeader(name = "Auth") String auth,
+                                    @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        synchronized (REVIEW_LOCK) {
+            // Existence
+            Application application = elasticTemplate.get(id, Application.class);
+            if (application == null || !ApplicationType.CLAIM.equals(application.getType()))
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            Claim claim = (Claim) redisTemplate.opsForValue().get(id);
+            if (claim == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+
+            // Status
+            StatusType status = application.getStatus();
+            if (StatusType.NOT_PASSED.equals(status))
+                return result.withFailure("已拒绝的申请不能接受");
+            else if (StatusType.PASSED.equals(status))
+                return result;
+
+            User user = Objects.requireNonNull(elasticTemplate.get(application.getUserId(), User.class));
+            String researcherId = Objects.requireNonNull(user.getResearcherId());
+            application.setStatus(StatusType.PASSED);
+            elasticTemplate.save(application);
+            reviewService.mergeResearcher(researcherId, claim.getPortals());
+            messageService.sendAcceptMessage(application);
+        }
         return result;
     }
 
@@ -184,6 +257,7 @@ public class ReviewController {
             application.setStatus(StatusType.PASSED);
             elasticTemplate.save(application);
             reviewService.modifyResearcher(researcherId, modification.getInfo());
+            messageService.sendAcceptMessage(application);
         }
         return result;
     }
@@ -216,6 +290,7 @@ public class ReviewController {
                 return result;
 
             reviewService.savePaper(null, paperAdd.getAdd());
+            messageService.sendAcceptMessage(application);
         }
         return result;
     }
@@ -248,6 +323,7 @@ public class ReviewController {
                 return result;
 
             reviewService.savePaper(paperEdit.getPaperId(), paperEdit.getEdit());
+            messageService.sendAcceptMessage(application);
         }
         return result;
     }
@@ -282,6 +358,7 @@ public class ReviewController {
             application.setStatus(StatusType.PASSED);
             elasticTemplate.save(application);
             reviewService.removePaper(paperRemove.getPaperId());
+            messageService.sendAcceptMessage(application);
         }
         return result;
     }
@@ -316,6 +393,7 @@ public class ReviewController {
             application.setStatus(StatusType.PASSED);
             elasticTemplate.save(application);
             reviewService.transferPatent(transfer.getPatentId(), transfer);
+            messageService.sendAcceptMessage(application);
         }
         return result;
     }

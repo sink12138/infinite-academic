@@ -118,7 +118,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                         }
                     }
                 }
-                case "researcher" -> {
+                case "scholar" -> {
                     if ("certify".equals(secondaryUrl) && authority.getUserId() == null) {
                         // These requests do not need researcherId
                         throw new AcademicException(ExceptionType.UNAUTHORIZED);

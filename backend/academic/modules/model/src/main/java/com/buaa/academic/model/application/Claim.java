@@ -20,7 +20,7 @@ public class Claim implements Serializable {
 
     @NotNull
     @NotEmpty
-    @ApiModelProperty(value = "要认领的学者门户ID，申请通过后会将所选门户合并到第一个门户")
+    @ApiModelProperty(value = "要认领的学者门户ID，申请通过后会将全部所选门户合并到第一个门户")
     private List<@NotNull @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String> portals;
 
 }

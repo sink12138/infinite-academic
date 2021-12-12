@@ -62,12 +62,6 @@ public class QueryController {
                 return result.withFailure(ExceptionType.NOT_FOUND);
             }
             case "issn" -> {
-                Paper paper = paperRepository.findTopByIssn(key);
-                if (paper != null) {
-                    entity = "paper";
-                    id = paper.getId();
-                    break;
-                }
                 Journal journal = journalRepository.findTopByIssn(key);
                 if (journal != null) {
                     entity = "journal";

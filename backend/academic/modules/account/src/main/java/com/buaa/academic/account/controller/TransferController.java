@@ -31,7 +31,7 @@ import java.util.Date;
 
 @RestController
 @Validated
-@Api(value = "专利转让相关")
+@Api(tags = "专利转让相关")
 public class TransferController {
 
     private static String authHeader;
