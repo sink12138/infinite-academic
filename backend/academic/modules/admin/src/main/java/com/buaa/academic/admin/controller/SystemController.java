@@ -41,7 +41,7 @@ public class SystemController {
     private SpiderClient spiderClient;
 
     @GetMapping("/schedules")
-    @ApiOperation(value = "获取定时任务列表", notes = "获取当前已注册的所有定时任务的概览和详细信息")
+    @ApiOperation(value = "定时任务列表", notes = "获取当前已注册的所有定时任务的概览和详细信息")
     public Result<ScheduleBoard> schedules(@RequestHeader(name = "Auth") String auth) {
         Result<ScheduleBoard> result = new Result<>();
         if (!authValidator.headerCheck(auth)) {
@@ -185,7 +185,7 @@ public class SystemController {
 
     @PostMapping("/timing")
     @ApiOperation(
-            value = "设置定时任务的执行频率",
+            value = "设置执行频率",
             notes = "通过cron表达式设置某个定时任务的执行频率。</br>" +
                     "此处并不支持完全体的cron表达式，其中的通配符只允许使用*和?，表示星期几的最后一位只允许使用数字而非缩写。</br>" +
                     "同时，设定的执行频率不得高于每日一次（即前两位必须为0，第三位必须为数字）。</br>" +
@@ -235,6 +235,9 @@ public class SystemController {
     }
 
     @PostMapping("/inspire")
+    @ApiOperation(
+            value = "指定爬虫灵感",
+            notes = "这个API用来指定爬虫的起始关键词，下一次任务执行时将会围绕这些关键词进行数据扩充")
     public Result<Void> inspireSpider(@RequestHeader(name = "Auth") String auth,
                                       @RequestBody List<@NotNull @NotEmpty @Length(max = 64) String> inspirations) {
         Result<Void> result = new Result<>();
