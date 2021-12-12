@@ -60,7 +60,7 @@ public class SpiderController {
     }
 
     @Autowired
-    StatusCtrl statusCtrl;
+    private StatusCtrl statusCtrl;
 
     @PostMapping("/start")
     public Result<Void> start(@RequestParam(value = "keyword") String keyword) {

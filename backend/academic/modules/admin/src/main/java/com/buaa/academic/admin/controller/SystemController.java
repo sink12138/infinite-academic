@@ -42,16 +42,19 @@ public class SystemController {
         if (!authValidator.headerCheck(auth)) {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         }
-        List<FeignOperation<Schedule>> operations = new ArrayList<>() {
-            {
-                add(new FeignOperation<>("学科话题热点关联分析") {
+        List<FeignOperation<Schedule>> operations = List.of(
+                new FeignOperation<>("学科话题热点关联分析") {
                     @Override
                     public Result<Schedule> apply() {
                         return analysisClient.status(auth);
                     }
+                },
+                new FeignOperation<>("数据库更新与扩充") {
+                    @Override
+                    public Result<Schedule> apply() {
+                        return new Result<Schedule>().withFailure(ExceptionType.NOT_FOUND);
+                    }
                 });
-            }
-        };
         for (FeignOperation<Schedule> operation : operations) {
             operation.start();
         }
