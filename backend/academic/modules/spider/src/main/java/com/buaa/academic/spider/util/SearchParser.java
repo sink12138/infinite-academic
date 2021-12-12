@@ -52,7 +52,7 @@ public class SearchParser {
                         }
 
                         String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
-                        if (!type.equals("期刊论文")) {
+                        if (!type.equals("期刊论文")&&!type.equals("硕士论文")&&!type.equals("博士论文")) {
                             continue;
                         }
                         WebElement title = result.findElement(By.xpath(".//span[@class=\"title\"]"));
@@ -79,6 +79,12 @@ public class SearchParser {
                             paper.setAuthors(authorList);
                             paper.setCrawled(false);
                             paper.setCitationNum(0);
+                            if (type.equals("期刊论文")) {
+                                paper.setType("J");
+                            }
+                            else {
+                                paper.setType("D");
+                            }
                             // insert paper into database
                             statusCtrl.paperRepository.save(paper);
                             paperObject.setPaper(paper);

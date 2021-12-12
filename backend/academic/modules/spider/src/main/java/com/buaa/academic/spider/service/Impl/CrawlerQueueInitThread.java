@@ -26,7 +26,7 @@ public class CrawlerQueueInitThread implements Runnable {
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningQueueInitThreadNum ++;
         }
-        String url = "https://s.wanfangdata.com.cn/periodical?q=" + keyword + "&style=table&s=50";
+        String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
         SearchParser searchParser = new SearchParser();
         searchParser.setHeadless(headless);
         searchParser.setStatusCtrl(statusCtrl);
