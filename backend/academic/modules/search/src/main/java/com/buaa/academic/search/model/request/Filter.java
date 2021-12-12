@@ -76,7 +76,7 @@ public class Filter {
     @ApiModelProperty(value = "过滤器数值参数列表（format = numeric且type不为布尔类型时，需要设定此参数）", example = "2016")
     private int[] intParams;
 
-    @ApiModelProperty(value = "过滤器字符串参数列表（format = discrete时，需要设定此参数）", example = "2016")
+    @ApiModelProperty(value = "过滤器字符串参数列表（format = discrete时，需要设定此参数）", example = "计算机科学")
     private String[] keyParams;
 
     public QueryBuilder compile(String strategy) {

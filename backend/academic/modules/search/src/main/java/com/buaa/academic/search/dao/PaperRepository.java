@@ -11,6 +11,4 @@ public interface PaperRepository extends ElasticsearchRepository<Paper, String> 
 
     Paper findTopByIssn(String issn);
 
-    Paper findTopByIsbn(String isbn);
-
 }

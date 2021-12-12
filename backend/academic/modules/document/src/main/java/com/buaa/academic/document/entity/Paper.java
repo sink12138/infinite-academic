@@ -110,15 +110,6 @@ public class Paper implements Reducible<PaperItem> {
     @ApiModelProperty(value = "论文的学科分类")
     private List<String> subjects;
 
-    @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "ik_optimized_max_word", searchAnalyzer = "ik_optimized",
-                    positionIncrementGap = 100, copyTo = "completion"),
-            otherFields = {
-                    @InnerField(suffix = "raw", type = FieldType.Keyword),
-                    @InnerField(suffix = "phrase", type = FieldType.Text, analyzer = "thai_lowercase", searchAnalyzer = "thai_lowercase")})
-    @ApiModelProperty(value = "论文的话题分类")
-    private List<String> topics;
-
     @Field(type = FieldType.Integer)
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
     private Integer year;
@@ -138,10 +129,6 @@ public class Paper implements Reducible<PaperItem> {
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "论文的ISSN编号", example = "ISSN 1607-5161")
     private String issn;
-
-    @Field(type = FieldType.Keyword)
-    @ApiModelProperty(value = "论文的ISBN编号", example = "ISBN 978-7-302-12260-9")
-    private String isbn;
 
     @Data
     @AllArgsConstructor
@@ -218,7 +205,7 @@ public class Paper implements Reducible<PaperItem> {
     private Completion completion;
 
     @JsonIgnore
-    @Field(type = FieldType.Boolean, index = false)
+    @Field(type = FieldType.Boolean)
     private boolean crawled;
 
     @Override

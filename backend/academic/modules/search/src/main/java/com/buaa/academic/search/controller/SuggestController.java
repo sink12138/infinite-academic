@@ -35,7 +35,7 @@ public class SuggestController {
     @ApiOperation(
             value = "建议检索词",
             notes = "用于在用户输入搜索关键词时提供检索建议。路径变量entity指定了建议的来源类型，允许的各值及含义如下：</br>" +
-                    "<b>paper</b> - 检索论文（和智能检索）时提供建议，建议词来源为库中论文的标题、关键词、学科分类、话题分类</br>" +
+                    "<b>paper</b> - 检索论文（和智能检索）时提供建议，建议词来源为库中论文的标题、关键词、学科分类</br>" +
                     "<b>journal</b> - 检索期刊时提供建议，建议词来源为库中期刊的标题</br>" +
                     "<b>institution</b> - 检索科研机构时提供建议，建议词来源为库中科研机构的名称</br>" +
                     "<b>patent</b> - 检索专利时提供建议，建议词来源为库中专利的标题")
@@ -52,8 +52,8 @@ public class SuggestController {
         switch (entity) {
             case "paper" -> {
                 target = Paper.class;
-                phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase", "topics.phrase",
-                        "title.raw", "keywords.raw", "subjects.raw", "topics.raw" };
+                phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
+                        "title.raw", "keywords.raw", "subjects.raw" };
             }
             case "journal" -> {
                 target = Journal.class;

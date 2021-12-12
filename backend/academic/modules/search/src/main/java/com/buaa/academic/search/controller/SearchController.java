@@ -121,8 +121,8 @@ public class SearchController {
         String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
 
         List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
-                new String[] { "title.phrase", "keywords.phrase", "subjects.phrase", "topics.phrase",
-                "title.raw", "keywords.raw", "subjects.raw", "topics.raw" }, 1);
+                new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
+                "title.raw", "keywords.raw", "subjects.raw" }, 1);
         String correctKeyword = keyword;
         if (!corrections.isEmpty()) {
             correctKeyword = corrections.get(0);
@@ -241,7 +241,6 @@ public class SearchController {
                     <b>abstract</b> - 论文摘要</br>
                     <b>keywords</b> - 论文关键词</br>
                     <b>subjects</b> - 论文学科分类</br>
-                    <b>topics</b> - 论文话题分类</br>
                     <b>type</b> - 论文本身的类别，如学位论文、期刊论文等，不允许开启模糊搜索和语种关联，且不允许与其他scope共存</br>
                     <b>authors.name</b> - 论文作者的姓名，不允许开启模糊搜索和语种关联，且不允许与其他scope共存</br>
                     <b>institutions.name</b> - 发表论文的机构名，不允许与其他scope共存</br>
@@ -249,7 +248,7 @@ public class SearchController {
                     
                     允许添加filter的字段：</br>
                     数值型：<b>year</b> (below, above, range, equal), <b>citationNum</b> (above)</br>
-                    离散型：<b>subjects</b>, <b>topics</b>, <b>type</b>, <b>authors.name</b>, <b>institutions.name</b>, <b>journal.title</b>
+                    离散型：<b>subjects</b>, <b>type</b>, <b>authors.name</b>, <b>institutions.name</b>, <b>journal.title</b>
                     
                     允许设置sort的字段：<b>date.asc</b>（出版时间正序）, <b>date.asc</b>（出版时间倒序，最新论文）, <b>citationNum.desc</b>（被引量倒序，最高被引）""")
     public Result<HitPage<PaperItem>> searchPapers(@RequestBody @Valid SearchRequest searchRequest,
@@ -267,7 +266,7 @@ public class SearchController {
             return result.withFailure("条件复合不能超过" + maxDepth + "层");
 
         /* All fields that are allowed to be contained in the scope */
-        Set<String> allAllowedScopes = Set.of("title", "abstract", "keywords", "subjects", "topics", "type", "authors.name", "institutions.name", "journal.title");
+        Set<String> allAllowedScopes = Set.of("title", "abstract", "keywords", "subjects", "type", "authors.name", "institutions.name", "journal.title");
         /* Fields that are not allowed to appear with any other field */
         Set<String> soloFieldScopes = Set.of("type", "authors.name", "institutions.name", "journal.title");
 
@@ -768,7 +767,7 @@ public class SearchController {
                 }
                 case DISCRETE -> {
                     switch (filter.getAttr()) {
-                        case "subjects", "topics", "type", "authors.name", "institutions.name", "journal.title" -> {}
+                        case "subjects", "type", "authors.name", "institutions.name", "journal.title" -> {}
                         default -> {
                             return false;
                         }

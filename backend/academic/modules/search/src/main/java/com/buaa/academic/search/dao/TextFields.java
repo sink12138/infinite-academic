@@ -11,7 +11,6 @@ public class TextFields {
             add("abstract");
             add("keywords");
             add("subjects");
-            add("topics");
             add("institutions.name");
             add("journal.title");
         }});
