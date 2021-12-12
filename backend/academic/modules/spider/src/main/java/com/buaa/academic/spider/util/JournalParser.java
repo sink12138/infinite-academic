@@ -25,6 +25,8 @@ public class JournalParser {
 
     private StatusCtrl statusCtrl;
 
+    private Boolean headless;
+
     // 现在没用
     public void zhiWangSpider() throws InterruptedException {
         RemoteWebDriver driver = null;
@@ -89,56 +91,57 @@ public class JournalParser {
     public void wanFangSpider() throws InterruptedException {
         RemoteWebDriver driver = null;
         boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(true);
+        ChromeOptions options = new ChromeOptions().setHeadless(headless);
         while (!success) {
             try {
                 driver = new ChromeDriver(options);
                 success = true;
             } catch (Exception ignored) {}
         }
-        driver.get(this.url);
-        Thread.sleep(3000);
-        Journal journal = new Journal();
-        // 获取期刊标题
-        List<WebElement> nameElement = driver.findElementsByXPath("//h1[@class=\"lh-36 m-b-5 fs-24 fw-500\"]");
-        if (nameElement.size() != 0) {
-            WebElement name = nameElement.get(0);
-            String allTitle = name.getText();
-            String subTitle = name.findElement(By.xpath(".//wf-block")).getText();
-            String title = allTitle.replace(subTitle, "");
-            title = title.replace("\n", "");
-            journal.setTitle(title);
-            System.out.println("期刊标题： " + title);
-        }
-        // 获取期刊封面
-        List<WebElement> logoElement = driver.findElementsByXPath("//wf-place-holder//img");
-        if (logoElement.size() != 0) {
-            String coverUrl = logoElement.get(0).getAttribute("src");
-            journal.setCoverUrl(coverUrl);
-            System.out.println("封面链接： " + coverUrl);
-        }
-        // 获取基本信息
-        List<WebElement> basicInfoElement = driver.findElementsByXPath("//div[@class=\"w-330 float-left m-t-10\"]");
-        if (basicInfoElement.size() != 0) {
-            for (WebElement info : basicInfoElement) {
-                String lable = info.findElement(By.xpath(".//wf-field-lable")).getText();
-                if (lable.equals("主办单位：")) {
-                    String sponsor;
-                    sponsor = info.findElement(By.xpath(".//wf-field-value")).getText();
-                    journal.setSponsor(sponsor);
-                    System.out.println("主办单位： " + sponsor);
-                } else if (lable.equals("国际刊号：")) {
-                    String issn;
-                    issn = info.findElement(By.xpath(".//wf-field-value")).getText();
-                    journal.setIssn(issn);
-                    System.out.println("国际刊号： " + issn);
+        try {
+            driver.get(this.url);
+            Thread.sleep(3000);
+            Journal journal = new Journal();
+            // 获取期刊标题
+            List<WebElement> nameElement = driver.findElementsByXPath("//h1[@class=\"lh-36 m-b-5 fs-24 fw-500\"]");
+            if (nameElement.size() != 0) {
+                WebElement name = nameElement.get(0);
+                String allTitle = name.getText();
+                String subTitle = name.findElement(By.xpath(".//wf-block")).getText();
+                String title = allTitle.replace(subTitle, "");
+                title = title.replace("\n", "");
+                journal.setTitle(title);
+            }
+            // 获取期刊封面
+            List<WebElement> logoElement = driver.findElementsByXPath("//wf-place-holder//img");
+            if (logoElement.size() != 0) {
+                String coverUrl = logoElement.get(0).getAttribute("src");
+                journal.setCoverUrl(coverUrl);
+            }
+            // 获取基本信息
+            List<WebElement> basicInfoElement = driver.findElementsByXPath("//div[@class=\"w-330 float-left m-t-10\"]");
+            if (basicInfoElement.size() != 0) {
+                for (WebElement info : basicInfoElement) {
+                    String lable = info.findElement(By.xpath(".//wf-field-lable")).getText();
+                    if (lable.equals("主办单位：")) {
+                        String sponsor;
+                        sponsor = info.findElement(By.xpath(".//wf-field-value")).getText();
+                        journal.setSponsor(sponsor);
+                    } else if (lable.equals("国际刊号：")) {
+                        String issn;
+                        issn = info.findElement(By.xpath(".//wf-field-value")).getText();
+                        journal.setIssn(issn);
+                    }
                 }
             }
+            // insert journal into database
+            statusCtrl.journalRepository.save(journal);
+            this.journal = journal;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.close();
+            driver.quit();
         }
-        // insert journal into database
-        statusCtrl.journalRepository.save(journal);
-        this.journal = journal;
-        driver.close();
-        driver.quit();
     }
 }

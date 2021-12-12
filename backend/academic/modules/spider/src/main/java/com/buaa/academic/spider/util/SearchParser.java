@@ -26,16 +26,20 @@ public class SearchParser {
     private String url;
     //private List<PaperObject> rootPaperList;
 
+    private Boolean headless;
+
     // 本部分用于初始化爬取队列
     public void wanFangSpider() throws InterruptedException {
-        ChromeOptions options = new ChromeOptions().setHeadless(true);
+        int crawledPaper = 0;
+        int newPaper = 0;
+        String threadName = Thread.currentThread().getName();
+        ChromeOptions options = new ChromeOptions().setHeadless(headless);
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.url);
         Thread.sleep(2000);
         boolean continueCrawl;
         do {
             try {
-                System.out.println("初始化!");
                 //this.rootPaperList = new ArrayList<>();
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
                 if (searchResult.size() != 0) {
@@ -65,9 +69,11 @@ public class SearchParser {
                                 authorList.add(paperAuthor);
                             }
                         }
+                        crawledPaper ++;
                         // find paper by referTitle and referAuthorName
                         Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
                         if (paper == null && !statusCtrl.existenceService.inTrash(titleName, authorList)) {
+                            newPaper ++;
                             paper = new Paper();
                             paper.setTitle(titleName);
                             paper.setAuthors(authorList);
@@ -85,7 +91,6 @@ public class SearchParser {
                             assert allHandles.size() == 1;
                             driver.switchTo().window((String) allHandles.toArray()[0]);
                             String url = driver.getCurrentUrl();
-                            System.out.println(url);
                             driver.close();
                             driver.switchTo().window(originalHandle);
                             paperObject.setUrl(url);
@@ -94,9 +99,12 @@ public class SearchParser {
 
                             //rootPaperList.add(paperObject);
                         }
+
+                        statusCtrl.changeRunningStatusTo(threadName, "crawl paper num: " + crawledPaper +
+                                "; New paper num: " + newPaper);
                     }
                 }
-                WebElement next = driver.findElementByXPath("//span[@class=\"next\"]");
+                /*WebElement next = driver.findElementByXPath("//span[@class=\"next\"]");
                 if (!next.getAttribute("style").equals("display: none;")) {
                     Actions actions = new Actions(driver);
                     actions.click(next).perform();
@@ -104,6 +112,21 @@ public class SearchParser {
                     continueCrawl = true;
                 } else {
                     continueCrawl = false;
+                }*/
+                List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
+                if(nextElement.size() == 0){
+                    continueCrawl = false;
+                }
+                else{
+                    WebElement next = nextElement.get(0);
+                    if (!next.getAttribute("style").equals("display: none;")) {
+                        Actions actions = new Actions(driver);
+                        actions.click(next).perform();
+                        Thread.sleep(2000);
+                        continueCrawl = true;
+                    } else {
+                        continueCrawl = false;
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

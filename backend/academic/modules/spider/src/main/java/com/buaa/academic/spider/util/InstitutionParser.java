@@ -101,7 +101,6 @@ public class InstitutionParser {
             if (institution == null) {
                 institution = new Institution();
                 institution.setName(name);
-                System.out.println(name);
                 // 判断是否在数据库中
                 if (logoUrlElement != null) {
                     String logoUrl = logoUrlElement.getAttribute("src");

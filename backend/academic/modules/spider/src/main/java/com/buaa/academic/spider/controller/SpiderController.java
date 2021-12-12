@@ -1,82 +1,83 @@
 package com.buaa.academic.spider.controller;
 
+import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
-import com.buaa.academic.spider.model.queueObject.PaperObject;
-import com.buaa.academic.spider.model.queueObject.ResearcherObject;
+import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.spider.util.StatusCtrl;
-import com.buaa.academic.spider.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
+import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
 public class SpiderController {
+    private String authHeader;
 
-    //测试
-    @GetMapping("/spiderInstitutionTest")
-    public void spider(@RequestParam String keyword) throws InterruptedException {
-        //todo 多线程
+    @Value("${auth.username}")
+    private String username;
 
-        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+    @Value("${auth.password}")
+    private String password;
 
-        List<PaperObject> paperCraw = new ArrayList<>();
-        List<PaperObject> subjectAndTopic = new ArrayList<>();
-        List<ResearcherObject> researcherInterest = new ArrayList<>();
+    @PostConstruct
+    public void init() {
+        if (authHeader == null)
+            authHeader = Base64.getEncoder().encodeToString((username + '@' + password).getBytes(StandardCharsets.UTF_8));
+    }
 
-        String url = "https://s.wanfangdata.com.cn/periodical?q=" + keyword + "&style=table&s=50";
-        SearchParser searchParser = new SearchParser();
-        searchParser.setUrl(url);
-        searchParser.wanFangSpider();
-
-        //paperCraw.addAll(searchParser.getRootPaperList());
-
-        int total = 0;
-
-        //万方获取主要数据
-        while (paperCraw.size() != 0 && total <= 10) {
-            PaperParser paperParser = new PaperParser();
-            PaperObject paperObject = paperCraw.remove(0);
-            System.out.println("Current Url is: " + paperObject.getUrl());
-            paperParser.setPaperCraw(paperObject);
-            paperParser.wanFangSpider();
-            total++;
-            System.out.println("finish " + total + " : " + paperParser.getPaperCraw().getUrl());
-            //paperCraw.addAll(paperParser.getToCrawPaperList());
-            paperParser.getPaperCraw().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
-            subjectAndTopic.add(paperParser.getPaperCraw());
-        }
-        //知网获取论文学科话题
-        while (subjectAndTopic.size() != 0) {
-            PaperParser paperParser = new PaperParser();
-            PaperObject paperObject = subjectAndTopic.remove(0);
-            paperParser.setPaperCraw(paperObject);
-            System.out.println("正在获取论文学科话题信息：" + paperObject.getPaper().getTitle());
-            paperParser.zhiWangSpider();
-        }
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isValidHeader(String auth) {
+        return auth.equals(authHeader);
     }
 
     @Autowired
     private StatusCtrl statusCtrl;
 
     @PostMapping("/start")
-    public Result<Void> start(@RequestParam(value = "keyword") String keyword) {
+    public Result<Void> start(@RequestHeader(name = "Auth") String auth) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
-        ArrayList<String> keywords = new ArrayList<>();
-        keywords.add(keyword);
-        statusCtrl.setKeywords(keywords);
         statusCtrl.setSubjectTopicThreadNum(3);
         statusCtrl.setMainInfoThreadNum(3);
-        statusCtrl.start();
-        return new Result<>();
+        statusCtrl.setResearcherThreadNum(4);
+        if (statusCtrl.start())
+            return result;
+        return result.withFailure("Has been running");
     }
 
     @PostMapping("/stop")
-    public Result<Void> stop()  {
+    public Result<Void> stop(@RequestHeader(name = "Auth") String auth)  {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        if (!statusCtrl.isRunning())
+            return result.withFailure("Has stopped");
         statusCtrl.stop();
-        return new Result<>();
+        return result;
+    }
+
+    @GetMapping("/status")
+    public Result<Schedule> getStatus(@RequestHeader(name = "Auth") String auth) {
+        Result<Schedule> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        return result.withData(statusCtrl.getStatus());
+    }
+
+    @PostMapping("/setting")
+    public Result<Void> setting(@RequestHeader(name = "Auth") String auth,
+                                @RequestBody List<String> keywords) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        if (statusCtrl.isRunning())
+            return result.withFailure("Has been running");
+        statusCtrl.setKeywords(keywords);
+        return result;
     }
 }

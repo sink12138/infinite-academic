@@ -247,7 +247,7 @@ public class FPGMainClass implements Runnable {
             // 写入
             for (SearchHit<Paper> hit : searchHits) {
                 List<String> items;
-                if (analysisObject.equals("topics")) {
+                if (analysisObject.equals("keywords")) {
                     items = hit.getContent().getKeywords();
                     if (items != null) {
                         for (String item : items) {

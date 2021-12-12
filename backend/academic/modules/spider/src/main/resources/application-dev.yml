@@ -36,6 +36,11 @@ knife4j:
     password: knife4j-academic-2021
   enable: true
 
+auth:
+  username: admin
+  password: admin-academic-2021
+  max-valid-interval: 1800
+
 logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn

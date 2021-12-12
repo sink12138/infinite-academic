@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
+import java.util.Arrays;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,9 +18,14 @@ public class PaperMainInfoThread implements Runnable{
 
     private StatusCtrl statusCtrl;
 
+    private Boolean headless;
+
     @SneakyThrows
     @Override
     public void run() {
+        String threadName = Thread.currentThread().getName();
+        statusCtrl.changeRunningStatusTo(threadName, "Start crawl paper main info...");
+
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningMainInfoThreadNum ++;
         }
@@ -26,24 +33,28 @@ public class PaperMainInfoThread implements Runnable{
         PaperParser paperParser = new PaperParser();
         JournalParser journalParser = new JournalParser();
         journalParser.setStatusCtrl(statusCtrl);
+        journalParser.setHeadless(headless);
         paperParser.setStatusCtrl(statusCtrl);
         paperParser.setJournalParser(journalParser);
+        paperParser.setHeadless(headless);
         while (true) {
             try {
-                if (StatusCtrl.jobStopped)
+                if (StatusCtrl.jobStopped) {
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     return;
+                }
 
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningQueueInitThreadNum == 0) {
                         StatusCtrl.runningMainInfoThreadNum--;
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished");
                         return;
                     }
                 }
                 paperObject = StatusCtrl.paperObjectQueue.poll();
                 if (paperObject == null)
                     continue;
-                System.out.println("Current Url is: " + paperObject.getUrl());
                 paperParser.setPaperCraw(paperObject);
                 paperParser.wanFangSpider();
                 synchronized (StatusCtrl.queueLock) {
@@ -52,6 +63,7 @@ public class PaperMainInfoThread implements Runnable{
                     StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCraw());
                 }
             } catch (Exception e) {
+                statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
             }
         }

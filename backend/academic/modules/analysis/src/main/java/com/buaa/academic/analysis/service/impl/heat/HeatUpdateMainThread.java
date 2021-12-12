@@ -81,10 +81,10 @@ public class HeatUpdateMainThread implements Runnable {
 
         ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
         TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term")
-                .field("year").subAggregation(count).order(BucketOrder.key(true));
+                .field("year").subAggregation(count).order(BucketOrder.key(true)).size(100000);
 
         TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw")
-                .subAggregation(yearAgg);
+                .subAggregation(yearAgg).size(100000);
 
         NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchAllQuery())
@@ -93,6 +93,7 @@ public class HeatUpdateMainThread implements Runnable {
 
         StatusCtrl.changeRunningStatusTo("Aggregating " + targetIndex + "...", name);
         SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
+
         Aggregations aggregations = searchHit.getAggregations();
         assert aggregations != null;
         Aggregation aggregation = aggregations.asMap().get("term");
