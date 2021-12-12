@@ -1,10 +1,8 @@
 package com.buaa.academic.scholar.controller;
 
+import com.buaa.academic.document.entity.User;
 import com.buaa.academic.document.system.ApplicationType;
-import com.buaa.academic.model.application.ApplicationInfo;
-import com.buaa.academic.model.application.PaperAdd;
-import com.buaa.academic.model.application.PaperEdit;
-import com.buaa.academic.model.application.PaperRemove;
+import com.buaa.academic.model.application.*;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.scholar.client.ResourceClient;
@@ -13,8 +11,11 @@ import com.buaa.academic.scholar.utils.ExistenceCheck;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/paper")
@@ -23,16 +24,22 @@ import org.springframework.web.bind.annotation.*;
 public class PaperController {
 
     @Autowired
-    ApplicationService<PaperRemove> paperRemoveAppService;
+    private ApplicationService<PaperRemove> paperRemoveAppService;
 
     @Autowired
-    ApplicationService<PaperAdd> paperAddService;
+    private ApplicationService<PaperAdd> paperAddService;
 
     @Autowired
-    ExistenceCheck existenceCheck;
+    private ExistenceCheck existenceCheck;
 
     @Autowired
-    ResourceClient resourceClient;
+    private ResourceClient resourceClient;
+
+    @Autowired
+    private ApplicationService<PaperEdit> paperEditService;
+
+    @Autowired
+    private ElasticsearchRestTemplate template;
 
     @ApiOperation(value = "添加论文", notes = "添加已发表的文章或在本网站首发文章")
     @PostMapping("/add")
@@ -46,14 +53,13 @@ public class PaperController {
             if (!fileExistRes.getData())
                 return result.withFailure(ExceptionType.NOT_FOUND);
         }
+        if (!writtenBySelf(paper.getContent().getAdd(), userId))
+            return result.withFailure("不能提交自己未参与创作的论文");
         if (!paperAddService.submitAppWithCtf(paper, userId, ApplicationType.NEW_PAPER)) {
             return result.withFailure(ExceptionType.INVALID_PARAM);
         }
         return result;
     }
-
-    @Autowired
-    ApplicationService<PaperEdit> paperEditService;
 
     @ApiOperation(value = "修改论文", notes = "修改论文")
     @PostMapping("/edit")
@@ -67,6 +73,8 @@ public class PaperController {
         }
         if (!existenceCheck.paperEditCheck(paper.getContent()))
             return result.withFailure(ExceptionType.NOT_FOUND);
+        if (!writtenBySelf(paper.getContent().getEdit(), userId))
+            return result.withFailure("不能提交自己未参与创作的论文");
         if (!paperEditService.submitAppWithCtf(paper, userId, ApplicationType.EDIT_PAPER)) {
             return result.withFailure(ExceptionType.INVALID_PARAM);
         }
@@ -87,6 +95,17 @@ public class PaperController {
             return result.withFailure(ExceptionType.NOT_FOUND);
         paperRemoveAppService.submitAppWithoutCtf(paper, userId, ApplicationType.REMOVE_PAPER);
         return result;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean writtenBySelf(PaperForApp paper, String userId) {
+        User user = Objects.requireNonNull(template.get(userId, User.class));
+        String researcherId = Objects.requireNonNull(user.getResearcherId());
+        for (PaperForApp.Author author : paper.getAuthors()) {
+            if (researcherId.equals(author.getId()))
+                return true;
+        }
+        return false;
     }
 
 }

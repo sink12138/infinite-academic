@@ -10,8 +10,7 @@ import com.buaa.academic.document.system.Application;
 import com.buaa.academic.document.system.ApplicationType;
 import com.buaa.academic.document.system.Message;
 import com.buaa.academic.document.system.StatusType;
-import com.buaa.academic.model.application.Modification;
-import com.buaa.academic.model.application.PaperRemove;
+import com.buaa.academic.model.application.*;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import io.swagger.annotations.Api;
@@ -124,18 +123,21 @@ public class ReviewController {
         Result<Void> result = new Result<>();
         if (!authValidator.headerCheck(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        Application application = elasticTemplate.get(id, Application.class);
-        if (application == null)
-            return result.withFailure(ExceptionType.NOT_FOUND);
-        if (reason == null)
-            reason = "无";
-        StatusType status = application.getStatus();
-        if (StatusType.PASSED.equals(status))
-            return result.withFailure("已通过的申请不能拒绝");
-        else if (StatusType.NOT_PASSED.equals(status))
-            return result;
-        application.setStatus(StatusType.NOT_PASSED);
-        elasticTemplate.save(application);
+        Application application;
+        synchronized (REVIEW_LOCK) {
+            application = elasticTemplate.get(id, Application.class);
+            if (application == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            if (reason == null)
+                reason = "无";
+            StatusType status = application.getStatus();
+            if (StatusType.PASSED.equals(status))
+                return result.withFailure("已通过的申请不能拒绝");
+            else if (StatusType.NOT_PASSED.equals(status))
+                return result;
+            application.setStatus(StatusType.NOT_PASSED);
+            elasticTemplate.save(application);
+        }
         Message message = new Message(
                 null,
                 application.getUserId(),
@@ -186,6 +188,70 @@ public class ReviewController {
         return result;
     }
 
+    @PostMapping("/accept/paper/add")
+    @ApiOperation(value = "接受添加论文申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是添加论文类型")
+    public Result<Void> acceptPaperAdd(@RequestHeader(name = "Auth") String auth,
+                                       @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        synchronized (REVIEW_LOCK) {
+            // Existence
+            Application application = elasticTemplate.get(id, Application.class);
+            if (application == null || !ApplicationType.NEW_PAPER.equals(application.getType()))
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            PaperAdd paperAdd = (PaperAdd) redisTemplate.opsForValue().get(id);
+            if (paperAdd == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+
+            // Status
+            StatusType status = application.getStatus();
+            if (StatusType.NOT_PASSED.equals(status))
+                return result.withFailure("已拒绝的申请不能接受");
+            else if (StatusType.PASSED.equals(status))
+                return result;
+
+            reviewService.savePaper(null, paperAdd.getAdd());
+        }
+        return result;
+    }
+
+    @PostMapping("/accept/paper/edit")
+    @ApiOperation(value = "接受修改论文申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是修改类型")
+    public Result<Void> acceptPaperEdit(@RequestHeader(name = "Auth") String auth,
+                                        @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        synchronized (REVIEW_LOCK) {
+            // Existence
+            Application application = elasticTemplate.get(id, Application.class);
+            if (application == null || !ApplicationType.EDIT_PAPER.equals(application.getType()))
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            PaperEdit paperEdit = (PaperEdit) redisTemplate.opsForValue().get(id);
+            if (paperEdit == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+
+            // Status
+            StatusType status = application.getStatus();
+            if (StatusType.NOT_PASSED.equals(status))
+                return result.withFailure("已拒绝的申请不能接受");
+            else if (StatusType.PASSED.equals(status))
+                return result;
+
+            reviewService.savePaper(paperEdit.getPaperId(), paperEdit.getEdit());
+        }
+        return result;
+    }
+
     @PostMapping("/accept/paper/remove")
     @ApiOperation(value = "接受移除论文申请")
     @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是移除论文类型")
@@ -216,6 +282,40 @@ public class ReviewController {
             application.setStatus(StatusType.PASSED);
             elasticTemplate.save(application);
             reviewService.removePaper(paperRemove.getPaperId());
+        }
+        return result;
+    }
+
+    @PostMapping("/accept/transfer")
+    @ApiOperation(value = "接受专利转让申请")
+    @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是专利转让类型")
+    public Result<Void> acceptPatentTransfer(@RequestHeader(name = "Auth") String auth,
+                                             @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z]{20}$") String id) {
+        Result<Void> result = new Result<>();
+
+        // Authority
+        if (!authValidator.headerCheck(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+
+        synchronized (REVIEW_LOCK) {
+            // Existence
+            Application application = elasticTemplate.get(id, Application.class);
+            if (application == null || !ApplicationType.TRANSFER.equals(application.getType()))
+                return result.withFailure(ExceptionType.NOT_FOUND);
+            Transfer transfer = (Transfer) redisTemplate.opsForValue().get(id);
+            if (transfer == null)
+                return result.withFailure(ExceptionType.NOT_FOUND);
+
+            // Status
+            StatusType status = application.getStatus();
+            if (StatusType.NOT_PASSED.equals(status))
+                return result.withFailure("已拒绝的申请不能接受");
+            else if (StatusType.PASSED.equals(status))
+                return result;
+
+            application.setStatus(StatusType.PASSED);
+            elasticTemplate.save(application);
+            reviewService.transferPatent(transfer.getPatentId(), transfer);
         }
         return result;
     }

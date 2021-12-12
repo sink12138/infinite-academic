@@ -58,7 +58,7 @@ public class TransferController {
     private ResourceClient resourceClient;
 
     @Autowired
-    ExistenceCheck existenceCheck;
+    private ExistenceCheck existenceCheck;
 
     @PostMapping("/patent/transfer")
     @ApiOperation(value = "专利转让申请提交")

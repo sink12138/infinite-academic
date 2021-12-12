@@ -90,9 +90,6 @@ public class PaperForApp implements Serializable {
     @ApiModelProperty(value = "论文的学科分类")
     private List<@NotNull @NotEmpty String> subjects;
 
-    @ApiModelProperty(value = "论文的话题分类")
-    private List<@NotNull @NotEmpty String> topics;
-
     @Range(min = 1970, max = 2025)
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
     private Integer year;

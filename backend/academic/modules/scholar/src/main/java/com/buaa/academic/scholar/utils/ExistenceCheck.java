@@ -5,27 +5,26 @@ import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.application.*;
-import com.buaa.academic.model.exception.ExceptionType;
-import com.buaa.academic.model.web.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public  class ExistenceCheck {
-    @Autowired
-    ElasticsearchRestTemplate template;
 
-    public Boolean certificationCheck(Certification certification) {
+    @Autowired
+    private ElasticsearchRestTemplate template;
+
+    public boolean certificationCheck(Certification certification) {
         if (certification.getCreate() == null)
             return (certification.getClaims() != null && this.claimCheck(certification.getClaims()));
         else if (certification.getClaims() == null)
-            return certification.getCreate() != null && this.portalForCheck(certification.getCreate());
+            return certification.getCreate() != null && this.portalForAppCheck(certification.getCreate());
         else
             return false;
     }
 
-    public Boolean claimCheck(Claim claim) {
+    public boolean claimCheck(Claim claim) {
         for (String id: claim.getPortals()) {
             if (!template.exists(id, Researcher.class))
                 return false;
@@ -33,25 +32,25 @@ public  class ExistenceCheck {
         return true;
     }
 
-    public Boolean modificationCheck(Modification modification) {
-        return this.portalForCheck(modification.getInfo());
+    public boolean modificationCheck(Modification modification) {
+        return this.portalForAppCheck(modification.getInfo());
     }
 
-    public Boolean paperAddCheck(PaperAdd paperAdd) {
+    public boolean paperAddCheck(PaperAdd paperAdd) {
         return this.paperForAppCheck(paperAdd.getAdd());
     }
 
-    public Boolean paperEditCheck(PaperEdit paperEdit) {
+    public boolean paperEditCheck(PaperEdit paperEdit) {
         if (!template.exists(paperEdit.getPaperId(), Paper.class))
             return false;
         return this.paperForAppCheck(paperEdit.getEdit());
     }
 
-    public Boolean paperRemoveCheck(PaperRemove paperRemove) {
+    public boolean paperRemoveCheck(PaperRemove paperRemove) {
         return template.exists(paperRemove.getPaperId(), Paper.class);
     }
 
-    public Boolean paperForAppCheck(PaperForApp paperForApp) {
+    public boolean paperForAppCheck(PaperForApp paperForApp) {
         for (PaperForApp.Author author: paperForApp.getAuthors()) {
             if (author.getId() != null) {
                 if (!template.exists(author.getId(), Researcher.class))
@@ -100,7 +99,7 @@ public  class ExistenceCheck {
         return true;
     }
 
-    public Boolean portalForCheck(PortalForApp portalForApp) {
+    public boolean portalForAppCheck(PortalForApp portalForApp) {
         if (portalForApp.getCurrentInst().getId() != null) {
             if (!template.exists(portalForApp.getCurrentInst().getId(), Institution.class))
                 return false;

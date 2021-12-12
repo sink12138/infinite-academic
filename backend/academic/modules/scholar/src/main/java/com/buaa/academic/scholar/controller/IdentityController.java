@@ -27,9 +27,6 @@ import javax.annotation.Resource;
 public class IdentityController {
 
     @Autowired
-    ElasticsearchRestTemplate template;
-
-    @Autowired
     private ApplicationService<Certification> certifyAppService;
 
     @Resource
@@ -45,10 +42,10 @@ public class IdentityController {
     private ApplicationService<Modification> modificationAppService;
 
     @Autowired
-    ExistenceCheck existenceCheck;
+    private ExistenceCheck existenceCheck;
 
     @Autowired
-    ResourceClient resourceClient;
+    private ResourceClient resourceClient;
 
     @PostMapping("/certify/code")
     @ApiOperation(value = "学者认证获取验证码")
