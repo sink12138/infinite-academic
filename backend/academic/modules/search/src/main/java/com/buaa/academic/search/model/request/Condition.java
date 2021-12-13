@@ -51,9 +51,8 @@ public class Condition {
     private Set<@NotNull String> languages;
 
     @Size(min = 1, max = 5)
-    @SearchCondition
     @ApiModelProperty(value = "查询子条件")
-    private List<@NotNull Condition> subConditions;
+    private List<@NotNull @SearchCondition Condition> subConditions;
 
     public QueryBuilder compile(String strategy) {
         if (compound) {

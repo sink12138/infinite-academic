@@ -53,10 +53,17 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
             }
             else {
                 condition.setSubConditions(null);
-                String keyword = condition.getKeyword().trim().replaceAll("\\s+", " ");
+                String keyword = condition.getKeyword();
+                if (keyword == null)
+                    return false;
+                keyword = keyword.trim().replaceAll("\\s+", " ");
+                if (keyword.isBlank())
+                    return false;
                 if (keyword.length() > 32)
                     keyword = keyword.substring(0, 32);
                 condition.setKeyword(keyword);
+                if (condition.getScope() == null || condition.getScope().isEmpty())
+                    return false;
                 if (!condition.isTranslated())
                     condition.setLanguages(null);
                 else if (condition.getLanguages() == null || condition.getLanguages().isEmpty())
