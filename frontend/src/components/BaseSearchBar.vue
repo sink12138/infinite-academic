@@ -75,6 +75,13 @@ export default {
       switch (this.filter) {
         case "全部": {
           url = url + "/smart";
+          this.request = {
+            filter:[],
+            keyword:keyword,
+            page:this.page,
+            size:10,
+            translated:true,
+          }
           break;
         }
         case "论文": {
