@@ -32,26 +32,13 @@ import qs from 'qs'
 export default {
   data() {
     return {
-      items: ["全部", "主题", "论文", "期刊", "机构", "科研人员", "精确"],
+      items: ["全部", "论文", "期刊", "专利", "机构", "科研人员", "精确"],
       filter: "全部",
       text: null,
       filters: {},
       data: {},
-      request: {
-        conditions: [
-          {
-            compound: false,
-            fuzzy: true,
-            keyword: "",
-            language: ["zh"],
-            logic: "and",
-            translated: true,
-          },
-        ],
-        filters: [],
-        page: 0,
-        size: 20,
-      },
+      request: {},
+      page: 0,
     };
   },
   methods: {
@@ -67,6 +54,8 @@ export default {
       var keyword = this.text.trim();
       var keywords = keyword.split(/\s+/);
       var condition;
+      var fuzzy=true;
+      var translated=true;
       console.log(keywords);
       this.request = {
             conditions: [
@@ -80,15 +69,11 @@ export default {
               },
             ],
             filters: [],
-            page: 0,
+            page: this.page,
             size: 10,
           };
       switch (this.filter) {
         case "全部": {
-          url = url + "/smart";
-          break;
-        }
-        case "主题": {
           url = url + "/smart";
           break;
         }
@@ -157,8 +142,57 @@ export default {
             }
           break;
         }
+        case "专利": {
+          url = url + "/patent";
+          scope=[];
+          switch(this.filters.patentType){
+            case "标题/摘要":scope=["title","abstract"];break;
+            case "类型":scope=["type"];break;
+            case "申请人":scope=["applicant"];break;
+            case "发明人":scope=["inventors.name"];break;
+          }
+          this.request.conditions[0].scope= scope;
+          this.request.conditions[0].keyword = keywords[0];
+          if(keywords.length!=1)
+            for(i=1;i<keywords.length;i++){
+              condition={
+                compound: false,
+                fuzzy: true,
+                keyword: keywords[i],
+                languages: ["zh"],
+                logic: "and",
+                scope: scope,
+                translated: true,
+              };
+              this.request.conditions[i]=condition;
+            }
+          break;
+        }
         case "科研人员": {
           url = url + "/researcher";
+          scope=[];
+          switch(this.filters.researcherType){
+            case "姓名":scope=["name"];fuzzy=false;translated=false;break;
+            case "研究方向":scope=["interests"];fuzzy=true;translated=true;break;
+            case "相关机构":scope=["currentInst.name","institutions.name"];fuzzy=true;translated=true;break;
+          }
+          this.request.conditions[0].scope=scope;
+          this.request.conditions[0].fuzzy=fuzzy;
+          this.request.conditions[0].translated=translated;
+          this.request.conditions[0].keyword = keywords[0];
+          if(keywords.length!=1)
+            for(i=1;i<keywords.length;i++){
+              condition={
+                compound: false,
+                fuzzy: fuzzy,
+                keyword: keywords[i],
+                languages: ["zh"],
+                logic: "and",
+                scope: scope,
+                translated: translated,
+              };
+              this.request.conditions[i]=condition;
+            }
           break;
         }
         case "精确": {
