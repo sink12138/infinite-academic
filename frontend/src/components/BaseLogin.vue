@@ -89,11 +89,12 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="findPassword()"
-          >找回密码</v-btn>
+          <router-link to='/password'>
+            <v-btn
+              color="blue darken-1"
+              text
+            >找回密码</v-btn>
+          </router-link>
           <router-link to='/register'>
             <v-btn
               color="blue darken-1"
@@ -179,7 +180,7 @@ export default {
             this.isLogin = true;
             this.$notify({
               title: "成功",
-              message: "登陆成功",
+              message: "登录成功",
               type: "success",
             });
             console.log(this.isLogin);
@@ -193,7 +194,6 @@ export default {
         });
       }
     },
-    findPassword() {},
     logout() {
       this.$axios({
         method: "post",

@@ -1,5 +1,18 @@
 <template>
   <div class="login">
+    <router-link to="/">
+      <v-btn
+        class="ma-2"
+        color="green"
+        dark
+        max-width="150px"
+      >
+        <v-icon
+          dark
+          left
+        >mdi-arrow-left</v-icon>返回
+      </v-btn>
+    </router-link>
     <v-container class="loginOverlay">
       <v-layout
         align-center
@@ -23,7 +36,7 @@
                   append-icon="fa-info-circle"
                 ></v-text-field>
                 <v-text-field
-                  label="用户名（不超过10位）"
+                  label="用户名（不超过10位字母）"
                   v-model="username"
                   required
                   :rules="usernameRules"
@@ -104,7 +117,21 @@ export default {
           },
         }).then((response) => {
           console.log(response.data);
-
+          if(response.data.success === true){
+            this.$notify({
+              titile:"注册成功",
+              message:"请到邮箱验证后登录",
+              type:"success"
+            })
+            this.$router.push('/');
+          }
+          else{
+            this.$notify({
+              title:"注册失败",
+              message:"用户名过长，请修改",
+              type:"warning",
+            })
+          }
         });
       }
     },
