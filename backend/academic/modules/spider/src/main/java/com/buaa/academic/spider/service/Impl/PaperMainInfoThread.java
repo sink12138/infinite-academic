@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.Arrays;
@@ -25,7 +26,7 @@ public class PaperMainInfoThread implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
-        RemoteWebDriver driver = ParserUtil.getDriver(headless);
+
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Start crawl paper main info...");
@@ -40,12 +41,21 @@ public class PaperMainInfoThread implements Runnable{
         journalParser.setHeadless(headless);
         paperParser.setStatusCtrl(statusCtrl);
         paperParser.setJournalParser(journalParser);
-        paperParser.setDriver(driver);
+
+        ChromeDriverService service = null;
+        RemoteWebDriver driver = null;
+
         while (true) {
             try {
+                service = ParserUtil.getDriverService();
+                service.start();
+                driver = ParserUtil.getDriver(headless);
+                paperParser.setDriver(driver);
+
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     driver.quit();
+                    service.stop();
                     return;
                 }
 
@@ -55,21 +65,33 @@ public class PaperMainInfoThread implements Runnable{
                         StatusCtrl.runningMainInfoThreadNum--;
                         statusCtrl.changeRunningStatusStop(threadName, "Finished");
                         driver.quit();
+                        service.stop();
                         return;
                     }
                 }
                 paperObject = StatusCtrl.paperObjectQueue.poll();
-                if (paperObject == null)
+                if (paperObject == null) {
+                    driver.quit();
+                    service.stop();
                     continue;
+                }
                 paperParser.setPaperCraw(paperObject);
                 paperParser.wanFangSpider();
                 synchronized (StatusCtrl.queueLock) {
                     paperParser.getPaperCraw().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
                     StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCraw());
                 }
+
+                driver.quit();
+                service.stop();
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
+                try {
+                    assert driver != null;
+                    driver.quit();
+                    service.stop();
+                } catch (Exception ignored) {}
             }
         }
     }

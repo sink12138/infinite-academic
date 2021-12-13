@@ -8,6 +8,7 @@ import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 @Data
@@ -20,26 +21,37 @@ public class JournalCrawlThread implements Runnable{
 
     @Override
     public void run() {
-        RemoteWebDriver driver = ParserUtil.getDriver(headless);
+
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Journal crawler start.");
+        ChromeDriverService service = null;
+        RemoteWebDriver driver = null;
         while (true) {
             try {
+                service = ParserUtil.getDriverService();
+                service.start();
+                driver = ParserUtil.getDriver(headless);
+
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     driver.quit();
+                    service.stop();
                     return;
                 }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.journalUrls.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
                         statusCtrl.changeRunningStatusStop(threadName, "Finished.");
                         driver.quit();
+                        service.stop();
                         return;
                     }
                 }
                 JournalObject journal = StatusCtrl.journalUrls.poll();
-                if (journal == null)
+                if (journal == null) {
+                    driver.quit();
+                    service.stop();
                     continue;
+                }
 
                 JournalParser journalParser = new JournalParser();
                 journalParser.setDriver(driver);
@@ -53,8 +65,15 @@ public class JournalCrawlThread implements Runnable{
                 paper.getJournal().setId(journalId);
                 statusCtrl.template.save(paper);
 
+                driver.quit();
+                service.stop();
             } catch (Exception e) {
                 e.printStackTrace();
+                try {
+                    assert driver != null;
+                    driver.quit();
+                    service.stop();
+                } catch (Exception ignored) {}
             }
         }
     }

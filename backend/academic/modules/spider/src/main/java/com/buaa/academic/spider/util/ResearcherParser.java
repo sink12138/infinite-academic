@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,8 @@ public class ResearcherParser {
     private StatusCtrl statusCtrl;
 
     private RemoteWebDriver driver;
+
+    private boolean headless;
 
     public void wanFangSpider() {
         try {
@@ -156,13 +159,21 @@ public class ResearcherParser {
             statusCtrl.researcherRepository.save(researcher);
 
             driver.close();
-            driver.quit();
+
+            ChromeDriverService service = ParserUtil.getDriverService();
+            service.start();
+            RemoteWebDriver subDriver = ParserUtil.getDriver(headless);
+
             ResearcherParser researcherParser = new ResearcherParser();
             researcherParser.setStatusCtrl(statusCtrl);
             researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
             researcherParser.setResearcher(researcher);
-            researcherParser.setDriver(driver);
+            researcherParser.setDriver(subDriver);
             researcherParser.baiDuSpider();
+
+            subDriver.quit();
+            service.stop();
+
             researcher.setInterests(researcherParser.getResearcher().getInterests());
             statusCtrl.researcherRepository.save(researcher);
             this.researcher = researcher;

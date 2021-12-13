@@ -1,8 +1,11 @@
 package com.buaa.academic.spider.util;
 
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.io.IOException;
 
 public abstract class ParserUtil {
     public static RemoteWebDriver getDriver(Boolean headless) {
@@ -19,5 +22,9 @@ public abstract class ParserUtil {
             }
         } while (!success);
         return driver;
+    }
+
+    public static ChromeDriverService getDriverService() throws IOException {
+        return ChromeDriverService.createDefaultService();
     }
 }

@@ -161,18 +161,18 @@ public class PaperParser {
             }
             // 期刊论文获取期刊内容，学位论文只获取学位授予年份（出版年份）
             if (paper.getType().equals("J")) {
+                boolean crawlNewJournal = false;
                 Paper.Journal journal = new Paper.Journal();
                 List<WebElement> journalElement = driver.findElementsByXPath("//div[@class=\"serialTitle list\"]//div[@class=\"itemUrl\"]//a");
                 if (journalElement.size() != 0) {
                     String journalName = journalElement.get(0).getText();
-                    String journalUrl = journalElement.get(0).getAttribute("href");
                     journal.setTitle(journalName);
                     // find journal by name
                     Journal foundJournal = statusCtrl.existenceService.findJournalByName(journalName);
                     if (foundJournal != null) {
                         journal.setId(foundJournal.getId());
                     } else {
-                        StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
+                        crawlNewJournal = true;
                     }
                 }
                 // 获取年份、期号、卷号
@@ -211,6 +211,11 @@ public class PaperParser {
                     }
                 }
                 paper.setJournal(journal);
+                statusCtrl.template.save(paper);
+                if (crawlNewJournal) {
+                    String journalUrl = journalElement.get(0).getAttribute("href");
+                    StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
+                }
             }
             else if (paper.getType().equals("D")) {
                 // 获取学位授予年份
@@ -347,7 +352,7 @@ public class PaperParser {
                 for (WebElement searchType : searchTypes) {
                     String type = searchType.getAttribute("data-val");
                     if (type.equals("TI")) {
-                        actions.click(searchType).perform();
+                        actions.clickAndHold(searchType).perform();
                         break;
                     }
                 }
