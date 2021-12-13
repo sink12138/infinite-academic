@@ -26,10 +26,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Data
 public class StatusCtrl {
     public static final Object queueLock = new Object();
+
     public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<JournalObject> journalUrls = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<PaperObject> sourceQueue = new ConcurrentLinkedQueue<>();
+
     public static ConcurrentHashMap<String, String> runningStatus = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Boolean> runningJob = new ConcurrentHashMap<>();
     public static int runningQueueInitThreadNum = 0;
@@ -65,6 +68,8 @@ public class StatusCtrl {
 
     private int journalThreadNum;
 
+    private int paperSourceThreadNum;
+
     public Boolean start() {
         if (runningJob.size() > 0)
             return false;
@@ -78,6 +83,13 @@ public class StatusCtrl {
         for (String keyword: keywords) {
             Thread thread = new Thread(new CrawlerQueueInitThread(keyword, this, headless));
             String threadName = "QueueInitThread-keyword:" + keyword;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < paperSourceThreadNum; i++) {
+            Thread thread = new Thread(new PaperSourceThread(this, headless));
+            String threadName = "Source-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
@@ -147,4 +159,5 @@ public class StatusCtrl {
     public Boolean isRunning() {
         return runningJob.size() > 0;
     }
+
 }

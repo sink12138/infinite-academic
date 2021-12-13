@@ -47,9 +47,10 @@ public class SpiderController {
         System.setProperty("webdriver.chrome.silentOutput", "true");
         Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
         statusCtrl.setSubjectTopicThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(3);
+        statusCtrl.setPaperSourceThreadNum(2);
+        statusCtrl.setMainInfoThreadNum(2);
         statusCtrl.setJournalThreadNum(2);
-        statusCtrl.setResearcherThreadNum(3);
+        statusCtrl.setResearcherThreadNum(2);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");

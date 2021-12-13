@@ -5,10 +5,7 @@ import com.buaa.academic.spider.util.JournalParser;
 import com.buaa.academic.spider.util.PaperParser;
 import com.buaa.academic.spider.util.ParserUtil;
 import com.buaa.academic.spider.util.StatusCtrl;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import java.util.Arrays;
@@ -17,7 +14,6 @@ import java.util.Arrays;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaperMainInfoThread implements Runnable{
-
     private StatusCtrl statusCtrl;
 
     private Boolean headless;

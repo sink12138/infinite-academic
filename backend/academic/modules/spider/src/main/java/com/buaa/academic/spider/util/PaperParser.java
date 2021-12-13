@@ -240,10 +240,14 @@ public class PaperParser {
                 }
             }
             // 获取当前页面url，添加外链
-            List<Paper.Source> sources = new ArrayList<>();
+            List<Paper.Source> sources = paper.getSources();
+            if (sources == null)
+                sources = new ArrayList<>();
             Paper.Source source = new Paper.Source("万方",this.paperCraw.getUrl());
             sources.add(source);
             paper.setSources(sources);
+            statusCtrl.template.save(paper);
+
             // 获取参考文献
             List<String> referenceID = new ArrayList<>();
             List<WebElement> referenceElement;
@@ -449,6 +453,8 @@ public class PaperParser {
             List<Paper.Source> sources = paper.getSources();
             sources.add(new Paper.Source("知网",zhiWangUrl));
             paper.setSources(sources);
+            statusCtrl.template.save(paper);
+
             // 获取学科
             List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
             if (subjectAndTopicElement.size() != 0) {
@@ -463,7 +469,6 @@ public class PaperParser {
                     }
                 }
             }
-
             statusCtrl.paperRepository.save(paper);
             driver.close();
             driver.switchTo().window(originalHandle);
@@ -532,6 +537,8 @@ public class PaperParser {
                     // 添加外链
                     List<WebElement> sourceElement = target.findElements(By.xpath(".//div[@class=\"c_allversion\"]//span[contains(@class,\"v_item_span\")]//a[@class=\"v_source\"]"));
                     List<Paper.Source> sources = paper.getSources();
+                    if (sources == null)
+                        sources = new ArrayList<>();
                     List<String> sourcesText = new ArrayList<>();
                     for (Paper.Source source:sources) {
                         sourcesText.add(source.getWebsite());
