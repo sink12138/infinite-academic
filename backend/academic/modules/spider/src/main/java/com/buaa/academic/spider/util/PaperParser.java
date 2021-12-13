@@ -239,6 +239,11 @@ public class PaperParser {
                     paper.setDate(date);
                 }
             }
+            // 获取当前页面url，添加外链
+            List<Paper.Source> sources = new ArrayList<>();
+            Paper.Source source = new Paper.Source("万方",this.paperCraw.getUrl());
+            sources.add(source);
+            paper.setSources(sources);
             // 获取参考文献
             List<String> referenceID = new ArrayList<>();
             List<WebElement> referenceElement;
@@ -439,8 +444,13 @@ public class PaperParser {
             allHandles.remove(originalHandle);
             assert allHandles.size() == 1;
             driver.switchTo().window((String) allHandles.toArray()[0]);
+            // 添加外链
+            String zhiWangUrl = driver.getCurrentUrl();
+            List<Paper.Source> sources = paper.getSources();
+            sources.add(new Paper.Source("知网",zhiWangUrl));
+            paper.setSources(sources);
+            // 获取学科
             List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
-
             if (subjectAndTopicElement.size() != 0) {
                 for (WebElement subjectAndTopic : subjectAndTopicElement) {
                     String type = subjectAndTopic.findElement(By.xpath(".//span")).getText();
@@ -457,6 +467,104 @@ public class PaperParser {
             statusCtrl.paperRepository.save(paper);
             driver.close();
             driver.switchTo().window(originalHandle);
+            driver.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 获取外链
+    // url格式： https://xueshu.baidu.com/s?wd= + 要搜索的title + &sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8
+    public void baiduSpider(){
+        String threadName = Thread.currentThread().getName();
+        try {
+            driver.get(this.paperCraw.getUrl());
+            Thread.sleep(2000);
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
+            String title = paper.getTitle();
+            statusCtrl.changeRunningStatusTo(threadName, "Get sources of paper: " + title);
+            List<Paper.Author> paperAuthors = paper.getAuthors();
+            List<String> authors = new ArrayList<>();
+            for (Paper.Author paperAuthor : paperAuthors) {
+                authors.add(paperAuthor.getName());
+            }
+            WebElement target = null;
+            int flag = 0;
+            // 遍历所有结果
+            do {
+                // 获取下一页按钮
+                List<WebElement> nextElement = driver.findElementsByXPath("//p[@id=\"page\"]//a[@class=\"n\"]//i[@class=\"c-icon-pager-next\"]");
+                WebElement next = null;
+                if (nextElement.size() != 0) {
+                    next = nextElement.get(0);
+                }
+                // 获取匹配元素
+                List<WebElement> matchElement = driver.findElementsByXPath("//div[@class=\"result sc_default_result xpath-log\"]");
+                if (matchElement.size() == 0) {
+                    driver.close();
+                    return;
+                }
+                for (WebElement match : matchElement) {
+                    // 匹配标题
+                    WebElement matchTitle = match.findElement(By.xpath(".//div[@class=\"sc_content\"]//h3[@class=\"t c_font\"]//a"));
+                    String matchTitleText = matchTitle.getText();
+                    if (!matchTitleText.equals(title)) {
+                        continue;
+                    }
+                    // 匹配作者
+                    List<WebElement> matchAuthors = match.findElements(By.xpath(".//div[@class=\"sc_info\"]//span//a[@data-click=\"{'button_tp':'author'}\"]"));
+                    List<String> matchNames = new ArrayList<>();
+                    if (matchAuthors.size() != 0) {
+                        for (WebElement matchAuthor : matchAuthors) {
+                            matchNames.add(matchAuthor.getText());
+                        }
+                    }
+                    for (String matchName : matchNames) {
+                        if (authors.contains(matchName)) {
+                            target = match;
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag == 0) {
+                        continue;
+                    }
+                    // 添加外链
+                    List<WebElement> sourceElement = target.findElements(By.xpath(".//div[@class=\"c_allversion\"]//span[contains(@class,\"v_item_span\")]//a[@class=\"v_source\"]"));
+                    List<Paper.Source> sources = paper.getSources();
+                    List<String> sourcesText = new ArrayList<>();
+                    for (Paper.Source source:sources) {
+                        sourcesText.add(source.getWebsite());
+                    }
+                    if (sourceElement.size() != 0) {
+                        for (WebElement source:sourceElement) {
+                            String webName = source.getAttribute("title");
+                            String webUrl = source.getAttribute("href");
+                            if (!sourcesText.contains(webName)) {
+                                Paper.Source newSource = new Paper.Source(webName,webUrl);
+                                sources.add(newSource);
+                                sourcesText.add(webName);
+                            }
+                        }
+                        if (!sourcesText.contains("百度学术")) {
+                            String baiduUrl = matchTitle.getAttribute("href");
+                            Paper.Source newSource = new Paper.Source("百度学术",baiduUrl);
+                            sources.add(newSource);
+                            sourcesText.add("百度学术");
+                        }
+                        paper.setSources(sources);
+                    }
+                }
+                if (next != null && flag == 0) {
+                    Actions actions = new Actions(driver);
+                    actions.click(next).perform();
+                    Thread.sleep(2000);
+                }
+                else {
+                    break;
+                }
+            } while(true);
+            statusCtrl.paperRepository.save(paper);
             driver.close();
         } catch (Exception e) {
             e.printStackTrace();
