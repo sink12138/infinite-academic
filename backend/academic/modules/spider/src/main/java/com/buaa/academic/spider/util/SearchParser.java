@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
@@ -24,7 +22,6 @@ public class SearchParser {
     StatusCtrl statusCtrl;
 
     private String url;
-    //private List<PaperObject> rootPaperList;
 
     private Boolean headless;
 
@@ -33,14 +30,12 @@ public class SearchParser {
         int crawledPaper = 0;
         int newPaper = 0;
         String threadName = Thread.currentThread().getName();
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        RemoteWebDriver driver = new ChromeDriver(options);
+        RemoteWebDriver driver = ParserUtil.getDriver(headless);
         driver.get(this.url);
         Thread.sleep(2000);
         boolean continueCrawl;
         do {
             try {
-                //this.rootPaperList = new ArrayList<>();
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
                 if (searchResult.size() != 0) {
                     for (WebElement result : searchResult) {
@@ -87,7 +82,7 @@ public class SearchParser {
                             }
                             // insert paper into database
                             statusCtrl.paperRepository.save(paper);
-                            paperObject.setPaper(paper);
+                            paperObject.setPaperId(paper.getId());
                             // 切换窗口,获取url，返回窗口
                             String originalHandle = driver.getWindowHandle();
                             Actions actions = new Actions(driver);
@@ -102,23 +97,12 @@ public class SearchParser {
                             paperObject.setUrl(url);
 
                             StatusCtrl.paperObjectQueue.add(paperObject);
-
-                            //rootPaperList.add(paperObject);
                         }
 
-                        statusCtrl.changeRunningStatusTo(threadName, "crawl paper num: " + crawledPaper +
+                        statusCtrl.changeRunningStatusTo(threadName, "Crawl paper num: " + crawledPaper +
                                 "; New paper num: " + newPaper);
                     }
                 }
-                /*WebElement next = driver.findElementByXPath("//span[@class=\"next\"]");
-                if (!next.getAttribute("style").equals("display: none;")) {
-                    Actions actions = new Actions(driver);
-                    actions.click(next).perform();
-                    Thread.sleep(2000);
-                    continueCrawl = true;
-                } else {
-                    continueCrawl = false;
-                }*/
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if(nextElement.size() == 0){
                     continueCrawl = false;
@@ -138,7 +122,7 @@ public class SearchParser {
                 e.printStackTrace();
                 continueCrawl = true;
             }
-        } while (continueCrawl/*&& totalPages <= maxPageCount*/);
+        } while (continueCrawl);
         driver.close();
         driver.quit();
     }

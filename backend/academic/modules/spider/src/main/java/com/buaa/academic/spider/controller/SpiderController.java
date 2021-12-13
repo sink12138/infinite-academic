@@ -42,9 +42,10 @@ public class SpiderController {
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
-        statusCtrl.setSubjectTopicThreadNum(3);
-        statusCtrl.setMainInfoThreadNum(3);
-        statusCtrl.setResearcherThreadNum(4);
+        statusCtrl.setSubjectTopicThreadNum(2);
+        statusCtrl.setMainInfoThreadNum(2);
+        statusCtrl.setJournalThreadNum(1);
+        statusCtrl.setResearcherThreadNum(2);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
