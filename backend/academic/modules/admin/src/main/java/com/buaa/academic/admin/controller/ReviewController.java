@@ -2,7 +2,7 @@ package com.buaa.academic.admin.controller;
 
 import com.buaa.academic.admin.dao.ApplicationRepository;
 import com.buaa.academic.admin.model.ApplicationDetails;
-import com.buaa.academic.admin.model.ApplicationPage;
+import com.buaa.academic.admin.model.ListPage;
 import com.buaa.academic.admin.service.AuthValidator;
 import com.buaa.academic.admin.service.MessageService;
 import com.buaa.academic.admin.service.ReviewService;
@@ -71,12 +71,12 @@ public class ReviewController {
             @ApiImplicitParam(
                     name = "status", example = "审核中",
                     value = "处理状态，不传则默认返回所有状态。可用值：审核中/审核通过/审核不通过")})
-    public Result<ApplicationPage> list(@RequestHeader(name = "Auth") String auth,
-                                        @RequestParam(name = "page") @PositiveOrZero int page,
-                                        @RequestParam(name = "size") @Range(min = 1, max = 30) int size,
-                                        @RequestParam(name = "type", required = false) ApplicationType type,
-                                        @RequestParam(name = "status", required = false) StatusType status) {
-        Result<ApplicationPage> result = new Result<>();
+    public Result<ListPage<Application>> list(@RequestHeader(name = "Auth") String auth,
+                                 @RequestParam(name = "page") @PositiveOrZero int page,
+                                 @RequestParam(name = "size") @Range(min = 1, max = 30) int size,
+                                 @RequestParam(name = "type", required = false) ApplicationType type,
+                                 @RequestParam(name = "status", required = false) StatusType status) {
+        Result<ListPage<Application>> result = new Result<>();
         if (!authValidator.headerCheck(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("time")));
@@ -93,7 +93,7 @@ public class ReviewController {
         else {
             searchPage = applicationRepository.findAll(pageable);
         }
-        ApplicationPage applicationPage = new ApplicationPage();
+        ListPage<Application> applicationPage = new ListPage<>();
         searchPage.forEach(applicationPage::add);
         applicationPage.setPageCount(searchPage.getTotalPages());
         return result.withData(applicationPage);

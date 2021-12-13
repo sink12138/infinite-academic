@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 @RestController
@@ -65,6 +67,7 @@ public class AccountController {
             if (user != null) {
                 return new ModelAndView("CheckFailure");
             }
+            userToVerify.setDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             accountRepository.save(userToVerify);
             accountService.deleteRedisKey(code);
             request.setAttribute("email", userToVerify.getEmail());
