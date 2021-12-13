@@ -21,6 +21,7 @@
         :min="start"
         v-model="year"
         thumb-label="always"
+        @change="emit()"
       ></v-range-slider>
     </v-expand-x-transition>
   </v-card>
@@ -32,8 +33,13 @@ export default {
     expand: false,
     start: 1900,
     end: 2021,
-    year: [2019,2020]
-  })
+    year: [1900,2021]
+  }),
+  methods:{
+    emit:function(){
+      this.$emit('handleYear', this.year);
+    }
+  }
 }
 </script>
 
