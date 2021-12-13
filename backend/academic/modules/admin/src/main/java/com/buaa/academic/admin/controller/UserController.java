@@ -54,7 +54,7 @@ public class UserController {
                             "<b>date-asc</b> - 注册时间升序</br>" +
                             "<b>date-desc</b> - 注册时间降序</br>" +
                             "<b>username-asc</b> - 用户名字典序升序</br>" +
-                            "<b>username-desc<b> - 用户名字典序降序</br>" +
+                            "<b>username-desc</b> - 用户名字典序降序</br>" +
                             "若不传此字段，默认为注册时间降序。"),
             @ApiImplicitParam(name = "email", value = "邮箱"),
             @ApiImplicitParam(name = "username", value = "用户名"),
