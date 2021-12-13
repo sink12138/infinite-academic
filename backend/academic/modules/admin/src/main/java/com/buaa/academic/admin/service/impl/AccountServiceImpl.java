@@ -17,13 +17,17 @@ import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
-    private ElasticsearchRestTemplate template;
+    private ElasticsearchRestTemplate elasticTemplate;
+
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
 
     @Autowired
     private MessageRepository messageRepository;
@@ -37,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     public void removeUser(String userId) {
         new Thread(() -> {
             /* user */
-            template.delete(userId, User.class);
+            elasticTemplate.delete(userId, User.class);
             /* messages */
             messageRepository.deleteByOwnerId(userId);
             /* applications */
@@ -46,9 +50,9 @@ public class AccountServiceImpl implements AccountService {
                     .withFields("id", "fileToken")
                     .withPageable(PageRequest.of(0, 50))
                     .build();
-            for (SearchScrollHits<Application> searchHits = template.searchScrollStart(1000, searchQuery, Application.class, IndexCoordinates.of("message"));
+            for (SearchScrollHits<Application> searchHits = elasticTemplate.searchScrollStart(1000, searchQuery, Application.class, IndexCoordinates.of("message"));
                  searchHits.hasSearchHits();
-                 searchHits = template.searchScrollContinue(searchHits.getScrollId(), 1000, Application.class, IndexCoordinates.of("application"))) {
+                 searchHits = elasticTemplate.searchScrollContinue(searchHits.getScrollId(), 1000, Application.class, IndexCoordinates.of("application"))) {
                 searchHits.forEach(hit -> {
                     String fileToken = hit.getContent().getFileToken();
                     if (fileToken != null) {
@@ -59,7 +63,8 @@ public class AccountServiceImpl implements AccountService {
                             }
                         }.start();
                     }
-                    template.delete(hit.getContent().getId(), Application.class);
+                    elasticTemplate.delete(hit.getContent().getId(), Application.class);
+                    redisTemplate.delete(hit.getContent().getId());
                 });
             }
             log.info("Successfully removed user {}", userId);
