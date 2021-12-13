@@ -55,7 +55,7 @@ public class StatusCtrl {
     @Autowired
     public ResearcherRepository researcherRepository;
 
-    private List<String> keywords = List.of("信息");
+    private List<String> keywords = List.of("人工智能");
 
     private int mainInfoThreadNum;
 

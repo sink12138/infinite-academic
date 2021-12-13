@@ -11,6 +11,8 @@ import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 public class SpiderController {
@@ -42,6 +44,8 @@ public class SpiderController {
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.silentOutput", "true");
+        Logger.getLogger("org.openqa.selenium").setLevel(Level.OFF);
         statusCtrl.setSubjectTopicThreadNum(2);
         statusCtrl.setMainInfoThreadNum(3);
         statusCtrl.setJournalThreadNum(2);

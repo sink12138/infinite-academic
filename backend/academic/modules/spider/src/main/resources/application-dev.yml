@@ -45,3 +45,4 @@ logging:
   level:
     com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
     com.netflix.discovery.DiscoveryClient: warn
+    org.openqa.selenium.remote.ProtocolHandshake: warn
