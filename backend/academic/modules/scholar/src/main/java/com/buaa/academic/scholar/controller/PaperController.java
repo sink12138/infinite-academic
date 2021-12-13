@@ -15,6 +15,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 @RestController
@@ -44,7 +45,7 @@ public class PaperController {
     @ApiOperation(value = "添加论文", notes = "添加已发表的文章或在本网站首发文章")
     @PostMapping("/add")
     public Result<Void> addPaper(@RequestHeader(value = "Auth") String userId,
-                                 @RequestBody ApplicationInfo<PaperAdd> paper) {
+                                 @RequestBody @Valid ApplicationInfo<PaperAdd> paper) {
         Result<Void> result = new Result<>();
         if (!existenceCheck.paperAddCheck(paper.getContent()))
             return result.withFailure(ExceptionType.NOT_FOUND);
@@ -64,7 +65,7 @@ public class PaperController {
     @ApiOperation(value = "修改论文", notes = "修改论文")
     @PostMapping("/edit")
     public Result<Void> editPaper(@RequestHeader(value = "Auth") String userId,
-                                  @RequestBody ApplicationInfo<PaperEdit> paper) {
+                                  @RequestBody @Valid ApplicationInfo<PaperEdit> paper) {
         Result<Void> result = new Result<>();
         if (paper.getFileToken() != null) {
             Result<Boolean> fileExistRes = resourceClient.exists(paper.getFileToken());
@@ -84,7 +85,7 @@ public class PaperController {
     @PostMapping("/remove")
     @ApiOperation(value = "移除论文")
     public Result<Void> removePaper(@RequestHeader(value = "Auth") String userId,
-                                    @RequestBody ApplicationInfo<PaperRemove> paper) {
+                                    @RequestBody @Valid ApplicationInfo<PaperRemove> paper) {
         Result<Void> result = new Result<>();
         if (paper.getFileToken() != null) {
             Result<Boolean> fileExistRes = resourceClient.exists(paper.getFileToken());
