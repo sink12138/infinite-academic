@@ -2,28 +2,28 @@
   <div>
     <v-menu
       open-on-hover
-      top
+      offset-y
       v-if="isLogin === true"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
-          depressed
-          height="100%"
-          dark
+          icon
           v-bind="attrs"
           v-on="on"
         >
-          Dropdown
+          <v-icon>
+            mdi-account-circle
+          </v-icon>
         </v-btn>
       </template>
-      <v-list>
-        <router-link to="/PersonalView">
-          <v-list-item>
-            <v-list-item-title>个人主页</v-list-item-title>
-          </v-list-item>
-        </router-link>
-        <v-list-item>
-          <v-list-item-title>个人门户</v-list-item-title>
+
+      <v-list dense>
+        <v-list-item
+          v-for="(item, index) in items"
+          :key="index"
+          @click="href(item.url)"
+        >
+          <v-list-item-content>{{ item.title }}</v-list-item-content>
         </v-list-item>
         <v-list-item @click="logout()">
           <v-list-item-title>登出</v-list-item-title>
@@ -144,8 +144,21 @@ export default {
       (v) => /.+@.+/.test(v) || "邮箱无效",
     ],
     passwordRules: [(v) => !!v || "密码未填写"],
+    items: [
+      {
+        title: "个人中心",
+        url: "profile",
+      },
+      {
+        title: "认证学者",
+        url: "scholarIdentity",
+      },
+    ],
   }),
   methods: {
+    href(url) {
+      this.$router.push({ path: url });
+    },
     closeDialog() {
       this.dialog = false;
     },
