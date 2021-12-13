@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
@@ -22,11 +23,13 @@ import java.util.List;
 public class SearchRequest {
 
     @NotNull
+    @Valid
     @Size(min = 1, max = 5)
     @ApiModelProperty(value = "所有搜索条件（顶层），不可为空", required = true)
     private List<@NotNull @SearchCondition Condition> conditions;
 
     @NotNull
+    @Valid
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件，可为空不可为null", required = true)
     private List<@NotNull @SearchFilter Filter> filters;

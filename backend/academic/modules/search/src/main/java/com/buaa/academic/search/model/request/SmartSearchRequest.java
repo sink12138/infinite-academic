@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
@@ -31,6 +32,7 @@ public class SmartSearchRequest {
     @ApiModelProperty(value = "是否进行语种关联，若为true则进行中英文联想", required = true)
     private boolean translated;
 
+    @Valid
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件")
     private List<@SearchFilter Filter> filters;
