@@ -21,11 +21,14 @@ import java.util.NoSuchElementException;
 @Component
 public class JournalParser {
     private String url;
+
     private Journal journal;
 
     private StatusCtrl statusCtrl;
 
     private Boolean headless;
+
+    private RemoteWebDriver driver;
 
     // 现在没用
     public void zhiWangSpider() throws InterruptedException {
@@ -88,16 +91,7 @@ public class JournalParser {
     }
 
     //本地测试完成
-    public void wanFangSpider() throws InterruptedException {
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
+    public void wanFangSpider() {
         try {
             driver.get(this.url);
             Thread.sleep(3000);
@@ -112,6 +106,9 @@ public class JournalParser {
                 title = title.replace("\n", "");
                 journal.setTitle(title);
             }
+
+            statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Get info of journal: " + journal.getTitle());
+
             // 获取期刊封面
             List<WebElement> logoElement = driver.findElementsByXPath("//wf-place-holder//img");
             if (logoElement.size() != 0) {
@@ -141,7 +138,6 @@ public class JournalParser {
             e.printStackTrace();
         } finally {
             driver.close();
-            driver.quit();
         }
     }
 }

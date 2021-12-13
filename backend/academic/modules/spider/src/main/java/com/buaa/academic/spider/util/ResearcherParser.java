@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
@@ -27,19 +25,9 @@ public class ResearcherParser {
 
     private StatusCtrl statusCtrl;
 
-    private Boolean headless;
+    private RemoteWebDriver driver;
 
-    public void wanFangSpider(){
-
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
+    public void wanFangSpider() {
         try {
             driver.get(this.url);
             Thread.sleep(2000);
@@ -173,30 +161,19 @@ public class ResearcherParser {
             researcherParser.setStatusCtrl(statusCtrl);
             researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
             researcherParser.setResearcher(researcher);
-            researcherParser.setHeadless(headless);
+            researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
             researcher.setInterests(researcherParser.getResearcher().getInterests());
             statusCtrl.researcherRepository.save(researcher);
             this.researcher = researcher;
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.quit();
         }
     }
 
     //获取作者研究领域
     // https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page
     public void baiDuSpider() {
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
         try {
             driver.get(this.url);
             Thread.sleep(2000);
@@ -221,7 +198,6 @@ public class ResearcherParser {
             List<WebElement> matchResearchers = driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
             if (matchResearchers.size() == 0) {
                 driver.close();
-                driver.quit();
                 return;
             }
             WebElement target = null;
@@ -236,7 +212,6 @@ public class ResearcherParser {
             }
             if (target == null) {
                 driver.close();
-                driver.quit();
                 return;
             }
             //切换页面
@@ -257,10 +232,9 @@ public class ResearcherParser {
             }
             driver.close();
             driver.switchTo().window(originalHandle);
+            driver.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.quit();
         }
     }
 }

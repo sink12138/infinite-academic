@@ -3,11 +3,13 @@ package com.buaa.academic.spider.service.Impl;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.util.JournalParser;
 import com.buaa.academic.spider.util.PaperParser;
+import com.buaa.academic.spider.util.ParserUtil;
 import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.Arrays;
 
@@ -23,6 +25,8 @@ public class PaperMainInfoThread implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
+        RemoteWebDriver driver = ParserUtil.getDriver(headless);
+
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Start crawl paper main info...");
 
@@ -36,11 +40,12 @@ public class PaperMainInfoThread implements Runnable{
         journalParser.setHeadless(headless);
         paperParser.setStatusCtrl(statusCtrl);
         paperParser.setJournalParser(journalParser);
-        paperParser.setHeadless(headless);
+        paperParser.setDriver(driver);
         while (true) {
             try {
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    driver.quit();
                     return;
                 }
 
@@ -49,6 +54,7 @@ public class PaperMainInfoThread implements Runnable{
                     if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningQueueInitThreadNum == 0) {
                         StatusCtrl.runningMainInfoThreadNum--;
                         statusCtrl.changeRunningStatusStop(threadName, "Finished");
+                        driver.quit();
                         return;
                     }
                 }
@@ -58,7 +64,6 @@ public class PaperMainInfoThread implements Runnable{
                 paperParser.setPaperCraw(paperObject);
                 paperParser.wanFangSpider();
                 synchronized (StatusCtrl.queueLock) {
-                    //StatusCtrl.paperObjectQueue.addAll(paperParser.getToCrawPaperList());
                     paperParser.getPaperCraw().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
                     StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCraw());
                 }

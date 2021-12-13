@@ -3,6 +3,7 @@ package com.buaa.academic.spider.util;
 import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
+import com.buaa.academic.spider.model.queueObject.JournalObject;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import lombok.AllArgsConstructor;
@@ -10,12 +11,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,29 +29,17 @@ public class PaperParser {
 
     private JournalParser journalParser;
 
-    private Boolean headless;
+    private RemoteWebDriver driver;
 
-
-    public void wanFangSpider() throws InterruptedException {
+    public void wanFangSpider() {
         String threadName = Thread.currentThread().getName();
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
         try {
             driver.get(this.paperCraw.getUrl());
             Thread.sleep(2000);
-            // find paper by this.paperCraw.getPaper().id;
-            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaper().getId());
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
             // 已经爬完了
             if (paper.isCrawled()) {
                 driver.close();
-                driver.quit();
                 return;
             }
             paper.setCrawled(true);
@@ -127,7 +113,7 @@ public class PaperParser {
                 instElement = driver.findElementsByXPath("//div[@class=\"thesisOrganization list\"]//div[@class=\"itemUrl\"]//a");
             }
             if (instElement.size() != 0) {
-                List<Paper.Institution> institutions = new ArrayList<>();
+                ArrayList<Paper.Institution> institutions = new ArrayList<>();
                 for (WebElement institution : instElement) {
                     Paper.Institution inst = new Paper.Institution();
                     String instNameText = institution.getText();
@@ -142,6 +128,10 @@ public class PaperParser {
                                 parts.remove(parts.size() - 1);
                                 instName = String.join(" ", parts);
                             }
+                        } else {
+                            if (instName.matches(".+\\d{6}$")) {
+                                instName = instName.substring(instName.lastIndexOf(' '));
+                            }
                         }
                         statusCtrl.changeRunningStatusTo(threadName, "Get info of the institution with name: " + instName);
                         // find inst by name
@@ -152,12 +142,19 @@ public class PaperParser {
                         } else {
                             Institution newInst = new Institution();
                             newInst.setName(instName);
-                            // insert inst(with name) into database
                             statusCtrl.institutionRepository.save(newInst);
                             inst.setId(newInst.getId());
                             inst.setName(instName);
                         }
-                        institutions.add(inst);
+                        boolean insert = true;
+                        for (Paper.Institution institutionInList: institutions) {
+                            if (institutionInList.getName().equals(instName)) {
+                                insert = false;
+                                break;
+                            }
+                        }
+                        if (insert)
+                            institutions.add(inst);
                     }
                 }
                 paper.setInstitutions(institutions);
@@ -175,11 +172,7 @@ public class PaperParser {
                     if (foundJournal != null) {
                         journal.setId(foundJournal.getId());
                     } else {
-                        // JournalParser journalParser = new JournalParser();
-                        journalParser.setUrl(journalUrl);
-                        statusCtrl.changeRunningStatusTo(threadName, "Get info of the journal with title: " + journalName);
-                        journalParser.wanFangSpider();
-                        journal.setId(journalParser.getJournal().getId());
+                        StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
                     }
                 }
                 // 获取年份、期号、卷号
@@ -283,8 +276,7 @@ public class PaperParser {
                             }
                             statusCtrl.paperRepository.save(foundReferPaper);
                             // 把url塞进队列
-                            PaperObject paperObject = new PaperObject(referUrl, foundReferPaper);
-                            //toCrawPaperList.add(paperObject);
+                            PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId());
                             StatusCtrl.paperObjectQueue.add(paperObject);
                             referenceID.add(foundReferPaper.getId());
                         }
@@ -301,7 +293,7 @@ public class PaperParser {
                                 foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                             }
                             statusCtrl.paperRepository.save(foundReferPaper);
-                            PaperObject paperObject = new PaperObject(referUrl, foundReferPaper);
+                            PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId());
                             StatusCtrl.paperObjectQueue.add(paperObject);
                             referenceID.add(foundReferPaper.getId());
                         }
@@ -330,28 +322,19 @@ public class PaperParser {
             e.printStackTrace();
         } finally {
             driver.close();
-            driver.quit();
         }
     }
 
     //获取文章的topic、subject
-    public void zhiWangSpider() throws InterruptedException {
+    public void zhiWangSpider() {
         String threadName = Thread.currentThread().getName();
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
         try {
             driver.get(this.paperCraw.getUrl());
             Thread.sleep(2000);
-            String title = this.paperCraw.getPaper().getTitle();
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
+            String title = paper.getTitle();
             statusCtrl.changeRunningStatusTo(threadName, "Get subjects of paper: " + title);
-            List<Paper.Author> paperAuthors = this.paperCraw.getPaper().getAuthors();
+            List<Paper.Author> paperAuthors = paper.getAuthors();
             List<String> authors = new ArrayList<>();
             for (Paper.Author paperAuthor : paperAuthors) {
                 authors.add(paperAuthor.getName());
@@ -373,7 +356,7 @@ public class PaperParser {
             List<WebElement> searchTextElement = driver.findElementsByXPath("//input[@id=\"txt_search\"]");
             if (searchTextElement.size() != 0) {
                 WebElement searchText = searchTextElement.get(0);
-                searchText.sendKeys(this.paperCraw.getPaper().getTitle());
+                searchText.sendKeys(paper.getTitle());
             }
 
             WebElement searchButton = driver.findElementByXPath("//input[@class=\"search-btn\"]");
@@ -392,13 +375,13 @@ public class PaperParser {
                         degree=types;
                     }
                 }
-                if (this.paperCraw.getPaper().getType().equals("J")) {
+                if (paper.getType().equals("J")) {
                     if (journal != null) {
                         actions.click(journal).perform();
                         Thread.sleep(2000);
                     }
                 }
-                else if (this.paperCraw.getPaper().getType().equals("D")) {
+                else if (paper.getType().equals("D")) {
                     if (degree != null) {
                         actions.click(degree).perform();
                         Thread.sleep(2000);
@@ -410,7 +393,6 @@ public class PaperParser {
             List<WebElement> matchElement = driver.findElementsByXPath("//table[@class=\"result-table-list\"]//tbody//tr");
             if (matchElement.size() == 0) {
                 driver.close();
-                driver.quit();
                 return;
             }
             for (WebElement match : matchElement) {
@@ -442,7 +424,6 @@ public class PaperParser {
             }
             if (target == null) {
                 driver.close();
-                driver.quit();
                 return;
             }
             // 切换页面
@@ -453,8 +434,6 @@ public class PaperParser {
             assert allHandles.size() == 1;
             driver.switchTo().window((String) allHandles.toArray()[0]);
             List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
-
-            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaper().getId());
 
             if (subjectAndTopicElement.size() != 0) {
                 for (WebElement subjectAndTopic : subjectAndTopicElement) {
@@ -470,13 +449,11 @@ public class PaperParser {
             }
 
             statusCtrl.paperRepository.save(paper);
-
             driver.close();
             driver.switchTo().window(originalHandle);
+            driver.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.quit();
         }
     }
 }

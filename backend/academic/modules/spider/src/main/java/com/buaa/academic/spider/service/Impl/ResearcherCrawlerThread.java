@@ -2,12 +2,14 @@ package com.buaa.academic.spider.service.Impl;
 
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
+import com.buaa.academic.spider.util.ParserUtil;
 import com.buaa.academic.spider.util.ResearcherParser;
 import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.util.ArrayList;
 
@@ -23,17 +25,20 @@ public class ResearcherCrawlerThread implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
+        RemoteWebDriver driver = ParserUtil.getDriver(headless);
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Researcher crawler start.");
         while (true) {
             try {
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    driver.quit();
                     return;
                 }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.researcherQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
                         statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
+                        driver.quit();
                         return;
                     }
                 }
@@ -44,7 +49,7 @@ public class ResearcherCrawlerThread implements Runnable{
                 ArrayList<Paper.Author> authors = new ArrayList<>();
                 for (ResearcherSet.ResearcherObject researcherObject : researcherSet.getResearcherObjects()) {
                     ResearcherParser researcherParser = new ResearcherParser();
-                    researcherParser.setHeadless(headless);
+                    researcherParser.setDriver(driver);
                     researcherParser.setStatusCtrl(this.statusCtrl);
                     researcherParser.setUrl(researcherObject.getUrl());
                     researcherParser.wanFangSpider();

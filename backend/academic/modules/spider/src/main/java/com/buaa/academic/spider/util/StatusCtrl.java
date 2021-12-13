@@ -2,6 +2,7 @@ package com.buaa.academic.spider.util;
 
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
+import com.buaa.academic.spider.model.queueObject.JournalObject;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import com.buaa.academic.spider.repository.InstitutionRepository;
@@ -9,10 +10,7 @@ import com.buaa.academic.spider.repository.JournalRepository;
 import com.buaa.academic.spider.repository.PaperRepository;
 import com.buaa.academic.spider.repository.ResearcherRepository;
 import com.buaa.academic.spider.service.ExistenceService;
-import com.buaa.academic.spider.service.Impl.CrawlerQueueInitThread;
-import com.buaa.academic.spider.service.Impl.PaperMainInfoThread;
-import com.buaa.academic.spider.service.Impl.ResearcherCrawlerThread;
-import com.buaa.academic.spider.service.Impl.SubjectTopicThread;
+import com.buaa.academic.spider.service.Impl.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +29,7 @@ public class StatusCtrl {
     public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<JournalObject> journalUrls = new ConcurrentLinkedQueue<>();
     public static ConcurrentHashMap<String, String> runningStatus = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Boolean> runningJob = new ConcurrentHashMap<>();
     public static int runningQueueInitThreadNum = 0;
@@ -63,6 +62,8 @@ public class StatusCtrl {
     private int subjectTopicThreadNum;
 
     private int researcherThreadNum;
+
+    private int journalThreadNum;
 
     public Boolean start() {
         if (runningJob.size() > 0)
@@ -98,6 +99,13 @@ public class StatusCtrl {
         for (int i = 0; i < researcherThreadNum; i++) {
             Thread thread = new Thread(new ResearcherCrawlerThread(this, headless));
             String threadName = "ResearcherThread-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < journalThreadNum; i++) {
+            Thread thread = new Thread(new JournalCrawlThread(this, headless));
+            String threadName = "JournalThread-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
