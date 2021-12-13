@@ -68,6 +68,10 @@ public class ResearcherParser {
                     parts.remove(parts.size() - 1);
                     instName = String.join(" ", parts);
                 }
+            } else {
+                if (instName.matches(".*\\d{6}$")) {
+                    instName = instName.substring(0, instName.indexOf(' '));
+                }
             }
 
             // 检查数据库中是否已有相同姓名和机构的数据库
@@ -138,6 +142,10 @@ public class ResearcherParser {
                             ArrayList<String> parts = new ArrayList<>(Arrays.asList(corInstNameParts));
                             parts.remove(parts.size() - 1);
                             corInst = String.join(" ", parts);
+                        }
+                    } else {
+                        if (corInst.matches(".*\\d{6}$")) {
+                            corInst = corInst.substring(0, corInst.indexOf(' '));
                         }
                     }
 

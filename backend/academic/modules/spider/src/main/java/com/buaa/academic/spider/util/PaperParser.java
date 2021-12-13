@@ -130,7 +130,7 @@ public class PaperParser {
                             }
                         } else {
                             if (instName.matches(".*\\d{6}$")) {
-                                instName = instName.substring(instName.lastIndexOf(' '));
+                                instName = instName.substring(0, instName.indexOf(' '));
                             }
                         }
                         statusCtrl.changeRunningStatusTo(threadName, "Get info of the institution with name: " + instName);
