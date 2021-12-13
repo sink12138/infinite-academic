@@ -1,26 +1,56 @@
 <template>
   <v-card>
-    <FilterYearPicker></FilterYearPicker>
-    <div>
-      <el-date-picker
-        v-model="filter.year1"
-        type="year"
-        placeholder="起始日期"
-        value-format="yyyy"
-        @change="handleChange"
-      >
-      </el-date-picker>
-      <el-date-picker
-        v-model="filter.year2"
-        type="year"
-        placeholder="结束日期"
-        value-format="yyyy"
-        @change="handleChange"
-      >
-      </el-date-picker>
-    </div>
+    <FilterYearPicker v-on:handleYear="handleYear"  v-show="this.showType != '期刊' && this.showType != '机构'"></FilterYearPicker>
     <v-divider></v-divider>
-    <div class="checkbox">
+    <v-select
+      v-show="showType == '论文'"
+      class="select"
+      v-model="filter.paperType"
+      :items="paperTypes"
+      hide-details
+      prepend-inner-icon="mdi-dots-grid"
+      background-color="grey lighten-2"
+      filled
+      @change="emit()"
+    ></v-select>
+    <v-divider></v-divider>
+    <v-select
+      v-show="showType == '专利'"
+      class="select"
+      v-model="filter.patentType"
+      :items="patentTypes"
+      hide-details
+      prepend-inner-icon="mdi-dots-grid"
+      background-color="grey lighten-2"
+      filled
+      @change="emit()"
+    ></v-select>
+    <v-divider></v-divider>
+    <v-select
+      v-show="showType == '科研人员'"
+      class="select"
+      v-model="filter.researcherType"
+      :items="researcherTypes"
+      hide-details
+      prepend-inner-icon="mdi-dots-grid"
+      background-color="grey lighten-2"
+      filled
+      @change="emit()"
+    ></v-select>
+    <v-divider></v-divider>
+    <v-select
+      v-show="showType == '精确'"
+      class="select"
+      v-model="filter.queryType"
+      :items="queryTypes"
+      hide-details
+      prepend-inner-icon="mdi-dots-grid"
+      background-color="grey lighten-2"
+      filled
+      @change="emit()"
+    ></v-select>
+    <v-divider></v-divider>
+    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
       <header class="checkboxLabel">学科</header>
       <v-checkbox
         class="checkboxitem"
@@ -33,7 +63,7 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox">
+    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
       <header class="checkboxLabel">作者</header>
       <v-checkbox
         class="checkboxItem"
@@ -46,7 +76,7 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox">
+    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
       <header class="checkboxLabel">期刊</header>
       <v-checkbox
         class="checkboxItem"
@@ -59,7 +89,7 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox">
+    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
       <header class="checkboxLabel">机构</header>
       <v-checkbox
         class="checkboxItem"
@@ -75,22 +105,37 @@
 </template>
 
 <script>
-import FilterYearPicker from '../components/FilterYearPicker.vue'
+import FilterYearPicker from "../components/FilterYearPicker.vue";
 
 export default {
   components: {
-    FilterYearPicker
+    FilterYearPicker,
   },
   data() {
     return {
       menu: false,
-      filter:{
-        year1: "",
-        Year2: "",
-        topics_selected: [],  
+      showType: "全部",
+      paperTypes: [
+        "标题/摘要/关键词/学科",
+        "论文类别",
+        "作者姓名",
+        "机构名称",
+        "期刊名称",
+      ],
+      patentTypes: ["标题/摘要","类型","申请人","发明人"],
+      researcherTypes: ["姓名","研究方向","相关机构"],
+      queryTypes: ["doi", "issn", "patentNum"],
+      filter: {
+        year1: 1900,
+        year2: 2021,
+        topics_selected: [],
         authors_selected: [],
         journals_selected: [],
         institutions_selected: [],
+        paperType: "标题/摘要/关键词/学科",
+        patentType: "标题/摘要",
+        researcherType: "姓名",
+        queryType: "doi",
       },
       topics: ["a", "b", "c", "d", "e"],
       authors: ["a1", "b2", "c3", "d4", "e5"],
@@ -99,27 +144,13 @@ export default {
     };
   },
   methods: {
-    emit:function(){
-      this.$emit('handleFilter', 'filter');
+    handleYear(year) {
+      this.filter.year1 = year[0];
+      this.filter.year2 = year[1];
     },
-    handleChange: function () {
-      if(this.filter.year1 != "" && this.filter.Year2 != "" ){
-        var d2 = new Date(Date.parse(this.filter.Year2)); //取今天的日期  
-        var d1 = new Date(Date.parse(this.filter.year1));
-        if (d1 > d2) {
-            this.$notify({
-              title: "起止日期",
-              message: "起始日期大于截至日期",
-              type: "warning",
-            });
-        }else{
-          this.$emit('handleFilter', 'filter');
-        }  
-      }else{
-        this.$emit('handleFilter', 'filter');
-      }
+    emit: function () {
+      this.$emit("handleFilter", this.filter);
     },
-    
   },
 };
 </script>

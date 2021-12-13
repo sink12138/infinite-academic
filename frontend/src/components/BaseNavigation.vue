@@ -24,14 +24,20 @@
     <!-- 登录注册组件 -->
     <BaseLogin>
     </BaseLogin>
+    <!--<BaseLogin>
+    </BaseLogin>-->
+    <UserMenu></UserMenu>
   </v-toolbar>
 </template>
 
 <script>
 import BaseCitation from "./BaseCitation.vue";
 import BaseLogin from "./BaseLogin.vue";
+import UserMenu from "./UserMenu.vue"
+//import BaseLogin from "./BaseLogin.vue";
 export default {
   components: {
+    UserMenu,
     BaseCitation,
     BaseLogin,
   },

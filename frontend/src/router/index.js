@@ -12,8 +12,10 @@ const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
-const PersonalView = () => import("../views/PersonalView.vue");
+
+const Profile = () => import("../views/profile/Profile.vue");
 const Door = () => import("../views/Door.vue")
+const ScholarIdentity = () => import("../views/ScholarIdentity.vue")
 
 Vue.use(VueRouter)
 
@@ -73,14 +75,19 @@ const routes = [{
     component: Register
   },
   {
-    path:'/personalview',
-    name:'PersonalView',
-    component:PersonalView
+    path:'/profile',
+    name:'Profile',
+    component:Profile
   },
   {
     path:'/door',
     name: 'Door',
     component: Door
+  },
+  {
+    path:'/scholarIdentity',
+    name: 'ScholarIdentity',
+    component: ScholarIdentity
   }
 ]
 

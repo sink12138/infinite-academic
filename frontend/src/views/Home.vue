@@ -4,6 +4,7 @@
     <div class="big-font">Infinite Academic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
     <v-divider></v-divider>
+    <v-btn @click="echo"></v-btn>
     <v-row no-gutters>
       <v-col cols="2">
         <Hots :items="this.subjects" type="学科"></Hots>
@@ -68,9 +69,7 @@ export default {
       this.$axios({
         method: "get",
         url: "/api/account/echo",
-        params: {
-          str: "echo success"
-        }
+
       }).then(response => {
         console.log(response.data)
       }).catch(error => {

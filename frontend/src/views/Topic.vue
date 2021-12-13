@@ -51,6 +51,14 @@
             </v-tab>
           </v-tabs>
 
+          <div v-if="tab == 0">
+            <PaperCard 
+              v-for="item in items"
+              :key="item.id"
+              :item="item"
+            ></PaperCard>
+          </div>
+
           <v-card-actions>
 
             <v-img
@@ -86,9 +94,11 @@
 <script>
 import {getData, getChart} from "../components/mixins/mixin"
 import Banner from "../components/BaseBanner.vue"
+import PaperCard from "../components/BasePaperCard.vue"
 export default {
   components: {
-    Banner
+    Banner,
+    PaperCard
   },
   mixins: [
     getData, 
@@ -99,7 +109,7 @@ export default {
       chart1: null,
       chart2: null,
       tab: null,
-      chartType: 0
+      chartType: 0,
     }
   },
   watch: {
