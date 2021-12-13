@@ -14,6 +14,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
@@ -50,9 +51,11 @@ public class Condition {
     @ApiModelProperty(value = "需要扩展的语言", allowableValues = "zh,en", example = "zh")
     private Set<@NotNull String> languages;
 
+    @Valid
     @Size(min = 1, max = 5)
+    @SearchCondition
     @ApiModelProperty(value = "查询子条件")
-    private List<@NotNull @SearchCondition Condition> subConditions;
+    private List<@NotNull Condition> subConditions;
 
     public QueryBuilder compile(String strategy) {
         if (compound) {
