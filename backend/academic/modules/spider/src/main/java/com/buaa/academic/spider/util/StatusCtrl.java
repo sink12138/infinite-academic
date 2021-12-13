@@ -55,7 +55,7 @@ public class StatusCtrl {
     @Autowired
     public ResearcherRepository researcherRepository;
 
-    private List<String> keywords = List.of("深度学习支持下的丘陵山区耕地高分辨率遥感信息分区分层提取方法");
+    private List<String> keywords = List.of("信息");
 
     private int mainInfoThreadNum;
 

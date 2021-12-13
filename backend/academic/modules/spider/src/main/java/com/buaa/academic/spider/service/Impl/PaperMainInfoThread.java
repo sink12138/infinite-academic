@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
 import java.util.Arrays;
 
 @Data
@@ -26,7 +25,6 @@ public class PaperMainInfoThread implements Runnable{
     @SneakyThrows
     @Override
     public void run() {
-
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Start crawl paper main info...");

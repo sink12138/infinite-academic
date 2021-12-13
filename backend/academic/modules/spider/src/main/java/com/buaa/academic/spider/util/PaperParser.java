@@ -122,14 +122,14 @@ public class PaperParser {
                         if (instName.contains(",") || instName.contains("，")) {
                             String[] instNameParts = instName.contains(",") ? instName.split(",") : instName.split("，");
                             String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
-                            boolean isNum = instNameLastPart.matches(".+\\d{6}$");
+                            boolean isNum = instNameLastPart.matches(".*\\d{6}$");
                             if (isNum) {
                                 ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
                                 parts.remove(parts.size() - 1);
                                 instName = String.join(" ", parts);
                             }
                         } else {
-                            if (instName.matches(".+\\d{6}$")) {
+                            if (instName.matches(".*\\d{6}$")) {
                                 instName = instName.substring(instName.lastIndexOf(' '));
                             }
                         }
