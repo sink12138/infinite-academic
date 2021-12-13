@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -17,6 +18,7 @@ import javax.validation.constraints.Pattern;
 @ApiModel(description = "申请信息")
 public class ApplicationInfo<T> {
 
+    @Valid
     @NotNull
     @ApiModelProperty(value = "具体申请内容", required = true)
     private T content;

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -21,6 +22,7 @@ public class PaperEdit {
     @ApiModelProperty(value = "待修改的论文ID", example = "2cdGqX0BGFAD_tUkF0EN")
     private String paperId;
 
+    @Valid
     @NotNull
     @ApiModelProperty(value = "待修改的论文信息，不修改的字段也要传回原值")
     private PaperForApp edit;

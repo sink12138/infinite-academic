@@ -57,8 +57,6 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
                 if (keyword == null)
                     return false;
                 keyword = keyword.trim().replaceAll("\\s+", " ");
-                if (keyword.isBlank())
-                    return false;
                 if (keyword.length() > 32)
                     keyword = keyword.substring(0, 32);
                 condition.setKeyword(keyword);
@@ -80,7 +78,7 @@ public class SearchConditionValidator implements ConstraintValidator<SearchCondi
     }
 
     private boolean validateSingle(@NotNull @NotBlank String keyword,
-                                   @NotNull @NotEmpty Set<String> scope) {
+                                   @NotNull @NotEmpty Set<@NotNull @NotBlank String> scope) {
         return !keyword.isEmpty() && scope != null;
     }
 

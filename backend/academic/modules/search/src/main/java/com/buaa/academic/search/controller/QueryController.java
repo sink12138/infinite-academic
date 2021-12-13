@@ -16,9 +16,12 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/query")
@@ -47,7 +50,7 @@ public class QueryController {
             @ApiImplicitParam(name = "type", value = "查询类别：doi/issn/patentNum", example = "doi"),
             @ApiImplicitParam(name = "key", value = "查询编号字符串", example = "10.15881/j.cnki.cn33-1304/g4.2017.03.002")})
     public Result<String> query(@RequestParam(name = "type") @AllowValues({"doi", "issn", "patentNum"}) String type,
-                                @RequestParam(name = "key") @NotEmpty @Length(max = 128) String key) {
+                                @RequestParam(name = "key") @NotBlank @Length(max = 128) String key) {
         Result<String> result = new Result<>();
         String entity;
         String id;

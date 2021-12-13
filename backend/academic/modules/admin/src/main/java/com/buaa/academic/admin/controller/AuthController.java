@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 
@@ -55,8 +55,8 @@ public class AuthController {
             @ApiImplicitParam(name = "username", value = "管理员用户名"),
             @ApiImplicitParam(name = "password", value = "管理员密码，注意需要SHA256Hex加密")})
     public Result<Void> login(@CookieValue(name = "TOKEN", required = false) String token,
-                              @RequestParam(value = "username") @NotNull @NotEmpty String username,
-                              @RequestParam(value = "password") @NotNull @NotEmpty String password,
+                              @RequestParam(value = "username") @NotNull @NotBlank String username,
+                              @RequestParam(value = "password") @NotNull @NotBlank String password,
                               HttpServletResponse response) {
         Result<Void> result = new Result<>();
         if (!authValidator.passwordCheck(username, password)) {
@@ -108,8 +108,8 @@ public class AuthController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "管理员用户名"),
             @ApiImplicitParam(name = "password", value = "管理员密码，注意需要SHA256Hex加密")})
-    public Result<Void> auth(@RequestParam(value = "username") @NotNull @NotEmpty String username,
-                             @RequestParam(value = "password") @NotNull @NotEmpty String password) {
+    public Result<Void> auth(@RequestParam(value = "username") @NotNull @NotBlank String username,
+                             @RequestParam(value = "password") @NotNull @NotBlank String password) {
         Result<Void> result = new Result<>();
         if (!authValidator.passwordCheck(username, password)) {
             return result.withFailure("用户名或密码错误");

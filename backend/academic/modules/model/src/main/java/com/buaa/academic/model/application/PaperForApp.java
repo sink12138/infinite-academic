@@ -10,10 +10,8 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -24,13 +22,13 @@ import java.util.List;
 public class PaperForApp implements Serializable {
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @Length(max = 128)
     @ApiModelProperty(value = "论文标题", required = true)
     private String title;
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @ApiModelProperty(value = "论文的类别", required = true, allowableValues = "期刊论文, 学位论文, 图书", example = "期刊论文")
     private String type;
 
@@ -54,6 +52,7 @@ public class PaperForApp implements Serializable {
 
     }
 
+    @Valid
     @ApiModelProperty(value = "论文的所有作者信息", required = true)
     private List<@NotNull Author> authors;
 
@@ -63,32 +62,37 @@ public class PaperForApp implements Serializable {
     @ApiModel(value = "PaperAddApp$Institution")
     public static class Institution {
 
+        @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
         @ApiModelProperty(value = "机构的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")
         private String id;
 
+        @Length(max = 64)
         @ApiModelProperty(required = true, value = "机构的名称", example = "北京航空航天大学软件学院")
         private String name;
 
     }
 
+    @Valid
     @NotNull
     @NotEmpty
     @ApiModelProperty(value = "论文的所有机构", required = true)
     private List<@NotNull Institution> institutions;
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @JsonProperty("abstract")
     @ApiModelProperty(required = true, value = "论文摘要", example = "假装这是一大段摘要")
     private String paperAbstract;
 
+    @Valid
     @NotNull
     @NotEmpty
     @ApiModelProperty(required = true, value = "论文的所有关键词")
-    private List<@NotNull @NotEmpty String> keywords;
+    private List<@NotNull @NotBlank String> keywords;
 
+    @Valid
     @ApiModelProperty(value = "论文的学科分类")
-    private List<@NotNull @NotEmpty String> subjects;
+    private List<@NotNull @NotBlank String> subjects;
 
     @Range(min = 1970, max = 2025)
     @ApiModelProperty(value = "论文的发表年份", example = "2021")
@@ -131,6 +135,7 @@ public class PaperForApp implements Serializable {
 
     }
 
+    @Valid
     @ApiModelProperty(value = "论文的所属期刊信息")
     private Journal journal;
 
@@ -154,6 +159,7 @@ public class PaperForApp implements Serializable {
 
     }
 
+    @Valid
     @ApiModelProperty(value = "引用的文章")
     private List<@NotNull ReferencePaper> referencePapers;
 

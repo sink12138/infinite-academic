@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -16,9 +17,11 @@ import java.io.Serializable;
 @ApiModel(description = "学者认证具体内容")
 public class Certification implements Serializable {
 
+    @Valid
     @ApiModelProperty(value = "学者门户信息，若需新建门户则含有此字段")
     private PortalForApp create;
 
+    @Valid
     @ApiModelProperty(value = "待认证的学者编号，若需认领已有门户则含有此字段")
     private Claim claim;
 

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class StatisticsController {
             @ApiImplicitParam(name = "entity", value = "要进行统计的实体的类别（researcher/journal/institution）"),
             @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc")})
     public Result<NumPerYear> statistics(@PathVariable("entity") @AllowValues({"researcher", "journal", "institution"}) String entity,
-                                         @PathVariable("id") @NotEmpty @Length(min = 20, max = 20) String id) {
+                                         @PathVariable("id") @NotBlank @Length(min = 20, max = 20) String id) {
         Result<NumPerYear> result = new Result<>();
         Class<?> target;
         switch (entity) {

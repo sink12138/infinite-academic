@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -18,6 +19,7 @@ import java.util.List;
 @ApiModel(description = "认领门户具体内容")
 public class Claim implements Serializable {
 
+    @Valid
     @NotNull
     @NotEmpty
     @ApiModelProperty(value = "要认领的学者门户ID，申请通过后会将全部所选门户合并到第一个门户")

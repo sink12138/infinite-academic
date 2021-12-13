@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +102,7 @@ public class SystemController {
                     "<b>analysis</b> - 学科话题热点关联分析</br>" +
                     "<b>spider</b> - 数据更新与扩充")
     public Result<Void> startSchedule(@RequestHeader(name = "Auth") String auth,
-                                      @RequestParam(name = "code") @NotNull @NotEmpty String code) {
+                                      @RequestParam(name = "code") @NotNull @NotBlank String code) {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation;
         switch (code) {
@@ -239,7 +239,7 @@ public class SystemController {
             value = "指定爬虫灵感",
             notes = "这个API用来指定爬虫的起始关键词，下一次任务执行时将会围绕这些关键词进行数据扩充")
     public Result<Void> inspireSpider(@RequestHeader(name = "Auth") String auth,
-                                      @RequestBody List<@NotNull @NotEmpty @Length(max = 64) String> inspirations) {
+                                      @RequestBody List<@NotNull @NotBlank @Length(max = 64) String> inspirations) {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation = new FeignOperation<>("INSPIRATION") {
             @Override

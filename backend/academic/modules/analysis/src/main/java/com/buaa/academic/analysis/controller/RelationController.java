@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Max;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
@@ -54,7 +54,7 @@ public class RelationController {
             @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc"),
             @ApiImplicitParam(name = "num", value = "合作关系条目数量，最大为30。")})
     public Result<List<EntityBucket>> cooperation(@PathVariable("entity") @AllowValues({"researcher", "institution"}) String entity,
-                                                  @PathVariable("id") @NotEmpty @Length(min = 20, max = 20) String id,
+                                                  @PathVariable("id") @NotBlank @Length(min = 20, max = 20) String id,
                                                   @RequestParam("num") @Positive @Max(30) int num) {
         Result<List<EntityBucket>> result = new Result<>();
         Class<?> target;
@@ -82,7 +82,7 @@ public class RelationController {
             @ApiImplicitParam(name = "num", value = "\"热门Top N\"中的\"N\"，最大为20。")})
     public Result<List<EntityBucket>> topParticipants(@PathVariable("entity") @AllowValues({"researcher", "journal", "institution"}) String entity,
                                                       @RequestParam("type") @AllowValues({"subject", "topic"})  String type,
-                                                      @RequestParam("name") @NotEmpty String name,
+                                                      @RequestParam("name") @NotBlank String name,
                                                       @RequestParam("num") @Positive @Max(20) int num) {
         Result<List<EntityBucket>> result = new Result<>();
         if (type.equals("topic")) {
@@ -106,7 +106,7 @@ public class RelationController {
             @ApiImplicitParam(name = "id", value = "实体id", example = "GF_4ynwBF-Mu8unTG1hc"),
             @ApiImplicitParam(name = "num", value = "词云项目数量，最大为20。")})
     public Result<TopRanks<Bucket>> frequencies(@PathVariable("entity") @AllowValues({"researcher", "journal", "institution"}) String entity,
-                                        @PathVariable("id") @NotEmpty @Length(min = 20, max = 20) String id,
+                                        @PathVariable("id") @NotBlank @Length(min = 20, max = 20) String id,
                                         @RequestParam("num") @Positive @Max(20) int num) {
         Result<TopRanks<Bucket>> result = new Result<>();
         Class<?> target;

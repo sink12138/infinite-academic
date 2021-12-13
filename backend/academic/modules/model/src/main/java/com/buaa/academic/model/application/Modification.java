@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
 @ApiModel(description = "修改门户的具体信息")
 public class Modification implements Serializable {
 
+    @Valid
     @NotNull
     @ApiModelProperty(value = "修改后的门户信息，不修改的字段也要将原值传回")
     private PortalForApp info;

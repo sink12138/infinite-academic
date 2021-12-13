@@ -15,21 +15,20 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "搜索请求体模型")
 public class SearchRequest {
 
-    @NotNull
     @Valid
+    @NotNull
     @Size(min = 1, max = 5)
     @ApiModelProperty(value = "所有搜索条件（顶层），不可为空", required = true)
     private List<@NotNull @SearchCondition Condition> conditions;
 
-    @NotNull
     @Valid
+    @NotNull
     @Size(max = 5)
     @ApiModelProperty(value = "数值或逻辑过滤条件，可为空不可为null", required = true)
     private List<@NotNull @SearchFilter Filter> filters;

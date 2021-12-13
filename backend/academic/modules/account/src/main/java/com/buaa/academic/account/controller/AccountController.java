@@ -15,11 +15,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,7 +43,7 @@ public class AccountController {
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
-                                 @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10) String username,
+                                 @RequestParam(value = "username") @NotNull @NotBlank @Length(max = 10) String username,
                                  @RequestParam(value = "password") @NotNull String password) {
         User original_user = accountRepository.findUserByEmail(email);
         if (original_user != null) {
@@ -122,7 +123,7 @@ public class AccountController {
     @ApiOperation(value = "修改用户信息", notes = "可修改用户名和密码")
     @PostMapping("/profile/modify/info")
     public Result<Void> modifyInfo( @RequestHeader(value = "Auth") @NotNull String userId,
-                                    @RequestParam(value = "username") @NotNull @NotEmpty @Length(max = 10)  String username,
+                                    @RequestParam(value = "username") @NotNull @NotBlank @Length(max = 10)  String username,
                                     @RequestParam(value = "password") @NotNull String password) {
         User user = template.get(userId, User.class);
         if (user == null)

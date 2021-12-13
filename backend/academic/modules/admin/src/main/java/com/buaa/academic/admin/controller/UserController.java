@@ -24,10 +24,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -117,7 +114,7 @@ public class UserController {
     public Result<Void> save(@RequestHeader(name = "Auth") String auth,
                              @RequestParam(name = "id", required = false) @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id,
                              @RequestParam(name = "email") @Email String email,
-                             @RequestParam(name = "username") @NotEmpty String username,
+                             @RequestParam(name = "username") @NotBlank String username,
                              @RequestParam(name = "password") String password) {
         Result<Void> result = new Result<>();
         if (!authValidator.headerCheck(auth))

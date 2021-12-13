@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 public class PortalForApp implements Serializable {
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @Length(max = 32)
     @ApiModelProperty(value = "学者姓名")
     private String name;
@@ -39,10 +40,12 @@ public class PortalForApp implements Serializable {
         private String name;
     }
 
+    @Valid
     @NotNull
     @ApiModelProperty(value = "当前机构")
     private Institution currentInst;
 
+    @Valid
     @ApiModelProperty(value = "曾经所在机构")
     private List<@NotNull Institution> institutions;
 
@@ -56,8 +59,9 @@ public class PortalForApp implements Serializable {
     @ApiModelProperty(value = "g指数")
     private Integer gIndex;
 
+    @Valid
     @NotNull
-    @NotEmpty
+    @NotBlank
     @Size(max = 16)
     @ApiModelProperty(value = "研究兴趣")
     private List<String> interests;
