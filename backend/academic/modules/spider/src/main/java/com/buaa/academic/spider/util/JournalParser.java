@@ -94,7 +94,7 @@ public class JournalParser {
     public void wanFangSpider() {
         try {
             driver.get(this.url);
-            Thread.sleep(3000);
+            Thread.sleep(2000);
             Journal journal = new Journal();
             // 获取期刊标题
             List<WebElement> nameElement = driver.findElementsByXPath("//h1[@class=\"lh-36 m-b-5 fs-24 fw-500\"]");

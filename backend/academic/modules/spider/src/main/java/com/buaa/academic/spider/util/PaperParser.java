@@ -106,19 +106,19 @@ public class PaperParser {
 
             // 获取参与机构
             List<WebElement> instElement = new ArrayList<>();
-            if (paper.getType().equals("J")) {
+            if (paper.getType().equals("期刊论文")) {
                 instElement = driver.findElementsByXPath("//div[@class=\"organization list\"]//div[@class=\"itemUrl\"]//a");
             }
-            else if(paper.getType().equals("D")){
+            else if(paper.getType().equals("学位论文")){
                 instElement = driver.findElementsByXPath("//div[@class=\"thesisOrganization list\"]//div[@class=\"itemUrl\"]//a");
             }
             if (instElement.size() != 0) {
                 ArrayList<Paper.Institution> institutions = new ArrayList<>();
                 for (WebElement institution : instElement) {
-                    Paper.Institution inst = new Paper.Institution();
                     String instNameText = institution.getText();
                     String[] instNames = instNameText.split("[；;]");
                     for (String instName : instNames) {
+                        Paper.Institution inst = new Paper.Institution();
                         if (instName.contains(",") || instName.contains("，")) {
                             String[] instNameParts = instName.contains(",") ? instName.split(",") : instName.split("，");
                             String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
@@ -146,6 +146,7 @@ public class PaperParser {
                             inst.setId(newInst.getId());
                             inst.setName(instName);
                         }
+
                         boolean insert = true;
                         for (Paper.Institution institutionInList: institutions) {
                             if (institutionInList.getName().equals(instName)) {
@@ -160,7 +161,7 @@ public class PaperParser {
                 paper.setInstitutions(institutions);
             }
             // 期刊论文获取期刊内容，学位论文只获取学位授予年份（出版年份）
-            if (paper.getType().equals("J")) {
+            if (paper.getType().equals("期刊论文")) {
                 boolean crawlNewJournal = false;
                 Paper.Journal journal = new Paper.Journal();
                 List<WebElement> journalElement = driver.findElementsByXPath("//div[@class=\"serialTitle list\"]//div[@class=\"itemUrl\"]//a");
@@ -217,7 +218,7 @@ public class PaperParser {
                     StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
                 }
             }
-            else if (paper.getType().equals("D")) {
+            else if (paper.getType().equals("学位论文")) {
                 // 获取学位授予年份
                 List<WebElement> yearElement = driver.findElementsByXPath("//div[@class=\"thesisYear list\"]//div[@class=\"itemUrl\"]//span");
                 if (yearElement.size() != 0) {
@@ -274,7 +275,7 @@ public class PaperParser {
                                 foundReferPaper.setTitle(referTitle);
                                 foundReferPaper.setAuthors(referAuthorList);
                                 foundReferPaper.setCitationNum(1);
-                                foundReferPaper.setType("J");
+                                foundReferPaper.setType("期刊论文");
                                 // 插入数据库
                             } else {
                                 foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
@@ -293,7 +294,7 @@ public class PaperParser {
                                 foundReferPaper.setTitle(referTitle);
                                 foundReferPaper.setAuthors(referAuthorList);
                                 foundReferPaper.setCitationNum(1);
-                                foundReferPaper.setType("D");
+                                foundReferPaper.setType("学位论文");
                             } else {
                                 foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                             }
@@ -318,7 +319,7 @@ public class PaperParser {
                 }
                 referenceElement.clear();
                 ableElement.clear();
-                Thread.sleep(3000);
+                //Thread.sleep(3000);
             } while (flag == 1);
             paper.setReferences(referenceID);
             // modify the paper‘s properties by paperCraw.getPaper().id
@@ -366,7 +367,7 @@ public class PaperParser {
 
             WebElement searchButton = driver.findElementByXPath("//input[@class=\"search-btn\"]");
             actions.click(searchButton).perform();
-            Thread.sleep(2000);
+            //Thread.sleep(2000);
             //选择论文类型
             List<WebElement> typeElement = driver.findElementsByXPath("//ul[@class=\"doctype-menus keji\"]/li");
             if (typeElement.size() !=0 ) {
@@ -380,16 +381,16 @@ public class PaperParser {
                         degree=types;
                     }
                 }
-                if (paper.getType().equals("J")) {
+                if (paper.getType().equals("期刊论文")) {
                     if (journal != null) {
                         actions.click(journal).perform();
-                        Thread.sleep(2000);
+                        //Thread.sleep(2000);
                     }
                 }
-                else if (paper.getType().equals("D")) {
+                else if (paper.getType().equals("学位论文")) {
                     if (degree != null) {
                         actions.click(degree).perform();
-                        Thread.sleep(2000);
+                        //Thread.sleep(2000);
                     }
                 }
             }

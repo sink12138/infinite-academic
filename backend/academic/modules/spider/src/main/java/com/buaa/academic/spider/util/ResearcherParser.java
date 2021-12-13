@@ -121,7 +121,7 @@ public class ResearcherParser {
                 WebElement morePoint = moreElement.get(0);
                 Actions actions = new Actions(driver);
                 actions.click(morePoint).perform();
-                Thread.sleep(1000);
+                //Thread.sleep(1000);
             }
             // 获取合作机构
             List<WebElement> instElement = driver.findElementsByXPath("//div[@class=\"bottom-list\"]");
@@ -187,7 +187,7 @@ public class ResearcherParser {
     public void baiDuSpider() {
         try {
             driver.get(this.url);
-            Thread.sleep(2000);
+            //Thread.sleep(2000);
             String researcherName = this.researcher.getName();
             String curInstName = this.researcher.getCurrentInst().getName();
             List<WebElement> searchText = driver.findElementsByXPath("//form[@class=\"searchForm\"]//p[@class=\"formItem\"]");
@@ -205,7 +205,7 @@ public class ResearcherParser {
             WebElement searchButton = driver.findElementByXPath("//form[@class=\"searchForm\"]//input[@type=\"submit\"]");
             Actions actions = new Actions(driver);
             actions.click(searchButton).perform();
-            Thread.sleep(2000);
+            //Thread.sleep(2000);
             List<WebElement> matchResearchers = driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
             if (matchResearchers.size() == 0) {
                 driver.close();
@@ -232,7 +232,7 @@ public class ResearcherParser {
             allHandles.remove(originalHandle);
             assert allHandles.size() == 1;
             driver.switchTo().window((String) allHandles.toArray()[0]);
-            Thread.sleep(1000);
+            //Thread.sleep(1000);
             List<WebElement> majorElement = driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
             List<String> interests = new ArrayList<>();
             if (majorElement.size() != 0) {

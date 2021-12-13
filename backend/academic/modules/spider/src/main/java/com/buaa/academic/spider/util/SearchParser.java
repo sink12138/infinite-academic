@@ -75,10 +75,10 @@ public class SearchParser {
                             paper.setCrawled(false);
                             paper.setCitationNum(0);
                             if (type.equals("期刊论文")) {
-                                paper.setType("J");
+                                paper.setType("期刊论文");
                             }
                             else {
-                                paper.setType("D");
+                                paper.setType("学位论文");
                             }
                             // insert paper into database
                             statusCtrl.paperRepository.save(paper);
@@ -96,6 +96,12 @@ public class SearchParser {
                             driver.switchTo().window(originalHandle);
                             paperObject.setUrl(url);
 
+                            StatusCtrl.paperObjectQueue.add(paperObject);
+                        } else if (paper != null && !paper.isCrawled()) {
+                            newPaper ++;
+                            String url = driver.getCurrentUrl();
+                            paperObject.setUrl(url);
+                            paperObject.setPaperId(paper.getId());
                             StatusCtrl.paperObjectQueue.add(paperObject);
                         }
 
