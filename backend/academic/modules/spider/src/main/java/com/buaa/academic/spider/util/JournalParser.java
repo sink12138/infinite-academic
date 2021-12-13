@@ -136,8 +136,6 @@ public class JournalParser {
             this.journal = journal;
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.close();
         }
     }
 }

@@ -14,7 +14,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +43,6 @@ public class PaperParser {
             Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
             // 已经爬完了
             if (paper.isCrawled()) {
-                driver.close();
                 return;
             }
             paper.setCrawled(true);
@@ -108,8 +111,7 @@ public class PaperParser {
             List<WebElement> instElement = new ArrayList<>();
             if (paper.getType().equals("期刊论文")) {
                 instElement = driver.findElementsByXPath("//div[@class=\"organization list\"]//div[@class=\"itemUrl\"]//a");
-            }
-            else if(paper.getType().equals("学位论文")){
+            } else if (paper.getType().equals("学位论文")) {
                 instElement = driver.findElementsByXPath("//div[@class=\"thesisOrganization list\"]//div[@class=\"itemUrl\"]//a");
             }
             if (instElement.size() != 0) {
@@ -148,7 +150,7 @@ public class PaperParser {
                         }
 
                         boolean insert = true;
-                        for (Paper.Institution institutionInList: institutions) {
+                        for (Paper.Institution institutionInList : institutions) {
                             if (institutionInList.getName().equals(instName)) {
                                 insert = false;
                                 break;
@@ -217,8 +219,7 @@ public class PaperParser {
                     String journalUrl = journalElement.get(0).getAttribute("href");
                     StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
                 }
-            }
-            else if (paper.getType().equals("学位论文")) {
+            } else if (paper.getType().equals("学位论文")) {
                 // 获取学位授予年份
                 List<WebElement> yearElement = driver.findElementsByXPath("//div[@class=\"thesisYear list\"]//div[@class=\"itemUrl\"]//span");
                 if (yearElement.size() != 0) {
@@ -243,7 +244,7 @@ public class PaperParser {
             List<Paper.Source> sources = paper.getSources();
             if (sources == null)
                 sources = new ArrayList<>();
-            Paper.Source source = new Paper.Source("万方",this.paperCraw.getUrl());
+            Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
             sources.add(source);
             paper.setSources(sources);
             statusCtrl.template.save(paper);
@@ -294,8 +295,7 @@ public class PaperParser {
                             PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId());
                             StatusCtrl.paperObjectQueue.add(paperObject);
                             referenceID.add(foundReferPaper.getId());
-                        }
-                        else if (type.startsWith("[D]")) {
+                        } else if (type.startsWith("[D]")) {
                             Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
                             if (foundReferPaper == null) {
                                 foundReferPaper = new Paper();
@@ -328,15 +328,13 @@ public class PaperParser {
                 }
                 referenceElement.clear();
                 ableElement.clear();
-                //Thread.sleep(3000);
+                Thread.sleep(3000);
             } while (flag == 1);
             paper.setReferences(referenceID);
             // modify the paper‘s properties by paperCraw.getPaper().id
             statusCtrl.paperRepository.save(paper);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            driver.close();
         }
     }
 
@@ -376,30 +374,28 @@ public class PaperParser {
 
             WebElement searchButton = driver.findElementByXPath("//input[@class=\"search-btn\"]");
             actions.click(searchButton).perform();
-            //Thread.sleep(2000);
+            Thread.sleep(2000);
             //选择论文类型
             List<WebElement> typeElement = driver.findElementsByXPath("//ul[@class=\"doctype-menus keji\"]/li");
-            if (typeElement.size() !=0 ) {
+            if (typeElement.size() != 0) {
                 WebElement journal = null;
                 WebElement degree = null;
-                for (WebElement types:typeElement) {
+                for (WebElement types : typeElement) {
                     if (types.getAttribute("data-id").equals("xsqk")) {
-                        journal=types;
-                    }
-                    else if (types.getAttribute("data-id").equals("xwlw")) {
-                        degree=types;
+                        journal = types;
+                    } else if (types.getAttribute("data-id").equals("xwlw")) {
+                        degree = types;
                     }
                 }
                 if (paper.getType().equals("期刊论文")) {
                     if (journal != null) {
                         actions.click(journal).perform();
-                        //Thread.sleep(2000);
+                        Thread.sleep(2000);
                     }
-                }
-                else if (paper.getType().equals("学位论文")) {
+                } else if (paper.getType().equals("学位论文")) {
                     if (degree != null) {
                         actions.click(degree).perform();
-                        //Thread.sleep(2000);
+                        Thread.sleep(2000);
                     }
                 }
             }
@@ -407,7 +403,6 @@ public class PaperParser {
             int flag = 0;
             List<WebElement> matchElement = driver.findElementsByXPath("//table[@class=\"result-table-list\"]//tbody//tr");
             if (matchElement.size() == 0) {
-                driver.close();
                 return;
             }
             for (WebElement match : matchElement) {
@@ -438,7 +433,6 @@ public class PaperParser {
                 target = matchElement.get(0).findElement(By.xpath(".//td[@class=\"name\"]//a"));
             }
             if (target == null) {
-                driver.close();
                 return;
             }
             // 切换页面
@@ -451,7 +445,7 @@ public class PaperParser {
             // 添加外链
             String zhiWangUrl = driver.getCurrentUrl();
             List<Paper.Source> sources = paper.getSources();
-            sources.add(new Paper.Source("知网",zhiWangUrl));
+            sources.add(new Paper.Source("知网", zhiWangUrl));
             paper.setSources(sources);
             statusCtrl.template.save(paper);
 
@@ -472,7 +466,6 @@ public class PaperParser {
             statusCtrl.paperRepository.save(paper);
             driver.close();
             driver.switchTo().window(originalHandle);
-            driver.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -480,7 +473,7 @@ public class PaperParser {
 
     // 获取外链
     // url格式： https://xueshu.baidu.com/s?wd= + 要搜索的title + &sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8
-    public void baiduSpider(){
+    public void baiduSpider() {
         String threadName = Thread.currentThread().getName();
         try {
             driver.get(this.paperCraw.getUrl());
@@ -506,7 +499,6 @@ public class PaperParser {
                 // 获取匹配元素
                 List<WebElement> matchElement = driver.findElementsByXPath("//div[@class=\"result sc_default_result xpath-log\"]");
                 if (matchElement.size() == 0) {
-                    driver.close();
                     return;
                 }
                 for (WebElement match : matchElement) {
@@ -540,22 +532,22 @@ public class PaperParser {
                     if (sources == null)
                         sources = new ArrayList<>();
                     List<String> sourcesText = new ArrayList<>();
-                    for (Paper.Source source:sources) {
+                    for (Paper.Source source : sources) {
                         sourcesText.add(source.getWebsite());
                     }
                     if (sourceElement.size() != 0) {
-                        for (WebElement source:sourceElement) {
+                        for (WebElement source : sourceElement) {
                             String webName = source.getAttribute("title");
                             String webUrl = source.getAttribute("href");
                             if (!sourcesText.contains(webName)) {
-                                Paper.Source newSource = new Paper.Source(webName,webUrl);
+                                Paper.Source newSource = new Paper.Source(webName, webUrl);
                                 sources.add(newSource);
                                 sourcesText.add(webName);
                             }
                         }
                         if (!sourcesText.contains("百度学术")) {
                             String baiduUrl = matchTitle.getAttribute("href");
-                            Paper.Source newSource = new Paper.Source("百度学术",baiduUrl);
+                            Paper.Source newSource = new Paper.Source("百度学术", baiduUrl);
                             sources.add(newSource);
                             sourcesText.add("百度学术");
                         }
@@ -566,13 +558,12 @@ public class PaperParser {
                     Actions actions = new Actions(driver);
                     actions.click(next).perform();
                     Thread.sleep(2000);
-                }
-                else {
+                } else {
                     break;
                 }
-            } while(true);
+            } while (true);
             statusCtrl.paperRepository.save(paper);
-            driver.close();
+            // driver.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

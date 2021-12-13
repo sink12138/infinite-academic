@@ -26,11 +26,21 @@ public class JournalCrawlThread implements Runnable{
         statusCtrl.changeRunningStatusTo(threadName, "Journal crawler start.");
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
-        while (true) {
+
+        int period = 500;
+        for (int loop = 0; ; loop = (loop + 1) % period) {
             try {
-                service = ParserUtil.getDriverService();
-                service.start();
-                driver = ParserUtil.getDriver(headless);
+                if (service == null || driver == null) {
+                    service = ParserUtil.getDriverService();
+                    driver = ParserUtil.getDriver(headless);
+                }
+                else if (loop == 0) {
+                    driver.quit();
+                    service.stop();
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                }
 
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
@@ -48,8 +58,9 @@ public class JournalCrawlThread implements Runnable{
                 }
                 JournalObject journal = StatusCtrl.journalUrls.poll();
                 if (journal == null) {
-                    driver.quit();
-                    service.stop();
+                    // driver.quit();
+                    // service.stop();
+                    Thread.sleep(2000);
                     continue;
                 }
 
@@ -65,15 +76,8 @@ public class JournalCrawlThread implements Runnable{
                 paper.getJournal().setId(journalId);
                 statusCtrl.template.save(paper);
 
-                driver.quit();
-                service.stop();
             } catch (Exception e) {
                 e.printStackTrace();
-                try {
-                    assert driver != null;
-                    driver.quit();
-                    service.stop();
-                } catch (Exception ignored) {}
             }
         }
     }

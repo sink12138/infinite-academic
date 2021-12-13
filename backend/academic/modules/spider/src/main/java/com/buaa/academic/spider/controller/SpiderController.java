@@ -49,7 +49,7 @@ public class SpiderController {
         statusCtrl.setSubjectTopicThreadNum(2);
         statusCtrl.setPaperSourceThreadNum(2);
         statusCtrl.setMainInfoThreadNum(2);
-        statusCtrl.setJournalThreadNum(2);
+        statusCtrl.setJournalThreadNum(1);
         statusCtrl.setResearcherThreadNum(2);
         if (statusCtrl.start())
             return result;

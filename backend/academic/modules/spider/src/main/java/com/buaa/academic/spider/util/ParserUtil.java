@@ -8,8 +8,9 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import java.io.IOException;
 
 public abstract class ParserUtil {
+
     public static RemoteWebDriver getDriver(Boolean headless) {
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
+        ChromeOptions options = new ChromeOptions().setHeadless(headless).addArguments("--blink-settings=imagesEnabled=false");
         RemoteWebDriver driver = null;
         boolean success;
         do {

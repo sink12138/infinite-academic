@@ -111,7 +111,6 @@ public class InstitutionParser {
                 institutionRepository.save(institution);
             }
         }
-        driver.close();
     }
 
     public void microsoftSpider() throws InterruptedException {
@@ -154,7 +153,6 @@ public class InstitutionParser {
                 institutionRepository.save(institution);
             }
         }
-        driver.close();
     }
 
     //万方的机构没有图片

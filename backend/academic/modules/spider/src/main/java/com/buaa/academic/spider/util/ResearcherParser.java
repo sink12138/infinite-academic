@@ -21,7 +21,9 @@ import java.util.Set;
 @Data
 @Component
 public class ResearcherParser {
+
     private String url;
+
     private Researcher researcher;
 
     private StatusCtrl statusCtrl;
@@ -51,8 +53,6 @@ public class ResearcherParser {
                 instName = curInstElement.get(0).getText();
             }
             if (researcherName == null || instName == null) {
-                driver.close();
-                driver.quit();
                 return;
             }
 
@@ -96,8 +96,6 @@ public class ResearcherParser {
                 this.researcher = researcher;
                 researcher.setPaperNum(researcher.getPaperNum() + 1);
                 statusCtrl.researcherRepository.save(researcher);
-                driver.close();
-                driver.quit();
                 return;
             }
 
@@ -125,7 +123,7 @@ public class ResearcherParser {
                 WebElement morePoint = moreElement.get(0);
                 Actions actions = new Actions(driver);
                 actions.click(morePoint).perform();
-                //Thread.sleep(1000);
+                Thread.sleep(1000);
             }
             // 获取合作机构
             List<WebElement> instElement = driver.findElementsByXPath("//div[@class=\"bottom-list\"]");
@@ -166,21 +164,19 @@ public class ResearcherParser {
             // add researcher into database
             statusCtrl.researcherRepository.save(researcher);
 
-            driver.close();
-
-            ChromeDriverService service = ParserUtil.getDriverService();
-            service.start();
-            RemoteWebDriver subDriver = ParserUtil.getDriver(headless);
-
+            String originalHandle = driver.getWindowHandle();
+            driver.executeScript("window.open('about:blank','_blank');");
+            Set<String> handles = driver.getWindowHandles();
+            handles.remove(originalHandle);
+            driver.switchTo().window(handles.toArray(new String[0])[0]);
             ResearcherParser researcherParser = new ResearcherParser();
             researcherParser.setStatusCtrl(statusCtrl);
             researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
             researcherParser.setResearcher(researcher);
-            researcherParser.setDriver(subDriver);
+            researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
-
-            subDriver.quit();
-            service.stop();
+            driver.close();
+            driver.switchTo().window(originalHandle);
 
             researcher.setInterests(researcherParser.getResearcher().getInterests());
             statusCtrl.researcherRepository.save(researcher);
@@ -195,7 +191,7 @@ public class ResearcherParser {
     public void baiDuSpider() {
         try {
             driver.get(this.url);
-            //Thread.sleep(2000);
+            Thread.sleep(2000);
             String researcherName = this.researcher.getName();
             String curInstName = this.researcher.getCurrentInst().getName();
             List<WebElement> searchText = driver.findElementsByXPath("//form[@class=\"searchForm\"]//p[@class=\"formItem\"]");
@@ -213,10 +209,9 @@ public class ResearcherParser {
             WebElement searchButton = driver.findElementByXPath("//form[@class=\"searchForm\"]//input[@type=\"submit\"]");
             Actions actions = new Actions(driver);
             actions.click(searchButton).perform();
-            //Thread.sleep(2000);
+            Thread.sleep(2000);
             List<WebElement> matchResearchers = driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
             if (matchResearchers.size() == 0) {
-                driver.close();
                 return;
             }
             WebElement target = null;
@@ -230,17 +225,12 @@ public class ResearcherParser {
                 }
             }
             if (target == null) {
-                driver.close();
                 return;
             }
             //切换页面
-            actions.click(target).perform();
             String originalHandle = driver.getWindowHandle();
-            Set<String> allHandles = driver.getWindowHandles();
-            allHandles.remove(originalHandle);
-            assert allHandles.size() == 1;
-            driver.switchTo().window((String) allHandles.toArray()[0]);
-            //Thread.sleep(1000);
+            actions.click(target).perform();
+            Thread.sleep(1000);
             List<WebElement> majorElement = driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
             List<String> interests = new ArrayList<>();
             if (majorElement.size() != 0) {
@@ -251,7 +241,6 @@ public class ResearcherParser {
             }
             driver.close();
             driver.switchTo().window(originalHandle);
-            driver.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

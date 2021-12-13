@@ -39,12 +39,22 @@ public class PaperMainInfoThread implements Runnable{
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
-        while (true) {
+        int period = 500;
+        for (int loop = 0; ; loop = (loop + 1) % period) {
             try {
-                service = ParserUtil.getDriverService();
-                service.start();
-                driver = ParserUtil.getDriver(headless);
-                paperParser.setDriver(driver);
+                if (service == null || driver == null) {
+                    service = ParserUtil.getDriverService();
+                    driver = ParserUtil.getDriver(headless);
+                    paperParser.setDriver(driver);
+                }
+                else if (loop == 0) {
+                    driver.quit();
+                    service.stop();
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                    paperParser.setDriver(driver);
+                }
 
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
@@ -65,8 +75,7 @@ public class PaperMainInfoThread implements Runnable{
                 }
                 paperObject = StatusCtrl.paperObjectQueue.poll();
                 if (paperObject == null) {
-                    driver.quit();
-                    service.stop();
+                    Thread.sleep(2000);
                     continue;
                 }
                 paperParser.setPaperCraw(paperObject);
@@ -76,16 +85,9 @@ public class PaperMainInfoThread implements Runnable{
                     StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCraw());
                 }
 
-                driver.quit();
-                service.stop();
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
-                try {
-                    assert driver != null;
-                    driver.quit();
-                    service.stop();
-                } catch (Exception ignored) {}
             }
         }
     }

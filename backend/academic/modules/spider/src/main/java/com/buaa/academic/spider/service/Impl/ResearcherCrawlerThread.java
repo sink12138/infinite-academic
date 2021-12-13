@@ -33,8 +33,21 @@ public class ResearcherCrawlerThread implements Runnable{
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
-        while (true) {
+        int period = 500;
+        for (int loop = 0; ; loop = (loop + 1) % period) {
             try {
+                if (service == null || driver == null) {
+                    service = ParserUtil.getDriverService();
+                    driver = ParserUtil.getDriver(headless);
+                }
+                else if (loop == 0) {
+                    driver.quit();
+                    service.stop();
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                }
+
                 if (StatusCtrl.jobStopped) {
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     if (driver != null) {
@@ -57,20 +70,13 @@ public class ResearcherCrawlerThread implements Runnable{
                 }
                 ResearcherSet researcherSet = StatusCtrl.researcherQueue.poll();
                 if (researcherSet == null) {
-                    if (driver != null) {
-                        driver.quit();
-                        assert service != null;
-                        service.stop();
-                    }
+                    Thread.sleep(2000);
                     continue;
                 }
                 String paperId = researcherSet.getPaperId();
                 ArrayList<Paper.Author> authors = new ArrayList<>();
-                for (ResearcherSet.ResearcherObject researcherObject : researcherSet.getResearcherObjects()) {
-                    service = ParserUtil.getDriverService();
-                    service.start();
-                    driver = ParserUtil.getDriver(headless);
 
+                for (ResearcherSet.ResearcherObject researcherObject : researcherSet.getResearcherObjects()) {
                     ResearcherParser researcherParser = new ResearcherParser();
                     researcherParser.setDriver(driver);
                     researcherParser.setHeadless(headless);
@@ -78,21 +84,14 @@ public class ResearcherCrawlerThread implements Runnable{
                     researcherParser.setUrl(researcherObject.getUrl());
                     researcherParser.wanFangSpider();
                     authors.add(new Paper.Author(researcherParser.getResearcher().getId(), researcherObject.getName()));
-
-                    driver.quit();
-                    service.stop();
                 }
+
                 Paper paper = statusCtrl.existenceService.findPaperById(paperId);
                 paper.setAuthors(authors);
                 statusCtrl.template.save(paper);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                try {
-                    assert driver != null;
-                    driver.quit();
-                    service.stop();
-                } catch (Exception ignored) {}
             }
         }
     }
