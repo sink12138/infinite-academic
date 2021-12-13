@@ -1,15 +1,14 @@
 package com.buaa.academic.document.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
+import org.springframework.data.elasticsearch.annotations.*;
+
 import java.io.Serializable;
 
 @Data
@@ -33,9 +32,14 @@ public class User implements Serializable {
     @ApiModelProperty(required = true, value = "用户名", example = "yq")
     private String username;
 
+    @JsonIgnore
     @Field(type = FieldType.Keyword, index = false)
     @ApiModelProperty(required = true, value = "用户设置的密码", example = "114514")
     private String password;
+
+    @Field(type = FieldType.Date, format = DateFormat.date)
+    @ApiModelProperty(required = true, value = "用户注册时间", example = "2021-12-13")
+    private String date;
 
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "用户认证的研究人员ID（如果已认证）", example = "GF_4ynwBF-Mu8unTG1hc")
