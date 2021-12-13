@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -63,7 +64,7 @@ public class TransferController {
     @PostMapping("/patent/transfer")
     @ApiOperation(value = "专利转让申请提交")
     public Result<Void> transferSubmit(@RequestHeader(value = "Auth") String userId,
-                                       @RequestBody ApplicationInfo<Transfer> transferInfo) {
+                                       @RequestBody @Valid ApplicationInfo<Transfer> transferInfo) {
         Result<Void> result = new Result<>();
 
         // File token existence check

@@ -21,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.Objects;
 
 @RestController
@@ -55,14 +56,14 @@ public class IdentityController {
     @PostMapping("/certify/code")
     @ApiOperation(value = "学者认证获取验证码")
     public Result<Void> certifyCode(@RequestHeader(value = "Auth") String userId,
-                                @RequestParam(value = "email") String email) {
+                                    @RequestParam(value = "email") String email) {
         return accountClient.sendVerifyCode(userId, email, "学者认证");
     }
 
     @PostMapping("/certify")
     @ApiOperation(value = "学者身份认证申请")
     public Result<Void> certifyCommit(@RequestHeader(value = "Auth") String userId,
-                                      @RequestBody ApplicationInfo<Certification> ctfApp) {
+                                      @RequestBody @Valid ApplicationInfo<Certification> ctfApp) {
         Result<Void> result = new Result<>();
         User user = Objects.requireNonNull(elasticTemplate.get(userId, User.class));
         if (user.getResearcherId() != null)
@@ -90,7 +91,7 @@ public class IdentityController {
     @PostMapping("/claim")
     @ApiOperation(value = "门户认领申请")
     public Result<Void> claim(@RequestHeader(value = "Auth") String userId,
-                              @RequestBody ApplicationInfo<Claim> claimApp) {
+                              @RequestBody @Valid ApplicationInfo<Claim> claimApp) {
         Result<Void> result = new Result<>();
         if (claimApp.getFileToken() != null) {
             Result<Boolean> fileExistRes = resourceClient.exists(claimApp.getFileToken());
@@ -110,7 +111,7 @@ public class IdentityController {
     @PostMapping("/modify")
     @ApiOperation(value = "学者信息修改申请")
     public Result<Void> modify(@RequestHeader(value = "Auth") String userId,
-                               @RequestBody ApplicationInfo<Modification> mdfApp) {
+                               @RequestBody @Valid ApplicationInfo<Modification> mdfApp) {
         Result<Void> result = new Result<>();
         if (mdfApp.getFileToken() != null) {
             Result<Boolean> fileExistRes = resourceClient.exists(mdfApp.getFileToken());
