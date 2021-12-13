@@ -5,14 +5,17 @@
       :key="item.id"
       :item="item"
     ></PaperCard>
+    <user-menu></user-menu>
   </div>
 </template>
 
 <script>
 import PaperCard from '../components/BasePaperCard.vue'
+import UserMenu from '../components/UserMenu.vue'
 
 export default {
   components: {
+    UserMenu,
     PaperCard
   },
   data:() =>  ({
