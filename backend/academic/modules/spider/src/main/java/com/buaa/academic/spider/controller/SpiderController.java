@@ -56,7 +56,7 @@ public class SpiderController {
     }
 
     @PostMapping("/stop")
-    public Result<Void> stop(@RequestHeader(name = "Auth") String auth)  {
+    public Result<Void> stop(@RequestHeader(name = "Auth") String auth) {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);

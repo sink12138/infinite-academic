@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 @Data
 @Component
 public class PaperParser {
+
     private PaperObject paperCraw;
 
     private StatusCtrl statusCtrl;

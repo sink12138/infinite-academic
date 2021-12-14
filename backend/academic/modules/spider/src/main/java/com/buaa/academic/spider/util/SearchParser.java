@@ -10,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class SearchParser {
                         }
 
                         String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
-                        if (!type.equals("期刊论文")&&!type.equals("硕士论文")&&!type.equals("博士论文")) {
+                        if (!type.equals("期刊论文") && !type.equals("硕士论文") && !type.equals("博士论文")) {
                             continue;
                         }
                         WebElement title = result.findElement(By.xpath(".//span[@class=\"title\"]"));
@@ -64,11 +65,11 @@ public class SearchParser {
                                 authorList.add(paperAuthor);
                             }
                         }
-                        crawledPaper ++;
+                        crawledPaper++;
                         // find paper by referTitle and referAuthorName
                         Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
                         if (paper == null && !statusCtrl.existenceService.inTrash(titleName, authorList)) {
-                            newPaper ++;
+                            newPaper++;
                             paper = new Paper();
                             paper.setTitle(titleName);
                             paper.setAuthors(authorList);
@@ -76,8 +77,7 @@ public class SearchParser {
                             paper.setCitationNum(0);
                             if (type.equals("期刊论文")) {
                                 paper.setType("期刊论文");
-                            }
-                            else {
+                            } else {
                                 paper.setType("学位论文");
                             }
                             // insert paper into database
@@ -104,7 +104,7 @@ public class SearchParser {
                             StatusCtrl.sourceQueue.add(sourceObj);
 
                         } else if (paper != null && !paper.isCrawled()) {
-                            newPaper ++;
+                            newPaper++;
                             String url = driver.getCurrentUrl();
                             paperObject.setUrl(url);
                             paperObject.setPaperId(paper.getId());
@@ -116,10 +116,9 @@ public class SearchParser {
                     }
                 }
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
-                if(nextElement.size() == 0){
+                if (nextElement.size() == 0) {
                     continueCrawl = false;
-                }
-                else{
+                } else {
                     WebElement next = nextElement.get(0);
                     if (!next.getAttribute("style").equals("display: none;")) {
                         Actions actions = new Actions(driver);

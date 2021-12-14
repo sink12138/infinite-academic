@@ -14,19 +14,19 @@ import com.buaa.academic.spider.service.Impl.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.select.Evaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @NoArgsConstructor
 @Data
+@Slf4j
 public class StatusCtrl {
     public static final Object queueLock = new Object();
 
@@ -59,22 +59,25 @@ public class StatusCtrl {
             final int threshold = 30;
             final int period = 300;
             for (int loop = 0; errorNum < threshold; loop = (loop + 1) / period) {
+                if (StatusCtrl.jobStopped) {
+                    return;
+                }
+                if (errorNum >= threshold / 3 * 2) {
+                    log.warn("Number of errors reached 2/3 of the threshold within {} seconds", period);
+                }
+                else if (errorNum >= threshold / 3) {
+                    log.warn("Number of errors reached 1/3 of the threshold within {} seconds", period);
+                }
+                if (loop == 0)
+                    errorNum = 0;
                 try {
-                    if (errorNum >= threshold / 3 * 2) {
-                        log.warn("Number of errors reached 2/3 of the threshold within {} seconds", period);
-                    }
-                    else if (errorNum >= threshold / 3) {
-                        log.warn("Number of errors reached 1/3 of the threshold within {} seconds", period);
-                    }
-                    if (loop == 0)
-                        errorNum = 0;
                     Thread.sleep(1000);
                 }
                 catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            log.error("Shutting down spiders due to frequent error occurrence");
+            log.error("Shutting down tasks due to high error frequency");
             StatusCtrl.jobStopped = true;
         }
     }
@@ -111,19 +114,20 @@ public class StatusCtrl {
 
     private int paperSourceThreadNum;
 
-    public Boolean start() {
+    public boolean start() {
         if (runningJob.size() > 0)
             return false;
+        log.info("Initializing tasks...");
         lastRun = new Date();
         StatusCtrl.jobStopped = false;
         StatusCtrl.paperObjectQueue.clear();
         StatusCtrl.subjectAndTopicCrawlerQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
-        StatusCtrl.keywordQueue.addAll(Arrays.asList("芯片"));
-        Boolean headless = true;
+        StatusCtrl.keywordQueue.addAll(List.of("人工智能", "数据挖掘", "深度学习", "自然语言处理", "云计算", "大数据"));
+        boolean headless = true;
 
-        new Thread(errorHandler, "Err-Handler").start();
+        new Thread(errorHandler, "Error-Handler").start();
         for (int i = 0; i < queueInitThreadNum; i++) {
             Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
             String threadName = "QueueInit-" + i;
@@ -170,6 +174,7 @@ public class StatusCtrl {
     }
 
     public void stop() {
+        log.info("Stopping tasks...");
         StatusCtrl.jobStopped = true;
     }
 
