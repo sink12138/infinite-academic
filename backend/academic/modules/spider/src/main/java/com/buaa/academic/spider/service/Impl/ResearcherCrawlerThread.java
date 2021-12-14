@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class ResearcherCrawlerThread implements Runnable{
 
     private StatusCtrl statusCtrl;
@@ -29,6 +31,7 @@ public class ResearcherCrawlerThread implements Runnable{
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Researcher crawler start.");
+        log.info("{} started", threadName);
 
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
@@ -49,22 +52,24 @@ public class ResearcherCrawlerThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     if (driver != null) {
                         driver.quit();
                         assert service != null;
                         service.stop();
                     }
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    log.info("{} stopped", threadName);
                     return;
                 }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.researcherQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
-                        statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
                         if (driver != null) {
                             driver.quit();
                             assert service != null;
                             service.stop();
                         }
+                        statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
+                        log.info("{} finished", threadName);
                         return;
                     }
                 }
@@ -92,6 +97,7 @@ public class ResearcherCrawlerThread implements Runnable{
 
             } catch (Exception e) {
                 e.printStackTrace();
+                StatusCtrl.errorHandler.report();
             }
         }
     }

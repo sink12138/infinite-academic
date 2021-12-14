@@ -6,6 +6,7 @@ import com.buaa.academic.spider.util.PaperParser;
 import com.buaa.academic.spider.util.ParserUtil;
 import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class PaperMainInfoThread implements Runnable{
     private StatusCtrl statusCtrl;
 
@@ -24,6 +26,7 @@ public class PaperMainInfoThread implements Runnable{
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Start crawl paper main info...");
+        log.info("{} started", threadName);
 
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningMainInfoThreadNum ++;
@@ -57,19 +60,21 @@ public class PaperMainInfoThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     driver.quit();
                     service.stop();
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    log.info("{} stopped", threadName);
                     return;
                 }
 
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningQueueInitThreadNum == 0) {
-                        StatusCtrl.runningMainInfoThreadNum--;
-                        statusCtrl.changeRunningStatusStop(threadName, "Finished");
                         driver.quit();
                         service.stop();
+                        StatusCtrl.runningMainInfoThreadNum--;
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished");
+                        log.info("{} finished", threadName);
                         return;
                     }
                 }
@@ -88,6 +93,7 @@ public class PaperMainInfoThread implements Runnable{
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
+                StatusCtrl.errorHandler.report();
             }
         }
     }

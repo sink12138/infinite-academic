@@ -13,6 +13,7 @@ import com.buaa.academic.spider.service.ExistenceService;
 import com.buaa.academic.spider.service.Impl.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,43 @@ public class StatusCtrl {
     public static int runningMainInfoThreadNum = 0;
     public static boolean jobStopped = false;
     public static Date lastRun;
+
+    @Slf4j
+    public static class ErrorHandler implements Runnable {
+
+        private int errorNum;
+
+        public synchronized void report() {
+            ++errorNum;
+        }
+
+        @Override
+        public void run() {
+            /* Shut down all threads if number of errors reaches 30 in 5 minutes */
+            final int threshold = 30;
+            final int period = 300;
+            for (int loop = 0; errorNum < threshold; loop = (loop + 1) / period) {
+                try {
+                    if (errorNum >= threshold / 3 * 2) {
+                        log.warn("Number of errors reached 2/3 of the threshold within {} seconds", period);
+                    }
+                    else if (errorNum >= threshold / 3) {
+                        log.warn("Number of errors reached 1/3 of the threshold within {} seconds", period);
+                    }
+                    if (loop == 0)
+                        errorNum = 0;
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            log.error("Shutting down spiders due to frequent error occurrence");
+            StatusCtrl.jobStopped = true;
+        }
+    }
+
+    public static final ErrorHandler errorHandler = new ErrorHandler();
 
     @Autowired
     public ElasticsearchRestTemplate template;
@@ -80,9 +118,11 @@ public class StatusCtrl {
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
         Boolean headless = true;
+
+        new Thread(errorHandler, "Err-Handler").start();
         for (String keyword: keywords) {
             Thread thread = new Thread(new CrawlerQueueInitThread(keyword, this, headless));
-            String threadName = "QueueInitThread-keyword:" + keyword;
+            String threadName = "Queue:" + keyword;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
@@ -96,28 +136,28 @@ public class StatusCtrl {
         }
         for (int i = 0; i < mainInfoThreadNum; i++) {
             Thread thread = new Thread(new PaperMainInfoThread(this, headless));
-            String threadName = "PaperMainInfoThread-" + i;
+            String threadName = "Paper-Main-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
         }
         for (int i = 0; i < subjectTopicThreadNum; i++) {
             Thread thread = new Thread(new SubjectTopicThread(this, headless));
-            String threadName = "SubjectTopicThread-" + i;
+            String threadName = "Subject-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
         }
         for (int i = 0; i < researcherThreadNum; i++) {
             Thread thread = new Thread(new ResearcherCrawlerThread(this, headless));
-            String threadName = "ResearcherThread-" + i;
+            String threadName = "Researcher-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
         }
         for (int i = 0; i < journalThreadNum; i++) {
             Thread thread = new Thread(new JournalCrawlThread(this, headless));
-            String threadName = "JournalThread-" + i;
+            String threadName = "Journal-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
@@ -131,7 +171,7 @@ public class StatusCtrl {
 
     public Schedule getStatus() {
         Schedule schedule = new Schedule();
-        schedule.setName("爬虫");
+        schedule.setName("数据库更新与扩充");
         boolean isRunning = false;
         for (Boolean running: runningJob.values()) {
             if (running) {

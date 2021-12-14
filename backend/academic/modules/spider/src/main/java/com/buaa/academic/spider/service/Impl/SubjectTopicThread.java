@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -17,7 +18,8 @@ import java.util.Arrays;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubjectTopicThread implements Runnable{
+@Slf4j
+public class SubjectTopicThread implements Runnable {
 
     private StatusCtrl statusCtrl;
 
@@ -29,6 +31,7 @@ public class SubjectTopicThread implements Runnable{
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Subject crawler start...");
+        log.info("{} started", threadName);
         PaperParser paperParser = new PaperParser();
         JournalParser journalParser = new JournalParser();
         journalParser.setStatusCtrl(statusCtrl);
@@ -46,8 +49,7 @@ public class SubjectTopicThread implements Runnable{
                     service = ParserUtil.getDriverService();
                     driver = ParserUtil.getDriver(headless);
                     paperParser.setDriver(driver);
-                }
-                else if (loop == 0) {
+                } else if (loop == 0) {
                     driver.quit();
                     service.stop();
                     service = ParserUtil.getDriverService();
@@ -57,17 +59,19 @@ public class SubjectTopicThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     driver.quit();
                     service.stop();
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    log.info("{} stopped", threadName);
                     return;
                 }
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.subjectAndTopicCrawlerQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
-                        statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
                         driver.quit();
                         service.stop();
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished.");
+                        log.info("{} finished", threadName);
                         return;
                     }
                 }
@@ -82,6 +86,7 @@ public class SubjectTopicThread implements Runnable{
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 e.printStackTrace();
+                StatusCtrl.errorHandler.report();
             }
         }
 

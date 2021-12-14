@@ -8,12 +8,14 @@ import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class JournalCrawlThread implements Runnable{
     private StatusCtrl statusCtrl;
 
@@ -24,6 +26,7 @@ public class JournalCrawlThread implements Runnable{
 
         String threadName = Thread.currentThread().getName();
         statusCtrl.changeRunningStatusTo(threadName, "Journal crawler start.");
+        log.info("{} started", threadName);
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
@@ -43,23 +46,23 @@ public class JournalCrawlThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     driver.quit();
                     service.stop();
+                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                    log.info("{} stopped", threadName);
                     return;
                 }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.journalUrls.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
-                        statusCtrl.changeRunningStatusStop(threadName, "Finished.");
                         driver.quit();
                         service.stop();
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished.");
+                        log.info("{} finished", threadName);
                         return;
                     }
                 }
                 JournalObject journal = StatusCtrl.journalUrls.poll();
                 if (journal == null) {
-                    // driver.quit();
-                    // service.stop();
                     Thread.sleep(2000);
                     continue;
                 }
@@ -78,6 +81,7 @@ public class JournalCrawlThread implements Runnable{
 
             } catch (Exception e) {
                 e.printStackTrace();
+                StatusCtrl.errorHandler.report();
             }
         }
     }
