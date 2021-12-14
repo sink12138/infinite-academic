@@ -1,7 +1,6 @@
 <template>
-  <v-container>
-
-    <v-navigation-drawer>
+  <v-app id="inspire">
+    <v-navigation-drawer app>
 
       <v-sheet
         color="grey lighten-4"
@@ -21,9 +20,10 @@
 
       <v-list>
         <v-list-item
-          v-for="[icon, text] in links"
-          :key="icon"
+          v-for="[icon, text, url] in links"
           link
+          :key="icon"
+          :to="url"
         >
           <v-list-item-icon>
             <v-icon>{{ icon }}</v-icon>
@@ -34,10 +34,11 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main app>
       <router-view></router-view>
     </v-main>
-  </v-container>
+    
+  </v-app>
 </template>
 
 <script>
@@ -45,9 +46,9 @@ export default {
   data() {
     return {
       links: [
-        ['mdi-inbox-arrow-down', '个人资料'],
-        ['mdi-send', '申请信息'],
-        ['mdi-delete', '个人消息'],
+        ['mdi-inbox-arrow-down', '个人资料', '/user/profile'],
+        ['mdi-send', '申请信息', '/user/apply'],
+        ['mdi-delete', '个人消息', '/user/message'],
       ],
     }
   }

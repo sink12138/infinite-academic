@@ -69,7 +69,6 @@ export default {
       this.$axios({
         method: "get",
         url: "/api/account/echo",
-
       }).then(response => {
         console.log(response.data)
       }).catch(error => {

@@ -36,7 +36,7 @@ export default {
       items: [
         {
           title: "个人中心",
-          url: "profile"
+          url: "/user/profile"
         },
         {
           title: "认证学者",
