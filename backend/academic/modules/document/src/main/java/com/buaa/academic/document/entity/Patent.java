@@ -45,7 +45,7 @@ public class Patent implements Reducible<PatentItem> {
 
     @Field(type = FieldType.Date, format = DateFormat.date)
     @ApiModelProperty(value = "申请日", example = "2021-02-20")
-    private String filingDate;
+    private String fillingDate;
 
     @Field(type = FieldType.Keyword)
     @ApiModelProperty(value = "申请公布号", example = "CN113519399A")
@@ -139,7 +139,7 @@ public class Patent implements Reducible<PatentItem> {
         if (title != null)
             item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
         item.setType(type);
-        item.setFilingDate(filingDate);
+        item.setFilingDate(fillingDate);
         item.setPublicationDate(publicationDate);
         item.setInventors(inventors);
         item.setApplicant(applicant);

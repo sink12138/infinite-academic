@@ -20,6 +20,7 @@ public abstract class ParserUtil {
             } catch (Exception e) {
                 e.printStackTrace();
                 success = false;
+                StatusCtrl.errorHandler.report();
             }
         } while (!success);
         return driver;

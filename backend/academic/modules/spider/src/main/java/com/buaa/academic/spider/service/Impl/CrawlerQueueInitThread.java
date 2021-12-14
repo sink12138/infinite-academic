@@ -21,12 +21,17 @@ public class CrawlerQueueInitThread implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Crawler queue init start...");
+        String threadName = Thread.currentThread().getName();
+        statusCtrl.changeRunningStatusTo(threadName, "Crawler queue init start...");
+        log.info("{} started", threadName);
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningQueueInitThreadNum ++;
         }
         while (StatusCtrl.keywordQueue.size() != 0) {
+            if (StatusCtrl.jobStopped)
+                break;
             String keyword = StatusCtrl.keywordQueue.poll();
+            log.info("{} polled new keyword", threadName);
             String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
             SearchParser searchParser = new SearchParser();
             searchParser.setHeadless(headless);
@@ -39,8 +44,10 @@ public class CrawlerQueueInitThread implements Runnable {
         }
         if (StatusCtrl.jobStopped) {
             statusCtrl.changeRunningStatusStop(Thread.currentThread().getName(), "Stopped");
+            log.info("{} stopped", threadName);
         } else {
             statusCtrl.changeRunningStatusStop(Thread.currentThread().getName(), "Crawler queue init finished");
+            log.info("{} finished", threadName);
         }
     }
 }
