@@ -25,7 +25,7 @@ import static org.apache.commons.text.CharacterPredicates.LETTERS;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Resource
+    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${auth.max-inactive-interval}")

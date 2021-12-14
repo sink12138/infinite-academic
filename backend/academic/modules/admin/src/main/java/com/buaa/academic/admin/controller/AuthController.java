@@ -41,8 +41,8 @@ public class AuthController {
     @Autowired
     private AuthValidator authValidator;
 
-    @Resource
-    private RedisTemplate<String, Authority> redisTemplate;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${auth.max-valid-interval}")
     private long maxValidInterval;
@@ -94,7 +94,7 @@ public class AuthController {
     private Authority queryAdminAuth(String token) {
         if (token == null)
             return null;
-        Authority auth = redisTemplate.opsForValue().get(token);
+        Authority auth = (Authority) redisTemplate.opsForValue().get(token);
         if (auth == null || !auth.isAdmin())
             return null;
         return auth;

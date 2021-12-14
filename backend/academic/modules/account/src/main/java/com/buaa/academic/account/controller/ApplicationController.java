@@ -43,7 +43,7 @@ public class ApplicationController {
     private ElasticsearchRestTemplate elasticTemplate;
     
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @ApiOperation(value = "查看所有申请")
     @GetMapping("/list")

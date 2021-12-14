@@ -81,6 +81,7 @@ public class StatusCtrl {
             }
             log.error("Shutting down tasks due to high error frequency");
             StatusCtrl.jobStopped = true;
+            errorNum = 0;
         }
     }
 
