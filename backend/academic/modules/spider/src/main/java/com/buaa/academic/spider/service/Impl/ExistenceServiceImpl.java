@@ -23,13 +23,20 @@ public class ExistenceServiceImpl implements ExistenceService {
 
     @Override
     public Paper findPaperByTileAndAuthors(String title, List<Paper.Author> authors) {
-        List<String> authorsNames = new ArrayList<>();
-        authors.forEach(author -> authorsNames.add(author.getName()));
-        NativeSearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.boolQuery().must(
-                        QueryBuilders.termQuery("title.raw", title)
-                ).must(QueryBuilders.termsQuery("authors.name", authorsNames.toArray())))
-                .build();
+        NativeSearchQuery query;
+        if (!authors.isEmpty()){
+            List<String> authorsNames = new ArrayList<>();
+            authors.forEach(author -> authorsNames.add(author.getName()));
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.boolQuery().must(
+                            QueryBuilders.termQuery("title.raw", title)
+                    ).must(QueryBuilders.termsQuery("authors.name", authorsNames.toArray())))
+                    .build();
+        } else  {
+            query = new NativeSearchQueryBuilder()
+                    .withQuery(QueryBuilders.termQuery("title.raw", title))
+                    .build();
+        }
         SearchHit<Paper> paper = template.searchOne(query, Paper.class);
         if (paper == null)
             return null;
