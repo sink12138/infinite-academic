@@ -58,18 +58,7 @@ public class ResearcherParser {
             String[] instNames = instName.split("[;；]");
             instName = instNames[0];
 
-            instName = instName.replace(",", " ");
-            instName = instName.replace("，",  " ");
-            String[] instNameParts = instName.split("\\s+");
-            String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
-            boolean isNum = instNameLastPart.matches(".*\\d{6}$");
-            if (isNum) {
-                ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
-                parts.remove(parts.size() - 1);
-                if (parts.size() > 1 && instNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
-                    parts.remove(parts.size() - 1);
-                instName = String.join(" ", parts);
-            }
+            instName = StringUtil.rmPlaceNameAndCode(instName);
 
             // 检查数据库中是否已有相同姓名和机构的数据库
             Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
@@ -132,18 +121,7 @@ public class ResearcherParser {
                 for (WebElement inst : instElement) {
                     String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]")).getText();
 
-                    corInst = corInst.replace(",", " ");
-                    corInst = corInst.replace("，",  " ");
-                    String[] corInstNameParts = corInst.split("\\s+");
-                    String corInstNameLastPart = corInstNameParts[instNameParts.length - 1].replace(" ", "");
-                    isNum = corInstNameLastPart.matches(".*\\d{6}$");
-                    if (isNum) {
-                        ArrayList<String> parts = new ArrayList<>(Arrays.asList(corInstNameParts));
-                        parts.remove(parts.size() - 1);
-                        if (parts.size() > 1 && corInstNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
-                            parts.remove(parts.size() - 1);
-                        corInst = String.join(" ", parts);
-                    }
+                    corInst = StringUtil.rmPlaceNameAndCode(corInst);
 
                     Institution institution = statusCtrl.existenceService.findInstByName(corInst);
                     if (institution == null) {
