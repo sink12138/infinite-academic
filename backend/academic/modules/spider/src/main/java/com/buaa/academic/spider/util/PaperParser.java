@@ -97,6 +97,9 @@ public class PaperParser {
                 for (WebElement author : authorElement) {
                     String authorName = author.getText();
                     String authorUrl = author.getAttribute("href");
+                    if (!authorUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
+                        authorUrl = "null";
+                    }
                     ResearcherSet.ResearcherObject researcherObject = new ResearcherSet.ResearcherObject(authorUrl, authorName);
                     researcherObjects.add(researcherObject);
                 }
