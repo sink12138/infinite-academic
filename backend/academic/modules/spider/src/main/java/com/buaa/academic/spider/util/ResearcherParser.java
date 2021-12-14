@@ -35,7 +35,10 @@ public class ResearcherParser {
         try {
             driver.get(this.url);
             Thread.sleep(2000);
-
+            String curUrl = driver.getCurrentUrl();
+            if (!curUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
+                return;
+            }
             // 获取作者姓名
             List<WebElement> nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show no-description\"]");
             String researcherName = null;
