@@ -120,7 +120,7 @@ public class StatusCtrl {
         StatusCtrl.subjectAndTopicCrawlerQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
-        StatusCtrl.keywordQueue.addAll(Arrays.asList("信息", "计算机"));
+        StatusCtrl.keywordQueue.addAll(Arrays.asList("北京航空航天大学"));
         Boolean headless = true;
 
         new Thread(errorHandler, "Err-Handler").start();

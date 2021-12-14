@@ -33,10 +33,6 @@ public class SubjectTopicThread implements Runnable {
         statusCtrl.changeRunningStatusTo(threadName, "Subject crawler start...");
         log.info("{} started", threadName);
         PaperParser paperParser = new PaperParser();
-        JournalParser journalParser = new JournalParser();
-        journalParser.setStatusCtrl(statusCtrl);
-        journalParser.setHeadless(headless);
-        paperParser.setJournalParser(journalParser);
         paperParser.setStatusCtrl(statusCtrl);
 
         ChromeDriverService service = null;

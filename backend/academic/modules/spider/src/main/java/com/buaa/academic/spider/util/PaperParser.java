@@ -31,8 +31,6 @@ public class PaperParser {
 
     private StatusCtrl statusCtrl;
 
-    private JournalParser journalParser;
-
     private RemoteWebDriver driver;
 
     public void wanFangSpider() {
@@ -173,6 +171,9 @@ public class PaperParser {
                     if (foundJournal != null) {
                         journal.setId(foundJournal.getId());
                     } else {
+                        foundJournal = new Journal();
+                        journal.setTitle(journalName);
+                        statusCtrl.template.save(foundJournal);
                         crawlNewJournal = true;
                     }
                 }
