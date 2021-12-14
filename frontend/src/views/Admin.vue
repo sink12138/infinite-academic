@@ -215,126 +215,168 @@
         flat
         outlined
       >
-        <v-toolbar>
-          <v-row
-            justify="center" 
-            align="center"
-          >
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-            <v-text-field
-              label="账号搜索"
-              placeholder="请输入用户名或邮箱"
-              filled
-              rounded
-              dense
-              v-model="accountSearch"
-            ></v-text-field>
-            
-            <v-spacer></v-spacer>
-
-            <v-btn 
-              icon
-              @click="searchAccount"
-            >
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </v-row>
-        </v-toolbar>   
-
         <v-card-text>
-          <v-form
-            ref="accountModifyForm"
-            v-model="valid"
-            lazy-validation
+          <v-data-table
+            :headers="headers"
+            :items="accounts"
+            sort-by="id"
+            :options.sync="options"
+            :server-items-length="totalAccounts"
+            :loading="loading"
+            class="account"
           >
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
+            <template v-slot:top>
+              <v-toolbar
+                flat
               >
-                <v-text-field
-                  v-model="accountName"
-                  :counter="10"
-                  :rules="userNameRules"
-                  label="用户名"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
+                <v-toolbar-title>账户管理</v-toolbar-title>
+                <v-divider
+                  inset
+                  vertical
+                ></v-divider>
+                <v-spacer></v-spacer>
 
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
-              >
                 <v-text-field
-                  v-model="accountEmail"
-                  :rules="emailRules"
-                  label="邮箱"
-                  required
+                  v-model="accountSearch"
+                  append-icon="mdi-magnify"
+                  @click:append="searchAccount"
+                  label="账号搜索"
+                  single-line
+                  hide-details
                 ></v-text-field>
-              </v-col>
-            </v-row>
 
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
-              >
-                <v-text-field
-                  v-model="accountPasswords"
-                  :rules="passWordsRules"
-                  label="密码"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
+                <v-checkbox
+                  v-model="scholar"
+                  :label="'是否仅显示学者账户'"
+                ></v-checkbox>
 
-            <v-row>
-              <v-col 
-                clos="12" 
-                sm="4"
-              ></v-col>
-              <v-col 
-                clos="12" 
-                sm="2"
-              >
-                <v-btn
-                  :disabled="!valid"
-                  color="success"
-                  @click="modify"
+                <v-dialog
+                  v-model="dialog"
+                  max-width="500px"
                 >
-                  修改
-                </v-btn>
-              </v-col>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      新增账户
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="text-h5">{{ formTitle }}</span>
+                    </v-card-title>
 
-              <v-col 
-                clos="12" 
-                sm="2"
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col
+                            cols="12"
+                            sm="6"
+                            md="4"
+                          >
+                            <v-text-field
+                              v-model="editedItem.username"
+                              label="用户名"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col
+                            cols="12"
+                            sm="6"
+                            md="4"
+                          >
+                            <v-text-field
+                              v-model="editedItem.password"
+                              label="密码"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col
+                            cols="12"
+                            sm="6"
+                            md="4"
+                          >
+                            <v-text-field
+                              v-model="editedItem.email"
+                              label="注册邮箱"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col
+                            cols="12"
+                            sm="6"
+                            md="4"
+                          >
+                            <v-text-field
+                              v-if="editedIndex != -1"
+                              v-model="editedItem.id"
+                              label="账号ID"
+                            ></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="close"
+                      >
+                        取消
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="save"
+                      >
+                        保存
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
+                <v-dialog v-model="dialogDelete" max-width="500px">
+                  <v-card>
+                    <v-card-title class="text-h5">真的要删除这个账号吗？</v-card-title>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" text @click="closeDelete">再想想</v-btn>
+                      <v-btn color="blue darken-1" text @click="deleteItemConfirm">确定</v-btn>
+                      <v-spacer></v-spacer>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
+              </v-toolbar>
+            </template>
+
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-icon
+                small
+                class="mr-2"
+                @click="editItem(item)"
               >
-                <v-btn
-                  color="primary"
-                  @click="Logout"
-                >
-                  登出
-                </v-btn>
-              </v-col>
-              <v-col 
-                clos="12" 
-                sm="4"
-              ></v-col>
-            </v-row>
-          </v-form>
+                mdi-pencil
+              </v-icon>
+              <v-icon
+                small
+                @click="deleteItem(item)"
+              >
+                mdi-delete
+              </v-icon>
+            </template>
+
+            <template v-slot:no-data>
+              <v-btn
+                color="primary"
+                @click="getAccounts"
+              >
+                重置
+              </v-btn>
+            </template>
+          </v-data-table>
         </v-card-text>
       </v-card>
 
@@ -380,7 +422,7 @@ import { sha256 } from "js-sha256";
 
 export default {
   components: {
-    Banner
+    Banner,
   },
   data() {
     return {
@@ -398,9 +440,8 @@ export default {
         v => !!v || "密码不能为空",
       ],
       accountSearch: "",
-      accountName: "无相关账号信息",
-      accountEmail: "无相关账号信息",
-      accountPasswords: "无相关账号信息",
+      searchEmail: "",
+      searchName: "",
       menu_id: 0,
       menu:[
         {
@@ -439,12 +480,69 @@ export default {
           icon:"mdi-folder",
         },
       ],
+      dialog: false,
+      dialogDelete: false,
+      totalAccounts: 0,
+      options: {},
+      loading: true,
+      page: 0,
+      scholar: false,
+      size: 10,
+      sort: 'date-desc',
+      headers: [
+        {
+          text: '用户名',
+          align: 'start',
+          value: 'username',
+        },
+        { text: '注册邮箱', value: 'email', sortable: false },
+        { text: '注册时间', value: 'date' },
+        { text: 'ID', value: 'id', sortable: false },
+        { text: '研究人员ID', value: 'researcherId', sortable: false },
+        { text: '操作', value: 'actions', sortable: false },
+      ],
+      accounts: [],
+      editedIndex: -1,
+      editedItem: {
+        username: '',
+        email: '',
+        password: '',
+        id: '',
+      },
+      defaultItem: {
+        username: '',
+        email: '',
+        password: '',
+        id: '',
+      },
     }
+  },
+  computed: {
+      formTitle () {
+        return this.editedIndex === -1 ? '新增账号' : '编辑账号'
+      },
+    },
+
+    watch: {
+      dialog (val) {
+        val || this.close()
+      },
+      dialogDelete (val) {
+        val || this.closeDelete()
+      },
+      options: {
+        handler () {
+          this.getAccounts()
+        },
+        deep: true,
+      },
+    },
+  created() {
+    
   },
   methods:{
     setMenu(i) {
       this.menu_id = i;
-      console.log(i)
     },
     Login() {
       let token = window.localStorage.token;
@@ -516,18 +614,6 @@ export default {
         }
       });
     },
-    searchAccount() {
-      if(this.accountSearch.search(/@/) < 0) {
-        this.accountName = this.accountSearch;
-        this.accountEmail = "123@qq.com";
-        this.accountPasswords = "123"
-      }
-      else {
-        this.accountName = "用户名";
-        this.accountEmail = this.accountSearch;
-        this.accountPasswords = "123"
-      }
-    },
     isValid() {
       this.$axios({
         method: "post",
@@ -560,9 +646,280 @@ export default {
             message: "修改成功！",
             type: "success",
       });
-    }
-    
-  }
+    },
+    test () {
+      this.$notify({
+            title: "test",
+            message: "test！",
+            type: "success",
+      });
+    },
+
+    getAccounts () {
+      this.loading = true
+      this.page = this.options.page;
+      this.size = this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
+      if (this.options.sortBy[0] == "username" || this.options.sortBy[0] == "date") {
+        this.sort = this.options.sortBy[0];
+        if (this.options.sortDesc[0] === true){
+          this.sort = this.sort + "-desc"
+        }
+        else {
+          this.sort = this.sort + "-asc"
+        }
+      }
+      else {
+        this.sort = "date-desc"
+      }
+
+      this.$axios({
+        method: "get",
+        url: "api/admin/users/query",
+        params: {
+          page: this.page - 1,
+          scholar: this.scholar,
+          size: this.size,
+          sort: this.sort,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.accounts = response.data.data.items
+          this.totalAccounts = response.data.data.pageCount * this.size
+          this.loading = false
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "账户信息获取失败",
+            type: "warning",
+          });
+          this.loading = false
+        }
+      });
+    },
+    searchAccount () {
+      this.loading = true
+      this.page = this.options.page;
+      this.size = this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
+      if (this.options.sortBy[0] == "username" || this.options.sortBy[0] == "date") {
+        this.sort = this.options.sortBy[0];
+        if (this.options.sortDesc[0] === true){
+          this.sort = this.sort + "-desc"
+        }
+        else {
+          this.sort = this.sort + "-asc"
+        }
+      }
+      else {
+        this.sort = "date-desc"
+      }
+      if (/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(this.accountSearch)) {
+        this.searchEmail = this.accountSearch;
+        this.searchName = "";
+        this.$axios({
+          method: "get",
+          url: "api/admin/users/query",
+          params: {
+            page: this.page - 1,
+            scholar: this.scholar,
+            size: this.size,
+            sort: this.sort,
+            email: this.searchEmail,
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.accounts = response.data.data.items
+            this.totalAccounts = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
+      else if (this.accountSearch == "") {
+        this.getAccounts()
+      }
+      else {
+        this.searchName = this.accountSearch;
+        this.searchEmail = "";
+        this.$axios({
+          method: "get",
+          url: "api/admin/users/query",
+          params: {
+            page: this.page - 1,
+            scholar: this.scholar,
+            size: this.size,
+            sort: this.sort,
+            username: this.searchName,
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.accounts = response.data.data.items
+            this.totalAccounts = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
+    },
+
+    editItem (item) {
+      this.editedIndex = this.accounts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.editedItem['password'] = ""
+      this.dialog = true
+    },
+
+    deleteItem (item) {
+      this.editedIndex = this.accounts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+
+    deleteItemConfirm () {
+      this.$axios({
+        method: "post",
+        url: "api/admin/users/remove",
+        params: {
+          id: this.editedItem.id,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "账号删除成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "账号删除失败",
+            type: "warning",
+          });
+        }
+      });
+      this.closeDelete()
+    },
+
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+      this.getAccounts()
+      this.getAccounts()
+    },
+
+    closeDelete () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+      this.getAccounts()
+    },
+
+    save () {
+      if (this.editedIndex > -1) {
+        console.log(this.editedItem)
+        if (this.editedItem.password.length != 0) {
+          this.$axios({
+            method: "post",
+            url: "api/admin/users/save",
+            params: {
+              username: this.editedItem.username,
+              password: sha256(this.editedItem.password),
+              id: this.editedItem.id,
+              email: this.editedItem.email,
+            },
+          }).then((response) => {
+            console.log(response.data);
+            if (response.data.success === true) {
+              this.$notify({
+                title: "成功",
+                message: "账号修改成功",
+                type: "warning",
+              });
+            } else {
+              this.$notify({
+                title: "失败",
+                message: "账号修改失败",
+                type: "warning",
+              });
+            }
+          });
+        }
+        else {
+          this.$axios({
+            method: "post",
+            url: "api/admin/users/save",
+            params: {
+              username: this.editedItem.username,
+              id: this.editedItem.id,
+              email: this.editedItem.email,
+            },
+          }).then((response) => {
+            console.log(response.data);
+            if (response.data.success === true) {
+              this.$notify({
+                title: "成功",
+                message: "账号修改成功",
+                type: "warning",
+              });
+            } else {
+              this.$notify({
+                title: "失败",
+                message: "账号修改失败",
+                type: "warning",
+              });
+            }
+          });
+        }
+        
+      } else {
+        this.$axios({
+          method: "post",
+          url: "api/admin/users/save",
+          params: {
+            username: this.editedItem.username,
+            password: sha256(this.editedItem.password),
+            email: this.editedItem.email,
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.$notify({
+              title: "成功",
+              message: "新增账号成功",
+              type: "warning",
+            });
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "新增账号失败",
+              type: "warning",
+            });
+          }
+        });
+      }
+      this.close()
+    },
+  },
 }
 </script>
 
