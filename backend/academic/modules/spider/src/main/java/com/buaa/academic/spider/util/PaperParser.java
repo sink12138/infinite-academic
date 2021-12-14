@@ -34,14 +34,15 @@ public class PaperParser {
     public void wanFangSpider() {
         String threadName = Thread.currentThread().getName();
         try {
-            driver.get(this.paperCraw.getUrl());
             Thread.sleep(2000);
             Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
             // 已经爬完了
             if (paper.isCrawled()) {
                 return;
             }
+
             paper.setCrawled(true);
+            driver.get(this.paperCraw.getUrl());
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
             if (titleElement.size() != 0) {
@@ -147,6 +148,7 @@ public class PaperParser {
                     }
                 }
                 paper.setInstitutions(institutions);
+                paper = statusCtrl.template.save(paper);
             }
             // 期刊论文获取期刊内容，学位论文只获取学位授予年份（出版年份）
             if (paper.getType().equals("期刊论文")) {
@@ -204,7 +206,7 @@ public class PaperParser {
                     }
                 }
                 paper.setJournal(journal);
-                statusCtrl.template.save(paper);
+                paper = statusCtrl.template.save(paper);
                 if (crawlNewJournal) {
                     String journalUrl = journalElement.get(0).getAttribute("href");
                     StatusCtrl.journalUrls.add(journalUrl);
@@ -237,7 +239,7 @@ public class PaperParser {
             Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
             sources.add(source);
             paper.setSources(sources);
-            statusCtrl.template.save(paper);
+            paper = statusCtrl.template.save(paper);
 
             // 获取参考文献
             List<String> referenceID = new ArrayList<>();
@@ -431,7 +433,8 @@ public class PaperParser {
             String originalHandle = driver.getWindowHandle();
             Set<String> allHandles = driver.getWindowHandles();
             allHandles.remove(originalHandle);
-            assert allHandles.size() == 1;
+            if (allHandles.size() == 1)
+                return;
             driver.switchTo().window((String) allHandles.toArray()[0]);
             // 添加外链
             String zhiWangUrl = driver.getCurrentUrl();
@@ -440,7 +443,7 @@ public class PaperParser {
                 sources = new ArrayList<>();
             sources.add(new Paper.Source("知网", zhiWangUrl));
             paper.setSources(sources);
-            statusCtrl.template.save(paper);
+            paper = statusCtrl.template.save(paper);
 
             // 获取学科
             List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
