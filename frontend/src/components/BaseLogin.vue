@@ -16,7 +16,6 @@
           </v-icon>
         </v-btn>
       </template>
-
       <v-list dense>
         <v-list-item
           v-for="(item, index) in items"
@@ -136,7 +135,16 @@
               </v-col>
               <v-col cols="12">
                 <v-text-field
-                  v-model="password"
+                  v-model="code"
+                  label="验证码*"
+                  :rules="codeRules"
+                  required
+                  v-if="inputNewPassword === true"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="newPassword"
                   label="密码*"
                   type="password"
                   :rules="passwordRules"
@@ -148,6 +156,12 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="isFindPassword = false"
+            v-if="isFindPassword === true"
+          >返回</v-btn>
           <v-spacer></v-spacer>
           <v-btn
             color="blue darken-1"
@@ -182,11 +196,13 @@ export default {
     });
   },
   data: () => ({
+    code: "",
     email: "",
     password: "",
-    FindPassword: "",
+    findEmail: "",
+    newPassword: "",
     dialog: false,
-    isLogin: false,
+    isLogin:false,
     isRouterAlive: true,
     isFindPassword: false,
     inputNewPassword: false,
@@ -195,10 +211,11 @@ export default {
       (v) => /.+@.+/.test(v) || "邮箱无效",
     ],
     passwordRules: [(v) => !!v || "密码未填写"],
+    codeRules: [(v) => !!v || "验证码未填写"],
     items: [
       {
         title: "个人中心",
-        url: "profile",
+        url: "/user/profile",
       },
       {
         title: "认证学者",
@@ -280,14 +297,70 @@ export default {
         }
       });
     },
-    FindPassword() {
-      this.isFindPassword = true;
-    },
     sendCode() {
-      this.inputNewPassword = true;
+      console.log(this.findEmail);
+      if (this.findEmail === "") {
+        this.$notify({
+          title: "错误",
+          message: "邮箱未填写",
+          type: "warning",
+        });
+      } else {
+        this.$axios({
+          method: "post",
+          url: "/api/account/code",
+          params: {
+            email: this.findEmail,
+            action: "找回密码",
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success) {
+            this.$notify({
+              title: "发送成功",
+              message: "请去邮箱查看验证码",
+              type: "success",
+            });
+            this.inputNewPassword = true;
+          } else {
+            this.$notify({
+              title: "发送错误",
+              message: "请检查邮箱是否正确",
+              type: "warning",
+            });
+          }
+        });
+      }
     },
     changePassword() {
-
+      console.log(this.newPassword);
+      if (this.newPassword === "") {
+        this.$notify({
+          title: "错误",
+          message: "密码未填写",
+          type: "warning",
+        });
+      } else {
+        this.$axios({
+          method: "post",
+          url: "/api/account/forget/submit",
+          params: {
+            newPassword: sha256(this.newPassword),
+            code: this.code,
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.$notify({
+              title: "修改成功",
+              message: "请记住您修改的密码",
+              type: "success",
+            });
+            this.inputNewPassword = false;
+            this.isFindPassword = false;
+          }
+        });
+      }
     },
   },
 };
