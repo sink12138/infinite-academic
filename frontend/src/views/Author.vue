@@ -19,7 +19,9 @@
               <h3>邮箱:{{email}}</h3>
               <h3>g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
               <h3>文章数量:{{paperNum}}  专利数量:{{patentNum}}  引用次数:{{citationNum}}</h3>
-              <h3>邮箱:{{email}}</h3>
+              <h3>现工作单位:{{currentInst.name}}</h3>
+              <h3 style="text-align:left;float:left">曾工作单位:</h3>
+              <h3 style="text-align:left;float:left" v-for="i in institutions.length" :key="i">{{institutions[i-1].name}}&emsp;&emsp;</h3>
             </div>
           </v-col>
         </v-row>

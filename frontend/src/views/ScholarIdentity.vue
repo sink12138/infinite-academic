@@ -153,12 +153,20 @@
       <br/>
     </div>
     <v-snackbar
-      v-model="snackbar"
+      v-model="snackbarEmail"
       top
       timeout=3000
       color="red"
     >
       请输入真实的邮箱号
+    </v-snackbar>
+    <v-snackbar
+      v-model="snackbarSub"
+      top
+      timeout=3000
+      color="green"
+    >
+      申请成功!
     </v-snackbar>
   </div>
 </template>
@@ -182,7 +190,8 @@
           vertifyCode:"",
           time:0,
           portals:[],
-          snackbar:false,
+          snackbarEmail:false,
+          snackbarSub:false,
           currentInst:{
             id:"",
             name:""
@@ -219,7 +228,7 @@
               }
             },1000)
         }else{
-          this.snackbar=true
+          this.snackbarEmail=true
         }
         
       },
@@ -268,6 +277,7 @@
           }
         }).then(response => {
           console.log(response.data)
+          this.snackbarSub=true
         }).catch(error => {
           console.log(error)
         })
