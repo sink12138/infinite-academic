@@ -33,8 +33,9 @@ public class SmartSearchRequest {
     private boolean translated;
 
     @Valid
+    @NotNull
     @Size(max = 5)
-    @ApiModelProperty(value = "数值或逻辑过滤条件")
+    @ApiModelProperty(value = "过滤条件，可为空不可为null", required = true)
     private List<@SearchFilter Filter> filters;
 
     @PositiveOrZero

@@ -39,7 +39,7 @@ public class SearchFilterValidator implements ConstraintValidator<SearchFilter, 
             if (filter == null)
                 return false;
             // Attr checks
-            if (filter.getAttr() == null || !filter.getAttr().matches("^[a-z][a-zA-Z_0-9]*$"))
+            if (filter.getAttr() == null)
                 return false;
             FilterFormat format = filter.getFormat();
             FilterType type = filter.getType();

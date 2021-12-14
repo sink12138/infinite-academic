@@ -30,7 +30,7 @@ public class SearchRequest {
     @Valid
     @NotNull
     @Size(max = 5)
-    @ApiModelProperty(value = "数值或逻辑过滤条件，可为空不可为null", required = true)
+    @ApiModelProperty(value = "过滤条件，可为空不可为null", required = true)
     private List<@NotNull @SearchFilter Filter> filters;
 
     @PositiveOrZero

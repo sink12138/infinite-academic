@@ -691,7 +691,7 @@ public class SearchController {
         // Sort check
         if (srt != null) {
             switch (srt) {
-                case "filingDate.asc", "filingDate.desc" -> {}
+                case "fillingDate.asc", "fillingDate.desc" -> {}
                 default -> {
                     return result.withFailure(ExceptionType.INVALID_PARAM);
                 }
