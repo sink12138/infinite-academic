@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PaperCard 
+    <PaperCard
       v-for="item in items"
       :key="item.id"
       :item="item"
@@ -11,11 +11,9 @@
 
 <script>
 import PaperCard from '../components/BasePaperCard.vue'
-import UserMenu from '../components/UserMenu.vue'
 
 export default {
   components: {
-    UserMenu,
     PaperCard
   },
   data:() =>  ({
