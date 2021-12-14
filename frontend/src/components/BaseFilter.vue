@@ -1,42 +1,121 @@
 <template>
   <v-card>
-    <FilterYearPicker v-on:handleYear="handleYear"  v-show="this.showType != '期刊' && this.showType != '机构'"></FilterYearPicker>
+    <FilterYearPicker
+      v-on:handleYear="handleYear"
+      v-show="this.showType == '论文' || this.showType == '全部'"
+    ></FilterYearPicker>
     <v-divider></v-divider>
     <v-select
-      v-show="showType == '论文'"
-      class="select"
-      v-model="filter.paperType"
-      :items="paperTypes"
-      hide-details
-      prepend-inner-icon="mdi-dots-grid"
-      background-color="grey lighten-2"
-      filled
-      @change="emit()"
-    ></v-select>
+        v-show="showType == '论文'||showType == '全部'"
+        class="select"
+        v-model="filter.paperSort"
+        :items="paperSorts"
+        hide-details
+        prepend-inner-icon="mdi-dots-grid"
+        background-color="grey lighten-2"
+        filled
+        @change="emit()"
+      ></v-select>
+      <v-divider></v-divider>
+    <div v-show="showType == '论文'">
+      <v-col>
+        <v-text-field
+          label="类型"
+          v-model="filter.paperType.type"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="作者"
+          v-model="filter.paperType.authors"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="发表机构"
+          v-model="filter.paperType.institutions"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="刊登期刊"
+          v-model="filter.paperType.journal"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
+    <div v-show="showType == '专利'">
+      <v-select
+        class="select"
+        v-model="filter.patentSort"
+        :items="patentSorts"
+        hide-details
+        prepend-inner-icon="mdi-dots-grid"
+        background-color="grey lighten-2"
+        filled
+        @change="emit()"
+      ></v-select>
+      <v-divider></v-divider>
+      <v-col>
+        <v-text-field
+          label="类型"
+          v-model="filter.patentType.type"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="申请人"
+          v-model="filter.patentType.applicant"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="发明人"
+          v-model="filter.patentType.inventors"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
     <v-divider></v-divider>
-    <v-select
-      v-show="showType == '专利'"
-      class="select"
-      v-model="filter.patentType"
-      :items="patentTypes"
-      hide-details
-      prepend-inner-icon="mdi-dots-grid"
-      background-color="grey lighten-2"
-      filled
-      @change="emit()"
-    ></v-select>
-    <v-divider></v-divider>
-    <v-select
-      v-show="showType == '科研人员'"
-      class="select"
-      v-model="filter.researcherType"
-      :items="researcherTypes"
-      hide-details
-      prepend-inner-icon="mdi-dots-grid"
-      background-color="grey lighten-2"
-      filled
-      @change="emit()"
-    ></v-select>
+    <div v-show="showType == '科研人员'">
+      <v-select
+        class="select"
+        v-model="filter.researcherSort"
+        :items="researcherSorts"
+        hide-details
+        prepend-inner-icon="mdi-dots-grid"
+        background-color="grey lighten-2"
+        filled
+        @change="emit()"
+      ></v-select>
+      <v-divider></v-divider>
+      <v-col>
+        <v-text-field
+          label="研究方向"
+          v-model="filter.researcherType.interests"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="所属机构"
+          v-model="filter.researcherType.currentInst"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-text-field
+          label="合作机构"
+          v-model="filter.researcherType.institutions"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
     <v-divider></v-divider>
     <v-select
       v-show="showType == '精确'"
@@ -50,7 +129,10 @@
       @change="emit()"
     ></v-select>
     <v-divider></v-divider>
-    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
+    <div
+      class="checkbox"
+      v-show="this.showType != '期刊' && this.showType != '机构'"
+    >
       <header class="checkboxLabel">学科</header>
       <v-checkbox
         class="checkboxitem"
@@ -63,7 +145,10 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
+    <div
+      class="checkbox"
+      v-show="this.showType != '期刊' && this.showType != '机构'"
+    >
       <header class="checkboxLabel">作者</header>
       <v-checkbox
         class="checkboxItem"
@@ -76,7 +161,10 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
+    <div
+      class="checkbox"
+      v-show="this.showType != '期刊' && this.showType != '机构'"
+    >
       <header class="checkboxLabel">期刊</header>
       <v-checkbox
         class="checkboxItem"
@@ -89,7 +177,10 @@
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
-    <div class="checkbox"  v-show="this.showType != '期刊' && this.showType != '机构'">
+    <div
+      class="checkbox"
+      v-show="this.showType != '期刊' && this.showType != '机构'"
+    >
       <header class="checkboxLabel">机构</header>
       <v-checkbox
         class="checkboxItem"
@@ -115,15 +206,16 @@ export default {
     return {
       menu: false,
       showType: "全部",
-      paperTypes: [
-        "标题/摘要/关键词/学科",
-        "论文类别",
-        "作者姓名",
-        "机构名称",
-        "期刊名称",
+      paperSorts: ["相关度排序", "出版日期正序", "出版日期倒序", "引用数量"],
+      patentSorts: ["相关度排序", "申请日期正序", "申请日期倒序"],
+      researcherSorts: [
+        "相关度排序",
+        "论文数量",
+        "专利数量",
+        "引用数量",
+        "h指数",
+        "g指数",
       ],
-      patentTypes: ["标题/摘要","类型","申请人","发明人"],
-      researcherTypes: ["姓名","研究方向","相关机构"],
       queryTypes: ["doi", "issn", "patentNum"],
       filter: {
         year1: 1900,
@@ -132,9 +224,25 @@ export default {
         authors_selected: [],
         journals_selected: [],
         institutions_selected: [],
-        paperType: "标题/摘要/关键词/学科",
-        patentType: "标题/摘要",
-        researcherType: "姓名",
+        paperType: {
+          type: "",
+          authors: "",
+          institutions: "",
+          journal: "",
+        },
+        paperSort: "相关度排序",
+        patentType: {
+          type: "",
+          applicant: "",
+          inventors: "",
+        },
+        patentSort: "相关度排序",
+        researcherType: {
+          interests: "",
+          currentInst: "",
+          institutions: "",
+        },
+        researcherSort: "相关度排序",
         queryType: "doi",
       },
       topics: ["a", "b", "c", "d", "e"],

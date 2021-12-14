@@ -1,118 +1,284 @@
 <template>
   <div>
     <Banner :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"></Banner>
-    
-      <BaseSearchBar
-        ref="searchBar"
-        v-on:searchResult="searchResult"
-        v-on:filterChange="filterChange"
-      ></BaseSearchBar>
-      <v-card>
-        <v-col>
-      <BaseFilter
-        class="filter"
-        ref="filter"
-        v-on:handleFilter="handleFilter"
-      ></BaseFilter>
-    </v-col>
-    <v-col>
-    <div>
-      <div :class="(filter==='期刊'||filter==='机构') ? result : result1">
-        <v-expansion-panels>
-          <v-expansion-panel
-            v-for="(item, index) in results"
-            :key="index"
-            expandable
-          >
-            <div v-if="item.authors != null">
-              <v-expansion-panel-header>
-                {{ index + 1 }}
-              </v-expansion-panel-header>
-              <div>
-                <span class="itemTitle">
-                  <p v-html="item.title"></p>
-                </span>
-              </div>
-              <div>
-                <h4>
-                  <span v-if="item.journal != null"
-                    ><a @click="goToJournal(item.journal)">{{
-                      item.journal.title
-                    }}</a></span
-                  >
-                </h4>
-              </div>
-              <div>
-                <h4>
-                  <span v-if="item.type != null">类别:{{ item.type }}</span>
-                </h4>
-              </div>
-              <div>
-                <span>
-                  作者:
-                  <i v-for="(author, idx) in item.authors" :key="idx">
-                    &nbsp;<a @click="goToAuthor(author)">{{ author.name }}</a>
-                  </i>
-                </span>
-              </div>
-              <div v-if="item.keywords != null" class="itemInfo">
-                <span>
-                  关键词:&nbsp;
-                  <i
-                    v-for="(keyword, idx) in item.keywords"
-                    :key="idx"
-                    v-html="keyword + ' '"
-                  ></i>
-                </span>
-              </div>
-              <div v-if="item.abstract != null" class="itemInfo">
-                <span>摘要：{{ item.abstract }}</span>
-              </div>
-              <div v-if="item.date != null" class="itemInfo">
-                <span>发表日期:{{ item.date }}</span>
-              </div>
-              <div v-if="item.citationNum != null" class="itemInfo">
-                <span>引用:{{ item.citationNum }}</span>
-              </div>
-              <v-btn color="blue" text @click="goToPaper(item)">
-                查看全文
-              </v-btn>
-              <v-btn color="blue" text> 转发 </v-btn>
-              <v-btn color="blue" text> 引用 </v-btn>
 
-              <v-spacer></v-spacer>
+    <BaseSearchBar
+      ref="bar"
+      v-on:searchResult="searchResult"
+      v-on:filterChange="filterChange"
+    ></BaseSearchBar>
+    <v-card>
+      <v-col>
+        <BaseFilter
+          class="filter"
+          ref="filter"
+          v-on:handleFilter="handleFilter"
+        ></BaseFilter>
+      </v-col>
+      <v-col>
+        <div>
+          <div class="result">
+            <div v-if="data.correction != null">
+              <span
+                >已为您推荐&nbsp;<i v-html="data.correction"></i
+                >&nbsp;的结果</span
+              >
             </div>
-            <div v-else-if="item.sponsor != null">
-              <v-expansion-panel-header>
-                {{ index + 1 }}
-              </v-expansion-panel-header>
-              <div>
-                <span class="itemTitle">
-                  <p v-html="item.title"></p>
-                </span>
+            <div v-if="data.detection != null">
+              <div v-if="data.detection == 'journal'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 期刊 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('journal', item.id)"
+                        v-html="item.title"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                    <v-card-text>
+                      <span> {{ item.sponsor }} </span>
+                    </v-card-text>
+                  </v-card>
+                </div>
               </div>
-              <div>
-                <h4>
-                  <span>主办单位:{{ item.sponsor }}</span>
-                </h4>
+              <div v-else-if="data.detection == 'researcher'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 科研人员 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('author', item.id)"
+                        v-html="item.name"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                    <v-card-subtitle class="pb-0">
+                      <span> 研究方向:{{ item.interests }} </span>
+                      &nbsp;
+                      <a
+                        v-if="item.institution"
+                        @click="href('institution', item.institution.id)"
+                      >
+                        {{ item.institution.name }} </a
+                      >&nbsp;
+                      <span v-if="item.citationNum">
+                        被引量:{{ item.citationNum }}
+                      </span>
+                      <span v-if="item.paperNum">
+                        已发表文章:{{ item.paperNum }}
+                      </span>
+                      <span v-if="item.patentNum">
+                        专利数量:{{ item.patentNum }}
+                      </span>
+                    </v-card-subtitle>
+                  </v-card>
+                </div>
               </div>
-              <v-spacer></v-spacer>
+              <div v-else-if="data.detection == 'institution'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 机构 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('institution', item.id)"
+                        v-html="item.name"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                  </v-card>
+                </div>
+              </div>
             </div>
-            <div v-else-if="item.interests != null">
-              <v-spacer></v-spacer>
+            <div v-for="item in results" :key="item.id">
+              <div v-if="item.authors != null">
+                <!-- 论文 -->
+                <v-card class="text-left my-2" max-width="650">
+                  <v-card-title class="d-flex">
+                    <v-icon class="mx-1">
+                      mdi-text-box-multiple-outline
+                    </v-icon>
+                    <a @click="href('paper', item.id)" v-html="item.title"></a>
+                    <v-spacer></v-spacer>
+                    <v-btn icon>
+                      <v-icon>mdi-comma-box</v-icon>
+                    </v-btn>
+                  </v-card-title>
+                  <v-card-subtitle class="pb-0">
+                    <span
+                      v-if="item.date"
+                      v-text="item.date.substr(0, 4)"
+                    ></span
+                    >&nbsp;
+                    <a
+                      v-if="item.journal"
+                      @click="href('journal', item.journal.id)"
+                    >
+                      {{ item.journal.title }} </a
+                    >&nbsp;
+                    <span>被引量:{{ item.citationNum }}</span>
+                  </v-card-subtitle>
+                  <v-card-text class="pb-0">
+                    <span
+                      v-for="(author, idx) in item.authors"
+                      :key="author.id"
+                    >
+                      <a
+                        v-if="idx == item.authors.length - 1"
+                        @click="href('author', author.id)"
+                        >{{ author.name }}</a
+                      >
+                      <a v-else @click="href('author', author.id)">{{
+                        author.name + ","
+                      }}</a>
+                    </span>
+                  </v-card-text>
+                  <v-card-text class="pt-2 pb-0">
+                    <span
+                      class="mx-1"
+                      v-for="keyword in item.keywords"
+                      :key="keyword"
+                      v-html="keyword"
+                    >
+                      <v-btn small outlined>
+                        <v-icon small> mdi-tag-outline </v-icon>
+                      </v-btn>
+                    </span>
+                  </v-card-text>
+                  <v-card-text>
+                    <span v-if="item.abstract"> {{ item.abstract }} </span>
+                  </v-card-text>
+                </v-card>
+              </div>
+              <div v-else-if="item.sponsor != null">
+                <!-- 期刊 -->
+                <v-card class="text-left my-2" max-width="650">
+                  <v-card-title class="d-flex">
+                    <v-icon class="mx-1">
+                      mdi-text-box-multiple-outline
+                    </v-icon>
+                    <a
+                      @click="href('journal', item.id)"
+                      v-html="item.title"
+                    ></a>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                  <v-card-text>
+                    <span> {{ item.sponsor }} </span>
+                  </v-card-text>
+                </v-card>
+              </div>
+              <div v-else-if="item.applicant != null">
+                <!-- 专利 -->
+                <v-card class="text-left my-2" max-width="650">
+                  <v-card-title class="d-flex">
+                    <v-icon class="mx-1">
+                      mdi-text-box-multiple-outline
+                    </v-icon>
+                    <a @click="href('paper', item.id)" v-html="item.title"></a>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                  <v-card-subtitle class="pb-0">
+                    <span v-if="item.fillingDate">
+                      申请日:{{ item.fillingDate.substr(0, 4) }} </span
+                    >&nbsp;
+                    <span v-if="item.publicationDate">
+                      公开日:{{ item.publicationDate.substr(0, 4) }} </span
+                    >&nbsp; <span>申请人:{{ item.applicant }}</span
+                    >&nbsp;
+                  </v-card-subtitle>
+                  <v-card-text class="pb-0">
+                    <span
+                      v-for="(inventor, idx) in item.inventors"
+                      :key="inventor.id"
+                    >
+                      <a
+                        v-if="idx == item.inventors.length - 1"
+                        @click="href('author', inventor.id)"
+                        >{{ inventor.name }}</a
+                      >
+                      <a v-else @click="href('author', inventor.id)">{{
+                        inventor.name + ","
+                      }}</a>
+                    </span>
+                  </v-card-text>
+                </v-card>
+              </div>
+              <div v-else-if="item.interests != null">
+                <!-- 科研人员 -->
+                <v-card class="text-left my-2" max-width="650">
+                  <v-card-title class="d-flex">
+                    <v-icon class="mx-1">
+                      mdi-text-box-multiple-outline
+                    </v-icon>
+                    <a @click="href('author', item.id)" v-html="item.name"></a>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                  <v-card-subtitle class="pb-0">
+                    <span> 研究方向:{{ item.interests }} </span>
+                    &nbsp;
+                    <a
+                      v-if="item.institution"
+                      @click="href('institution', item.institution.id)"
+                    >
+                      {{ item.institution.name }} </a
+                    >&nbsp;
+                    <span v-if="item.citationNum">
+                      被引量:{{ item.citationNum }}
+                    </span>
+                    <span v-if="item.paperNum">
+                      已发表文章:{{ item.paperNum }}
+                    </span>
+                    <span v-if="item.patentNum">
+                      专利数量:{{ item.patentNum }}
+                    </span>
+                  </v-card-subtitle>
+                </v-card>
+              </div>
+              <div v-else>
+                <!-- 机构 -->
+                <v-card class="text-left my-2" max-width="650">
+                  <v-card-title class="d-flex">
+                    <v-icon class="mx-1">
+                      mdi-text-box-multiple-outline
+                    </v-icon>
+                    <a
+                      @click="href('institution', item.id)"
+                      v-html="item.name"
+                    ></a>
+                    <v-spacer></v-spacer>
+                  </v-card-title>
+                </v-card>
+              </div>
             </div>
-            <div v-else-if="item.applicant != null">
-              <v-spacer></v-spacer>
+            <div v-if="results.length != 0">
+              <v-row></v-row>
+              <v-row>
+                <v-col>
+                  当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="跳转至"
+                    v-model="jumpPage"
+                    append-icon="mdi-magnify"
+                    @click:append="pageChange"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
             </div>
-            <div v-else>
-              <v-spacer></v-spacer>
-            </div>
-            <v-expansion-panel-content> </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
-    </div>
-    </v-col>
+          </div>
+        </div>
+      </v-col>
     </v-card>
   </div>
 </template>
@@ -138,10 +304,24 @@ export default {
         journals_selected: [],
         institutions_selected: [],
         paperType: "标题/摘要/关键词/学科",
-        patentType: "标题/摘要",
-        researcherType: "姓名",
+        patentType: {
+          type: "",
+          applicant: "",
+          inventors: "",
+        },
+        patentSort: "相关度排序",
+        researcherType: {
+          interests: "",
+          currentInst: "",
+          institutions: "",
+        },
+        researcherSort: "相关度排序",
         queryType: "doi",
       },
+      jumpPage: 1,
+      page: 1,
+      length: 1,
+      itemNum: 0,
       filter: "全部",
       results: [],
       data: {},
@@ -149,6 +329,12 @@ export default {
     };
   },
   methods: {
+    href(type, id) {
+      this.$router.push({
+        path: type,
+        query: { id: id },
+      });
+    },
     goToPaper(paper) {
       console.log(paper.id);
     },
@@ -162,15 +348,20 @@ export default {
       this.filters = filter;
     },
     searchResult(data) {
-      console.log("搜索结果");
       this.data = data;
-      console.log(this.data);
       this.results = this.data.items;
+      this.page = this.data.page + 1;
+      this.length = this.data.totalPages;
+      this.itemNum = this.data.totalHits;
+    },
+    pageChange() {
+      if (this.jumpPage > this.totalPages) this.jumpPage = this.totalPages;
+      this.$refs.bar.page = this.jumpPage - 1;
+      this.$refs.bar.search();
     },
     filterChange(filter) {
       this.filter = filter;
       this.$refs.filter.showType = filter;
-      console.log(this.$refs.filter.showType);
     },
   },
 };
@@ -184,12 +375,8 @@ export default {
   margin-top: 30px;
   margin-left: 30px;
   margin-bottom: 50px;
-  float:left;
+  float: left;
   width: 50%;
-}
-.result1{
-  margin-left: 10%;
-  margin-right: 10%;
 }
 .itemTitle {
   font-size: 20px;

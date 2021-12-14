@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@mdi/js": "^6.5.95",
     "axios": "^0.24.0",
     "core-js": "^3.19.1",
     "decoder": "^1.1.6",
