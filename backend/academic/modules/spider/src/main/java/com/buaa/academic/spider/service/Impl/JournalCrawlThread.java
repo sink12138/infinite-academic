@@ -61,23 +61,17 @@ public class JournalCrawlThread implements Runnable{
                         return;
                     }
                 }
-                JournalObject journal = StatusCtrl.journalUrls.poll();
-                if (journal == null) {
+                String journalUrl = StatusCtrl.journalUrls.poll();
+                if (journalUrl == null) {
                     Thread.sleep(2000);
                     continue;
                 }
 
                 JournalParser journalParser = new JournalParser();
                 journalParser.setDriver(driver);
-                journalParser.setUrl(journal.getJournalUrl());
+                journalParser.setUrl(journalUrl);
                 journalParser.setStatusCtrl(statusCtrl);
                 journalParser.wanFangSpider();
-
-                String journalId = journalParser.getJournal().getId();
-                Paper paper = statusCtrl.template.get(journal.getPaperId(), Paper.class);
-                assert paper != null;
-                paper.getJournal().setId(journalId);
-                statusCtrl.template.save(paper);
 
             } catch (Exception e) {
                 e.printStackTrace();

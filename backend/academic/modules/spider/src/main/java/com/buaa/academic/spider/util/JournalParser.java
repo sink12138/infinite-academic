@@ -37,9 +37,10 @@ public class JournalParser {
                 String allTitle = name.getText();
                 String subTitle = name.findElement(By.xpath(".//wf-block")).getText();
                 String title = allTitle.replace(subTitle, "");
-                title = title.replace("\n", "");
+                title = title.strip();
                 journal = statusCtrl.existenceService.findJournalByName(title);
-            }
+            } else
+                return;
 
             assert journal != null;
             statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Get info of journal: " + journal.getTitle());

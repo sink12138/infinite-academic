@@ -34,7 +34,7 @@ public class StatusCtrl {
     public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<JournalObject> journalUrls = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<String> journalUrls = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> sourceQueue = new ConcurrentLinkedQueue<>();
 
     public static ConcurrentHashMap<String, String> runningStatus = new ConcurrentHashMap<>();

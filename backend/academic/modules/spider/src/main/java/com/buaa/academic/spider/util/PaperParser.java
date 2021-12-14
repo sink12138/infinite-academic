@@ -175,6 +175,7 @@ public class PaperParser {
                         foundJournal = new Journal();
                         foundJournal.setTitle(journalName);
                         statusCtrl.template.save(foundJournal);
+                        journal.setId(foundJournal.getId());
                         crawlNewJournal = true;
                     }
                 }
@@ -217,7 +218,7 @@ public class PaperParser {
                 statusCtrl.template.save(paper);
                 if (crawlNewJournal) {
                     String journalUrl = journalElement.get(0).getAttribute("href");
-                    StatusCtrl.journalUrls.add(new JournalObject(paper.getId(), journalUrl));
+                    StatusCtrl.journalUrls.add(journalUrl);
                 }
             } else if (paper.getType().equals("学位论文")) {
                 // 获取学位授予年份
@@ -437,6 +438,7 @@ public class PaperParser {
             }
             // 切换页面
             actions.click(target).perform();
+            Thread.sleep(1000);
             String originalHandle = driver.getWindowHandle();
             Set<String> allHandles = driver.getWindowHandles();
             allHandles.remove(originalHandle);
