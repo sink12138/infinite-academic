@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CrawlerQueueInitThread implements Runnable {
 
-    private String keyword;
-
     private StatusCtrl statusCtrl;
 
     private Boolean headless;
@@ -24,16 +22,18 @@ public class CrawlerQueueInitThread implements Runnable {
     @Override
     public void run() {
         statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Crawler queue init start...");
-
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningQueueInitThreadNum ++;
         }
-        String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
-        SearchParser searchParser = new SearchParser();
-        searchParser.setHeadless(headless);
-        searchParser.setStatusCtrl(statusCtrl);
-        searchParser.setUrl(url);
-        searchParser.wanFangSpider();
+        while (StatusCtrl.keywordQueue.size() != 0) {
+            String keyword = StatusCtrl.keywordQueue.poll();
+            String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
+            SearchParser searchParser = new SearchParser();
+            searchParser.setHeadless(headless);
+            searchParser.setStatusCtrl(statusCtrl);
+            searchParser.setUrl(url);
+            searchParser.wanFangSpider();
+        }
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningQueueInitThreadNum --;
         }

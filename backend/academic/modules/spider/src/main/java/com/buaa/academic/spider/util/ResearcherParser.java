@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
@@ -59,19 +58,17 @@ public class ResearcherParser {
             String[] instNames = instName.split("[;；]");
             instName = instNames[0];
 
-            if (instName.contains(",") || instName.contains("，")) {
-                String[] instNameParts = instName.contains(",") ? instName.split(",") : instName.split("，");
-                String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
-                boolean isNum = instNameLastPart.matches(".*\\d{6}$");
-                if (isNum) {
-                    ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
+            instName = instName.replace(",", " ");
+            instName = instName.replace("，",  " ");
+            String[] instNameParts = instName.split("\\s+");
+            String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
+            boolean isNum = instNameLastPart.matches(".*\\d{6}$");
+            if (isNum) {
+                ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
+                parts.remove(parts.size() - 1);
+                if (parts.size() > 1 && instNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
                     parts.remove(parts.size() - 1);
-                    instName = String.join(" ", parts);
-                }
-            } else {
-                if (instName.matches(".*\\d{6}$")) {
-                    instName = instName.substring(0, instName.indexOf(' '));
-                }
+                instName = String.join(" ", parts);
             }
 
             // 检查数据库中是否已有相同姓名和机构的数据库
@@ -132,19 +129,17 @@ public class ResearcherParser {
                 for (WebElement inst : instElement) {
                     String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]")).getText();
 
-                    if (corInst.contains(",") || corInst.contains("，")) {
-                        String[] corInstNameParts = corInst.contains(",") ? corInst.split(",") : corInst.split("，");
-                        String corInstNameLastPart = corInstNameParts[corInstNameParts.length - 1].replace(" ", "");
-                        boolean isNum = corInstNameLastPart.matches(".*\\d{6}$");
-                        if (isNum) {
-                            ArrayList<String> parts = new ArrayList<>(Arrays.asList(corInstNameParts));
+                    corInst = corInst.replace(",", " ");
+                    corInst = corInst.replace("，",  " ");
+                    String[] corInstNameParts = corInst.split("\\s+");
+                    String corInstNameLastPart = corInstNameParts[instNameParts.length - 1].replace(" ", "");
+                    isNum = corInstNameLastPart.matches(".*\\d{6}$");
+                    if (isNum) {
+                        ArrayList<String> parts = new ArrayList<>(Arrays.asList(corInstNameParts));
+                        parts.remove(parts.size() - 1);
+                        if (parts.size() > 1 && corInstNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
                             parts.remove(parts.size() - 1);
-                            corInst = String.join(" ", parts);
-                        }
-                    } else {
-                        if (corInst.matches(".*\\d{6}$")) {
-                            corInst = corInst.substring(0, corInst.indexOf(' '));
-                        }
+                        corInst = String.join(" ", parts);
                     }
 
                     Institution institution = statusCtrl.existenceService.findInstByName(corInst);
