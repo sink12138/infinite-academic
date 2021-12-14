@@ -96,7 +96,7 @@ public class StatusCtrl {
     @Autowired
     public ResearcherRepository researcherRepository;
 
-    private List<String> keywords = List.of("数据挖掘");
+    private List<String> keywords = List.of("从Optus案看云计算环境下版权法“时移”规则的变迁");
 
     private int mainInfoThreadNum;
 

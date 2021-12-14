@@ -121,19 +121,17 @@ public class PaperParser {
                     String[] instNames = instNameText.split("[；;]");
                     for (String instName : instNames) {
                         Paper.Institution inst = new Paper.Institution();
-                        if (instName.contains(",") || instName.contains("，")) {
-                            String[] instNameParts = instName.contains(",") ? instName.split(",") : instName.split("，");
-                            String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
-                            boolean isNum = instNameLastPart.matches(".*\\d{6}$");
-                            if (isNum) {
-                                ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
+                        instName = instName.replace(",", " ");
+                        instName = instName.replace("，",  " ");
+                        String[] instNameParts = instName.split("\\s+");
+                        String instNameLastPart = instNameParts[instNameParts.length - 1].replace(" ", "");
+                        boolean isNum = instNameLastPart.matches(".*\\d{6}$");
+                        if (isNum) {
+                            ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
+                            parts.remove(parts.size() - 1);
+                            if (parts.size() > 1 && instNameLastPart.length() == 6)
                                 parts.remove(parts.size() - 1);
-                                instName = String.join(" ", parts);
-                            }
-                        } else {
-                            if (instName.matches(".*\\d{6}$")) {
-                                instName = instName.substring(0, instName.indexOf(' '));
-                            }
+                            instName = String.join(" ", parts);
                         }
                         statusCtrl.changeRunningStatusTo(threadName, "Get info of the institution with name: " + instName);
                         // find inst by name
