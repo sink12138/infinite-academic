@@ -81,8 +81,7 @@ public class PaperSourceThread implements Runnable {
                 paperParser.baiduSpider();
 
             } catch (Exception e) {
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         }
     }

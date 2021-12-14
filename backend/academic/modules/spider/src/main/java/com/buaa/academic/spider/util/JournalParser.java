@@ -71,7 +71,7 @@ public class JournalParser {
             statusCtrl.journalRepository.save(journal);
             this.journal = journal;
         } catch (Exception e) {
-            e.printStackTrace();
+            StatusCtrl.errorHandler.report(e);
         }
     }
 }

@@ -181,7 +181,7 @@ public class ResearcherParser {
             statusCtrl.researcherRepository.save(researcher);
             this.researcher = researcher;
         } catch (Exception e) {
-            e.printStackTrace();
+            StatusCtrl.errorHandler.report(e);
         }
     }
 
@@ -241,7 +241,7 @@ public class ResearcherParser {
             driver.close();
             driver.switchTo().window(originalHandle);
         } catch (Exception e) {
-            e.printStackTrace();
+            StatusCtrl.errorHandler.report(e);
         }
     }
 }

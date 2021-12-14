@@ -93,8 +93,7 @@ public class PaperMainInfoThread implements Runnable{
 
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         }
     }

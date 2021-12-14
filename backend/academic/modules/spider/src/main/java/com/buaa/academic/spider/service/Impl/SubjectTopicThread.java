@@ -82,8 +82,7 @@ public class SubjectTopicThread implements Runnable {
 
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         }
 

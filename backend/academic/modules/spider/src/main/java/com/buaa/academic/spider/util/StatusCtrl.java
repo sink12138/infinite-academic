@@ -48,27 +48,30 @@ public class StatusCtrl {
 
         private int errorNum;
 
-        public synchronized void report() {
+        public synchronized void report(Exception e) {
             ++errorNum;
+            log.info("Reported error ({} recent): {}", errorNum, e.getMessage());
         }
 
         @Override
         public void run() {
             /* Shut down all threads if number of errors reaches 30 in 5 minutes */
-            final int threshold = 30;
-            final int period = 300;
+            int threshold = 30;
+            int period = 300;
             for (int loop = 0; errorNum < threshold; loop = (loop + 1) % period) {
                 if (StatusCtrl.jobStopped) {
                     return;
                 }
-                if (errorNum >= threshold / 3 * 2) {
-                    log.warn("Number of errors reached 2/3 of the threshold within {} seconds", period);
-                }
-                else if (errorNum >= threshold / 3) {
-                    log.warn("Number of errors reached 1/3 of the threshold within {} seconds", period);
-                }
                 if (loop == 0)
                     errorNum = 0;
+                else if (loop % (period / 5) == 0) {
+                    if (errorNum >= threshold / 3 * 2) {
+                        log.warn("Number of errors reached 2/3 of the threshold within {} seconds", period);
+                    }
+                    else if (errorNum >= threshold / 3) {
+                        log.warn("Number of errors reached 1/3 of the threshold within {} seconds", period);
+                    }
+                }
                 try {
                     Thread.sleep(1000);
                 }

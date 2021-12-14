@@ -95,8 +95,7 @@ public class ResearcherCrawlerThread implements Runnable{
                 statusCtrl.template.save(paper);
 
             } catch (Exception e) {
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         }
     }

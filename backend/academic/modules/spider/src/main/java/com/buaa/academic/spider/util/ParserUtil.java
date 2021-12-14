@@ -18,8 +18,7 @@ public abstract class ParserUtil {
                 driver = new ChromeDriver(options);
                 success = true;
             } catch (Exception e) {
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         } while (!success && !StatusCtrl.jobStopped);
         return driver;
@@ -33,8 +32,7 @@ public abstract class ParserUtil {
                 service = ChromeDriverService.createDefaultService();
                 success = true;
             } catch (Exception e) {
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         } while (!success && !StatusCtrl.jobStopped);
         return service;

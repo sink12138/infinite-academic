@@ -40,7 +40,7 @@ public class CrawlerQueueInitThread implements Runnable {
             try {
                 searchParser.wanFangSpider();
             } catch (Exception e) {
-                e.printStackTrace();
+                StatusCtrl.errorHandler.report(e);
             }
         }
         synchronized (StatusCtrl.queueLock) {

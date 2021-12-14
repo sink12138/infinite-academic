@@ -34,8 +34,7 @@ public class SearchParser {
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         driver.get(this.url);
         Thread.sleep(2000);
-        boolean continueCrawl;
-        do {
+        while (true) {
             try {
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
                 if (searchResult.size() != 0) {
@@ -77,7 +76,8 @@ public class SearchParser {
                             paper.setCitationNum(0);
                             if (type.equals("期刊论文")) {
                                 paper.setType("期刊论文");
-                            } else {
+                            }
+                            else {
                                 paper.setType("学位论文");
                             }
                             // insert paper into database
@@ -102,8 +102,8 @@ public class SearchParser {
                             sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
                             sourceObj.setPaperId(paper.getId());
                             StatusCtrl.sourceQueue.add(sourceObj);
-
-                        } else if (paper != null && !paper.isCrawled()) {
+                        }
+                        else if (paper != null && !paper.isCrawled()) {
                             newPaper++;
                             String url = driver.getCurrentUrl();
                             paperObject.setUrl(url);
@@ -122,24 +122,22 @@ public class SearchParser {
                 }
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if (nextElement.size() == 0) {
-                    continueCrawl = false;
-                    System.out.println("nextElement.size() == 0");
-                } else {
+                    break;
+                }
+                else {
                     WebElement next = nextElement.get(0);
                     if (!next.getAttribute("style").equals("display: none;")) {
                         Actions actions = new Actions(driver);
                         actions.click(next).perform();
                         Thread.sleep(2000);
-                        continueCrawl = true;
-                    } else {
-                        continueCrawl = false;
                     }
+                    else break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                continueCrawl = true;
             }
-        } while (continueCrawl);
+            catch (Exception e) {
+                StatusCtrl.errorHandler.report(e);
+            }
+        }
         driver.close();
         driver.quit();
     }

@@ -74,8 +74,7 @@ public class JournalCrawlThread implements Runnable{
                 journalParser.wanFangSpider();
 
             } catch (Exception e) {
-                e.printStackTrace();
-                StatusCtrl.errorHandler.report();
+                StatusCtrl.errorHandler.report(e);
             }
         }
     }
