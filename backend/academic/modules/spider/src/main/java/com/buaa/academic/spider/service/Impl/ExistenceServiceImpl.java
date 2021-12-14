@@ -6,6 +6,7 @@ import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.document.system.Trash;
 import com.buaa.academic.spider.service.ExistenceService;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -87,10 +88,17 @@ public class ExistenceServiceImpl implements ExistenceService {
     public Boolean inTrash(String title, List<Paper.Author> authors) {
         List<String> authorsNames = new ArrayList<>();
         authors.forEach(author -> authorsNames.add(author.getName()));
+        QueryBuilder queryBuilder;
+        if (authors.isEmpty()) {
+            queryBuilder = QueryBuilders.termQuery("title", title);
+        }
+        else {
+            queryBuilder = QueryBuilders.boolQuery()
+                    .must(QueryBuilders.termQuery("title", title))
+                    .must(QueryBuilders.termsQuery("authors", authorsNames.toArray()));
+        }
         NativeSearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.boolQuery().must(
-                        QueryBuilders.termQuery("title", title)
-                ).must(QueryBuilders.termsQuery("authors", authorsNames.toArray())))
+                .withQuery(queryBuilder)
                 .build();
         SearchHit<Trash> trashSearchHit = template.searchOne(query, Trash.class);
         return trashSearchHit != null;

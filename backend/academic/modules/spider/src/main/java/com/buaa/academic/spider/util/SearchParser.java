@@ -64,10 +64,12 @@ public class SearchParser {
                                 authorList.add(paperAuthor);
                             }
                         }
+                        if (statusCtrl.existenceService.inTrash(titleName, authorList))
+                            continue;
                         crawledPaper++;
                         // find paper by referTitle and referAuthorName
                         Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
-                        if (paper == null && !statusCtrl.existenceService.inTrash(titleName, authorList)) {
+                        if (paper == null) {
                             newPaper++;
                             paper = new Paper();
                             paper.setTitle(titleName);
@@ -103,7 +105,7 @@ public class SearchParser {
                             sourceObj.setPaperId(paper.getId());
                             StatusCtrl.sourceQueue.add(sourceObj);
                         }
-                        else if (paper != null && !paper.isCrawled()) {
+                        else if (!paper.isCrawled()) {
                             newPaper++;
                             String url = driver.getCurrentUrl();
                             paperObject.setUrl(url);
@@ -115,10 +117,8 @@ public class SearchParser {
                             sourceObj.setPaperId(paper.getId());
                             StatusCtrl.sourceQueue.add(sourceObj);
                         }
-
-                        statusCtrl.changeRunningStatusTo(threadName, "Crawl paper num: " + crawledPaper +
-                                "; New paper num: " + newPaper);
                     }
+                    statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + "crawled, " + newPaper + " new");
                 }
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if (nextElement.size() == 0) {
