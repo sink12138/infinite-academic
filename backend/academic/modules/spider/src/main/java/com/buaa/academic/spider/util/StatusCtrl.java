@@ -14,11 +14,13 @@ import com.buaa.academic.spider.service.Impl.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.select.Evaluator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class StatusCtrl {
     public static final Object queueLock = new Object();
 
+    public static ConcurrentLinkedQueue<String> keywordQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
@@ -96,7 +99,7 @@ public class StatusCtrl {
     @Autowired
     public ResearcherRepository researcherRepository;
 
-    private List<String> keywords = List.of("人工智能");
+    private int queueInitThreadNum;
 
     private int mainInfoThreadNum;
 
@@ -117,12 +120,13 @@ public class StatusCtrl {
         StatusCtrl.subjectAndTopicCrawlerQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
+        StatusCtrl.keywordQueue.addAll(Arrays.asList("信息", "计算机"));
         Boolean headless = true;
 
         new Thread(errorHandler, "Err-Handler").start();
-        for (String keyword: keywords) {
-            Thread thread = new Thread(new CrawlerQueueInitThread(keyword, this, headless));
-            String threadName = "Queue:" + keyword;
+        for (int i = 0; i < queueInitThreadNum; i++) {
+            Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
+            String threadName = "QueueInit-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();

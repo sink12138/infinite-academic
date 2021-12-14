@@ -66,7 +66,7 @@ public class ResearcherParser {
             if (isNum) {
                 ArrayList<String> parts = new ArrayList<>(Arrays.asList(instNameParts));
                 parts.remove(parts.size() - 1);
-                if (parts.size() > 1 && instNameLastPart.length() == 6)
+                if (parts.size() > 1 && instNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
                     parts.remove(parts.size() - 1);
                 instName = String.join(" ", parts);
             }
@@ -137,7 +137,7 @@ public class ResearcherParser {
                     if (isNum) {
                         ArrayList<String> parts = new ArrayList<>(Arrays.asList(corInstNameParts));
                         parts.remove(parts.size() - 1);
-                        if (parts.size() > 1 && corInstNameLastPart.length() == 6)
+                        if (parts.size() > 1 && corInstNameLastPart.length() == 6 && parts.get(parts.size() - 1).length() < 3)
                             parts.remove(parts.size() - 1);
                         corInst = String.join(" ", parts);
                     }

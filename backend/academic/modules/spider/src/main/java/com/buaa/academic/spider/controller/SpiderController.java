@@ -44,6 +44,7 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
+        statusCtrl.setQueueInitThreadNum(2);
         statusCtrl.setMainInfoThreadNum(5);
         statusCtrl.setPaperSourceThreadNum(3);
         statusCtrl.setResearcherThreadNum(3);
@@ -81,7 +82,7 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         if (statusCtrl.isRunning())
             return result.withFailure("Has been running");
-        statusCtrl.setKeywords(keywords);
+        StatusCtrl.keywordQueue.addAll(keywords);
         return result;
     }
 }
