@@ -91,7 +91,10 @@ public class ResearcherCrawlerThread implements Runnable{
                     researcherParser.setStatusCtrl(this.statusCtrl);
                     researcherParser.setUrl(researcherObject.getUrl());
                     researcherParser.wanFangSpider();
-                    authors.add(new Paper.Author(researcherParser.getResearcher().getId(), researcherObject.getName()));
+                    if (researcherParser.getResearcher() != null)
+                        authors.add(new Paper.Author(researcherParser.getResearcher().getId(), researcherObject.getName()));
+                    else
+                        authors.add(new Paper.Author(null, researcherObject.getName()));
                 }
 
                 Paper paper = statusCtrl.existenceService.findPaperById(paperId);
