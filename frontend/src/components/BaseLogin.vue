@@ -46,7 +46,7 @@
       v-model="dialog"
       persistent
       max-width="600px"
-      v-if="isLogin === false"
+      v-if="isLogin === false && isFindPassword === false"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
@@ -55,12 +55,11 @@
           dark
           v-bind="attrs"
           v-on="on"
-          @click="isClickLogin = true"
         >
           登录
         </v-btn>
       </template>
-      <v-card v-if="isClickLogin === true">
+      <v-card>
         <v-card-title>
           <span class="headline">登录</span>
         </v-card-title>
@@ -88,13 +87,11 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <router-link to='/password'>
-            <v-btn
-              color="blue darken-1"
-              text
-            >找回密码</v-btn>
-          </router-link>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="isFindPassword=true"
+          >找回密码</v-btn>
           <router-link to='/register'>
             <v-btn
               color="blue darken-1"
@@ -106,6 +103,7 @@
             text
             @click="closeDialog()"
           >关闭</v-btn>
+          <v-spacer></v-spacer>
           <v-btn
             color="blue darken-1"
             text
@@ -114,7 +112,58 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <router-view v-if="isRouterAlive"></router-view>
+    <v-dialog
+      v-model="dialog"
+      persistent
+      max-width="600px"
+      v-if="isFindPassword === true"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="headline">找回密码</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="findEmail"
+                  label="邮箱*"
+                  :rules="emailRules"
+                  required
+                  v-if="inputNewPassword === false"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="password"
+                  label="密码*"
+                  type="password"
+                  :rules="passwordRules"
+                  required
+                  v-if="inputNewPassword === true"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="sendCode()"
+            v-if="inputNewPassword === false"
+          >发送验证码</v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="changePassword()"
+            v-if="inputNewPassword === true"
+          >修改密码</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -135,10 +184,12 @@ export default {
   data: () => ({
     email: "",
     password: "",
+    FindPassword: "",
     dialog: false,
-    isClickLogin: false,
     isLogin: false,
     isRouterAlive: true,
+    isFindPassword: false,
+    inputNewPassword: false,
     emailRules: [
       (v) => !!v || "邮箱未填写",
       (v) => /.+@.+/.test(v) || "邮箱无效",
@@ -228,6 +279,15 @@ export default {
           });
         }
       });
+    },
+    FindPassword() {
+      this.isFindPassword = true;
+    },
+    sendCode() {
+      this.inputNewPassword = true;
+    },
+    changePassword() {
+
     },
   },
 };
