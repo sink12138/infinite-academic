@@ -29,7 +29,7 @@ public class JournalParser {
         try {
             driver.get(this.url);
             Thread.sleep(2000);
-            Journal journal = null;
+            Journal journal;
             // 获取期刊标题
             List<WebElement> nameElement = driver.findElementsByXPath("//h1[@class=\"lh-36 m-b-5 fs-24 fw-500\"]");
             if (nameElement.size() != 0) {
@@ -42,7 +42,9 @@ public class JournalParser {
             } else
                 return;
 
-            assert journal != null;
+            if (journal == null)
+                return;
+
             statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Get info of journal: " + journal.getTitle());
 
             // 获取期刊封面

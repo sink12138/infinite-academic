@@ -127,7 +127,7 @@ public class StatusCtrl {
         StatusCtrl.subjectAndTopicCrawlerQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
-        StatusCtrl.keywordQueue.addAll(List.of("信息", "计算", "网络", "系统", "算法", "研究"));
+        StatusCtrl.keywordQueue.addAll(List.of("visual", "算法", "image", "卷积", "database", "最短"));
         boolean headless = true;
 
         new Thread(errorHandler, "Error-Handler").start();
