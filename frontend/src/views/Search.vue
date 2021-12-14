@@ -18,6 +18,87 @@
       <v-col>
         <div>
           <div class="result">
+            <div v-if="data.correction != null">
+              <span
+                >已为您推荐&nbsp;<i v-html="data.correction"></i
+                >&nbsp;的结果</span
+              >
+            </div>
+            <div v-if="data.detection != null">
+              <div v-if="data.detection == 'journal'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 期刊 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('journal', item.id)"
+                        v-html="item.title"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                    <v-card-text>
+                      <span> {{ item.sponsor }} </span>
+                    </v-card-text>
+                  </v-card>
+                </div>
+              </div>
+              <div v-else-if="data.detection == 'researcher'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 科研人员 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('author', item.id)"
+                        v-html="item.name"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                    <v-card-subtitle class="pb-0">
+                      <span> 研究方向:{{ item.interests }} </span>
+                      &nbsp;
+                      <a
+                        v-if="item.institution"
+                        @click="href('institution', item.institution.id)"
+                      >
+                        {{ item.institution.name }} </a
+                      >&nbsp;
+                      <span v-if="item.citationNum">
+                        被引量:{{ item.citationNum }}
+                      </span>
+                      <span v-if="item.paperNum">
+                        已发表文章:{{ item.paperNum }}
+                      </span>
+                      <span v-if="item.patentNum">
+                        专利数量:{{ item.patentNum }}
+                      </span>
+                    </v-card-subtitle>
+                  </v-card>
+                </div>
+              </div>
+              <div v-else-if="data.detection == 'institution'">
+                <div v-for="item in recommendation" :key="item.id">
+                  <!-- 机构 -->
+                  <v-card class="text-left my-2" max-width="650">
+                    <v-card-title class="d-flex">
+                      <v-icon class="mx-1">
+                        mdi-text-box-multiple-outline
+                      </v-icon>
+                      <a
+                        @click="href('institution', item.id)"
+                        v-html="item.name"
+                      ></a>
+                      <v-spacer></v-spacer>
+                    </v-card-title>
+                  </v-card>
+                </div>
+              </div>
+            </div>
             <div v-for="item in results" :key="item.id">
               <div v-if="item.authors != null">
                 <!-- 论文 -->
@@ -223,8 +304,18 @@ export default {
         journals_selected: [],
         institutions_selected: [],
         paperType: "标题/摘要/关键词/学科",
-        patentType: "标题/摘要",
-        researcherType: "姓名",
+        patentType: {
+          type: "",
+          applicant: "",
+          inventors: "",
+        },
+        patentSort: "相关度排序",
+        researcherType: {
+          interests: "",
+          currentInst: "",
+          institutions: "",
+        },
+        researcherSort: "相关度排序",
         queryType: "doi",
       },
       jumpPage: 1,
@@ -257,16 +348,13 @@ export default {
       this.filters = filter;
     },
     searchResult(data) {
-      console.log("搜索结果");
       this.data = data;
-      console.log(this.data);
       this.results = this.data.items;
       this.page = this.data.page + 1;
       this.length = this.data.totalPages;
       this.itemNum = this.data.totalHits;
     },
     pageChange() {
-      console.log("page");
       if (this.jumpPage > this.totalPages) this.jumpPage = this.totalPages;
       this.$refs.bar.page = this.jumpPage - 1;
       this.$refs.bar.search();
@@ -274,7 +362,6 @@ export default {
     filterChange(filter) {
       this.filter = filter;
       this.$refs.filter.showType = filter;
-      console.log(this.$refs.filter.showType);
     },
   },
 };
