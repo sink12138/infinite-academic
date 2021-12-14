@@ -5,6 +5,7 @@ import com.buaa.academic.model.exception.AcademicException;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.security.Authority;
 import com.buaa.academic.model.web.Result;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -36,8 +37,8 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
 
     private static String adminAuth;
 
-    @Resource
-    private RedisTemplate<String, Authority> redisTemplate;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${auth.max-inactive-interval}")
     private long maxInactiveInterval;
@@ -82,7 +83,7 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
         /* Retrieve & validate cookie value */
         HttpCookie cookie = request.getCookies().getFirst("TOKEN");
         String token = cookie == null ? null : cookie.getValue();
-        Authority authority = token == null ? null : redisTemplate.opsForValue().get(token);
+        Authority authority = token == null ? null : (Authority) redisTemplate.opsForValue().get(token);
         if (authority != null) {
             /* For requests without admin authority, reset their inactive interval */
             if (!authority.isAdmin()) {
@@ -124,13 +125,15 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                 }
                 case "admin" -> {
                     switch (secondaryUrl) {
-                        case "login", "logout", "auth" -> {}
+                        case "login", "logout", "auth" -> {
+                            return chain.filter(exchange);
+                        }
                         default -> {
                             if (!authority.isAdmin())
                                 throw new AcademicException(ExceptionType.UNAUTHORIZED);
+                            authHeader = adminAuth;
                         }
                     }
-                    return chain.filter(exchange);
                 }
                 default -> {
                     return chain.filter(exchange);

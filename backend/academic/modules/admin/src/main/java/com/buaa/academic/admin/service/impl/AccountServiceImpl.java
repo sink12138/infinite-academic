@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
     private ElasticsearchRestTemplate elasticTemplate;
 
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private MessageRepository messageRepository;

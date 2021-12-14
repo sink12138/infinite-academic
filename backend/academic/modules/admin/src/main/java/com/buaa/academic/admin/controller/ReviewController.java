@@ -50,7 +50,7 @@ public class ReviewController {
     private ElasticsearchRestTemplate elasticTemplate;
 
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private ReviewService reviewService;

@@ -19,7 +19,7 @@ public class ApplicationServiceImpl<T> implements ApplicationService<T> {
     @Autowired
     ApplicationRepository applicationRepository;
 
-    @Resource
+    @Autowired
     RedisTemplate<String, Object> redisTemplate;
 
     @Override
