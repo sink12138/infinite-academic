@@ -35,11 +35,15 @@ public class ResearcherParser {
             driver.get(this.url);
             Thread.sleep(2000);
 
-            // 获取作者姓名
-            List<WebElement> nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show no-description\"]");
             String researcherName = null;
             String instName = null;
-            if (nameElement.size() != 0) {
+
+            // 获取作者姓名
+            List<WebElement> nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show no-description\"]");
+            if (nameElement.isEmpty()) {
+                nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show\"]");
+            }
+            if (!nameElement.isEmpty()) {
                 researcherName = nameElement.get(0).getText();
             }
 
@@ -47,7 +51,10 @@ public class ResearcherParser {
 
             // 获取当前机构名称
             List<WebElement> curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name \"]");
-            if (curInstElement.size() != 0) {
+            if (curInstElement.isEmpty()) {
+                curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name\"]");
+            }
+            if (!curInstElement.isEmpty()) {
                 instName = curInstElement.get(0).getText();
             }
             if (researcherName == null || instName == null) {
