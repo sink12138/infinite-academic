@@ -85,6 +85,7 @@ public class ResearcherParser {
                     institution.setName(instName);
                     // add into database
                     statusCtrl.institutionRepository.save(institution);
+                    statusCtrl.researcherRepository.save(researcher);
                 }
                 curInstitution.setId(institution.getId());
                 curInstitution.setName(instName);
@@ -95,6 +96,7 @@ public class ResearcherParser {
                 statusCtrl.researcherRepository.save(researcher);
                 return;
             }
+
 
             // 获取科研人员的H、G指数
             List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li");
@@ -122,6 +124,7 @@ public class ResearcherParser {
                 actions.click(morePoint).perform();
                 Thread.sleep(1000);
             }
+
             // 获取合作机构
             List<WebElement> instElement = driver.findElementsByXPath("//div[@class=\"bottom-list\"]");
             if (instElement.size() != 0) {
@@ -156,6 +159,7 @@ public class ResearcherParser {
                 }
                 researcher.setInstitutions(corInstitutions);
             }
+
             // add researcher into database
             statusCtrl.researcherRepository.save(researcher);
 

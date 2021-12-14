@@ -33,11 +33,7 @@ public class PaperMainInfoThread implements Runnable{
         }
 
         PaperParser paperParser = new PaperParser();
-        JournalParser journalParser = new JournalParser();
-        journalParser.setStatusCtrl(statusCtrl);
-        journalParser.setHeadless(headless);
         paperParser.setStatusCtrl(statusCtrl);
-        paperParser.setJournalParser(journalParser);
 
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
