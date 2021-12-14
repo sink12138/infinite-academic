@@ -157,7 +157,7 @@ public class AccountController {
     @PostMapping("/code")
     public Result<Void> sendVerifyCode(@RequestHeader(value = "Auth", required = false) String userId,
                                        @RequestParam(value = "email") @Email String email,
-                                       @RequestParam(value = "action") @AllowValues({"找回密码", "学者认证"})  @NotNull String action) {
+                                       @RequestParam(value = "action") @AllowValues({"找回密码", "学者认证"}) @NotNull String action) {
         User tmpUser;
         if (userId != null) {
             tmpUser = template.get(userId, User.class);
@@ -189,9 +189,4 @@ public class AccountController {
         return new Result<>();
     }
 
-    @ApiOperation(value = "用于测试跨域")
-    @GetMapping("/echo")
-    public String echo(@RequestParam(value = "str") String str) {
-        return str;
-    }
 }
