@@ -190,7 +190,7 @@ public class PaperParser {
                     if (volume.contains("(") && volume.contains(")")) {
                         issue = volume.substring(volume.indexOf("(") + 1, volume.indexOf(")"));
                     } else {
-                        issue = "null";
+                        issue = null;
                     }
 
                     volume = volume.replaceAll("\\([0-9]*\\)", "");
