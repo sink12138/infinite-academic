@@ -233,7 +233,7 @@ public class PaperParser {
             if (publishElement.size() != 0) {
                 String date = publishElement.get(0).getText();
                 date = date.replace("（万方平台首次上网日期，不代表论文的发表时间）", "");
-                date = date.replace("\n", "").replace(" ", "");
+                date = date.replaceAll("\\s+", "");
                 paper.setDate(date);
             } else {
                 if (paper.getYear() != null) {
@@ -567,7 +567,6 @@ public class PaperParser {
                 }
             } while (true);
             statusCtrl.paperRepository.save(paper);
-            // driver.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

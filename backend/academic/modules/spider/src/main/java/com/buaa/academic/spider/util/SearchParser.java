@@ -123,6 +123,7 @@ public class SearchParser {
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if (nextElement.size() == 0) {
                     continueCrawl = false;
+                    System.out.println("nextElement.size() == 0");
                 } else {
                     WebElement next = nextElement.get(0);
                     if (!next.getAttribute("style").equals("display: none;")) {
