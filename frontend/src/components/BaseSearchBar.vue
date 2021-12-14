@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import qs from "qs";
+//import qs from 'qs'
 export default {
   data() {
     return {
@@ -505,16 +505,12 @@ export default {
         }
         case "精确": {
           url = url + "/query";
-          this.request = {
-            key: this.text,
-            type: this.type,
-          };
           break;
         }
       }
-      console.log(JSON.stringify(this.request));
       console.log(url);
       if (this.filter != "精确") {
+        console.log(JSON.stringify(this.request));
         this.$axios({
           method: "post",
           url: url,
@@ -532,7 +528,10 @@ export default {
         this.$axios({
           method: "post",
           url: url,
-          data: qs.stringify(this.request),
+          params:{
+            key:this.text,
+            type:this.filters.queryType,
+          }
         })
           .then((response) => {
             console.log(response.data);
