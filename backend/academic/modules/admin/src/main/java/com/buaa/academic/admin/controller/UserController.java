@@ -31,7 +31,7 @@ import java.util.Date;
 @RestController
 @RequestMapping("/users")
 @Validated
-@Api(tags = "后台审核相关")
+@Api(tags = "用户管理相关")
 public class UserController {
 
     @Autowired
@@ -110,12 +110,12 @@ public class UserController {
             @ApiImplicitParam(name = "id", value = "用户ID，若不传此字段或ID不存在代表新建，否则代表修改"),
             @ApiImplicitParam(name = "email", value = "邮箱", required = true),
             @ApiImplicitParam(name = "username", value = "用户名", required = true),
-            @ApiImplicitParam(name = "password", value = "密码（SHA256Hex后）", required = true)})
+            @ApiImplicitParam(name = "password", value = "密码（SHA256Hex后），不传代表不修改密码")})
     public Result<Void> save(@RequestHeader(name = "Auth") String auth,
                              @RequestParam(name = "id", required = false) @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id,
                              @RequestParam(name = "email") @Email String email,
                              @RequestParam(name = "username") @NotBlank String username,
-                             @RequestParam(name = "password") String password) {
+                             @RequestParam(name = "password", required = false) String password) {
         Result<Void> result = new Result<>();
         if (!authValidator.headerCheck(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
@@ -126,6 +126,12 @@ public class UserController {
         if (user == null) {
             user = new User(email, username, password);
             user.setDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        }
+        else {
+            user.setEmail(email);
+            user.setUsername(username);
+            if (password != null)
+                user.setPassword(password);
         }
         template.save(user);
         return result;
