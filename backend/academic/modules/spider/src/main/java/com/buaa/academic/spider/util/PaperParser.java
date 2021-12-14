@@ -447,6 +447,8 @@ public class PaperParser {
             // 添加外链
             String zhiWangUrl = driver.getCurrentUrl();
             List<Paper.Source> sources = paper.getSources();
+            if (sources == null)
+                sources = new ArrayList<>();
             sources.add(new Paper.Source("知网", zhiWangUrl));
             paper.setSources(sources);
             statusCtrl.template.save(paper);

@@ -109,6 +109,11 @@ public class SearchParser {
                             paperObject.setUrl(url);
                             paperObject.setPaperId(paper.getId());
                             StatusCtrl.paperObjectQueue.add(paperObject);
+                            
+                            PaperObject sourceObj = new PaperObject();
+                            sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
+                            sourceObj.setPaperId(paper.getId());
+                            StatusCtrl.sourceQueue.add(sourceObj);
                         }
 
                         statusCtrl.changeRunningStatusTo(threadName, "Crawl paper num: " + crawledPaper +

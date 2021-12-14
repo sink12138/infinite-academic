@@ -124,7 +124,7 @@ public class StatusCtrl {
         StatusCtrl.subjectAndTopicCrawlerQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
-        StatusCtrl.keywordQueue.addAll(List.of("人工智能", "数据挖掘", "深度学习", "自然语言处理", "云计算", "大数据"));
+        StatusCtrl.keywordQueue.addAll(List.of("信息", "计算", "网络", "系统", "算法", "研究"));
         boolean headless = true;
 
         new Thread(errorHandler, "Error-Handler").start();
