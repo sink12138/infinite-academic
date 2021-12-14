@@ -172,7 +172,7 @@ public class PaperParser {
                         journal.setId(foundJournal.getId());
                     } else {
                         foundJournal = new Journal();
-                        journal.setTitle(journalName);
+                        foundJournal.setTitle(journalName);
                         statusCtrl.template.save(foundJournal);
                         crawlNewJournal = true;
                     }
