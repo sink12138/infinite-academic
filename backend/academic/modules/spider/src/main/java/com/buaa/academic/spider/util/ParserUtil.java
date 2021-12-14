@@ -12,21 +12,31 @@ public abstract class ParserUtil {
     public static RemoteWebDriver getDriver(Boolean headless) {
         ChromeOptions options = new ChromeOptions().setHeadless(headless).addArguments("--blink-settings=imagesEnabled=false");
         RemoteWebDriver driver = null;
-        boolean success;
+        boolean success = false;
         do {
             try {
                 driver = new ChromeDriver(options);
                 success = true;
             } catch (Exception e) {
                 e.printStackTrace();
-                success = false;
                 StatusCtrl.errorHandler.report();
             }
-        } while (!success);
+        } while (!success && !StatusCtrl.jobStopped);
         return driver;
     }
 
     public static ChromeDriverService getDriverService() throws IOException {
-        return ChromeDriverService.createDefaultService();
+        ChromeDriverService service = null;
+        boolean success = false;
+        do {
+            try {
+                service = ChromeDriverService.createDefaultService();
+                success = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                StatusCtrl.errorHandler.report();
+            }
+        } while (!success && !StatusCtrl.jobStopped);
+        return service;
     }
 }

@@ -1,7 +1,5 @@
 package com.buaa.academic.spider.service.Impl;
 
-import com.buaa.academic.document.entity.Paper;
-import com.buaa.academic.spider.model.queueObject.JournalObject;
 import com.buaa.academic.spider.util.JournalParser;
 import com.buaa.academic.spider.util.ParserUtil;
 import com.buaa.academic.spider.util.StatusCtrl;
@@ -30,7 +28,7 @@ public class JournalCrawlThread implements Runnable{
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
-        int period = 100;
+        int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
             try {
                 if (service == null || driver == null) {
@@ -46,8 +44,10 @@ public class JournalCrawlThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    driver.quit();
-                    service.stop();
+                    if (driver != null)
+                        driver.quit();
+                    if (service != null)
+                        service.stop();
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     log.info("{} stopped", threadName);
                     return;

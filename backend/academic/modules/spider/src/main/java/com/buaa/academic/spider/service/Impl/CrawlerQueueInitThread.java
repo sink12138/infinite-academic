@@ -37,7 +37,11 @@ public class CrawlerQueueInitThread implements Runnable {
             searchParser.setHeadless(headless);
             searchParser.setStatusCtrl(statusCtrl);
             searchParser.setUrl(url);
-            searchParser.wanFangSpider();
+            try {
+                searchParser.wanFangSpider();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         synchronized (StatusCtrl.queueLock) {
             StatusCtrl.runningQueueInitThreadNum --;

@@ -2,7 +2,6 @@ package com.buaa.academic.spider.util;
 
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
-import com.buaa.academic.spider.model.queueObject.JournalObject;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import com.buaa.academic.spider.repository.InstitutionRepository;
@@ -45,7 +44,7 @@ public class StatusCtrl {
     public static Date lastRun;
 
     @Slf4j
-    public static class ErrorHandler implements Runnable {
+    public static class ErrorHandler extends Thread {
 
         private int errorNum;
 
@@ -58,7 +57,7 @@ public class StatusCtrl {
             /* Shut down all threads if number of errors reaches 30 in 5 minutes */
             final int threshold = 30;
             final int period = 300;
-            for (int loop = 0; errorNum < threshold; loop = (loop + 1) / period) {
+            for (int loop = 0; errorNum < threshold; loop = (loop + 1) % period) {
                 if (StatusCtrl.jobStopped) {
                     return;
                 }

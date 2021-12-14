@@ -36,7 +36,7 @@ public class ResearcherCrawlerThread implements Runnable{
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
-        int period = 100;
+        int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
             try {
                 if (service == null || driver == null) {
@@ -52,11 +52,10 @@ public class ResearcherCrawlerThread implements Runnable{
                 }
 
                 if (StatusCtrl.jobStopped) {
-                    if (driver != null) {
+                    if (driver != null)
                         driver.quit();
-                        assert service != null;
+                    if (service != null)
                         service.stop();
-                    }
                     statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
                     log.info("{} stopped", threadName);
                     return;
