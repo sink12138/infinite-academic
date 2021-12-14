@@ -12,7 +12,10 @@ const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
-const Profile = () => import("../views/profile/Profile.vue");
+
+const User = () => import("../views/user/User.vue")
+const Profile = () => import("../views/user/Profile.vue")
+const Apply = () => import("../views/user/Apply.vue")
 const Door = () => import("../views/Door.vue")
 const ScholarIdentity = () => import("../views/ScholarIdentity.vue")
 
@@ -74,9 +77,21 @@ const routes = [{
     component: Register
   },
   {
-    path: '/profile',
-    name: 'Profile',
-    component: Profile
+    path: '/user',
+    name: 'User',
+    component: User,
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: Profile
+      },
+      {
+        path: 'apply',
+        name: 'Apply',
+        component: Apply
+      }
+    ]
   },
   {
     path: '/door',
