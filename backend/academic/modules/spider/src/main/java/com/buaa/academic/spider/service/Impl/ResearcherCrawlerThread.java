@@ -81,6 +81,10 @@ public class ResearcherCrawlerThread implements Runnable{
                 ArrayList<Paper.Author> authors = new ArrayList<>();
 
                 for (ResearcherSet.ResearcherObject researcherObject : researcherSet.getResearcherObjects()) {
+                    if (researcherObject.getUrl() == null) {
+                        authors.add(new Paper.Author(null, researcherObject.getName()));
+                        continue;
+                    }
                     ResearcherParser researcherParser = new ResearcherParser();
                     researcherParser.setDriver(driver);
                     researcherParser.setHeadless(headless);

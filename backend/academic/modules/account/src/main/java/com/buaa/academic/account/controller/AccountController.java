@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -92,7 +91,7 @@ public class AccountController {
                               @RequestParam(value = "email") @Email  @NotNull String email,
                               @RequestParam(value = "password") @NotNull String password) {
         if (token != null && accountService.getAuthorityByToken(token) != null) {
-            return new Result<Void>().withFailure("当前账户已登录");
+            return new Result<>();
         }
         User user = accountRepository.findUserByEmail(email);
         if (user == null) {
