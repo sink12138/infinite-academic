@@ -1,6 +1,7 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Institution;
+import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -214,6 +215,7 @@ public class ResearcherParser {
                 }
                 this.researcher.setInterests(interests);
             }
+            // H\G指数
             List<WebElement> indexElement = driver.findElementsByXPath("//ul[@class=\"p_ach_wr\"]//li[@class=\"p_ach_item\"]");
             if (indexElement.size() != 0) {
                 for (WebElement index:indexElement) {
@@ -228,6 +230,33 @@ public class ResearcherParser {
                     }
                 }
             }
+            List<Researcher.Institution> corInsts = this.researcher.getInstitutions();
+            if (corInsts == null) {
+                corInsts = new ArrayList<>();
+                // 合作机构
+                List<WebElement> corInstElement = driver.findElementsByXPath("//div[@class=\"co_affiliate_wr\"]//ul[@class=\"co_affiliate_list\"]//li//span[@class=\"co_paper_name\"]");
+                if (corInstElement.size() != 0) {
+                    for (WebElement inst:corInstElement) {
+                        Researcher.Institution corInst = new Researcher.Institution();
+                        String instName = inst.getAttribute("title");
+                        Institution foundInst = statusCtrl.existenceService.findInstByName(instName);
+                        if (foundInst == null) {
+                            Institution newInst = new Institution();
+                            newInst.setName(instName);
+                            statusCtrl.institutionRepository.save(newInst);
+                            corInst.setId(newInst.getId());
+                            corInst.setName(instName);
+                        }
+                        else {
+                            corInst.setId(foundInst.getId());
+                            corInst.setName(instName);
+                            corInsts.add(corInst);
+                        }
+                    }
+                    this.researcher.setInstitutions(corInsts);
+                }
+            }
+
             driver.close();
             driver.switchTo().window(originalHandle);
         } catch (Exception e) {
