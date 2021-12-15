@@ -93,15 +93,15 @@ public class ResearcherParser {
             if (scholarIndexElement.size() != 0) {
                 for (WebElement scholarIndex : scholarIndexElement) {
                     List<WebElement> indexElement = scholarIndex.findElements(By.xpath(".//p"));
-                    if (indexElement.size() == 0) {
+                    if (indexElement.size() != 2) {
                         continue;
                     }
                     String scholar = indexElement.get(1).getText();
                     if (scholar.equals("H指数")) {
-                        Integer hIndex = Integer.valueOf(scholarIndex.findElement(By.xpath(".//p[@class=\"index-value\"]")).getText());
+                        Integer hIndex = Integer.valueOf(indexElement.get(0).getText());
                         researcher.setHIndex(hIndex);
                     } else if (scholar.equals("G指数")) {
-                        Integer gIndex = Integer.valueOf(scholarIndex.findElement(By.xpath(".//p[@class=\"index-value\"]")).getText());
+                        Integer gIndex = Integer.valueOf(indexElement.get(0).getText());
                         researcher.setGIndex(gIndex);
                     }
                 }
@@ -120,7 +120,7 @@ public class ResearcherParser {
             if (instElement.size() != 0) {
                 List<Researcher.Institution> corInstitutions = new ArrayList<>();
                 for (WebElement inst : instElement) {
-                    String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]")).getText();
+                    String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]/a")).getText();
 
                     corInst = StringUtil.rmPlaceNameAndCode(corInst);
 
@@ -177,7 +177,7 @@ public class ResearcherParser {
                 for (WebElement submitText : searchText) {
                     String type = submitText.findElement(By.xpath(".//span[@class=\"label\"]")).getText();
                     WebElement text = submitText.findElement(By.xpath(".//input[@type=\"text\"]"));
-                    if (type.equals("姓名")) {
+                    if (type.equals("*姓名")) {
                         text.sendKeys(researcherName);
                     } else if (type.equals("机构")) {
                         text.sendKeys(curInstName);
@@ -195,9 +195,10 @@ public class ResearcherParser {
             WebElement target = null;
             for (WebElement matchResearcher : matchResearchers) {
                 String name = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]")).getText();
+                name = name.replace("\uE61F","");
                 String instName = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//p[contains(@class,\"personInstitution\")]")).getText();
                 List<WebElement> interest = matchResearcher.findElements(By.xpath(".//div[@class=\"searchResult_text\"]//p[@class=\"personField\"]"));
-                if (name.equals(researcherName) && curInstName.contains(instName) && interest.size() != 0) {
+                if (name.equals(researcherName) && (curInstName.contains(instName) || instName.contains(curInstName)) && interest.size() != 0) {
                     target = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]"));
                     break;
                 }
