@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import springfox.documentation.annotations.ApiIgnore;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,7 +44,7 @@ public class AccountController {
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
                                  @RequestParam(value = "username") @NotNull @NotBlank @Length(max = 10) String username,
-                                 @RequestParam(value = "password") @NotNull String password) {
+                                 @RequestParam(value = "password") @NotNull @NotBlank String password) {
         User original_user = accountRepository.findUserByEmail(email);
         if (original_user != null) {
             return new Result<Void>().withFailure("该邮箱已注册");
@@ -90,7 +91,7 @@ public class AccountController {
     @ApiOperation(value = "登录")
     @PostMapping("/login")
     public Result<Void> login(@CookieValue(name = "TOKEN", required = false) String token,
-                              @RequestParam(value = "email") @Email  @NotNull String email,
+                              @RequestParam(value = "email") @Email @NotNull String email,
                               @RequestParam(value = "password") @NotNull String password) {
         if (token != null && accountService.getAuthorityByToken(token) != null) {
             return new Result<>();
@@ -121,16 +122,17 @@ public class AccountController {
         return new Result<User>().withData(user);
     }
 
-    @ApiOperation(value = "修改用户信息", notes = "可修改用户名和密码")
+    @ApiOperation(value = "修改用户信息", notes = "可修改用户名和密码，不传密码代表不修改")
     @PostMapping("/profile/modify/info")
-    public Result<Void> modifyInfo( @RequestHeader(value = "Auth") @NotNull String userId,
-                                    @RequestParam(value = "username") @NotNull @NotBlank @Length(max = 10)  String username,
-                                    @RequestParam(value = "password") @NotNull String password) {
+    public Result<Void> modifyInfo(@RequestHeader(value = "Auth") @NotNull String userId,
+                                   @RequestParam(value = "username") @NotNull @NotBlank @Length(max = 10) String username,
+                                   @RequestParam(value = "password", required = false) String password) {
         User user = template.get(userId, User.class);
         if (user == null)
             return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
         user.setUsername(username);
-        user.setPassword(password);
+        if (password != null)
+            user.setPassword(password);
         accountRepository.save(user);
         return new Result<>();
     }
@@ -142,7 +144,7 @@ public class AccountController {
         User user = template.get(userId, User.class);
         if (user == null)
             return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
-        if (Objects.equals(email, user.getEmail())){
+        if (Objects.equals(email, user.getEmail())) {
             return new Result<Void>().withFailure("不可修改为当前邮箱");
         }
         User original_user = accountRepository.findUserByEmail(email);

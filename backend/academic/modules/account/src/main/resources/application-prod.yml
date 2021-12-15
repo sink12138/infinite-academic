@@ -41,6 +41,8 @@ spring:
         debug: false
     protocol: smtp
     port: 587
+    verify:
+      host: http://121.36.98.60/api/account
 
 eureka:
   instance:

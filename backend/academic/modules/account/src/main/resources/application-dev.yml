@@ -32,6 +32,8 @@ spring:
         debug: false
     protocol: smtp
     port: 587
+    verify:
+      host: http://localhost:${server.port}
 
 eureka:
   instance:
