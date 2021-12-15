@@ -575,7 +575,9 @@ public class PaperParser {
                 }
                 // 添加外链
                 List<WebElement> sourceElement = target.findElements(By.xpath(".//div[@class=\"c_allversion\"]//span[contains(@class,\"v_item_span\")]//a[@class=\"v_source\"]"));
-                List<Paper.Source> sources = paper.getSources();
+                Paper paperSource = statusCtrl.template.get(paper.getId(), Paper.class);
+                assert paperSource != null;
+                List<Paper.Source> sources = paperSource.getSources();
                 if (sources == null)
                     sources = new ArrayList<>();
                 List<String> sourcesText = new ArrayList<>();
