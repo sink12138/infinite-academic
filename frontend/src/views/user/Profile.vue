@@ -53,7 +53,7 @@
           <span
             class="headline"
             v-if="isChangePassword"
-          >修改邮箱</span>
+          >修改用户名密码</span>
         </v-card-title>
         <v-card-text>
           <v-container>
