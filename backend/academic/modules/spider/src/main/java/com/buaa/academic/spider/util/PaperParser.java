@@ -41,6 +41,16 @@ public class PaperParser {
             if (paper.isCrawled()) {
                 return;
             }
+
+            // 获取当前页面url，添加外链
+            List<Paper.Source> sources = paper.getSources();
+            if (sources == null)
+                sources = new ArrayList<>();
+            Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
+            sources.add(source);
+            paper.setSources(sources);
+            statusCtrl.template.save(paper);
+
             paper.setCrawled(true);
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
@@ -89,21 +99,6 @@ public class PaperParser {
                     keywords.add(word);
                 }
                 paper.setKeywords(keywords);
-            }
-            // 获取作者
-            List<WebElement> authorElement = driver.findElementsByXPath("//div[@class=\"author list\"]//div[@class=\"itemUrl\"]//a");
-            if (authorElement.size() != 0) {
-                ArrayList<ResearcherSet.ResearcherObject> researcherObjects = new ArrayList<>();
-                for (WebElement author : authorElement) {
-                    String authorName = author.getText();
-                    String authorUrl = author.getAttribute("href");
-                    if (!authorUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
-                        authorUrl = null;
-                    }
-                    ResearcherSet.ResearcherObject researcherObject = new ResearcherSet.ResearcherObject(authorUrl, authorName);
-                    researcherObjects.add(researcherObject);
-                }
-                StatusCtrl.researcherQueue.add(new ResearcherSet(paper.getId(), researcherObjects));
             }
 
             // 获取参与机构
@@ -204,7 +199,6 @@ public class PaperParser {
                     }
                 }
                 paper.setJournal(journal);
-                statusCtrl.template.save(paper);
                 if (crawlNewJournal) {
                     String journalUrl = journalElement.get(0).getAttribute("href");
                     StatusCtrl.journalUrls.add(journalUrl);
@@ -230,14 +224,6 @@ public class PaperParser {
                     paper.setDate(date);
                 }
             }
-            // 获取当前页面url，添加外链
-            List<Paper.Source> sources = paper.getSources();
-            if (sources == null)
-                sources = new ArrayList<>();
-            Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
-            sources.add(source);
-            paper.setSources(sources);
-            statusCtrl.template.save(paper);
 
             // 获取参考文献
             List<String> referenceID = new ArrayList<>();
@@ -321,8 +307,29 @@ public class PaperParser {
                 Thread.sleep(3000);
             } while (flag == 1);
             paper.setReferences(referenceID);
-            // modify the paper‘s properties by paperCraw.getPaper().id
+            Paper paperSource = statusCtrl.template.get(paper.getId(), Paper.class);
+            assert paperSource != null;
+            if (paperSource.getSources().size() != paper.getSources().size()) {
+                paper.setSources(paperSource.getSources());
+            }
             statusCtrl.paperRepository.save(paper);
+
+            // 获取作者
+            List<WebElement> authorElement = driver.findElementsByXPath("//div[@class=\"author list\"]//div[@class=\"itemUrl\"]//a");
+            if (authorElement.size() != 0) {
+                ArrayList<ResearcherSet.ResearcherObject> researcherObjects = new ArrayList<>();
+                for (WebElement author : authorElement) {
+                    String authorName = author.getText();
+                    String authorUrl = author.getAttribute("href");
+                    if (!authorUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
+                        authorUrl = null;
+                    }
+                    ResearcherSet.ResearcherObject researcherObject = new ResearcherSet.ResearcherObject(authorUrl, authorName);
+                    researcherObjects.add(researcherObject);
+                }
+                StatusCtrl.researcherQueue.add(new ResearcherSet(paper.getId(), researcherObjects));
+            }
+
         } catch (Exception e) {
             StatusCtrl.errorHandler.report(e);
         }
@@ -440,7 +447,6 @@ public class PaperParser {
                 sources = new ArrayList<>();
             sources.add(new Paper.Source("知网", zhiWangUrl));
             paper.setSources(sources);
-            statusCtrl.template.save(paper);
 
             // 获取学科
             List<WebElement> subjectAndTopicElement = driver.findElementsByXPath("//li[@class=\"top-space\"]");
@@ -455,6 +461,18 @@ public class PaperParser {
                         paper.setSubjects(subjects);
                     }
                 }
+            }
+            boolean withoutAuthorsId = true;
+            for (Paper.Author author: paper.getAuthors()) {
+                if (author.getId() != null) {
+                    withoutAuthorsId = false;
+                    break;
+                }
+            }
+            if (withoutAuthorsId) {
+                Paper paperInES = statusCtrl.template.get(paper.getId(), Paper.class);
+                assert paperInES != null;
+                paper.setAuthors(paperInES.getAuthors());
             }
             statusCtrl.paperRepository.save(paper);
             driver.close();
