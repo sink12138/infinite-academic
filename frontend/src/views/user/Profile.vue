@@ -208,10 +208,12 @@ export default {
           method: "post",
           url: "/api/account/profile/modify/info",
           params: {
-            username: this.username,
+            username: this.newUsername,
             password: this.newPassword,
           },
         }).then((response) => {
+          console.log(this.newUsername);
+          console.log(this.newPassword);
           console.log(response.data);
           if (response.data.success) {
             this.$notify({

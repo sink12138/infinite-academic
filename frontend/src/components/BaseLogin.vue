@@ -249,7 +249,7 @@ export default {
           url: "/api/account/login",
           params: {
             email: this.email,
-            password: sha256(this.password),
+            password: this.password,
           },
         }).then((response) => {
           console.log(this.email);
