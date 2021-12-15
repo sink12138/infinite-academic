@@ -205,7 +205,7 @@ public class StatusCtrl {
         StatusCtrl.paperObjectQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
-        StatusCtrl.keywordQueue.addAll(List.of("visual", "算法", "image", "卷积", "database", "最短"));
+        StatusCtrl.keywordQueue.addAll(List.of("北京大学"));
         boolean headless = true;
 
         new Thread(errorHandler, "Error-Handler").start();

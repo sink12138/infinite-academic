@@ -64,6 +64,7 @@ public class ResearcherParser {
             // 检查数据库中是否已有相同姓名和机构的数据库
             Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
             if (researcher == null) {
+                System.out.println(researcherName);
                 researcher = new Researcher();
                 researcher.setName(researcherName);
                 researcher.setPaperNum(1);
@@ -141,12 +142,12 @@ public class ResearcherParser {
 
             // add researcher into database
             statusCtrl.researcherRepository.save(researcher);
-
+            /*
             String originalHandle = driver.getWindowHandle();
             driver.executeScript("window.open('about:blank','_blank');");
             Set<String> handles = driver.getWindowHandles();
             handles.remove(originalHandle);
-            driver.switchTo().window(handles.toArray(new String[0])[0]);
+            driver.switchTo().window(handles.toArray(new String[0])[0]);*/
             ResearcherParser researcherParser = new ResearcherParser();
             researcherParser.setStatusCtrl(statusCtrl);
             researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
@@ -154,7 +155,7 @@ public class ResearcherParser {
             researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
             driver.close();
-            driver.switchTo().window(originalHandle);
+            //driver.switchTo().window(originalHandle);
 
             researcher.setInterests(researcherParser.getResearcher().getInterests());
             statusCtrl.researcherRepository.save(researcher);
