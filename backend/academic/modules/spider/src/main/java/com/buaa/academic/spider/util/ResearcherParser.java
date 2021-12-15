@@ -34,6 +34,7 @@ public class ResearcherParser {
         try {
             driver.get(this.url);
             Thread.sleep(2000);
+            // 处理url非法
             String curUrl = driver.getCurrentUrl();
             if (!curUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
                 return;
@@ -210,6 +211,11 @@ public class ResearcherParser {
             String originalHandle = driver.getWindowHandle();
             actions.click(target).perform();
             Thread.sleep(1000);
+            Set<String> allHandles = driver.getWindowHandles();
+            allHandles.remove(originalHandle);
+            if (allHandles.size() == 1)
+                return;
+            driver.switchTo().window((String) allHandles.toArray()[0]);
             List<WebElement> majorElement = driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
             List<String> interests = new ArrayList<>();
             if (majorElement.size() != 0) {

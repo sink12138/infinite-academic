@@ -29,6 +29,11 @@ public class JournalParser {
         try {
             driver.get(this.url);
             Thread.sleep(2000);
+            // 处理url非法
+            String curUrl = driver.getCurrentUrl();
+            if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {
+                return;
+            }
             Journal journal;
             // 获取期刊标题
             List<WebElement> nameElement = driver.findElementsByXPath("//h1[@class=\"lh-36 m-b-5 fs-24 fw-500\"]");

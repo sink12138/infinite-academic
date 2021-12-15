@@ -52,6 +52,14 @@ public class PaperParser {
             statusCtrl.template.save(paper);
 
             paper.setCrawled(true);
+            driver.get(this.paperCraw.getUrl());
+            Thread.sleep(2000);
+            // 处理url非法
+            String curUrl = driver.getCurrentUrl();
+            if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {
+                // todo 保存paper
+                return;
+            }
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
             if (titleElement.size() != 0) {
@@ -201,6 +209,9 @@ public class PaperParser {
                 paper.setJournal(journal);
                 if (crawlNewJournal) {
                     String journalUrl = journalElement.get(0).getAttribute("href");
+                    if (journalUrl.startsWith("https://s.wanfangdata.com.cn/")) {
+                        journalUrl = null;
+                    }
                     StatusCtrl.journalUrls.add(journalUrl);
                 }
             } else if (paper.getType().equals("学位论文")) {
@@ -433,18 +444,28 @@ public class PaperParser {
                 return;
             }
             // 切换页面
+            String originalHandle = driver.getWindowHandle();
             actions.click(target).perform();
             Thread.sleep(1000);
-            String originalHandle = driver.getWindowHandle();
             Set<String> allHandles = driver.getWindowHandles();
             allHandles.remove(originalHandle);
-            assert allHandles.size() == 1;
+            if (allHandles.size() == 1)
+                return;
             driver.switchTo().window((String) allHandles.toArray()[0]);
             // 添加外链
             String zhiWangUrl = driver.getCurrentUrl();
             List<Paper.Source> sources = paper.getSources();
             if (sources == null)
                 sources = new ArrayList<>();
+            List<String> sourcesText = new ArrayList<>();
+            for (Paper.Source source : sources) {
+                sourcesText.add(source.getWebsite());
+            }
+            if (!sourcesText.contains("知网")) {
+                sources.add(new Paper.Source("知网", zhiWangUrl));
+                paper.setSources(sources);
+            }
+            paper = statusCtrl.template.save(paper);
             sources.add(new Paper.Source("知网", zhiWangUrl));
             paper.setSources(sources);
 
@@ -459,6 +480,7 @@ public class PaperParser {
                         List<String> subjects = Arrays.asList(allSubject.split(";"));
                         // modify paper's subjects by this.paperCraw.getPaper().id
                         paper.setSubjects(subjects);
+                        break;
                     }
                 }
             }
