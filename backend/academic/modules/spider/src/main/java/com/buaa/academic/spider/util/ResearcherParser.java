@@ -119,7 +119,7 @@ public class ResearcherParser {
             if (instElement.size() != 0) {
                 List<Researcher.Institution> corInstitutions = new ArrayList<>();
                 for (WebElement inst : instElement) {
-                    String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]/a")).getText();
+                    String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]/a")).getAttribute("textContent");
 
                     corInst = StringUtil.rmPlaceNameAndCode(corInst);
 
