@@ -329,7 +329,7 @@
                       <v-btn
                         color="blue darken-1"
                         text
-                        @click="save"
+                        @click="check"
                       >
                         保存
                       </v-btn>
@@ -343,9 +343,60 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn color="blue darken-1" text @click="closeDelete">再想想</v-btn>
-                      <v-btn color="blue darken-1" text @click="deleteItemConfirm">确定</v-btn>
+                      <v-btn color="blue darken-1" text @click="check">确定</v-btn>
                       <v-spacer></v-spacer>
                     </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
+                <v-dialog v-model="dialogValid" max-width="500px">
+                  <v-card>
+                    <v-card-title class="text-h6">请验证管理员身份</v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="userName"
+                                label="管理员用户名"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="4"
+                            >
+                              <v-text-field
+                                v-model="passWords"
+                                type="password"
+                                label="密码"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="closeCheck"
+                        >
+                          取消
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="isValid"
+                        >
+                          验证
+                        </v-btn>
+                      </v-card-actions>
                   </v-card>
                 </v-dialog>
 
@@ -482,6 +533,7 @@ export default {
       ],
       dialog: false,
       dialogDelete: false,
+      dialogValid: false,
       totalAccounts: 0,
       options: {},
       loading: true,
@@ -614,6 +666,11 @@ export default {
         }
       });
     },
+    check () {
+      this.userName = ""
+      this.passWords = ""
+      this.dialogValid = true
+    },
     isValid() {
       this.$axios({
         method: "post",
@@ -630,6 +687,13 @@ export default {
             message: "验证成功",
             type: "success",
           });
+          this.dialogValid = false
+          if (this.dialog === true) {
+            this.save()
+          }
+          else {
+            this.deleteItemConfirm()
+          }
         } else {
           this.$notify({
             title: "失败",
@@ -832,6 +896,10 @@ export default {
         this.editedIndex = -1
       })
       this.getAccounts()
+    },
+
+    closeCheck () {
+      this.dialogValid = false
     },
 
     save () {
