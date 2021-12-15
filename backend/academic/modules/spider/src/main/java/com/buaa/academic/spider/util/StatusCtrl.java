@@ -1,5 +1,6 @@
 package com.buaa.academic.spider.util;
 
+import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
@@ -197,6 +198,39 @@ public class StatusCtrl {
             schedule.addTask(new Task(threadName, runningStatus.get(threadName)));
         }
         return schedule;
+    }
+
+    public boolean fixResearcherId() {
+        StatusCtrl.jobStopped = false;
+        StatusCtrl.paperObjectQueue.clear();
+        StatusCtrl.runningJob.clear();
+        StatusCtrl.runningStatus.clear();
+        StatusCtrl.keywordQueue.addAll(List.of("visual", "算法", "image", "卷积", "database", "最短"));
+        boolean headless = true;
+
+        new Thread(errorHandler, "Error-Handler").start();
+        for (int i = 0; i < queueInitThreadNum; i++) {
+            Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
+            String threadName = "QueueInit-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < mainInfoThreadNum; i++) {
+            Thread thread = new Thread(new PaperMainInfoThread(this, headless));
+            String threadName = "Paper-Main-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < researcherThreadNum; i++) {
+            Thread thread = new Thread(new ResearcherCrawlerThread(this, headless));
+            String threadName = "Researcher-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        return true;
     }
 
     public void changeRunningStatusTo(String threadName, String status) {

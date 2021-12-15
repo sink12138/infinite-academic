@@ -96,26 +96,46 @@ public class SearchParser {
                             String url = driver.getCurrentUrl();
                             driver.close();
                             driver.switchTo().window(originalHandle);
-                            paperObject.setUrl(url);
 
+                            paperObject.setUrl(url);
                             StatusCtrl.paperObjectQueue.add(paperObject);
 
                             PaperObject sourceObj = new PaperObject();
                             sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
                             sourceObj.setPaperId(paper.getId());
                             StatusCtrl.sourceQueue.add(sourceObj);
-                        }
-                        else if (!paper.isCrawled()) {
-                            newPaper++;
-                            String url = driver.getCurrentUrl();
-                            paperObject.setUrl(url);
-                            paperObject.setPaperId(paper.getId());
-                            StatusCtrl.paperObjectQueue.add(paperObject);
-                            
-                            PaperObject sourceObj = new PaperObject();
-                            sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
-                            sourceObj.setPaperId(paper.getId());
-                            StatusCtrl.sourceQueue.add(sourceObj);
+                        } else {
+                            boolean withOutAuthorsId = true;
+                            if (paper.isCrawled()) {
+                                for (Paper.Author author : paper.getAuthors()) {
+                                    if (author.getId() != null) {
+                                        withOutAuthorsId = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (withOutAuthorsId) {
+                                newPaper++;
+                                String originalHandle = driver.getWindowHandle();
+                                Actions actions = new Actions(driver);
+                                actions.click(title).perform();
+                                Set<String> allHandles = driver.getWindowHandles();
+                                allHandles.remove(originalHandle);
+                                assert allHandles.size() == 1;
+                                driver.switchTo().window((String) allHandles.toArray()[0]);
+                                String url = driver.getCurrentUrl();
+                                driver.close();
+                                driver.switchTo().window(originalHandle);
+
+                                paperObject.setUrl(url);
+                                paperObject.setPaperId(paper.getId());
+                                StatusCtrl.paperObjectQueue.add(paperObject);
+
+                                PaperObject sourceObj = new PaperObject();
+                                sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
+                                sourceObj.setPaperId(paper.getId());
+                                StatusCtrl.sourceQueue.add(sourceObj);
+                            }
                         }
                     }
                     statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + " crawled, " + newPaper + " new");

@@ -85,4 +85,17 @@ public class SpiderController {
         StatusCtrl.keywordQueue.addAll(keywords);
         return result;
     }
+
+    @PostMapping("/fix")
+    public Result<Void> fix() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.silentOutput", "true");
+        Result<Void> result = new Result<>();
+        statusCtrl.setQueueInitThreadNum(3);
+        statusCtrl.setMainInfoThreadNum(2);
+        statusCtrl.setResearcherThreadNum(4);
+        if (statusCtrl.fixResearcherId())
+            return result;
+        return result.withFailure("Has been running");
+    }
 }
