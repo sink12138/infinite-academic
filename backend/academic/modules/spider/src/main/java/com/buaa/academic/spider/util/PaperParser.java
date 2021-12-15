@@ -259,13 +259,18 @@ public class PaperParser {
                 int flag;
                 do {
                     flag = 0;
-                    referenceElement = driver.findElementsByXPath("//div[@id=\"reference\"]//div[@class=\"contentInfo\"]//td[@class=\"title\"]//a[contains(@href,\"/\") and @class=\"title\"]");
+                    referenceElement = driver.findElementsByXPath("//div[@id=\"reference\"]//div[@class=\"contentInfo\"]//td[@class=\"title\"]//a[@class=\"title\"]");
                     if (referenceElement.size() != 0) {
                         for (WebElement reference : referenceElement) {
+                            String referUrl = reference.getAttribute("href");
+                            if (referUrl == null ){
+                                String spaceHolder = reference.getText();
+                                referenceID.add(spaceHolder);
+                                continue;
+                            }
                             String referTitle = reference.getText();
                             List<WebElement> tmp = reference.findElements(By.xpath("..//span[@style=\"vertical-align: middle;\"]"));
                             String type = tmp.get(1).getText();
-                            String referUrl = reference.getAttribute("href");
                             statusCtrl.changeRunningStatusTo(threadName, "Get info of a reference paper with title: " + referTitle);
                             List<WebElement> referAuthorElement = reference.findElements(By.xpath("..//span[@class=\"author\"]//span//a"));
                             List<Paper.Author> referAuthorList = new ArrayList<>();
