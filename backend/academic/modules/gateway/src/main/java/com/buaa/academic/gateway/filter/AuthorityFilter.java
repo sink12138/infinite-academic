@@ -24,7 +24,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
@@ -114,9 +113,10 @@ public class AuthorityFilter implements GlobalFilter, Ordered {
                     }
                 }
                 case "scholar" -> {
-                    if ("certify".equals(secondaryUrl) && authority.getUserId() == null) {
+                    if ("certify".equals(secondaryUrl)) {
                         // These requests do not need researcherId
-                        throw new AcademicException(ExceptionType.UNAUTHORIZED);
+                        if (authority.getUserId() == null)
+                            throw new AcademicException(ExceptionType.UNAUTHORIZED);
                     }
                     else if (authority.getResearcherId() == null) {
                         throw new AcademicException(ExceptionType.UNAUTHORIZED);

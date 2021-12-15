@@ -13,6 +13,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,7 +135,7 @@ public class PaperParser {
                 if (instElement.size() != 0) {
                     ArrayList<Paper.Institution> institutions = new ArrayList<>();
                     for (WebElement institution : instElement) {
-                        String instNameText = institution.getText();
+                        String instNameText = institution.getAttribute("textContent");
                         String[] instNames = instNameText.split("[；;]");
                         for (String instName : instNames) {
                             Paper.Institution inst = new Paper.Institution();
@@ -263,7 +264,7 @@ public class PaperParser {
                     if (referenceElement.size() != 0) {
                         for (WebElement reference : referenceElement) {
                             String referUrl = reference.getAttribute("href");
-                            if (referUrl == null ){
+                            if (referUrl == null) {
                                 String spaceHolder = reference.getText();
                                 referenceID.add(spaceHolder);
                                 continue;
@@ -511,7 +512,7 @@ public class PaperParser {
                 }
             }
             boolean withoutAuthorsId = true;
-            for (Paper.Author author: paper.getAuthors()) {
+            for (Paper.Author author : paper.getAuthors()) {
                 if (author.getId() != null) {
                     withoutAuthorsId = false;
                     break;

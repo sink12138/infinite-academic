@@ -1,7 +1,6 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Institution;
-import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +10,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -222,14 +222,14 @@ public class ResearcherParser {
             List<WebElement> indexElement = driver.findElementsByXPath("//ul[@class=\"p_ach_wr\"]//li[@class=\"p_ach_item\"]");
             if (indexElement.size() != 0) {
                 for (WebElement index:indexElement) {
-                    String type = index.findElement(By.xpath(".//p[contains(@class,\"p_ach_type\")]")).getText();
+                    String type = index.findElement(By.xpath(".//p[contains(@class,\"p_ach_type\")]")).getAttribute("textContent");
                     if (type.equals("H指数") && researcher.getHIndex() == null) {
-                         Integer hIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
+                         Integer hIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getAttribute("textContent"));
                          this.researcher.setHIndex(hIndex);
                     }
                     else if (type.equals("G指数") && researcher.getGIndex() == null) {
-                        Integer gIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
-                        this.researcher.setHIndex(gIndex);
+                        Integer gIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getAttribute("textContent"));
+                        this.researcher.setGIndex(gIndex);
                     }
                 }
             }
