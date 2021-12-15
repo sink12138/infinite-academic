@@ -88,23 +88,11 @@ public class ResearcherParser {
             }
 
 
-            // 获取科研人员的H、G指数
-            List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li");
+            // 获取科研人员的H
+            List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li//p[@class=\"index-value\"]");
             if (scholarIndexElement.size() != 0) {
-                for (WebElement scholarIndex : scholarIndexElement) {
-                    List<WebElement> indexElement = scholarIndex.findElements(By.xpath(".//p"));
-                    if (indexElement.size() != 2) {
-                        continue;
-                    }
-                    String scholar = indexElement.get(1).getText();
-                    if (scholar.equals("H指数")) {
-                        Integer hIndex = Integer.valueOf(indexElement.get(0).getText());
-                        researcher.setHIndex(hIndex);
-                    } else if (scholar.equals("G指数")) {
-                        Integer gIndex = Integer.valueOf(indexElement.get(0).getText());
-                        researcher.setGIndex(gIndex);
-                    }
-                }
+                Integer hIndex = Integer.valueOf(scholarIndexElement.get(0).getText());
+                researcher.setHIndex(hIndex);
             }
             // 查看是否有“更多”按钮
             List<WebElement> moreElement = driver.findElementsByXPath("//div[@class=\"rt-bottom\"]//div[@class=\"more-wrapper\" and @style=\"display: block;\"]//a[@class=\"show-more\"]");
@@ -221,6 +209,20 @@ public class ResearcherParser {
                     interests.add(major.getText());
                 }
                 this.researcher.setInterests(interests);
+            }
+            List<WebElement> indexElement = driver.findElementsByXPath("//ul[@class=\"p_ach_wr\"]//li[@class=\"p_ach_item\"]");
+            if (indexElement.size() != 0) {
+                for (WebElement index:indexElement) {
+                    String type = index.findElement(By.xpath(".//p[contains(@class,\"p_ach_type\")]")).getText();
+                    if (type.equals("H指数")) {
+                         Integer hIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
+                         this.researcher.setHIndex(hIndex);
+                    }
+                    else if (type.equals("G指数")) {
+                        Integer gIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
+                        this.researcher.setHIndex(gIndex);
+                    }
+                }
             }
             driver.close();
             driver.switchTo().window(originalHandle);
