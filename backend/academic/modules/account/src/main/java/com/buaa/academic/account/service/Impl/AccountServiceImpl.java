@@ -33,7 +33,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void sendVerifyEmail(User user, String action) {
-        new VerifyEmailThread(user, action).run();
+        new Thread(new VerifyEmailThread(user, action)).start();
     }
 
     @Override
