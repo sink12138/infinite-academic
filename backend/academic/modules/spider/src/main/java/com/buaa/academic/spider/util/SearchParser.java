@@ -118,7 +118,7 @@ public class SearchParser {
                             StatusCtrl.sourceQueue.add(sourceObj);
                         }
                     }
-                    statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + "crawled, " + newPaper + " new");
+                    statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + " crawled, " + newPaper + " new");
                 }
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if (nextElement.size() == 0) {

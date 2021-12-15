@@ -3,7 +3,6 @@ package com.buaa.academic.spider.util;
 import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
-import com.buaa.academic.spider.model.queueObject.JournalObject;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import lombok.AllArgsConstructor;
@@ -447,6 +446,7 @@ public class PaperParser {
             driver.switchTo().window((String) allHandles.toArray()[0]);
             // 添加外链
             String zhiWangUrl = driver.getCurrentUrl();
+            paper = Objects.requireNonNull(statusCtrl.template.get(paper.getId(), Paper.class));
             List<Paper.Source> sources = paper.getSources();
             if (sources == null)
                 sources = new ArrayList<>();
