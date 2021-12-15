@@ -64,7 +64,6 @@ public class ResearcherParser {
             // 检查数据库中是否已有相同姓名和机构的数据库
             Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
             if (researcher == null) {
-                System.out.println(researcherName);
                 researcher = new Researcher();
                 researcher.setName(researcherName);
                 researcher.setPaperNum(1);

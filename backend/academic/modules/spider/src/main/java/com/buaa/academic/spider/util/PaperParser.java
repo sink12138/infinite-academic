@@ -57,13 +57,18 @@ public class PaperParser {
 
             // 获取当前页面url，添加外链
             if (!paper.isCrawled()) {
+
                 List<Paper.Source> sources = paper.getSources();
                 if (sources == null)
                     sources = new ArrayList<>();
-                Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
-                sources.add(source);
-                paper.setSources(sources);
-                statusCtrl.template.save(paper);
+                List<String> sourceText = new ArrayList<>();
+                sources.forEach(source -> sourceText.add(source.getWebsite()));
+                if (!sourceText.contains("万方")) {
+                    Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
+                    sources.add(source);
+                    paper.setSources(sources);
+                    statusCtrl.template.save(paper);
+                }
 
                 paper.setCrawled(true);
                 driver.get(this.paperCraw.getUrl());
