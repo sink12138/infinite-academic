@@ -1,6 +1,7 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Paper;
+import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
@@ -33,6 +34,7 @@ public class StatusCtrl {
     public static ConcurrentLinkedQueue<String> keywordQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
+    public static ConcurrentLinkedQueue<Researcher> interestsQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<String> journalUrls = new ConcurrentLinkedQueue<>();
     public static ConcurrentLinkedQueue<PaperObject> sourceQueue = new ConcurrentLinkedQueue<>();
@@ -114,6 +116,8 @@ public class StatusCtrl {
 
     private int researcherThreadNum;
 
+    private int interestsThreadNum;
+
     private int journalThreadNum;
 
     private int paperSourceThreadNum;
@@ -163,6 +167,13 @@ public class StatusCtrl {
         for (int i = 0; i < researcherThreadNum; i++) {
             Thread thread = new Thread(new ResearcherCrawlerThread(this, headless));
             String threadName = "Researcher-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < interestsThreadNum; ++i) {
+            Thread thread = new Thread(new InterestsGIndexThread(this, headless));
+            String threadName = "Interests-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();

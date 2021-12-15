@@ -45,11 +45,12 @@ public class SpiderController {
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
         statusCtrl.setQueueInitThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(5);
+        statusCtrl.setMainInfoThreadNum(3);
         statusCtrl.setPaperSourceThreadNum(2);
         statusCtrl.setResearcherThreadNum(2);
-        statusCtrl.setJournalThreadNum(2);
-        statusCtrl.setSubjectTopicThreadNum(5);
+        statusCtrl.setInterestsThreadNum(4);
+        statusCtrl.setJournalThreadNum(1);
+        statusCtrl.setSubjectTopicThreadNum(3);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
@@ -93,7 +94,7 @@ public class SpiderController {
         Result<Void> result = new Result<>();
         statusCtrl.setQueueInitThreadNum(3);
         statusCtrl.setMainInfoThreadNum(2);
-        statusCtrl.setResearcherThreadNum(4);
+        statusCtrl.setResearcherThreadNum(8);
         if (statusCtrl.fixResearcherId())
             return result;
         return result.withFailure("Has been running");
