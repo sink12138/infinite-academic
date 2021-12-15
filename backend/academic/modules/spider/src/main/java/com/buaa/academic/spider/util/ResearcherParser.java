@@ -154,7 +154,6 @@ public class ResearcherParser {
             researcherParser.setResearcher(researcher);
             researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
-            driver.close();
             //driver.switchTo().window(originalHandle);
 
             researcher.setInterests(researcherParser.getResearcher().getInterests());
