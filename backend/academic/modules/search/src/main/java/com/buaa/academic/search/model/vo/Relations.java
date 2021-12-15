@@ -14,7 +14,7 @@ public class Relations<I> {
 
     private int totalPages;
 
-    private List<I> relations = new ArrayList<>();
+    private List<I> items = new ArrayList<>();
 
     public boolean hasMore() {
         return page < totalPages - 1;

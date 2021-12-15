@@ -15,6 +15,11 @@ import java.util.List;
 @ApiModel(description = "学术论文实体的简要信息，用于批量搜索的结果显示")
 public class PaperItem {
 
+    @ApiModelProperty(
+            value = "用于显示数据库中不存在的参考文献，格式为该参考文献的引用格式（此时该参考文献只含有这一个字段）。此字段不会出现在除/references接口以外的其他任何场合。",
+            example = "J. H. Saltzer,D. P. Reed,D. D. Clark.End-to-end arguments in system design[J].ACM transactions on computer systems,1984,2(4).277-288.")
+    private String raw;
+
     @ApiModelProperty(required = true, value = "论文在数据库中的ID", example = "GF_4ynwBF-Mu8unTG1hc")
     private String id;
 
