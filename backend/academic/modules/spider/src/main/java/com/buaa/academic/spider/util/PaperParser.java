@@ -319,6 +319,10 @@ public class PaperParser {
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                                 referenceID.add(foundReferPaper.getId());
                             }
+                            else {
+                                String spaceHolder = reference.getText();
+                                referenceID.add(spaceHolder);
+                            }
                         }
                     }
                     ableElement = driver.findElementsByXPath("//div[@id=\"reference\"]//div[@class=\"pagination_page\"]");
