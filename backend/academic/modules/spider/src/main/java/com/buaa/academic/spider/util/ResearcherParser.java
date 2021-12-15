@@ -39,29 +39,27 @@ public class ResearcherParser {
             if (!curUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
                 return;
             }
+
             // 获取作者姓名
             List<WebElement> nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show no-description\"]");
-            String researcherName = null;
-            String instName = null;
-            if (nameElement.size() != 0) {
-                researcherName = nameElement.get(0).getText();
-            }
+            if (nameElement.isEmpty())
+                nameElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte scholar-name-show\"]");
+            if (nameElement.isEmpty())
+                return;
+            String researcherName = nameElement.get(0).getText();
 
             statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Get info of researcher:" + researcherName);
 
             // 获取当前机构名称
             List<WebElement> curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name \"]");
-            if (curInstElement.size() != 0) {
-                instName = curInstElement.get(0).getText();
-            }
-            if (researcherName == null || instName == null) {
+            if (curInstElement.isEmpty())
+                curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name\"]");
+            if (curInstElement.isEmpty())
                 return;
-            }
+            String instName = curInstElement.get(0).getText();
 
             String[] instNames = instName.split("[;；]");
-            instName = instNames[0];
-
-            instName = StringUtil.rmPlaceNameAndCode(instName);
+            instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
 
             // 检查数据库中是否已有相同姓名和机构的数据库
             Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
