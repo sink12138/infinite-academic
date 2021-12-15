@@ -147,8 +147,11 @@ public class ResearcherParser {
             researcherParser.setResearcher(researcher);
             researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
-
-            researcher.setInterests(researcherParser.getResearcher().getInterests());
+            Researcher tmpResearcher = researcherParser.getResearcher();
+            researcher.setInterests(tmpResearcher.getInterests());
+            researcher.setInstitutions(tmpResearcher.getInstitutions());
+            researcher.setHIndex(tmpResearcher.getHIndex());
+            researcher.setGIndex(tmpResearcher.getGIndex());
             statusCtrl.researcherRepository.save(researcher);
             this.researcher = researcher;
         } catch (Exception e) {
