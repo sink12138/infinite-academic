@@ -33,7 +33,7 @@ public class ResearcherParser {
     public void wanFangSpider() {
         try {
             driver.get(this.url);
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(3000);
             // 处理url非法
             String curUrl = driver.getCurrentUrl();
             if (!curUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
@@ -87,12 +87,23 @@ public class ResearcherParser {
                 return;
             }
 
-
-            // 获取科研人员的H
-            List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li//p[@class=\"index-value\"]");
+            // 获取科研人员的H、G指数
+            List<WebElement> scholarIndexElement = driver.findElementsByXPath("//ul[@class=\"scholar-index\"]//li");
             if (scholarIndexElement.size() != 0) {
-                Integer hIndex = Integer.valueOf(scholarIndexElement.get(0).getText());
-                researcher.setHIndex(hIndex);
+                for (WebElement scholarIndex : scholarIndexElement) {
+                    List<WebElement> indexElement = scholarIndex.findElements(By.xpath(".//p"));
+                    if (indexElement.size() != 2) {
+                        continue;
+                    }
+                    String scholar = indexElement.get(1).getAttribute("textContent");
+                    if (scholar.equals("H指数")) {
+                        Integer hIndex = Integer.valueOf(indexElement.get(0).getAttribute("textContent"));
+                        researcher.setHIndex(hIndex);
+                    } else if (scholar.equals("G指数")) {
+                        Integer gIndex = Integer.valueOf(indexElement.get(0).getAttribute("textContent"));
+                        researcher.setGIndex(gIndex);
+                    }
+                }
             }
             // 查看是否有“更多”按钮
             List<WebElement> moreElement = driver.findElementsByXPath("//div[@class=\"rt-bottom\"]//div[@class=\"more-wrapper\" and @style=\"display: block;\"]//a[@class=\"show-more\"]");
@@ -100,7 +111,7 @@ public class ResearcherParser {
                 WebElement morePoint = moreElement.get(0);
                 Actions actions = new Actions(driver);
                 actions.click(morePoint).perform();
-                Thread.sleep(1000);
+                ParserUtil.randomSleep(1000);
             }
 
             // 获取合作机构
@@ -129,19 +140,12 @@ public class ResearcherParser {
 
             // add researcher into database
             statusCtrl.researcherRepository.save(researcher);
-            /*
-            String originalHandle = driver.getWindowHandle();
-            driver.executeScript("window.open('about:blank','_blank');");
-            Set<String> handles = driver.getWindowHandles();
-            handles.remove(originalHandle);
-            driver.switchTo().window(handles.toArray(new String[0])[0]);*/
             ResearcherParser researcherParser = new ResearcherParser();
             researcherParser.setStatusCtrl(statusCtrl);
             researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
             researcherParser.setResearcher(researcher);
             researcherParser.setDriver(driver);
             researcherParser.baiDuSpider();
-            //driver.switchTo().window(originalHandle);
 
             researcher.setInterests(researcherParser.getResearcher().getInterests());
             statusCtrl.researcherRepository.save(researcher);
@@ -156,7 +160,7 @@ public class ResearcherParser {
     public void baiDuSpider() {
         try {
             driver.get(this.url);
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(3000);
             String researcherName = this.researcher.getName();
             String curInstName = this.researcher.getCurrentInst().getName();
             List<WebElement> searchText = driver.findElementsByXPath("//form[@class=\"searchForm\"]//p[@class=\"formItem\"]");
@@ -174,7 +178,7 @@ public class ResearcherParser {
             WebElement searchButton = driver.findElementByXPath("//form[@class=\"searchForm\"]//input[@type=\"submit\"]");
             Actions actions = new Actions(driver);
             actions.click(searchButton).perform();
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             List<WebElement> matchResearchers = driver.findElementsByXPath("//div[@id=\"personalSearch_result\"]//div[contains(@class,\"searchResultItem\")]");
             if (matchResearchers.size() == 0) {
                 return;
@@ -196,11 +200,11 @@ public class ResearcherParser {
             //切换页面
             String originalHandle = driver.getWindowHandle();
             actions.click(target).perform();
-            Thread.sleep(1000);
+            ParserUtil.randomSleep(2000);
             Set<String> allHandles = driver.getWindowHandles();
-            allHandles.remove(originalHandle);
             if (allHandles.size() == 1)
                 return;
+            allHandles.remove(originalHandle);
             driver.switchTo().window((String) allHandles.toArray()[0]);
             List<WebElement> majorElement = driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
             List<String> interests = new ArrayList<>();
@@ -214,17 +218,13 @@ public class ResearcherParser {
             if (indexElement.size() != 0) {
                 for (WebElement index:indexElement) {
                     String type = index.findElement(By.xpath(".//p[contains(@class,\"p_ach_type\")]")).getText();
-                    if (type.equals("H指数")) {
+                    if (type.equals("H指数") && researcher.getHIndex() == null) {
                          Integer hIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
-                         if (this.researcher.getHIndex() == null) {
-                             this.researcher.setHIndex(hIndex);
-                         }
+                         this.researcher.setHIndex(hIndex);
                     }
-                    else if (type.equals("G指数")) {
+                    else if (type.equals("G指数") && researcher.getGIndex() == null) {
                         Integer gIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
-                        if (this.researcher.getGIndex() == null) {
-                            this.researcher.setHIndex(gIndex);
-                        }
+                        this.researcher.setHIndex(gIndex);
                     }
                 }
             }

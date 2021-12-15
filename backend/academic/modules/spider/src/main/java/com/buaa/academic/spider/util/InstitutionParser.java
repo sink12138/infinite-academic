@@ -44,7 +44,7 @@ public class InstitutionParser {
 //        System.setProperty("webdriver.chrome.driver",driverPath);
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.url);
-        Thread.sleep(5000);
+        ParserUtil.randomSleep(5000);
         //拖动滑块验证
         WebElement dstPicElement = null;
         WebElement srcPicElement = null;
@@ -79,7 +79,7 @@ public class InstitutionParser {
                 action.click(successElement).perform();
             }
         }
-        Thread.sleep(3000);
+        ParserUtil.randomSleep(3000);
         System.out.println("Finish Hold and Drag");
         WebElement logoUrlElement = null;
         WebElement nameElement = null;
@@ -123,7 +123,7 @@ public class InstitutionParser {
 //        System.setProperty("webdriver.chrome.driver",driverPath);
         RemoteWebDriver driver = new ChromeDriver(options);
         driver.get(this.url);
-        Thread.sleep(3000);
+        ParserUtil.randomSleep(3000);
         WebElement nameElement = null;
         WebElement logoUrlElement = null;
         try {

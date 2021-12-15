@@ -14,18 +14,19 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ExistenceServiceImpl implements ExistenceService {
     @Autowired
-    ElasticsearchRestTemplate template;
+    private ElasticsearchRestTemplate template;
 
     @Override
     public Paper findPaperByTileAndAuthors(String title, List<Paper.Author> authors) {
         NativeSearchQuery query;
-        if (!authors.isEmpty()){
+        if (!authors.isEmpty()) {
             List<String> authorsNames = new ArrayList<>();
             authors.forEach(author -> authorsNames.add(author.getName()));
             query = new NativeSearchQueryBuilder()
@@ -33,7 +34,7 @@ public class ExistenceServiceImpl implements ExistenceService {
                             QueryBuilders.termQuery("title.raw", title)
                     ).must(QueryBuilders.termsQuery("authors.name", authorsNames.toArray())))
                     .build();
-        } else  {
+        } else {
             query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.termQuery("title.raw", title))
                     .build();
@@ -91,8 +92,7 @@ public class ExistenceServiceImpl implements ExistenceService {
         QueryBuilder queryBuilder;
         if (authors.isEmpty()) {
             queryBuilder = QueryBuilders.termQuery("title", title);
-        }
-        else {
+        } else {
             queryBuilder = QueryBuilders.boolQuery()
                     .must(QueryBuilders.termQuery("title", title))
                     .must(QueryBuilders.termsQuery("authors", authorsNames.toArray()));

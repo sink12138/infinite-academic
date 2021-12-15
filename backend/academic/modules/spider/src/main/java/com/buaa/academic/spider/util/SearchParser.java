@@ -33,7 +33,7 @@ public class SearchParser {
         String threadName = Thread.currentThread().getName();
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         driver.get(this.url);
-        Thread.sleep(2000);
+        ParserUtil.randomSleep(2000);
         while (true) {
             try {
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
@@ -90,6 +90,7 @@ public class SearchParser {
                             String originalHandle = driver.getWindowHandle();
                             Actions actions = new Actions(driver);
                             actions.click(title).perform();
+                            ParserUtil.randomSleep(2000);
                             Set<String> allHandles = driver.getWindowHandles();
                             allHandles.remove(originalHandle);
                             assert allHandles.size() == 1;
@@ -138,6 +139,11 @@ public class SearchParser {
                                 StatusCtrl.sourceQueue.add(sourceObj);
                             }
                         }
+/*
+                        else if (paper.getSubjects() == null || paper.getSubjects().isEmpty()) {
+                            StatusCtrl.subjectAndTopicCrawlerQueue.add(new PaperObject("https://kns.cnki.net/kns8/defaultresult/index", paper.getId()));
+                        }
+*/
                     }
                     statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + " crawled, " + newPaper + " new");
                 }
@@ -150,7 +156,7 @@ public class SearchParser {
                     if (!next.getAttribute("style").equals("display: none;")) {
                         Actions actions = new Actions(driver);
                         actions.click(next).perform();
-                        Thread.sleep(2000);
+                        ParserUtil.randomSleep(2000);
                     }
                     else break;
                 }

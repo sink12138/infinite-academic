@@ -48,7 +48,7 @@ public class PaperParser {
             }
 
             driver.get(this.paperCraw.getUrl());
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             // 处理url非法
             String curUrl = driver.getCurrentUrl();
             if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {
@@ -72,7 +72,7 @@ public class PaperParser {
 
                 paper.setCrawled(true);
                 driver.get(this.paperCraw.getUrl());
-                Thread.sleep(2000);
+                ParserUtil.randomSleep(2000);
 
 
                 // 获取标题
@@ -330,7 +330,7 @@ public class PaperParser {
                     }
                     referenceElement.clear();
                     ableElement.clear();
-                    Thread.sleep(3000);
+                    ParserUtil.randomSleep(3000);
                 } while (flag == 1);
                 paper.setReferences(referenceID);
                 Paper paperSource = statusCtrl.template.get(paper.getId(), Paper.class);
@@ -367,7 +367,7 @@ public class PaperParser {
         String threadName = Thread.currentThread().getName();
         try {
             driver.get(this.paperCraw.getUrl());
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
             String title = paper.getTitle();
             statusCtrl.changeRunningStatusTo(threadName, "Get subjects of paper: " + title);
@@ -398,7 +398,7 @@ public class PaperParser {
 
             WebElement searchButton = driver.findElementByXPath("//input[@class=\"search-btn\"]");
             actions.click(searchButton).perform();
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             //选择论文类型
             List<WebElement> typeElement = driver.findElementsByXPath("//ul[@class=\"doctype-menus keji\"]/li");
             if (typeElement.size() != 0) {
@@ -414,12 +414,12 @@ public class PaperParser {
                 if (paper.getType().equals("期刊论文")) {
                     if (journal != null) {
                         actions.click(journal).perform();
-                        Thread.sleep(2000);
+                        ParserUtil.randomSleep(2000);
                     }
                 } else if (paper.getType().equals("学位论文")) {
                     if (degree != null) {
                         actions.click(degree).perform();
-                        Thread.sleep(2000);
+                        ParserUtil.randomSleep(2000);
                     }
                 }
             }
@@ -462,7 +462,7 @@ public class PaperParser {
             // 切换页面
             String originalHandle = driver.getWindowHandle();
             actions.click(target).perform();
-            Thread.sleep(1000);
+            ParserUtil.randomSleep(1000);
             Set<String> allHandles = driver.getWindowHandles();
             allHandles.remove(originalHandle);
             if (allHandles.size() == 1)
@@ -527,7 +527,7 @@ public class PaperParser {
         String threadName = Thread.currentThread().getName();
         try {
             driver.get(this.paperCraw.getUrl());
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
             String title = paper.getTitle();
             statusCtrl.changeRunningStatusTo(threadName, "Get sources of paper: " + title);

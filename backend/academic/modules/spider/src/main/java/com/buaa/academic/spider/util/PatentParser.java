@@ -40,7 +40,7 @@ public class PatentParser {
         }
         try {
             driver.get(this.url);
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
 //            Patent patent = statusCtrl.existenceService.findPatentById(this.patent.getId());
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");

@@ -28,7 +28,7 @@ public class JournalParser {
     public void wanFangSpider() {
         try {
             driver.get(this.url);
-            Thread.sleep(2000);
+            ParserUtil.randomSleep(2000);
             // 处理url非法
             String curUrl = driver.getCurrentUrl();
             if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {

@@ -6,8 +6,11 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.IOException;
+import java.util.Random;
 
 public abstract class ParserUtil {
+
+    private final static Random random = new Random();
 
     public static RemoteWebDriver getDriver(Boolean headless) {
         ChromeOptions options = new ChromeOptions().setHeadless(headless).addArguments("--blink-settings=imagesEnabled=false");
@@ -37,4 +40,9 @@ public abstract class ParserUtil {
         } while (!success && !StatusCtrl.jobStopped);
         return service;
     }
+
+    public static void randomSleep(long millis) throws InterruptedException {
+        Thread.sleep(millis / 2 + random.nextLong(millis));
+    }
+
 }
