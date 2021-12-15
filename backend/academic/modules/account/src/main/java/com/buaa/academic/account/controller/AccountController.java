@@ -67,7 +67,9 @@ public class AccountController {
             if (user != null) {
                 return new ModelAndView("CheckFailure");
             }
-            userToVerify.setDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            if (userToVerify.getDate() == null) {
+                userToVerify.setDate(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            }
             accountRepository.save(userToVerify);
             accountService.deleteRedisKey(code);
             request.setAttribute("email", userToVerify.getEmail());

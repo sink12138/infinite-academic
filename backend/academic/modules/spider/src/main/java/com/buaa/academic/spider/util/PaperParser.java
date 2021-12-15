@@ -41,6 +41,12 @@ public class PaperParser {
                 return;
             }
 
+            // 处理url非法
+            String curUrl = driver.getCurrentUrl();
+            if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {
+                return;
+            }
+
             // 获取当前页面url，添加外链
             List<Paper.Source> sources = paper.getSources();
             if (sources == null)
@@ -53,12 +59,8 @@ public class PaperParser {
             paper.setCrawled(true);
             driver.get(this.paperCraw.getUrl());
             Thread.sleep(2000);
-            // 处理url非法
-            String curUrl = driver.getCurrentUrl();
-            if (curUrl.startsWith("https://s.wanfangdata.com.cn/")) {
-                // todo 保存paper
-                return;
-            }
+
+
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
             if (titleElement.size() != 0) {
