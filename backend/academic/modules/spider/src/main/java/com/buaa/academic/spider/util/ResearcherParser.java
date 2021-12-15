@@ -216,11 +216,15 @@ public class ResearcherParser {
                     String type = index.findElement(By.xpath(".//p[contains(@class,\"p_ach_type\")]")).getText();
                     if (type.equals("H指数")) {
                          Integer hIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
-                         this.researcher.setHIndex(hIndex);
+                         if (this.researcher.getHIndex() == null) {
+                             this.researcher.setHIndex(hIndex);
+                         }
                     }
                     else if (type.equals("G指数")) {
                         Integer gIndex = Integer.valueOf(index.findElement(By.xpath(".//p[@class=\"p_ach_num\"]")).getText());
-                        this.researcher.setHIndex(gIndex);
+                        if (this.researcher.getGIndex() == null) {
+                            this.researcher.setHIndex(gIndex);
+                        }
                     }
                 }
             }
