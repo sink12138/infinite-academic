@@ -184,7 +184,7 @@
                     <v-icon class="mx-1">
                       mdi-text-box-multiple-outline
                     </v-icon>
-                    <a @click="href('paper', item.id)" v-html="item.title"></a>
+                    <a @click="href('patent', item.id)" v-html="item.title"></a>
                     <v-spacer></v-spacer>
                   </v-card-title>
                   <v-card-subtitle class="pb-0">
@@ -303,7 +303,13 @@ export default {
         authors_selected: [],
         journals_selected: [],
         institutions_selected: [],
-        paperType: "标题/摘要/关键词/学科",
+        paperType: {
+          type: "",
+          authors: "",
+          institutions: "",
+          journal: "",
+        },
+        paperSort: "相关度排序",
         patentType: {
           type: "",
           applicant: "",

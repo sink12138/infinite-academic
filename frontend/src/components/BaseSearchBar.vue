@@ -527,16 +527,24 @@ export default {
       } else {
         this.$axios({
           method: "post",
-          url: url,
-          params:{
-            key:this.text,
-            type:this.filters.queryType,
-          }
+          url: "/api/search/query/",
+          params: {
+            key: this.text,
+            type: this.filters.queryType,
+          },
         })
           .then((response) => {
             console.log(response.data);
             this.data = response.data;
-            this.$emit("searchResult", this.data.data);
+            if (this.data.success == false) {
+              this.$notify({
+                title: "搜索失败",
+                message: this.data.message,
+                type: "warning",
+              });
+            } else {
+              this.$router.push({path:"/search/info/"+this.data.data});
+            }
           })
           .catch((error) => {
             console.log(error);

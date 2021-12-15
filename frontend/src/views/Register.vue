@@ -107,6 +107,9 @@ export default {
           type: "warning",
         });
       } else {
+        console.log(this.username);
+        console.log(this.password);
+        console.log(this.email);
         this.$axios({
           method: "post",
           url: "/api/account/register",
@@ -123,7 +126,6 @@ export default {
               message:"请到邮箱验证后登录",
               type:"success"
             })
-            this.$router.push('/');
           }
           else{
             this.$notify({
