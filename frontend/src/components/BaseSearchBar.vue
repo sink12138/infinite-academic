@@ -22,6 +22,7 @@
       hide-details
       append-icon="mdi-magnify"
       @click:append="search"
+      @keyup.enter="search"
     >
     </v-text-field>
   </div>
@@ -34,7 +35,8 @@ export default {
     return {
       items: ["全部", "论文", "期刊", "专利", "机构", "科研人员", "精确"],
       filter: "全部",
-      text: null,
+      text: "",
+      suggest:[],
       filters: {},
       data: {},
       request: {},
@@ -44,6 +46,52 @@ export default {
   methods: {
     emitFilter() {
       this.$emit("filterChange", this.filter);
+    },
+    getSuggest(val) {
+      var url = "";
+      switch (this.filter) {
+        case "全部":
+        case "论文":
+          url = "/api/search/suggest/paper";
+          break;
+        case "期刊": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        case "专利": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        case "机构": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        default:
+          break;
+      }
+      if (url != "") {
+        this.$axios({
+          method: "post",
+          url: url,
+          params: {
+            text: val,
+          },
+        })
+          .then((response) => {
+            this.suggest=[];
+            console.log(response);
+            if (response.data.success == true) {
+              console.log(response.data.data);
+              if (response.data.data.correction.length != 0)
+                this.suggest=this.suggest.concat(response.data.data.correction);
+              if (response.data.data.completion.length != 0)
+                this.suggest=this.suggest.concat(response.data.data.completion);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
     search() {
       this.filters = this.$parent.filters;
@@ -115,7 +163,8 @@ export default {
             this.request.conditions[0] = condition;
           }
           if (this.filters.paperType.type != "") {
-            keywords = this.filters.patentType.type.trim().split(/\s+/);
+            keywords = this.filters.paperType.type.trim().split(/\s+/);
+            console.log(keywords);
             condition = {
               compound: false,
               fuzzy: false,
@@ -137,8 +186,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.paperType.authors != "") {
             keywords = this.filters.paperType.authors.trim().split(/\s+/);
@@ -163,8 +212,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.paperType.institutions != "") {
             keywords = this.filters.paperType.institutions.trim().split(/\s+/);
@@ -189,8 +238,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.paperType.journal != "") {
             keywords = this.filters.paperType.journal.trim().split(/\s+/);
@@ -215,8 +264,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.paperSort == "出版日期倒序") {
             this.request.sort = "date.desc";
@@ -318,8 +367,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.patentType.applicant != "") {
             keywords = this.filters.patentType.applicant.trim().split(/\s+/);
@@ -344,8 +393,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.patentType.inventors != "") {
             keywords = this.filters.patentType.inventors.trim().split(/\s+/);
@@ -370,8 +419,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.patentSort == "申请日期倒序") {
             this.request.sort = "fillingDate.desc";
@@ -431,8 +480,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.researcherType.currentInst != "") {
             keywords = this.filters.researcherType.currentInst
@@ -459,8 +508,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.researcherType.institutions != "") {
             keywords = this.filters.researcherType.institutions
@@ -487,8 +536,8 @@ export default {
                 };
                 condition = condition1;
               }
-              this.request.conditions.push(condition);
             }
+            this.request.conditions.push(condition);
           }
           if (this.filters.researcherSort == "论文数量") {
             this.request.sort = "paperNum.desc";
@@ -543,7 +592,7 @@ export default {
                 type: "warning",
               });
             } else {
-              this.$router.push({path:"/search/info/"+this.data.data});
+              this.$router.push({ path: "/search/info/" + this.data.data });
             }
           })
           .catch((error) => {
@@ -561,7 +610,7 @@ export default {
 }
 .select {
   height: 40px;
-  width: 12%;
+  width: 15%;
 }
 .input {
   width: 88%;
