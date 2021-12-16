@@ -38,6 +38,16 @@ public class ResearcherCrawlerThread implements Runnable {
 
         int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
+            if (StatusCtrl.jobStopped) {
+                if (driver != null)
+                    driver.quit();
+                if (service != null)
+                    service.stop();
+                statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                log.info("{} stopped", threadName);
+                return;
+            }
+
             try {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
@@ -50,15 +60,6 @@ public class ResearcherCrawlerThread implements Runnable {
                     driver = ParserUtil.getDriver(headless);
                 }
 
-                if (StatusCtrl.jobStopped) {
-                    if (driver != null)
-                        driver.quit();
-                    if (service != null)
-                        service.stop();
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                    log.info("{} stopped", threadName);
-                    return;
-                }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.researcherQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
                         if (driver != null) {

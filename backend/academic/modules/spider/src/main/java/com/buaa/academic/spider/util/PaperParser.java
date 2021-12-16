@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Component
 public class PaperParser {
 
-    private PaperObject paperCraw;
+    private PaperObject paperCrawl;
 
     private StatusCtrl statusCtrl;
 
@@ -33,7 +33,7 @@ public class PaperParser {
     public void wanFangSpider() {
         String threadName = Thread.currentThread().getName();
         try {
-            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
             // 已经爬完了
             boolean withOutAuthorsId = true;
             if (paper.isCrawled()) {
@@ -48,7 +48,7 @@ public class PaperParser {
                 return;
             }
 
-            driver.get(this.paperCraw.getUrl());
+            driver.get(this.paperCrawl.getUrl());
             ParserUtil.randomSleep(2000);
             // 处理url非法
             String curUrl = driver.getCurrentUrl();
@@ -65,7 +65,7 @@ public class PaperParser {
                 List<String> sourceText = new ArrayList<>();
                 sources.forEach(source -> sourceText.add(source.getWebsite()));
                 if (!sourceText.contains("万方")) {
-                    Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
+                    Paper.Source source = new Paper.Source("万方", this.paperCrawl.getUrl());
                     sources.add(source);
                     paper.setSources(sources);
                 }
@@ -291,13 +291,13 @@ public class PaperParser {
                                     foundReferPaper.setAuthors(referAuthorList);
                                     foundReferPaper.setCitationNum(1);
                                     foundReferPaper.setType("期刊论文");
-                                    // 插入数据库
                                 } else {
                                     foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                                 }
+                                // 插入数据库
                                 statusCtrl.paperRepository.save(foundReferPaper);
                                 // 把url塞进队列
-                                PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId());
+                                PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId(), paperCrawl.getDepth() - 1);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                                 referenceID.add(foundReferPaper.getId());
                             } else if (type.startsWith("[D]")) {
@@ -313,7 +313,7 @@ public class PaperParser {
                                     foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                                 }
                                 statusCtrl.paperRepository.save(foundReferPaper);
-                                PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId());
+                                PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId(), paperCrawl.getDepth() - 1);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                                 referenceID.add(foundReferPaper.getId());
                             }
@@ -373,9 +373,9 @@ public class PaperParser {
     public void zhiWangSpider() {
         String threadName = Thread.currentThread().getName();
         try {
-            driver.get(this.paperCraw.getUrl());
+            driver.get(this.paperCrawl.getUrl());
             ParserUtil.randomSleep(2000);
-            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
             String title = paper.getTitle();
             statusCtrl.changeRunningStatusTo(threadName, "Get subjects of paper: " + title);
             List<Paper.Author> paperAuthors = paper.getAuthors();
@@ -533,9 +533,9 @@ public class PaperParser {
     public void baiduSpider() {
         String threadName = Thread.currentThread().getName();
         try {
-            driver.get(this.paperCraw.getUrl());
+            driver.get(this.paperCrawl.getUrl());
             ParserUtil.randomSleep(2000);
-            Paper paper = statusCtrl.existenceService.findPaperById(paperCraw.getPaperId());
+            Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
             String title = paper.getTitle();
             statusCtrl.changeRunningStatusTo(threadName, "Get sources of paper: " + title);
             List<Paper.Author> paperAuthors = paper.getAuthors();
@@ -610,4 +610,5 @@ public class PaperParser {
             StatusCtrl.errorHandler.report(e);
         }
     }
+
 }

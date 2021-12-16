@@ -43,6 +43,16 @@ public class PaperMainInfoThread implements Runnable{
 
         int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
+            if (StatusCtrl.jobStopped) {
+                if (driver != null)
+                    driver.quit();
+                if (service != null)
+                    service.stop();
+                statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                log.info("{} stopped", threadName);
+                return;
+            }
+
             try {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
@@ -58,17 +68,6 @@ public class PaperMainInfoThread implements Runnable{
                     paperParser.setDriver(driver);
                 }
 
-                if (StatusCtrl.jobStopped) {
-                    if (driver != null)
-                        driver.quit();
-                    if (service != null)
-                        service.stop();
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                    log.info("{} stopped", threadName);
-                    return;
-                }
-
-                PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningQueueInitThreadNum == 0) {
                         driver.quit();
@@ -79,16 +78,19 @@ public class PaperMainInfoThread implements Runnable{
                         return;
                     }
                 }
-                paperObject = StatusCtrl.paperObjectQueue.poll();
+                PaperObject paperObject = StatusCtrl.paperObjectQueue.poll();
                 if (paperObject == null) {
                     Thread.sleep(2000);
                     continue;
                 }
-                paperParser.setPaperCraw(paperObject);
+                if (paperObject.getDepth() <= 0) {
+                    continue;
+                }
+                paperParser.setPaperCrawl(paperObject);
                 paperParser.wanFangSpider();
                 synchronized (StatusCtrl.queueLock) {
-                    paperParser.getPaperCraw().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
-                    StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCraw());
+                    paperParser.getPaperCrawl().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
+                    StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCrawl());
                 }
 
             } catch (Exception e) {

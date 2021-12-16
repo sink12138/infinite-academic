@@ -11,8 +11,10 @@ import com.buaa.academic.spider.repository.PaperRepository;
 import com.buaa.academic.spider.repository.ResearcherRepository;
 import com.buaa.academic.spider.service.ExistenceService;
 import com.buaa.academic.spider.service.Impl.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -90,6 +92,38 @@ public class StatusCtrl {
 
     public static final ErrorHandler errorHandler = new ErrorHandler();
 
+    @Slf4j
+    @Setter
+    public static class QueueCounter extends Thread {
+
+        private long interval = 5000;
+
+        private String summary() {
+            return String.format("Queued items: %d keyword(s), %d paper(s), %d researcher(s), %d interest(s), %d subject(s), %d journal(s), %d source(s)",
+                    keywordQueue.size(), paperObjectQueue.size(), researcherQueue.size(), interestsQueue.size(),
+                    subjectAndTopicCrawlerQueue.size(), journalUrls.size(), sourceQueue.size());
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(interval / 2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (!StatusCtrl.jobStopped && !StatusCtrl.runningJob.isEmpty()) {
+                log.info(summary());
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static final QueueCounter queueCounter = new QueueCounter();
+
     @Autowired
     public ElasticsearchRestTemplate template;
 
@@ -135,7 +169,10 @@ public class StatusCtrl {
         StatusCtrl.keywordQueue.addAll(List.of("visual", "算法", "image", "卷积", "database", "最短"));
         boolean headless = true;
 
-        new Thread(errorHandler, "Error-Handler").start();
+        errorHandler.setName("Error-Handler");
+        errorHandler.start();
+        queueCounter.setName("Queue-Counter");
+        queueCounter.start();
         for (int i = 0; i < queueInitThreadNum; i++) {
             Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
             String threadName = "QueueInit-" + i;
@@ -219,7 +256,10 @@ public class StatusCtrl {
         StatusCtrl.keywordQueue.addAll(List.of("北京大学"));
         boolean headless = true;
 
-        new Thread(errorHandler, "Error-Handler").start();
+        errorHandler.setName("Error-Handler");
+        errorHandler.start();
+        queueCounter.setName("Queue-Counter");
+        queueCounter.start();
         for (int i = 0; i < queueInitThreadNum; i++) {
             Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
             String threadName = "QueueInit-" + i;

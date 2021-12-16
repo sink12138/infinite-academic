@@ -34,6 +34,16 @@ public class PaperSourceThread implements Runnable {
 
         int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
+            if (StatusCtrl.jobStopped) {
+                if (driver != null)
+                    driver.quit();
+                if (service != null)
+                    service.stop();
+                statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                log.info("{} stopped", threadName);
+                return;
+            }
+
             try {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
@@ -44,16 +54,6 @@ public class PaperSourceThread implements Runnable {
                     service = ParserUtil.getDriverService();
                     service.start();
                     driver = ParserUtil.getDriver(headless);
-                }
-
-                if (StatusCtrl.jobStopped) {
-                    if (driver != null)
-                        driver.quit();
-                    if (service != null)
-                        service.stop();
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                    log.info("{} stopped", threadName);
-                    return;
                 }
 
                 synchronized (StatusCtrl.queueLock) {
@@ -75,7 +75,7 @@ public class PaperSourceThread implements Runnable {
                 }
 
                 PaperParser paperParser = new PaperParser();
-                paperParser.setPaperCraw(paperObject);
+                paperParser.setPaperCrawl(paperObject);
                 paperParser.setDriver(driver);
                 paperParser.setStatusCtrl(statusCtrl);
                 paperParser.baiduSpider();

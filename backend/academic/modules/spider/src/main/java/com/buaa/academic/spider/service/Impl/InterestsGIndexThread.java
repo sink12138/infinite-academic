@@ -54,14 +54,15 @@ public class InterestsGIndexThread implements Runnable {
         researcherParser.setStatusCtrl(statusCtrl);
 
         while (true) {
+            if (StatusCtrl.jobStopped) {
+                driver.quit();
+                service.stop();
+                statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                log.info("{} stopped", threadName);
+                return;
+            }
+
             try {
-                if (StatusCtrl.jobStopped) {
-                    driver.quit();
-                    service.stop();
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                    log.info("{} stopped", threadName);
-                    return;
-                }
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.interestsQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
                         driver.quit();

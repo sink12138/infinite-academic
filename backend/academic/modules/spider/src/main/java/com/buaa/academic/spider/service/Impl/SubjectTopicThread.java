@@ -39,6 +39,16 @@ public class SubjectTopicThread implements Runnable {
 
         int period = 500;
         for (int loop = 0; ; loop = (loop + 1) % period) {
+            if (StatusCtrl.jobStopped) {
+                if (driver != null)
+                    driver.quit();
+                if (service != null)
+                    service.stop();
+                statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
+                log.info("{} stopped", threadName);
+                return;
+            }
+
             try {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
@@ -53,15 +63,6 @@ public class SubjectTopicThread implements Runnable {
                     paperParser.setDriver(driver);
                 }
 
-                if (StatusCtrl.jobStopped) {
-                    if (driver != null)
-                        driver.quit();
-                    if (service != null)
-                        service.stop();
-                    statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                    log.info("{} stopped", threadName);
-                    return;
-                }
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
                     if (StatusCtrl.subjectAndTopicCrawlerQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
@@ -77,7 +78,7 @@ public class SubjectTopicThread implements Runnable {
                     Thread.sleep(2000);
                     continue;
                 }
-                paperParser.setPaperCraw(paperObject);
+                paperParser.setPaperCrawl(paperObject);
                 paperParser.zhiWangSpider();
 
             } catch (Exception e) {

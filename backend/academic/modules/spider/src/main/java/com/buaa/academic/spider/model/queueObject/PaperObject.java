@@ -9,6 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaperObject {
+
     private String url;
+
     private String paperId;
+
+    private int depth;
+
 }
