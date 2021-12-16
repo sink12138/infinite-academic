@@ -7,7 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -16,8 +19,8 @@ import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -37,35 +40,35 @@ public class CitationStatisticsThread implements Runnable{
                     .withQuery(QueryBuilders.matchAllQuery())
                     .withPageable(PageRequest.of(0, 1000))
                     .build();
-            SearchScrollHits<Researcher> hits = template.searchScrollStart(600000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
+            SearchScrollHits<Researcher> hits = template.searchScrollStart(20000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
             String scrollId = hits.getScrollId();
             int total = 0;
             do {
                 total += hits.getSearchHits().size();
-                log.info("batch size: {}", total);
+                log.info("Scrolled researchers: {}", total);
 
                 if (StatusCtrl.isStopped(name)) {
-                    StatusCtrl.changeRunningStatusToStop("Stopped. ", name);
+                    StatusCtrl.changeRunningStatusToStop("Stopped.", name);
                     return;
                 }
 
-                List<SearchHit<Researcher>> searchHits = hits.getSearchHits();
-
-                for (SearchHit<Researcher> searchHit : searchHits) {
+                for (SearchHit<Researcher> searchHit : hits) {
                     Researcher researcher = searchHit.getContent();
+                    BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
+                            .should(QueryBuilders.termQuery("authors.id", researcher.getId()));
+                    if (researcher.getCurrentInst() != null)
+                        boolQueryBuilder.should(QueryBuilders.termQuery("institutions.id", researcher.getCurrentInst().getId()));
                     NativeSearchQuery query = new NativeSearchQueryBuilder()
-                            .withQuery(QueryBuilders.termQuery("authors.name", researcher.getName()))
-                            .withFields("citationNum")
+                            .withQuery(boolQueryBuilder)
+                            .addAggregation(AggregationBuilders.sum("sum").field("citationNum"))
+                            .withMaxResults(0)
                             .build();
                     SearchHits<Paper> paperSearchHits = template.search(query, Paper.class);
-                    AtomicInteger num = new AtomicInteger();
-                    paperSearchHits.forEach(hit -> {
-                        num.addAndGet(hit.getContent().getCitationNum());
-                    });
-                    researcher.setCitationNum(num.intValue());
+                    int citationNum = (int) ((Sum) Objects.requireNonNull(paperSearchHits.getAggregations()).get("sum")).getValue();
+                    researcher.setCitationNum(citationNum);
                     template.save(researcher);
                 }
-                hits = template.searchScrollContinue(scrollId, 600000, Researcher.class, IndexCoordinates.of("researcher"));
+                hits = template.searchScrollContinue(scrollId, 20000, Researcher.class, IndexCoordinates.of("researcher"));
             } while (hits.hasSearchHits());
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,6 +77,6 @@ public class CitationStatisticsThread implements Runnable{
         }
 
         double costTime = ((double) (System.currentTimeMillis() - startTime) / 1000);
-        StatusCtrl.changeRunningStatusToStop("All done! " + "Cost " + costTime + "s. ", name);
+        StatusCtrl.changeRunningStatusToStop("All done! Cost " + costTime + "s.", name);
     }
 }
