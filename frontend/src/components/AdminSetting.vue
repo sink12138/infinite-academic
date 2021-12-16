@@ -9,6 +9,7 @@
         :headers="headers"
         :items="tasks"
         :loading="loading"
+        :options.sync="options"
         class="task"
       >
         <template v-slot:top>
@@ -151,37 +152,22 @@
 export default {
   data() {
     return {
-      dialog: true,
+      dialog: false,
       loading: true,
       headers: [
         {
-          text: '申请ID',
+          text: '任务名称',
           align: 'start',
-          value: 'id',
+          value: 'name',
           sortable: false,
         },
-        { text: '申请类型', value: 'type', sortable: false },
-        { text: '申请人ID', value: 'userId', sortable: false },
-        { text: '申请时间', value: 'time', sortable: false },
-        { text: '邮箱', value: 'email', sortable: false },
-        { text: 'websiteLink', value: 'websiteLink', sortable: false },
-        { text: '文件Token', value: 'fileToken', sortable: false },
-        { text: '当前状态', value: 'status', sortable: false },
+        { text: '上次运行时间', value: 'lastRun', sortable: false },
+        { text: '下次运行时间', value: 'nextRun', sortable: false },
+        { text: '预定频率', value: 'frequency', sortable: false },
+        { text: '运行状态', value: 'running', sortable: false },
         { text: '操作', value: 'actions', sortable: false },
       ],
-      applications: [
-        {
-          id: 0,
-          type: 'test',
-          userId: 2,
-          time: '2021.12.15',
-          email: 'test',
-          websiteLink: 'test',
-          fileToken: 'test',
-          status: 'test',
-        }
-      ],
-      content: '',
+      tasks: [],
       radioGroup: 0,
       radio: [
         {
@@ -196,6 +182,8 @@ export default {
       frequency: 0,
       hour: 0,
       cron: '',
+      settedItem: [],
+      options: {},
     }
   },
   computed: {
@@ -205,7 +193,7 @@ export default {
   watch: {
     options: {
       handler () {
-        this.getApplications()
+        this.getTasks()
       },
       deep: true,
     },
@@ -216,23 +204,16 @@ export default {
   },
 
   methods:{
-    getApplications () {
+    getTasks () {
       this.loading = true
-      this.page = this.options.page;
-      this.size = this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
 
       this.$axios({
         method: "get",
-        url: "api/admin/review/list",
-        params: {
-          page: this.page - 1,
-          size: this.size,
-        },
+        url: "api/admin/system/schedules",
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {
-          this.applications = response.data.data.items
-          this.totalApplications = response.data.data.pageCount * this.size
+          this.tasks = response.data.data.schedules
           this.loading = false
         } else {
           this.$notify({
@@ -245,53 +226,44 @@ export default {
       });
     },
 
-    checkItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
-      this.$axios({
-        method: "get",
-        url: "api/admin/review/details/" + item.id,
-        params: {
-          id: item.id,
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.content = response.data.data.content
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "账户信息获取失败",
-            type: "warning",
-          });
-        }
-      });
+    setItem (item) {
+      this.radioGroup = 0
+      this.frequency = 0
+      this.hour = 0
+      this.settedItem = item
       this.dialog = true
     },
 
-    passItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-      
+    set () {
+      this.$notify({
+        title: "test",
+        message: "设置频率成功",
+        type: "success",
+      });
+      this.dialog = false
     },
 
-    failItem () {
-
+    runItem (item) {
+      console.log(item)
+      this.$notify({
+        title: "test",
+        message: "运行任务成功",
+        type: "success",
+      });
     },
 
-    fail (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
+    stopItem (item) {
+      console.log(item)
+      this.$notify({
+        title: "test",
+        message: "停止任务成功",
+        type: "success",
+      });
     },
 
     close () {
       console.log(this.radioGroup)
       this.dialog = false
-
-    },
-
-    closeFail () {
-      this.dialogFail = false
-      this.getApplications()
     },
 
     getCron () {
@@ -302,43 +274,6 @@ export default {
         this.cron = '0 0 ' + this.hour + ' * ' + this.frequency +' ?'
       }
     },
-
-    test () {
-      this.$axios({
-        method: "post",
-        url: "/api/scholar/certify",
-        params: {
-          ctfApp:{
-            content:{
-              claim:{
-                portals: [],
-              },
-              code: 'test',
-              create:{
-                currentInst:{
-                  id:'test',
-                  name:'test'
-                },
-                gIndex:'test',
-                hIndex:'test',
-                institutions:'test',
-                interests:'test',
-                name:'test',
-              }
-            },
-            email:'test',
-            fileToken:'test',
-            websiteLink:'test'
-          }
-        }
-      }).then(response => {
-        console.log(response.data)
-        this.snackbarSub=true
-      }).catch(error => {
-        console.log(error)
-      })
-    }
-
   },
 }
 </script>
