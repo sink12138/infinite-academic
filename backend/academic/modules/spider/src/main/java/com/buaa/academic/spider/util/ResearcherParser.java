@@ -60,7 +60,7 @@ public class ResearcherParser {
                 curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name\"]");
             if (curInstElement.isEmpty())
                 return;
-            String instName = curInstElement.get(0).getText();
+            String instName = curInstElement.get(0).getAttribute("textContent");
 
             String[] instNames = instName.split("[;；]");
             instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
