@@ -24,7 +24,44 @@
               vertical
             ></v-divider>
             <v-spacer></v-spacer>
-
+            
+            <v-radio-group
+              v-model="radioGroup"
+              row
+            >
+              <v-radio
+                v-for="(item, id) in radio"
+                :key="id"
+                :label="item.title"
+                :value="item.num"
+              ></v-radio>
+            </v-radio-group>
+            
+            <v-divider
+              inset
+              vertical
+            ></v-divider>
+            
+            <v-col 
+              cols="12"
+              sm="3"
+            >
+              <v-select
+                v-model="select"
+                :items="items"
+                item-text="text"
+                item-value="num"
+                single-line
+                return-object
+                dense
+              ></v-select>
+            </v-col>
+            <v-icon
+              @click="getApplications"
+            >
+              mdi-refresh
+            </v-icon>
+            
             <v-dialog
               v-model="dialog"
               max-width="500px"
@@ -90,7 +127,7 @@
         <template v-slot:no-data>
           <v-btn
             color="primary"
-            @click="getApplications"
+            @click="refresh"
           >
             重置
           </v-btn>
@@ -147,6 +184,37 @@ export default {
         }
       ],
       content: '',
+      radioGroup: 0,
+      radio: [
+        {
+          num: 0,
+          title: '全部'
+        },
+        {
+          num: 1,
+          title: '审核中'
+        },
+        {
+          num: 2,
+          title: '审核不通过'
+        },
+        {
+          num: 3,
+          title: '审核通过'
+        }
+      ],
+      select: { text: '全部', num: '0' },
+      items: [
+        { text: '全部', num: '0' },
+        { text: '学者认证', num: '1' },
+        { text: '门户认领', num: '2' },
+        { text: '门户信息修改', num: '3' },
+        { text: '添加论文', num: '4' },
+        { text: '下架论文', num: '5' },
+        { text: '修改论文信息', num: '6' },
+        { text: '专利转让', num: '7' },
+        
+      ],
     }
   },
   computed: {
@@ -172,28 +240,106 @@ export default {
       this.page = this.options.page;
       this.size = this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
 
-      this.$axios({
-        method: "get",
-        url: "api/admin/review/list",
-        params: {
-          page: this.page - 1,
-          size: this.size,
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.applications = response.data.data.items
-          this.totalApplications = response.data.data.pageCount * this.size
-          this.loading = false
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "账户信息获取失败",
-            type: "warning",
-          });
-          this.loading = false
-        }
-      });
+      if (this.radioGroup == 0 && this.select['num'] == 0) {
+        this.$axios({
+          method: "get",
+          url: "api/admin/review/list",
+          params: {
+            page: this.page - 1,
+            size: this.size,
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.applications = response.data.data.items
+            this.totalApplications = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
+      else if (this.radioGroup == 0 && this.select['num'] != 0) {
+        this.$axios({
+          method: "get",
+          url: "api/admin/review/list",
+          params: {
+            page: this.page - 1,
+            size: this.size,
+            type: this.select['text']
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.applications = response.data.data.items
+            this.totalApplications = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
+      else if (this.radioGroup != 0 && this.select['num'] == 0) {
+        this.$axios({
+          method: "get",
+          url: "api/admin/review/list",
+          params: {
+            page: this.page - 1,
+            size: this.size,
+            status: this.radio[this.radioGroup]['title']
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.applications = response.data.data.items
+            this.totalApplications = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
+      else {
+        this.$axios({
+          method: "get",
+          url: "api/admin/review/list",
+          params: {
+            page: this.page - 1,
+            size: this.size,
+            type: this.select['text'],
+            status: this.radio[this.radioGroup]['title']
+          },
+        }).then((response) => {
+          console.log(response.data);
+          if (response.data.success === true) {
+            this.applications = response.data.data.items
+            this.totalApplications = response.data.data.pageCount * this.size
+            this.loading = false
+          } else {
+            this.$notify({
+              title: "失败",
+              message: "账户信息获取失败",
+              type: "warning",
+            });
+            this.loading = false
+          }
+        });
+      }
     },
 
     checkItem (item) {
