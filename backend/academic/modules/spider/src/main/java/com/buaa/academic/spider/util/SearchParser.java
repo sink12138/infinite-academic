@@ -26,6 +26,8 @@ public class SearchParser {
 
     private Boolean headless;
 
+    private int life = 15;
+
     // 本部分用于初始化爬取队列
     public void wanFangSpider() throws InterruptedException {
         int crawledPaper = 0;
@@ -167,6 +169,9 @@ public class SearchParser {
             }
             catch (Exception e) {
                 StatusCtrl.errorHandler.report(e);
+                --life;
+                if (life < 0)
+                    break;
             }
         }
         driver.close();

@@ -222,10 +222,9 @@ public class PaperParser {
                     paper.setJournal(journal);
                     if (crawlNewJournal) {
                         String journalUrl = journalElement.get(0).getAttribute("href");
-                        if (journalUrl.startsWith("https://s.wanfangdata.com.cn/")) {
-                            journalUrl = null;
+                        if (!journalUrl.startsWith("https://s.wanfangdata.com.cn/")) {
+                            StatusCtrl.journalUrls.add(journalUrl);
                         }
-                        StatusCtrl.journalUrls.add(journalUrl);
                     }
                 } else if (paper.getType().equals("学位论文")) {
                     // 获取学位授予年份
