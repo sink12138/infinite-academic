@@ -179,7 +179,7 @@ public class AnalysisShowServiceImpl implements AnalysisShowService {
         String aggField = switch (type) {
             case "researcher" -> "authors.id";
             case "institution" -> "institutions.id";
-            case "journal" -> "journal.title";
+            case "journal" -> "journal.id";
             default -> null;
         };
         if (aggField == null)
