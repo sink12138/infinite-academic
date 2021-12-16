@@ -1,5 +1,9 @@
 <template>
-  <v-card>
+  <v-card
+    width="4000"
+    flat
+    outlined
+  >
     <v-card-text>
       <v-data-table
         :headers="headers"
@@ -7,6 +11,7 @@
         :options.sync="options"
         :server-items-length="totalApplications"
         :loading="loading"
+        :calculate-widths="true"
         class="applications"
       >
         <template v-slot:top>
@@ -92,6 +97,13 @@
         </template>
       </v-data-table>
     </v-card-text>
+
+    <v-btn
+      color="primary"
+      @click="test"
+    >
+      test
+    </v-btn>
   </v-card>
 </template>
 
@@ -427,6 +439,42 @@ export default {
       this.dialogFail = false
       this.getApplications()
     },
+
+    test () {
+      this.$axios({
+        method: "post",
+        url: "/api/scholar/certify",
+        params: {
+          ctfApp:{
+            content:{
+              claim:{
+                portals: [],
+              },
+              code: 'test',
+              create:{
+                currentInst:{
+                  id:'test',
+                  name:'test'
+                },
+                gIndex:'test',
+                hIndex:'test',
+                institutions:'test',
+                interests:'test',
+                name:'test',
+              }
+            },
+            email:'test',
+            fileToken:'test',
+            websiteLink:'test'
+          }
+        }
+      }).then(response => {
+        console.log(response.data)
+        this.snackbarSub=true
+      }).catch(error => {
+        console.log(error)
+      })
+    }
 
   },
 }

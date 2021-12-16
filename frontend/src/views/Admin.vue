@@ -223,30 +223,13 @@
         <ReviewApplication></ReviewApplication>
       </div>
       
-      <v-card
+      <div
+        class="systemSettings"
         v-if="menu_id == 4"
-        flat
       >
-        <p>欢迎来到数据更新界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 5"
-        flat
-      >
-        <p>欢迎来到账号审核界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 6"
-        flat
-      >
-        <p>欢迎来到数据审核界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 7"
-        flat
-      >
-        <p>欢迎来到系统设置界面！</p>
-      </v-card>
+        <SystemSetting></SystemSetting>
+      </div>
+      
     </v-container>
   
 
@@ -257,6 +240,7 @@
 import Banner from '../components/AdminBanner.vue'
 import AccountManagement from '../components/AdminAccountManagement.vue'
 import ReviewApplication from '../components/AdminReviewApplication.vue'
+import SystemSetting from '../components/AdminSetting.vue'
 import { sha256 } from "js-sha256";
 
 export default {
@@ -264,6 +248,7 @@ export default {
     Banner,
     AccountManagement,
     ReviewApplication,
+    SystemSetting,
   },
   data() {
     return {
@@ -299,23 +284,8 @@ export default {
         },
         {
           menu_id: 4,
-          title:"数据更新",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 5,
-          title:"账号审核",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 6,
-          title:"数据审核",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 7,
           title:"系统设置",
-          icon:"mdi-folder",
+          icon:"mdi-cog-outline",
         },
       ],
     }

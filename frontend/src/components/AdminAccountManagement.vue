@@ -226,6 +226,8 @@ import { sha256 } from "js-sha256";
 export default {
   data() {
     return {
+      userName: "",
+      passWords: "",
       accountSearch: "",
       searchEmail: "",
       searchName: "",
