@@ -39,10 +39,9 @@ public class InterestsGIndexThread implements Runnable {
                 return;
             }
             try {
-                if (service == null)
-                    service = ParserUtil.getDriverService();
-                if (driver == null)
-                    driver = ParserUtil.getDriver(headless);
+                service = ParserUtil.getDriverService();
+                service.start();
+                driver = ParserUtil.getDriver(headless);
                 driver.get("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
             }
             catch (Exception e) {
@@ -85,12 +84,6 @@ public class InterestsGIndexThread implements Runnable {
 
                 if (researcherParser.isBanned()) {
                     statusCtrl.changeRunningStatusTo(threadName, "Banned, sleeping...");
-                    ParserUtil.randomSleep(10000);
-                    driver.quit();
-                    service.stop();
-                    service = ParserUtil.getDriverService();
-                    driver = ParserUtil.getDriver(headless);
-                    driver.get("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
                 }
             }
             catch (Exception e) {
@@ -107,6 +100,7 @@ public class InterestsGIndexThread implements Runnable {
                         driver.quit();
                         service.stop();
                         service = ParserUtil.getDriverService();
+                        service.start();
                         driver = ParserUtil.getDriver(headless);
                         driver.get("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
                     }

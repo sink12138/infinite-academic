@@ -1,6 +1,5 @@
 package com.buaa.academic.spider.util;
 
-import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
@@ -63,6 +62,7 @@ public class StatusCtrl {
             int period = 300;
             for (int loop = 0; errorNum < threshold; loop = (loop + 1) % period) {
                 if (StatusCtrl.jobStopped) {
+                    errorNum = 0;
                     return;
                 }
                 if (loop == 0)

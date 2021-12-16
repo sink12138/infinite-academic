@@ -212,6 +212,8 @@ public class ResearcherParser {
                     this.researcher.setInterests(Arrays.stream(rawInterests.strip().split("\\s+")).toList());
                     statusCtrl.researcherRepository.save(this.researcher);
                 }
+                driver.close();
+                driver.switchTo().window(originalHandle);
                 banned = true;
                 return;
             }

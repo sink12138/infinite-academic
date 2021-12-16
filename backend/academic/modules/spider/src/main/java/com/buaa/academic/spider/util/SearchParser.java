@@ -132,18 +132,14 @@ public class SearchParser {
                                 paperObject.setUrl(url);
                                 paperObject.setPaperId(paper.getId());
                                 StatusCtrl.paperObjectQueue.add(paperObject);
-
+                            }
+                            if (paper.getSources() == null || paper.getSources().size() <= 2) {
                                 PaperObject sourceObj = new PaperObject();
                                 sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
                                 sourceObj.setPaperId(paper.getId());
                                 StatusCtrl.sourceQueue.add(sourceObj);
                             }
                         }
-/*
-                        else if (paper.getSubjects() == null || paper.getSubjects().isEmpty()) {
-                            StatusCtrl.subjectAndTopicCrawlerQueue.add(new PaperObject("https://kns.cnki.net/kns8/defaultresult/index", paper.getId()));
-                        }
-*/
                     }
                     statusCtrl.changeRunningStatusTo(threadName,   "Paper count: " + crawledPaper + " crawled, " + newPaper + " new");
                 }
