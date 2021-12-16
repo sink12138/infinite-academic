@@ -80,6 +80,8 @@ public class HeatUpdateMainThread implements Runnable {
         aggEnd = false;
         ConcurrentLinkedQueue<Terms.Bucket> buckets = new ConcurrentLinkedQueue<>();
         targetTerm.put(name, buckets);
+        total.put(name, 0);
+        finished.put(name, 0);
 
         StatusCtrl.changeRunningStatusTo("Building threads...", name);
         ArrayList<Thread> threads = new ArrayList<>();
@@ -113,6 +115,7 @@ public class HeatUpdateMainThread implements Runnable {
         int bucketSize = 10000;
         int partitionNum = (int) ((totalCount + bucketSize - 1) / bucketSize);
 
+        int totalNum = 0;
         for (int partition = 0; partition < partitionNum; partition++) {
 
 
@@ -133,7 +136,8 @@ public class HeatUpdateMainThread implements Runnable {
             Aggregation aggregation = aggregations.asMap().get("term");
             ParsedStringTerms terms = (ParsedStringTerms) aggregation;
 
-            log.info("batch size: {}", terms.getBuckets().size());
+            totalNum += terms.getBuckets().size();
+            log.info("batch size: {}", totalNum);
 
             buckets.addAll(terms.getBuckets());
         }

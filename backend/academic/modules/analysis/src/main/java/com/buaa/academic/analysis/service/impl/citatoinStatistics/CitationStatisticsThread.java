@@ -39,8 +39,10 @@ public class CitationStatisticsThread implements Runnable{
                     .build();
             SearchScrollHits<Researcher> hits = template.searchScrollStart(600000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
             String scrollId = hits.getScrollId();
+            int total = 0;
             do {
-                log.info("batch size: {}", hits.getSearchHits().size());
+                total += hits.getSearchHits().size();
+                log.info("batch size: {}", total);
 
                 if (StatusCtrl.isStopped(name)) {
                     StatusCtrl.changeRunningStatusToStop("Stopped. ", name);

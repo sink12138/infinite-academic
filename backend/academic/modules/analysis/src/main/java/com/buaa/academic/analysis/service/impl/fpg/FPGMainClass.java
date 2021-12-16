@@ -233,8 +233,10 @@ public class FPGMainClass implements Runnable {
         SearchScrollHits<Paper> hits = template.searchScrollStart(600000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
         String scrollId = hits.getScrollId();
 
+        int total = 0;
         do {
-            log.info("batch size: {}", hits.getSearchHits().size());
+            total += hits.getSearchHits().size();
+            log.info("batch size: {}", total);
 
             // 检查线程是否终止
             if (StatusCtrl.isStopped(name)) {
