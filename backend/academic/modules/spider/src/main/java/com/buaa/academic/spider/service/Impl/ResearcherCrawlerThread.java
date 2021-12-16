@@ -19,7 +19,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
-public class ResearcherCrawlerThread implements Runnable{
+public class ResearcherCrawlerThread implements Runnable {
 
     private StatusCtrl statusCtrl;
 
@@ -42,8 +42,7 @@ public class ResearcherCrawlerThread implements Runnable{
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
                     driver = ParserUtil.getDriver(headless);
-                }
-                else if (loop == 0) {
+                } else if (loop == 0) {
                     driver.quit();
                     service.stop();
                     service = ParserUtil.getDriverService();
@@ -67,7 +66,7 @@ public class ResearcherCrawlerThread implements Runnable{
                             assert service != null;
                             service.stop();
                         }
-                        statusCtrl.changeRunningStatusStop(threadName,  "Finished.");
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished.");
                         log.info("{} finished", threadName);
                         return;
                     }

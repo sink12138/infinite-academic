@@ -52,8 +52,12 @@ public class SuggestController {
         switch (entity) {
             case "paper" -> {
                 target = Paper.class;
-                phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
-                        "title.raw", "keywords.raw", "subjects.raw" };
+                if (text.matches("^[a-zA-Z ]{6,}.*") && text.length() > 16 || text.length() > 6)
+                    phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
+                            "title.raw", "keywords.raw", "subjects.raw" };
+                else {
+                    phrases = new String[] { "keywords.phrase", "subjects.phrase", "keywords.raw", "subjects.raw" };
+                }
             }
             case "journal" -> {
                 target = Journal.class;
@@ -65,7 +69,7 @@ public class SuggestController {
             }
             case "patent" -> {
                 target = Patent.class;
-                phrases = new String[] { "title.phrase", "name.raw" };
+                phrases = new String[] { "title.phrase", "title.raw" };
             }
             default -> {
                 return result.withFailure(ExceptionType.INVALID_PARAM);

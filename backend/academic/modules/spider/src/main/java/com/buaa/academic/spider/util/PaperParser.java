@@ -68,13 +68,10 @@ public class PaperParser {
                     Paper.Source source = new Paper.Source("万方", this.paperCraw.getUrl());
                     sources.add(source);
                     paper.setSources(sources);
-                    statusCtrl.template.save(paper);
                 }
 
                 paper.setCrawled(true);
-                driver.get(this.paperCraw.getUrl());
-                ParserUtil.randomSleep(2000);
-
+                statusCtrl.template.save(paper);
 
                 // 获取标题
                 List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");

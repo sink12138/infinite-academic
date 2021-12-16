@@ -12,6 +12,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -31,10 +32,12 @@ public class ResearcherParser {
 
     private boolean headless;
 
+    private boolean banned;
+
     public void wanFangSpider() {
         try {
             driver.get(this.url);
-            ParserUtil.randomSleep(3000);
+            ParserUtil.randomSleep(5000);
             // 处理url非法
             String curUrl = driver.getCurrentUrl();
             if (!curUrl.startsWith("https://trend.wanfangdata.com.cn/scholarsBootPage")) {
@@ -57,7 +60,7 @@ public class ResearcherParser {
                 curInstElement = driver.findElementsByXPath("//h3[@class=\"lt-top-tilte unit-name\"]");
             if (curInstElement.isEmpty())
                 return;
-            String instName = curInstElement.get(0).getText();
+            String instName = curInstElement.get(0).getAttribute("textContent");
 
             String[] instNames = instName.split("[;；]");
             instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
@@ -81,6 +84,7 @@ public class ResearcherParser {
                 curInstitution.setId(institution.getId());
                 curInstitution.setName(instName);
                 researcher.setCurrentInst(curInstitution);
+                statusCtrl.researcherRepository.save(researcher);
             } else {
                 this.researcher = researcher;
                 researcher.setPaperNum(researcher.getPaperNum() + 1);
@@ -141,19 +145,8 @@ public class ResearcherParser {
 
             // add researcher into database
             statusCtrl.researcherRepository.save(researcher);
-            ResearcherParser researcherParser = new ResearcherParser();
-            researcherParser.setStatusCtrl(statusCtrl);
-            researcherParser.setUrl("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
-            researcherParser.setResearcher(researcher);
-            researcherParser.setDriver(driver);
-            researcherParser.baiDuSpider();
-            Researcher tmpResearcher = researcherParser.getResearcher();
-            researcher.setInterests(tmpResearcher.getInterests());
-            researcher.setInstitutions(tmpResearcher.getInstitutions());
-            researcher.setHIndex(tmpResearcher.getHIndex());
-            researcher.setGIndex(tmpResearcher.getGIndex());
-            statusCtrl.researcherRepository.save(researcher);
             this.researcher = researcher;
+            StatusCtrl.interestsQueue.add(researcher);
         } catch (Exception e) {
             StatusCtrl.errorHandler.report(e);
         }
@@ -163,8 +156,6 @@ public class ResearcherParser {
     // https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page
     public void baiDuSpider() {
         try {
-            driver.get(this.url);
-            ParserUtil.randomSleep(3000);
             String researcherName = this.researcher.getName();
             String curInstName = this.researcher.getCurrentInst().getName();
             List<WebElement> searchText = driver.findElementsByXPath("//form[@class=\"searchForm\"]//p[@class=\"formItem\"]");
@@ -173,8 +164,10 @@ public class ResearcherParser {
                     String type = submitText.findElement(By.xpath(".//span[@class=\"label\"]")).getText();
                     WebElement text = submitText.findElement(By.xpath(".//input[@type=\"text\"]"));
                     if (type.equals("*姓名")) {
+                        text.clear();
                         text.sendKeys(researcherName);
                     } else if (type.equals("机构")) {
+                        text.clear();
                         text.sendKeys(curInstName);
                     }
                 }
@@ -188,12 +181,16 @@ public class ResearcherParser {
                 return;
             }
             WebElement target = null;
+            String rawInterests = null;
             for (WebElement matchResearcher : matchResearchers) {
                 String name = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]")).getText();
                 name = name.replace("\uE61F","");
                 String instName = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//p[contains(@class,\"personInstitution\")]")).getText();
-                List<WebElement> interest = matchResearcher.findElements(By.xpath(".//div[@class=\"searchResult_text\"]//p[@class=\"personField\"]"));
-                if (name.equals(researcherName) && (curInstName.contains(instName) || instName.contains(curInstName)) && interest.size() != 0) {
+                List<WebElement> interest = matchResearcher.findElements(By.xpath(".//div[@class=\"searchResult_text\"]//p[@class=\"personField\"]//span[@class=\"aFiled\"]"));
+                if (name.equals(researcherName) && (curInstName.contains(instName) || instName.contains(curInstName))) {
+                    if (!interest.isEmpty()) {
+                        rawInterests = interest.get(0).getText();
+                    }
                     target = matchResearcher.findElement(By.xpath(".//div[@class=\"searchResult_text\"]//a[@class=\"personName\"]"));
                     break;
                 }
@@ -210,6 +207,18 @@ public class ResearcherParser {
                 return;
             allHandles.remove(originalHandle);
             driver.switchTo().window((String) allHandles.toArray()[0]);
+            if (driver.getCurrentUrl().startsWith("https://wappass.baidu.com/")) {
+                if (rawInterests != null) {
+                    this.researcher.setInterests(Arrays.stream(rawInterests.strip().split("\\s+")).toList());
+                    statusCtrl.researcherRepository.save(this.researcher);
+                }
+                driver.close();
+                driver.switchTo().window(originalHandle);
+                banned = true;
+                return;
+            }
+
+            statusCtrl.changeRunningStatusTo(Thread.currentThread().getName(), "Get info of researcher: " + researcherName);
             List<WebElement> majorElement = driver.findElementsByXPath("//span[@class=\"person_domain person_text\"]//a");
             List<String> interests = new ArrayList<>();
             if (majorElement.size() != 0) {
@@ -218,7 +227,7 @@ public class ResearcherParser {
                 }
                 this.researcher.setInterests(interests);
             }
-            // H\G指数
+            // H/G指数
             List<WebElement> indexElement = driver.findElementsByXPath("//ul[@class=\"p_ach_wr\"]//li[@class=\"p_ach_item\"]");
             if (indexElement.size() != 0) {
                 for (WebElement index:indexElement) {
@@ -259,9 +268,11 @@ public class ResearcherParser {
                     this.researcher.setInstitutions(corInsts);
                 }
             }
+            statusCtrl.researcherRepository.save(this.researcher);
 
             driver.close();
             driver.switchTo().window(originalHandle);
+            ParserUtil.randomSleep(2000);
         } catch (Exception e) {
             StatusCtrl.errorHandler.report(e);
         }
