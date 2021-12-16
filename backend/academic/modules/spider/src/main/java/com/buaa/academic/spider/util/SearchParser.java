@@ -38,9 +38,7 @@ public class SearchParser {
         ParserUtil.randomSleep(2000);
         while (true) {
             if (StatusCtrl.jobStopped) {
-                driver.close();
-                driver.quit();
-                return;
+                break;
             }
             try {
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");

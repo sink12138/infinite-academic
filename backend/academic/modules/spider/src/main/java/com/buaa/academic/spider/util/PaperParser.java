@@ -280,45 +280,31 @@ public class PaperParser {
                                 }
                             }
                             // 期刊论文：J 学位论文：D
-                            if (type.startsWith("[J]")) {
-                                // find paper by referTitle and referAuthorName
-                                Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
-                                if (foundReferPaper == null) {
-                                    foundReferPaper = new Paper();
-                                    foundReferPaper.setCrawled(false);
-                                    foundReferPaper.setTitle(referTitle);
-                                    foundReferPaper.setAuthors(referAuthorList);
-                                    foundReferPaper.setCitationNum(1);
-                                    foundReferPaper.setType("期刊论文");
-                                } else {
-                                    foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
-                                }
-                                // 插入数据库
-                                statusCtrl.paperRepository.save(foundReferPaper);
+                            if (!type.startsWith("[J]") && !type.startsWith("[D]")) {
+                                referenceID.add(reference.getText());
+                                continue;
+                            }
+                            String refType = type.startsWith("[J]") ? "期刊论文" : "学位论文";
+                            // find paper by referTitle and referAuthorName
+                            Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
+                            if (foundReferPaper == null) {
+                                foundReferPaper = new Paper();
+                                foundReferPaper.setCrawled(false);
+                                foundReferPaper.setTitle(referTitle);
+                                foundReferPaper.setAuthors(referAuthorList);
+                                foundReferPaper.setCitationNum(1);
+                                foundReferPaper.setType(refType);
+                            }
+                            else {
+                                foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
+                            }
+                            // 插入数据库
+                            statusCtrl.paperRepository.save(foundReferPaper);
+                            referenceID.add(foundReferPaper.getId());
+                            if (!foundReferPaper.isCrawled()) {
                                 // 把url塞进队列
                                 PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId(), paperCrawl.getDepth() - 1);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
-                                referenceID.add(foundReferPaper.getId());
-                            } else if (type.startsWith("[D]")) {
-                                Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
-                                if (foundReferPaper == null) {
-                                    foundReferPaper = new Paper();
-                                    foundReferPaper.setCrawled(false);
-                                    foundReferPaper.setTitle(referTitle);
-                                    foundReferPaper.setAuthors(referAuthorList);
-                                    foundReferPaper.setCitationNum(1);
-                                    foundReferPaper.setType("学位论文");
-                                } else {
-                                    foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
-                                }
-                                statusCtrl.paperRepository.save(foundReferPaper);
-                                PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId(), paperCrawl.getDepth() - 1);
-                                StatusCtrl.paperObjectQueue.add(paperObject);
-                                referenceID.add(foundReferPaper.getId());
-                            }
-                            else {
-                                String spaceHolder = reference.getText();
-                                referenceID.add(spaceHolder);
                             }
                         }
                     }
