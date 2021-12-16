@@ -141,7 +141,16 @@ public class SearchParser {
                                 paperObject.setDepth(3);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                             }
-                            if (paper.getSources() == null || paper.getSources().size() <= 2) {
+                            boolean hasSource = false;
+                            if (paper.getSources() != null) {
+                                for (Paper.Source source : paper.getSources()) {
+                                    if (source.getWebsite().equals("百度学术")) {
+                                        hasSource = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!hasSource) {
                                 PaperObject sourceObj = new PaperObject();
                                 sourceObj.setUrl("https://xueshu.baidu.com/s?wd=" + titleName + "&sc_hit=2&tn=SE_baiduxueshu_c1gjeupa&ie=utf-8");
                                 sourceObj.setPaperId(paper.getId());
