@@ -6,6 +6,7 @@ import com.buaa.academic.document.entity.Researcher;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 public class CitationStatisticsThread implements Runnable{
     private ElasticsearchRestTemplate template;
     private String name;
@@ -38,6 +40,8 @@ public class CitationStatisticsThread implements Runnable{
             SearchScrollHits<Researcher> hits = template.searchScrollStart(600000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
             String scrollId = hits.getScrollId();
             do {
+                log.info("batch size: {}", hits.getSearchHits().size());
+
                 if (StatusCtrl.isStopped(name)) {
                     StatusCtrl.changeRunningStatusToStop("Stopped. ", name);
                     return;

@@ -148,7 +148,7 @@ public class StatusCtrl implements Runnable {
     private void researcherCitationStatistics() throws InterruptedException {
         log.info("Citation statistics of researcher started");
 
-        Thread statisticsThread = new Thread(new CitationStatisticsThread(template, JobType.CITATION_STATISTICS.name()));
+        Thread statisticsThread = new Thread(new CitationStatisticsThread(template, JobType.CITATION_STATISTICS.name()), JobType.CITATION_STATISTICS.name());
         synchronized (StatusCtrl.STATUS_LOCK) {
             StatusCtrl.isRunning.put(JobType.CITATION_STATISTICS.name(), true);
         }

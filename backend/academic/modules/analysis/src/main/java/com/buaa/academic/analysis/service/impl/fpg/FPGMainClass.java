@@ -234,6 +234,7 @@ public class FPGMainClass implements Runnable {
         String scrollId = hits.getScrollId();
 
         do {
+            log.info("batch size: {}", hits.getSearchHits().size());
 
             // 检查线程是否终止
             if (StatusCtrl.isStopped(name)) {

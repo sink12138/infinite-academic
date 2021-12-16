@@ -114,6 +114,8 @@ public class HeatUpdateMainThread implements Runnable {
         int partitionNum = (int) ((totalCount + bucketSize - 1) / bucketSize);
 
         for (int partition = 0; partition < partitionNum; partition++) {
+
+
             ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
             TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term")
                     .field("year").subAggregation(count).order(BucketOrder.key(true)).size(200);
@@ -130,6 +132,8 @@ public class HeatUpdateMainThread implements Runnable {
             assert aggregations != null;
             Aggregation aggregation = aggregations.asMap().get("term");
             ParsedStringTerms terms = (ParsedStringTerms) aggregation;
+
+            log.info("batch size: {}", terms.getBuckets().size());
 
             buckets.addAll(terms.getBuckets());
         }
