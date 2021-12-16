@@ -16,6 +16,7 @@ const Register = () => import("../views/Register.vue")
 const User = () => import("../views/user/User.vue")
 const Profile = () => import("../views/user/Profile.vue")
 const Apply = () => import("../views/user/Apply.vue")
+const Message = () => import("../views/user/Message.vue")
 const Door = () => import("../views/Door.vue")
 const ScholarIdentity = () => import("../views/ScholarIdentity.vue")
 
@@ -80,8 +81,7 @@ const routes = [{
     path: '/user',
     name: 'User',
     component: User,
-    children: [
-      {
+    children: [{
         path: 'profile',
         name: 'Profile',
         component: Profile
@@ -90,6 +90,11 @@ const routes = [{
         path: 'apply',
         name: 'Apply',
         component: Apply
+      },
+      {
+        path: 'message',
+        name: 'Message',
+        component: Message
       }
     ]
   },

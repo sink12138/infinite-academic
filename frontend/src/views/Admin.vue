@@ -209,165 +209,27 @@
         </v-card-text>
       </v-card>
 
-      <v-card
-        class="accountmanagement"
+      <div
+        class="accountManagement"
         v-if="menu_id == 2"
-        flat
-        outlined
       >
-        <v-toolbar>
-          <v-row
-            justify="center" 
-            align="center"
-          >
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+        <AccountManagement></AccountManagement>
+      </div>
 
-            <v-text-field
-              label="账号搜索"
-              placeholder="请输入用户名或邮箱"
-              filled
-              rounded
-              dense
-              v-model="accountSearch"
-            ></v-text-field>
-            
-            <v-spacer></v-spacer>
-
-            <v-btn 
-              icon
-              @click="searchAccount"
-            >
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </v-row>
-        </v-toolbar>   
-
-        <v-card-text>
-          <v-form
-            ref="accountModifyForm"
-            v-model="valid"
-            lazy-validation
-          >
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
-              >
-                <v-text-field
-                  v-model="accountName"
-                  :counter="10"
-                  :rules="userNameRules"
-                  label="用户名"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
-              >
-                <v-text-field
-                  v-model="accountEmail"
-                  :rules="emailRules"
-                  label="邮箱"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row 
-              justify="center" 
-              align="center"
-            >
-              <v-col 
-                clos="12" 
-                sm="4"
-              >
-                <v-text-field
-                  v-model="accountPasswords"
-                  :rules="passWordsRules"
-                  label="密码"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col 
-                clos="12" 
-                sm="4"
-              ></v-col>
-              <v-col 
-                clos="12" 
-                sm="2"
-              >
-                <v-btn
-                  :disabled="!valid"
-                  color="success"
-                  @click="modify"
-                >
-                  修改
-                </v-btn>
-              </v-col>
-
-              <v-col 
-                clos="12" 
-                sm="2"
-              >
-                <v-btn
-                  color="primary"
-                  @click="Logout"
-                >
-                  登出
-                </v-btn>
-              </v-col>
-              <v-col 
-                clos="12" 
-                sm="4"
-              ></v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-      </v-card>
-
-      <v-card
+      <div
+        class="reviewApplication"
         v-if="menu_id == 3"
-        flat
       >
-        <p>欢迎来到数据管理界面！</p>
-      </v-card>
-      <v-card
+        <ReviewApplication></ReviewApplication>
+      </div>
+      
+      <div
+        class="systemSettings"
         v-if="menu_id == 4"
-        flat
       >
-        <p>欢迎来到数据更新界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 5"
-        flat
-      >
-        <p>欢迎来到账号审核界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 6"
-        flat
-      >
-        <p>欢迎来到数据审核界面！</p>
-      </v-card>
-      <v-card
-        v-if="menu_id == 7"
-        flat
-      >
-        <p>欢迎来到系统设置界面！</p>
-      </v-card>
+        <SystemSetting></SystemSetting>
+      </div>
+      
     </v-container>
   
 
@@ -376,11 +238,17 @@
 
 <script>
 import Banner from '../components/AdminBanner.vue'
+import AccountManagement from '../components/AdminAccountManagement.vue'
+import ReviewApplication from '../components/AdminReviewApplication.vue'
+import SystemSetting from '../components/AdminSetting.vue'
 import { sha256 } from "js-sha256";
 
 export default {
   components: {
-    Banner
+    Banner,
+    AccountManagement,
+    ReviewApplication,
+    SystemSetting,
   },
   data() {
     return {
@@ -397,10 +265,6 @@ export default {
       passWordsRules: [
         v => !!v || "密码不能为空",
       ],
-      accountSearch: "",
-      accountName: "无相关账号信息",
-      accountEmail: "无相关账号信息",
-      accountPasswords: "无相关账号信息",
       menu_id: 0,
       menu:[
         {
@@ -415,28 +279,13 @@ export default {
         },
         {
           menu_id: 3,
-          title:"数据管理",
-          icon:"mdi-folder",
+          title:"审核申请",
+          icon:"mdi-check-circle-outline",
         },
         {
           menu_id: 4,
-          title:"数据更新",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 5,
-          title:"账号审核",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 6,
-          title:"数据审核",
-          icon:"mdi-folder",
-        },
-        {
-          menu_id: 7,
           title:"系统设置",
-          icon:"mdi-folder",
+          icon:"mdi-cog-outline",
         },
       ],
     }
@@ -444,7 +293,6 @@ export default {
   methods:{
     setMenu(i) {
       this.menu_id = i;
-      console.log(i)
     },
     Login() {
       let token = window.localStorage.token;
@@ -516,43 +364,6 @@ export default {
         }
       });
     },
-    searchAccount() {
-      if(this.accountSearch.search(/@/) < 0) {
-        this.accountName = this.accountSearch;
-        this.accountEmail = "123@qq.com";
-        this.accountPasswords = "123"
-      }
-      else {
-        this.accountName = "用户名";
-        this.accountEmail = this.accountSearch;
-        this.accountPasswords = "123"
-      }
-    },
-    isValid() {
-      this.$axios({
-        method: "post",
-        url: "api/admin/auth",
-        params: {
-          username: this.userName,
-          password: sha256(this.passWords),
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.$notify({
-            title: "成功",
-            message: "验证成功",
-            type: "success",
-          });
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "登出失败",
-            type: "warning",
-          });
-        }
-      });
-    },
     modify() {
       this.userOldName = this.userName;
       this.$notify({
@@ -560,9 +371,8 @@ export default {
             message: "修改成功！",
             type: "success",
       });
-    }
-    
-  }
+    },
+  },
 }
 </script>
 
