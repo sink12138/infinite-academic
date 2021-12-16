@@ -35,7 +35,7 @@ public class CitationStatisticsThread implements Runnable{
                     .withQuery(QueryBuilders.matchAllQuery())
                     .withPageable(PageRequest.of(0, 1000))
                     .build();
-            SearchScrollHits<Researcher> hits = template.searchScrollStart(3000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
+            SearchScrollHits<Researcher> hits = template.searchScrollStart(600000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
             String scrollId = hits.getScrollId();
             do {
                 if (StatusCtrl.isStopped(name)) {
@@ -59,7 +59,7 @@ public class CitationStatisticsThread implements Runnable{
                     researcher.setCitationNum(num.intValue());
                     template.save(researcher);
                 }
-                hits = template.searchScrollContinue(scrollId, 3000, Researcher.class, IndexCoordinates.of("researcher"));
+                hits = template.searchScrollContinue(scrollId, 600000, Researcher.class, IndexCoordinates.of("researcher"));
             } while (hits.hasSearchHits());
         } catch (Exception e) {
             e.printStackTrace();

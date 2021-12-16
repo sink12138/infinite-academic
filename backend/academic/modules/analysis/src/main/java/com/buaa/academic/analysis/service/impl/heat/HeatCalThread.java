@@ -45,13 +45,14 @@ public class HeatCalThread implements Runnable {
             synchronized (StatusCtrl.STATUS_LOCK) {
                 int index = HeatUpdateMainThread.finished.get(threadName);
                 int total = HeatUpdateMainThread.total.get(threadName);
-                if (index >= total)
+                bucket = HeatUpdateMainThread.targetTerm.get(threadName).poll();
+                if (HeatUpdateMainThread.aggEnd && bucket == null)
                     return;
-                bucket = HeatUpdateMainThread.targetTerm.get(threadName).getBuckets().get(index);
+                else if (bucket == null)
+                    continue;
                 HeatUpdateMainThread.finished.put(threadName, ++index);
                 StatusCtrl.runningStatus.put(threadName, "Statics analysis[" + index + "/" + total + "]...");
             }
-
             String targetName = bucket.getKey().toString();
             double heat = 0.0;
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");

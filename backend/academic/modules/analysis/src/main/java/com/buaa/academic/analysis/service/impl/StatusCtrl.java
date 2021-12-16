@@ -30,6 +30,7 @@ public class StatusCtrl implements Runnable {
     public static String cron = "0 0 23 * * ?";
     public static Date nextRunningDate;
     private static Date lastRunningDate;
+    private static boolean jobStopped = false;
 
     private ElasticsearchRestTemplate template;
     private TopicRepository topicRepository;
@@ -98,7 +99,11 @@ public class StatusCtrl implements Runnable {
         lastRunningDate = new Date();
         analysisStarted = true;
         researcherCitationStatistics();
+        if (jobStopped)
+            return;
         associationAnalysis();
+        if (jobStopped)
+            return;
         heatRankAnalysis();
         analysisStarted = false;
         log.info("Finished schedule task");
@@ -132,7 +137,8 @@ public class StatusCtrl implements Runnable {
         return schedule;
     }
 
-    public static void associationStop() {
+    public static void stop() {
+        jobStopped = true;
         synchronized (STATUS_LOCK) {
             isRunning.replaceAll((k, v) -> false);
             analysisStarted = false;

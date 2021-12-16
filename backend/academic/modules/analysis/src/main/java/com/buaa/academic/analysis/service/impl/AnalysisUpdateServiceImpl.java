@@ -44,7 +44,7 @@ public class AnalysisUpdateServiceImpl implements AnalysisUpdateService {
 
     @Override
     public void stop() {
-        StatusCtrl.associationStop();
+        StatusCtrl.stop();
     }
 
     @Override
