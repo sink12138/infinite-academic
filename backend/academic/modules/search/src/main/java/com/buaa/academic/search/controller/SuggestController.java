@@ -52,12 +52,8 @@ public class SuggestController {
         switch (entity) {
             case "paper" -> {
                 target = Paper.class;
-                if (text.matches("^[a-zA-Z ]{6,}.*") && text.length() > 16 || text.length() > 6)
-                    phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
-                            "title.raw", "keywords.raw", "subjects.raw" };
-                else {
-                    phrases = new String[] { "keywords.phrase", "subjects.phrase", "keywords.raw", "subjects.raw" };
-                }
+                phrases = new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
+                        "title.raw", "keywords.raw", "subjects.raw" };
             }
             case "journal" -> {
                 target = Journal.class;

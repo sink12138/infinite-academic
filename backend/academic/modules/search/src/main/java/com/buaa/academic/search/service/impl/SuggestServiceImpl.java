@@ -52,12 +52,16 @@ public class SuggestServiceImpl implements SuggestService {
         HighlightManager manager = new HighlightManager(config.preTag(), config.postTag());
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
-                suggestionWords.add(manager
-                        .text(option.getText().toString())
-                        .highlight(analyzedWords)
-                        .reverse()
-                        .process());
+                suggestionWords.add(option.getText().toString());
             }
+        }
+        suggestionWords.sort(Comparator.comparingInt(String::length));
+        for (int i = 0; i < suggestionWords.size(); ++i) {
+            suggestionWords.set(i, manager
+                    .text(suggestionWords.get(i))
+                    .highlight(analyzedWords)
+                    .reverse()
+                    .process());
         }
         return suggestionWords;
     }
