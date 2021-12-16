@@ -3,26 +3,14 @@
     <PaperCard v-for="item in items" :key="item.id" :item="item"></PaperCard>
     <user-menu></user-menu>
     <div>
-      <input
-        type="text"
-        placeholder="请输入客户信息"
-        class="inputInfo"
-        v-model="searchcursom"
-        v-on:focus="focusCustomer()"
-        v-on:blur="blurCustomer()"
-      />
-      <ul class="sel-ul customer-ht" v-show="showCustomer">
-        <div v-show="suggest.length">
-          <li
-            v-for="(item, index) in suggest"
-            :value="item"
-            :key="index"
-            @click="chooseCustomer(item)"
-            v-html="item"
-          ></li>
-        </div>
-        <div class="text-center" v-show="!suggest.length">暂无数据推荐</div>
-      </ul>
+      <v-combobox
+          label="Combobox"
+          :value="text"
+          :items="suggest"
+          :search-input.sync="text"
+          @update:search-input="focusCustomer"
+          outlined
+        ></v-combobox>
     </div>
   </div>
 </template>
@@ -76,33 +64,11 @@ export default {
         type: "期刊论文",
       },
     ],
-    showCustomer: false,
-    searchcursom: "",
+    text: '',
     suggest: [],
+    count: 0
   }),
-  watch: {
-    searchcursom: {
-      handler: function () {
-        this.focusCustomer();
-      },
-    },
-  },
-
-  mounted() {
-    let that = this;
-    document.addEventListener("click", function (e) {
-      if (e.target.className != "inputInfo") {
-        that.$nextTick(() => {
-          that.showCustomer = false;
-        });
-      }
-    });
-  },
   methods: {
-    chooseCustomer(item) {
-      console.log(item);
-      this.searchcursom = item.replace("<b>", "").replace("</b>", "");
-    },
     focusCustomer() {
       if (document.querySelector("input") == document.activeElement) {
         this._debounce(500);
@@ -117,7 +83,7 @@ export default {
           method: "post",
           url: "/api/search/suggest/paper",
           params: {
-            text: this.searchcursom,
+            text: this.text,
           },
         })
           .then((response) => {
@@ -131,15 +97,15 @@ export default {
               if (response.data.data.completion.length != 0)
                 this.suggest=this.suggest.concat(response.data.data.completion);
               console.log(this.suggest);
+              for(var i=0;i<this.suggest.length;i++){
+                this.suggest[i]=this.suggest[i].replace("<b>","").replace("</b>","");
+              }
             }
           })
           .catch((error) => {
             console.log(error);
           });
       }, wait);
-    },
-    blurCustomer() {
-      this.showCustomer = false;
     },
   },
 };

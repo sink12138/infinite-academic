@@ -11,20 +11,18 @@
       @change="emitFilter"
     ></v-select>
     <v-divider vertical></v-divider>
-    <v-text-field
+    <v-combobox
       class="input"
-      v-model="text"
-      clearable
-      filled
-      full-width
-      background-color="grey lighten-5"
-      counter="30"
-      hide-details
+      label="搜索"
+      :value="text"
+      :items="suggest"
+      :search-input.sync="text"
+      @update:search-input="getSuggest"
+      outlined
       append-icon="mdi-magnify"
       @click:append="search"
       @keyup.enter="search"
-    >
-    </v-text-field>
+    ></v-combobox>
   </div>
 </template>
 
@@ -36,7 +34,7 @@ export default {
       items: ["全部", "论文", "期刊", "专利", "机构", "科研人员", "精确"],
       filter: "全部",
       text: "",
-      suggest:[],
+      suggest: [],
       filters: {},
       data: {},
       request: {},
@@ -78,14 +76,23 @@ export default {
           },
         })
           .then((response) => {
-            this.suggest=[];
+            this.suggest = [];
             console.log(response);
             if (response.data.success == true) {
               console.log(response.data.data);
               if (response.data.data.correction.length != 0)
-                this.suggest=this.suggest.concat(response.data.data.correction);
+                this.suggest = this.suggest.concat(
+                  response.data.data.correction
+                );
               if (response.data.data.completion.length != 0)
-                this.suggest=this.suggest.concat(response.data.data.completion);
+                this.suggest = this.suggest.concat(
+                  response.data.data.completion
+                );
+              for (var i = 0; i < this.suggest.length; i++) {
+                this.suggest[i] = this.suggest[i]
+                  .replace("<b>", "")
+                  .replace("</b>", "");
+              }
             }
           })
           .catch((error) => {
