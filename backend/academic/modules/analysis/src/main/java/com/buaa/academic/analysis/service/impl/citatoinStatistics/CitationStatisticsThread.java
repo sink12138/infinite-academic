@@ -56,8 +56,11 @@ public class CitationStatisticsThread implements Runnable{
                     Researcher researcher = searchHit.getContent();
                     BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery()
                             .should(QueryBuilders.termQuery("authors.id", researcher.getId()));
-                    if (researcher.getCurrentInst() != null)
-                        boolQueryBuilder.should(QueryBuilders.termQuery("institutions.id", researcher.getCurrentInst().getId()));
+                    if (researcher.getCurrentInst() != null) {
+                        boolQueryBuilder.should(QueryBuilders.boolQuery()
+                                .must(QueryBuilders.termQuery("authors.name", researcher.getName()))
+                                .must(QueryBuilders.termQuery("institutions.name", researcher.getCurrentInst().getName())));
+                    }
                     NativeSearchQuery query = new NativeSearchQueryBuilder()
                             .withQuery(boolQueryBuilder)
                             .addAggregation(AggregationBuilders.sum("sum").field("citationNum"))
