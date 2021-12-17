@@ -76,6 +76,19 @@ public class JournalCrawlThread implements Runnable{
 
             } catch (Exception e) {
                 StatusCtrl.errorHandler.report(e);
+                try {
+                    if (driver != null)
+                        driver.quit();
+                } catch (Exception ignored) {}
+                try {
+                    if (service != null)
+                        service.stop();
+                } catch (Exception ignored) {}
+                try {
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                } catch (Exception ignored) {}
             }
         }
     }

@@ -105,7 +105,7 @@ public class SearchParser {
                             driver.switchTo().window(originalHandle);
 
                             paperObject.setUrl(url);
-                            paperObject.setDepth(3);
+                            paperObject.setDepth(2);
                             StatusCtrl.paperObjectQueue.add(paperObject);
 
                             PaperObject sourceObj = new PaperObject();
@@ -138,7 +138,7 @@ public class SearchParser {
 
                                 paperObject.setUrl(url);
                                 paperObject.setPaperId(paper.getId());
-                                paperObject.setDepth(3);
+                                paperObject.setDepth(2);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                             }
                             boolean hasSource = false;

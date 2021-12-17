@@ -89,26 +89,21 @@ public class InterestsGIndexThread implements Runnable {
             }
             catch (Exception e) {
                 StatusCtrl.errorHandler.report(e);
-                do {
-                    if (StatusCtrl.jobStopped) {
+                try {
+                    if (driver != null)
                         driver.quit();
+                } catch (Exception ignored) {}
+                try {
+                    if (service != null)
                         service.stop();
-                        statusCtrl.changeRunningStatusStop(threadName, "Stopped.");
-                        log.info("{} stopped", threadName);
-                        return;
-                    }
-                    try {
-                        driver.quit();
-                        service.stop();
-                        service = ParserUtil.getDriverService();
-                        service.start();
-                        driver = ParserUtil.getDriver(headless);
-                        driver.get("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
-                    }
-                    catch (Exception ex) {
-                        StatusCtrl.errorHandler.report(ex);
-                    }
-                } while (true);
+                } catch (Exception ignored) {}
+                try {
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                    driver.get("https://xueshu.baidu.com/usercenter/data/authorchannel?cmd=inject_page");
+                    Thread.sleep(2000);
+                } catch (Exception ignored) {}
             }
         }
     }

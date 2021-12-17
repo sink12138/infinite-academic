@@ -52,6 +52,7 @@ public class SubjectTopicThread implements Runnable {
             try {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
+                    service.start();
                     driver = ParserUtil.getDriver(headless);
                     paperParser.setDriver(driver);
                 } else if (loop == 0) {
@@ -84,6 +85,20 @@ public class SubjectTopicThread implements Runnable {
             } catch (Exception e) {
                 statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 StatusCtrl.errorHandler.report(e);
+                try {
+                    if (driver != null)
+                        driver.quit();
+                } catch (Exception ignored) {}
+                try {
+                    if (service != null)
+                        service.stop();
+                } catch (Exception ignored) {}
+                try {
+                    service = ParserUtil.getDriverService();
+                    service.start();
+                    driver = ParserUtil.getDriver(headless);
+                    paperParser.setDriver(driver);
+                } catch (Exception ignored) {}
             }
         }
 

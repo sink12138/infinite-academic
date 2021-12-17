@@ -247,6 +247,7 @@ public class PaperParser {
                         paper.setDate(date);
                     }
                 }
+                statusCtrl.paperRepository.save(paper);
 
                 // 获取参考文献
                 List<String> referenceID = new ArrayList<>();
@@ -324,12 +325,10 @@ public class PaperParser {
                     ableElement.clear();
                     ParserUtil.randomSleep(3000);
                 } while (flag == 1);
+
+                paper = statusCtrl.template.get(paper.getId(), Paper.class);
+                assert paper != null;
                 paper.setReferences(referenceID);
-                Paper paperSource = statusCtrl.template.get(paper.getId(), Paper.class);
-                assert paperSource != null;
-                if (paperSource.getSources().size() != paper.getSources().size()) {
-                    paper.setSources(paperSource.getSources());
-                }
                 statusCtrl.paperRepository.save(paper);
             }
 
