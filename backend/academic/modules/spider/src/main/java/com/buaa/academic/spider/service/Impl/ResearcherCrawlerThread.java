@@ -36,7 +36,7 @@ public class ResearcherCrawlerThread implements Runnable {
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
 
-        int period = 500;
+        int period = 100;
         for (int loop = 0; ; loop = (loop + 1) % period) {
             if (StatusCtrl.jobStopped) {
                 if (driver != null)

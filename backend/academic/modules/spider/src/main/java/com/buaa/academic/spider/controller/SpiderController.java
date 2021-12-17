@@ -57,13 +57,13 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
-        statusCtrl.setQueueInitThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(3);
-        statusCtrl.setPaperSourceThreadNum(2);
-        statusCtrl.setResearcherThreadNum(2);
-        statusCtrl.setInterestsThreadNum(4);
+        statusCtrl.setSubjectTopicThreadNum(1);
+        statusCtrl.setPaperSourceThreadNum(3);
         statusCtrl.setJournalThreadNum(1);
-        statusCtrl.setSubjectTopicThreadNum(3);
+        statusCtrl.setQueueInitThreadNum(1);
+        statusCtrl.setMainInfoThreadNum(4);
+        statusCtrl.setResearcherThreadNum(5);
+        statusCtrl.setInterestsThreadNum(1);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
@@ -192,4 +192,22 @@ public class SpiderController {
         return new Result<>();
     }
 
+    @PostMapping("/crawlAuId")
+    public Result<Void> crawlAuId(@RequestHeader(name = "Auth") String auth) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.silentOutput", "true");
+        statusCtrl.setSubjectTopicThreadNum(1);
+        statusCtrl.setPaperSourceThreadNum(2);
+        statusCtrl.setJournalThreadNum(1);
+        statusCtrl.setQueueInitThreadNum(3);
+        statusCtrl.setMainInfoThreadNum(5);
+        statusCtrl.setResearcherThreadNum(7);
+        statusCtrl.setInterestsThreadNum(1);
+        if (statusCtrl.fixResearcherId())
+            return result;
+        return result.withFailure("Has been running");
+    }
 }
