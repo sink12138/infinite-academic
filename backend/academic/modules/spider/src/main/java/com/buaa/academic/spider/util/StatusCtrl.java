@@ -211,8 +211,6 @@ public class StatusCtrl {
 
     @AllArgsConstructor
     private class FixThread implements Runnable {
-        StatusCtrl statusCtrl;
-
         @Override
         public void run() {
             log.info("Scroll paper...");
@@ -226,12 +224,12 @@ public class StatusCtrl {
             SearchScrollHits<Paper> searchHit = template.searchScrollStart(3000, query, Paper.class, IndexCoordinates.of("paper"));
             String scrollId = searchHit.getScrollId();
             while (searchHit.hasSearchHits()) {
-                for (SearchHit<Paper> paperHit: searchHit.getSearchHits()){
-                    StatusCtrl.keywordQueue.add(paperHit.getContent().getTitle());
+                for (SearchHit<Paper> paperHit: searchHit.getSearchHits()) {
+                        StatusCtrl.keywordQueue.add(paperHit.getContent().getTitle());
                 }
                 searchHit = template.searchScrollContinue(scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
             }
-            log.info("{} papers without authors id", keywordQueue.size());
+            log.info("{} papers without authors id need to be crawled", keywordQueue.size());
 
             StatusCtrl.startInit();
 
@@ -242,7 +240,7 @@ public class StatusCtrl {
             queueCounter.setName("Queue-Counter");
             queueCounter.start();
             for (int i = 0; i < queueInitThreadNum; i++) {
-                Thread thread = new Thread(new SpiderOneQueueThread(statusCtrl, headless));
+                Thread thread = new Thread(new SpiderOneQueueThread(StatusCtrl.this, headless));
                 String threadName = "SpiderOneQueueInit-" + i;
                 runningJob.put(threadName, true);
                 thread.setName(threadName);
@@ -256,7 +254,7 @@ public class StatusCtrl {
         if (runningJob.size() > 0)
             return false;
 
-        new Thread(new FixThread(this), "AuthorsIdFix").start();
+        new Thread(new FixThread(), "AuthorsIdFix").start();
 
         return true;
     }

@@ -185,7 +185,6 @@ public class SearchParser {
         String threadName = Thread.currentThread().getName();
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         String keyword;
-        int total = 0;
         while (StatusCtrl.keywordQueue.size() > 0) {
             keyword = StatusCtrl.keywordQueue.poll();
             if (keyword == null)
@@ -196,7 +195,6 @@ public class SearchParser {
             try {
                 List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
                 if (searchResult.size() != 0) {
-                    total ++;
                     WebElement result = searchResult.get(0);
                     if (StatusCtrl.jobStopped) {
                         driver.close();
