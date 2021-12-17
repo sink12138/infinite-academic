@@ -20,6 +20,7 @@ import java.util.Set;
 @Data
 @Component
 public class SearchParser {
+
     StatusCtrl statusCtrl;
 
     private String url;
