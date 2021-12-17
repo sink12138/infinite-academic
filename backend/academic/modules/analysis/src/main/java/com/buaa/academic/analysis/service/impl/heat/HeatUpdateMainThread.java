@@ -2,14 +2,12 @@ package com.buaa.academic.analysis.service.impl.heat;
 
 import com.buaa.academic.analysis.dao.SubjectRepository;
 import com.buaa.academic.analysis.dao.TopicRepository;
-import com.buaa.academic.analysis.model.Bucket;
 import com.buaa.academic.analysis.service.impl.StatusCtrl;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.statistic.Subject;
 import com.buaa.academic.document.statistic.Topic;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
