@@ -56,7 +56,7 @@ public class StatusCtrl {
     public static Date lastRun;
 
     @Slf4j
-    public static class ErrorHandler extends Thread {
+    public static class ErrorHandler implements Runnable {
 
         private int errorNum;
 
@@ -68,10 +68,13 @@ public class StatusCtrl {
         @Override
         public void run() {
             /* Shut down all threads if number of errors reaches 30 in 5 minutes */
+            while (runningJob.isEmpty()) {
+                Thread.onSpinWait();
+            }
             int threshold = 30;
             int period = 300;
             for (int loop = 0; errorNum < threshold; loop = (loop + 1) % period) {
-                if (StatusCtrl.jobStopped) {
+                if (jobStopped || runningJob.isEmpty()) {
                     errorNum = 0;
                     return;
                 }
@@ -102,9 +105,9 @@ public class StatusCtrl {
 
     @Slf4j
     @Setter
-    public static class QueueCounter extends Thread {
+    public static class QueueCounter implements Runnable {
 
-        private long interval = 600000;
+        private long interval = 60000;
 
         private String summary() {
             return String.format("Queued items: %d keyword(s), %d paper(s), %d researcher(s), %d interest(s), %d subject(s), %d journal(s), %d source(s)",
@@ -114,12 +117,10 @@ public class StatusCtrl {
 
         @Override
         public void run() {
-            try {
-                Thread.sleep(interval / 2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (runningJob.isEmpty()) {
+                Thread.onSpinWait();
             }
-            while (!StatusCtrl.jobStopped && !StatusCtrl.runningJob.isEmpty()) {
+            while (!jobStopped && !runningJob.isEmpty()) {
                 log.info(summary());
                 try {
                     Thread.sleep(interval);
@@ -171,10 +172,8 @@ public class StatusCtrl {
         StatusCtrl.keywordQueue.addAll(List.of("软件设计", "卷积", "计算机体系", "计算机网络", "分布式系统"));
         boolean headless = true;
 
-        errorHandler.setName("Error-Handler");
-        errorHandler.start();
-        queueCounter.setName("Queue-Counter");
-        queueCounter.start();
+        new Thread(errorHandler, "Error-Handler").start();
+        new Thread(queueCounter, "Queue-Counter").start();
         for (int i = 0; i < queueInitThreadNum; i++) {
             Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
             String threadName = "QueueInit-" + i;
@@ -195,7 +194,7 @@ public class StatusCtrl {
         Schedule schedule = new Schedule();
         schedule.setName("数据库更新与扩充");
         boolean isRunning = false;
-        for (Boolean running: runningJob.values()) {
+        for (Boolean running : runningJob.values()) {
             if (running) {
                 isRunning = true;
                 break;
@@ -203,7 +202,7 @@ public class StatusCtrl {
         }
         schedule.setRunning(isRunning);
         schedule.setLastRun(lastRun);
-        for (String threadName: runningStatus.keySet()) {
+        for (String threadName : runningStatus.keySet()) {
             schedule.addTask(new Task(threadName, runningStatus.get(threadName)));
         }
         return schedule;
@@ -224,7 +223,7 @@ public class StatusCtrl {
             SearchScrollHits<Paper> searchHit = template.searchScrollStart(3000, query, Paper.class, IndexCoordinates.of("paper"));
             String scrollId = searchHit.getScrollId();
             while (searchHit.hasSearchHits()) {
-                for (SearchHit<Paper> paperHit: searchHit.getSearchHits()) {
+                for (SearchHit<Paper> paperHit : searchHit.getSearchHits()) {
                         StatusCtrl.keywordQueue.add(paperHit.getContent().getTitle());
                 }
                 searchHit = template.searchScrollContinue(scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
@@ -235,10 +234,8 @@ public class StatusCtrl {
 
             boolean headless = true;
 
-            errorHandler.setName("Error-Handler");
-            errorHandler.start();
-            queueCounter.setName("Queue-Counter");
-            queueCounter.start();
+            new Thread(errorHandler, "Error-Handler").start();
+            new Thread(queueCounter, "Queue-Counter").start();
             for (int i = 0; i < queueInitThreadNum; i++) {
                 Thread thread = new Thread(new SpiderOneQueueThread(StatusCtrl.this, headless));
                 String threadName = "SpiderOneQueueInit-" + i;
