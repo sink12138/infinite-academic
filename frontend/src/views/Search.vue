@@ -404,6 +404,15 @@ export default {
       if (filter.data.applicants != null)
         this.$refs.filter.applicants = filter.data.applicants;
       else this.$refs.filter.applicants = [];
+      this.$refs.filter.filter.authors_selected = [];
+      this.$refs.filter.filter.subjects_selected = [];
+      this.$refs.filter.filter.journals_selected = [];
+      this.$refs.filter.filter.institutions_selected = [];
+      this.$refs.filter.filter.types_selected = [];
+      this.$refs.filter.filter.keywords_selected = [];
+      this.$refs.filter.filter.interests_selected = [];
+      this.$refs.filter.filter.inventors_selected = [];
+      this.$refs.filter.filter.applicants_selected = [];
     },
     jump(data) {
       this.data = data;

@@ -116,6 +116,57 @@
         ></v-text-field>
       </v-col>
     </div>
+
+    <div v-show="showType == '全部' || showType == '论文' || showType == '科研人员'">
+      <v-col>
+        <v-text-field
+          label="引用数量大于"
+          v-model="filter.citationNum"
+          :rules="numberRule"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
+    <div v-show="showType == '科研人员'">
+      <v-col>
+        <v-text-field
+          label="专利数量大于"
+          v-model="filter.patentNum"
+          :rules="numberRule"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
+    <div v-show="showType == '科研人员'">
+      <v-col>
+        <v-text-field
+          label="论文数量大于"
+          v-model="filter.paperNum"
+          :rules="numberRule"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
+    <div v-show="showType == '科研人员'">
+      <v-col>
+        <v-text-field
+          label="h指数高于"
+          v-model="filter.hIndex"
+          :rules="numberRule"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
+    <div v-show="showType == '科研人员'">
+      <v-col>
+        <v-text-field
+          label="g指数高于"
+          v-model="filter.gIndex"
+          :rules="numberRule"
+          @change="emit()"
+        ></v-text-field>
+      </v-col>
+    </div>
     <v-divider></v-divider>
     <v-select
       v-show="showType == '精确'"
@@ -263,6 +314,7 @@ export default {
   },
   data() {
     return {
+      numberRule: [(v) => /^[0-9]*$/.test(v) || "请输入数字"],
       menu: false,
       showType: "全部",
       paperSorts: ["相关度排序", "出版日期正序", "出版日期倒序", "引用数量"],
@@ -279,6 +331,11 @@ export default {
       filter: {
         year1: 1900,
         year2: 2021,
+        citationNum: null,
+        paperNum: null,
+        patentNum: null,
+        hIndex: null,
+        gIndex: null,
         authors_selected: [],
         subjects_selected: [],
         journals_selected: [],
