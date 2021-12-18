@@ -196,13 +196,14 @@ export default {
     });
   },
   data: () => ({
+    token: "",
     code: "",
     email: "",
     password: "",
     findEmail: "",
     newPassword: "",
     dialog: false,
-    isLogin:false,
+    isLogin: false,
     isRouterAlive: true,
     isFindPassword: false,
     inputNewPassword: false,
@@ -274,6 +275,16 @@ export default {
           }
         });
       }
+      this.$axios({
+        method: "get",
+        url: "/api/account/profile",
+      }).then((response) => {
+        console.log(response.data);
+        console.log(response.data.token);
+        if (response.data.success === true) {
+          this.isLogin = true;
+        }
+      });
     },
     logout() {
       this.$axios({
