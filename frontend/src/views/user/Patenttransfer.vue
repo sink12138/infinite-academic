@@ -86,7 +86,6 @@
         </v-col>
       </v-row>
       <v-btn
-        small
         color="primary"
         @click="submit()"
       >
