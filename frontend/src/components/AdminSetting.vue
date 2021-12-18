@@ -48,7 +48,7 @@
                       label="频率"
                       max="31"
                       min="1"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
                     <v-slider
@@ -58,7 +58,7 @@
                       label="频率"
                       max="12"
                       min="1"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
 
@@ -77,7 +77,7 @@
                       label="时间"
                       max="23"
                       min="0"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
 
@@ -91,19 +91,11 @@
                     >
                       频率：每{{ frequency }}月{{ hour }}点更新
                     </p>
-                    <p>{{ cron }}</p>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    @click="getCron"
-                  >
-                    cron
-                  </v-btn>
-
                   <v-btn
                     color="blue darken-1"
                     :disabled="radioGroup < 0"
@@ -429,15 +421,6 @@ export default {
     close () {
       console.log(this.radioGroup)
       this.dialog = false
-    },
-
-    getCron () {
-      if (this.radioGroup == 0) {
-        this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
-      }
-      else {
-        this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
-      }
     },
 
     addInspiration () {
