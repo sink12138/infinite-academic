@@ -10,7 +10,7 @@
       v-on:searchFilter="searchFilter"
     ></BaseSearchBar>
     <v-card>
-      <v-col>
+      <v-col cols="3">
         <BaseFilter
           class="filter"
           ref="filter"
@@ -358,6 +358,18 @@ export default {
       data: {},
       router: [{ href: "/", icon: "mdi-arrow-left", title: "Back" }],
     };
+  },
+  created() {
+    setTimeout(() => {
+      if (this.$route.query.text != null && this.$route.query.text != "") {
+        this.$refs.bar.text = this.$route.query.text;
+        console.log(this.$refs.bar.text);
+        this.filter = this.$route.query.filter;
+        this.$refs.filter.showType = this.filter;
+        this.$refs.bar.filter = this.filter;
+        this.$refs.bar.search();
+      }
+    }, 5);
   },
   methods: {
     href(type, id) {
