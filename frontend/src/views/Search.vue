@@ -320,6 +320,11 @@ export default {
       filters: {
         year1: 1900,
         year2: 2021,
+        citationNum: null,
+        paperNum: null,
+        patentNum: null,
+        hIndex: null,
+        gIndex: null,
         authors_selected: [],
         subjects_selected: [],
         journals_selected: [],
@@ -382,9 +387,8 @@ export default {
     handleFilter(filter) {
       this.filters = filter;
     },
-    searchFilter2(filter){
+    handleFilter2(filter){
       this.filters=filter;
-      this.$refs.bar.searchFilter();
     },
     searchResult(data) {
       this.data = data;

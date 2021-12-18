@@ -142,6 +142,63 @@ export default {
               size: 10,
               translated: true,
             };
+            this.request.filters.push({
+              attr: "year",
+              format: "numeric",
+              intParams: [this.filters.year1, this.filters.year2],
+              type: "range",
+            });
+            if (
+              this.filters.citationNum != null &&
+              this.filters.citationNum != ""
+            ) {
+              this.request.filters.push({
+                attr: "citationNum",
+                format: "numeric",
+                intParams: [Number(this.filters.citationNum)],
+                type: "above",
+              });
+            }
+            if (this.filters.subjects_selected.length != 0) {
+              this.request.filters.push({
+                attr: "subjects",
+                format: "discrete",
+                keyParams: this.filters.subjects_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.types_selected.length != 0) {
+              this.request.filters.push({
+                attr: "type",
+                format: "discrete",
+                keyParams: this.filters.types_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.authors_selected.length != 0) {
+              this.request.filters.push({
+                attr: "authors.name",
+                format: "discrete",
+                keyParams: this.filters.authors_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.institutions_selected.length != 0) {
+              this.request.filters.push({
+                attr: "institutions.name",
+                format: "discrete",
+                keyParams: this.filters.institutions_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.journals_selected.length != 0) {
+              this.request.filters.push({
+                attr: "journal.title",
+                format: "discrete",
+                keyParams: this.filters.journals_selected,
+                type: "equal",
+              });
+            }
             if (this.filters.paperSort == "出版日期倒序") {
               this.request.sort = "date.desc";
             } else if (this.filters.paperSort == "出版日期正序") {
@@ -279,6 +336,63 @@ export default {
                 }
               }
               this.request.conditions.push(condition);
+            }
+            this.request.filters.push({
+              attr: "year",
+              format: "numeric",
+              intParams: [this.filters.year1, this.filters.year2],
+              type: "range",
+            });
+            if (
+              this.filters.citationNum != null &&
+              this.filters.citationNum != ""
+            ) {
+              this.request.filters.push({
+                attr: "citationNum",
+                format: "numeric",
+                intParams: [Number(this.filters.citationNum)],
+                type: "above",
+              });
+            }
+            if (this.filters.subjects_selected.length != 0) {
+              this.request.filters.push({
+                attr: "subjects",
+                format: "discrete",
+                keyParams: this.filters.subjects_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.types_selected.length != 0) {
+              this.request.filters.push({
+                attr: "type",
+                format: "discrete",
+                keyParams: this.filters.types_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.authors_selected.length != 0) {
+              this.request.filters.push({
+                attr: "authors.name",
+                format: "discrete",
+                keyParams: this.filters.authors_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.institutions_selected.length != 0) {
+              this.request.filters.push({
+                attr: "institutions.name",
+                format: "discrete",
+                keyParams: this.filters.institutions_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.journals_selected.length != 0) {
+              this.request.filters.push({
+                attr: "journal.title",
+                format: "discrete",
+                keyParams: this.filters.journals_selected,
+                type: "equal",
+              });
             }
             if (this.filters.paperSort == "出版日期倒序") {
               this.request.sort = "date.desc";
@@ -435,6 +549,30 @@ export default {
               }
               this.request.conditions.push(condition);
             }
+            if (this.filters.types_selected.length != 0) {
+              this.request.filters.push({
+                attr: "type",
+                format: "discrete",
+                keyParams: this.filters.types_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.inventors_selected.length != 0) {
+              this.request.filters.push({
+                attr: "inventors.name",
+                format: "discrete",
+                keyParams: this.filters.inventors_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.applicants_selected.length != 0) {
+              this.request.filters.push({
+                attr: "applicant",
+                format: "discrete",
+                keyParams: this.filters.applicants_selected,
+                type: "equal",
+              });
+            }
             if (this.filters.patentSort == "申请日期倒序") {
               this.request.sort = "fillingDate.desc";
             } else if (this.filters.patentSort == "申请日期正序") {
@@ -552,6 +690,77 @@ export default {
               }
               this.request.conditions.push(condition);
             }
+            if (
+              this.filters.citationNum != null &&
+              this.filters.citationNum != ""
+            ) {
+              this.request.filters.push({
+                attr: "citationNum",
+                format: "numeric",
+                intParams: [Number(this.filters.citationNum)],
+                type: "above",
+              });
+            }
+            if (
+              this.filters.paperNum != null &&
+              this.filters.paperNum != ""
+            ) {
+              this.request.filters.push({
+                attr: "paperNum",
+                format: "numeric",
+                intParams: [Number(this.filters.paperNum)],
+                type: "above",
+              });
+            }
+            if (
+              this.filters.patentNum != null &&
+              this.filters.patentNum != ""
+            ) {
+              this.request.filters.push({
+                attr: "patentNum",
+                format: "numeric",
+                intParams: [Number(this.filters.patentNum)],
+                type: "above",
+              });
+            }
+            if (
+              this.filters.hIndex != null &&
+              this.filters.hIndex != ""
+            ) {
+              this.request.filters.push({
+                attr: "hIndex",
+                format: "numeric",
+                intParams: [Number(this.filters.hIndex)],
+                type: "above",
+              });
+            }
+            if (
+              this.filters.gIndex != null &&
+              this.filters.gIndex != ""
+            ) {
+              this.request.filters.push({
+                attr: "gIndex",
+                format: "numeric",
+                intParams: [Number(this.filters.gIndex)],
+                type: "above",
+              });
+            }
+            if (this.filters.interests_selected.length != 0) {
+              this.request.filters.push({
+                attr: "interests",
+                format: "discrete",
+                keyParams: this.filters.interests_selected,
+                type: "equal",
+              });
+            }
+            if (this.filters.institutions_selected.length != 0) {
+              this.request.filters.push({
+                attr: "currentInst.name",
+                format: "discrete",
+                keyParams: this.filters.institutions_selected,
+                type: "equal",
+              });
+            }
             if (this.filters.researcherSort == "论文数量") {
               this.request.sort = "paperNum.desc";
             } else if (this.filters.researcherSort == "专利数量") {
@@ -631,11 +840,11 @@ export default {
             });
         }
       } else {
-        this.$router.push({path:"/search",query:{text:this.text,filter:this.filter}});
+        this.$router.push({
+          path: "/search",
+          query: { text: this.text, filter: this.filter },
+        });
       }
-    },
-    searchFilter(){
-
     },
     jumpPage() {
       var url;
