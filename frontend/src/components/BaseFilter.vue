@@ -123,7 +123,7 @@
           label="引用数量大于"
           v-model="filter.citationNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -133,7 +133,7 @@
           label="专利数量大于"
           v-model="filter.patentNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -143,7 +143,7 @@
           label="论文数量大于"
           v-model="filter.paperNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -153,7 +153,7 @@
           label="h指数高于"
           v-model="filter.hIndex"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -163,7 +163,7 @@
           label="g指数高于"
           v-model="filter.gIndex"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -189,7 +189,7 @@
         :key="index"
         :label="`${author.term}`"
         :value="author.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -202,7 +202,7 @@
         :key="index"
         :label="`${journal.term}`"
         :value="journal.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -215,7 +215,7 @@
         :key="index"
         :label="`${institution.term}`"
         :value="institution.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -228,7 +228,7 @@
         :key="index"
         :label="`${subject.term}`"
         :value="subject.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -242,7 +242,7 @@
         :key="index"
         :label="`${type.term}`"
         :value="type.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -256,7 +256,7 @@
         :key="index"
         :label="`${keyword.term}`"
         :value="keyword.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -270,7 +270,7 @@
         :key="index"
         :label="`${interest.term}`"
         :value="interest.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -284,7 +284,7 @@
         :key="index"
         :label="`${inventor.term}`"
         :value="inventor.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -298,7 +298,7 @@
         :key="index"
         :label="`${applicant.term}`"
         :value="applicant.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -381,9 +381,13 @@ export default {
     handleYear(year) {
       this.filter.year1 = year[0];
       this.filter.year2 = year[1];
+      this.$emit("searchFilter",this.filter);
     },
     emit: function () {
       this.$emit("handleFilter", this.filter);
+    },
+    emitFilter: function(){
+      this.$emit("searchFilter",this.filter);
     },
   },
 };

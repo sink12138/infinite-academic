@@ -8,230 +8,233 @@
       }"
     ></Banner>
 
-    <v-card
-      v-if="this.isLogin"
-      class="navigation"
-      max-width="300"
-      style="float:left"
+    <v-row
+      justify="center"
+      align="center"
     >
-      <v-navigation-drawer
-        permanent
-        expand-on-hover
+      <v-card
+        flat
+        style="top:60px"
+        width="1350"
       >
-        <v-list
-          nav
-          rounded
+        <v-navigation-drawer
+          v-if="this.isLogin"
+          permanent
+          floating
+          expand-on-hover
+          fixed
+          style="top:60px"
         >
-          <v-list-item
-            v-for="(item, id) in menu"
-            :key="id"
-            @click="setMenu(item.menu_id)"
+          <v-list
+            nav
+            rounded
           >
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-navigation-drawer>
-    </v-card>
+            <v-list-item
+              v-for="(item, id) in menu"
+              :key="id"
+              @click="setMenu(item.menu_id)"
+            >
+              <v-list-item-icon>
+                <v-icon>{{ item.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-navigation-drawer>
 
 
-
-    <v-container>
-      <v-card
-        class="welcome"
-        v-if="menu_id == 0"
-        flat
-        outlined
-      >
-        <v-card-title>
-          <v-row
-            justify="center"
-            align="center"
-          >
-            <h1>欢迎来到管理员界面！</h1>
-          </v-row>
-        </v-card-title>
-
-        <v-card-text>
-          <v-form
-            ref="userForm"
-            v-model="valid"
-            lazy-validation
-          >
+        <v-card
+          class="welcome"
+          v-if="menu_id == 0"
+          flat
+          outlined
+        >
+          <v-card-title>
             <v-row
               justify="center"
               align="center"
             >
-              <v-col
-                clos="12"
-                sm="4"
-              >
-                <v-text-field
-                  v-model="userName"
-                  :counter="10"
-                  :rules="userNameRules"
-                  label="用户名"
-                  required
-                ></v-text-field>
-              </v-col>
+              <h1>欢迎来到管理员界面！</h1>
             </v-row>
+          </v-card-title>
 
-            <v-row
-              justify="center"
-              align="center"
+          <v-card-text>
+            <v-form
+              ref="userForm"
+              v-model="valid"
+              lazy-validation
             >
-              <v-col
-                clos="12"
-                sm="4"
+              <v-row
+                justify="center"
+                align="center"
               >
-                <v-text-field
-                  v-model="passWords"
-                  :rules="passWordsRules"
-                  label="密码"
-                  type="password"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <v-btn
-                  v-if="!isLogin"
-                  color="light-blue lighten-4"
-                  @click="Login"
+                <v-col
+                  clos="12"
+                  sm="4"
                 >
-                  <v-icon left>
-                    mdi-account-cog
-                  </v-icon>
-                  登录管理员账户
-                </v-btn>
-              </v-col>
+                  <v-text-field
+                    v-model="userName"
+                    :counter="10"
+                    :rules="userNameRules"
+                    label="用户名"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row
+                justify="center"
+                align="center"
+              >
+                <v-col
+                  clos="12"
+                  sm="4"
+                >
+                  <v-text-field
+                    v-model="passWords"
+                    :rules="passWordsRules"
+                    label="密码"
+                    type="password"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <v-btn
+                    v-if="!isLogin"
+                    color="light-blue lighten-4"
+                    @click="Login"
+                  >
+                    <v-icon left>
+                      mdi-account-cog
+                    </v-icon>
+                    登录管理员账户
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card-text>
+        </v-card>
+
+        <v-card
+          class="personal"
+          v-if="menu_id == 1"
+          flat
+          outlined
+        >
+          <v-card-title>
+            <v-row
+              justify="center"
+              align="center"
+            >
+              <h1>欢迎进入，{{ this.userOldName }}！</h1>
             </v-row>
-          </v-form>
-        </v-card-text>
+          </v-card-title>
+
+          <v-card-text>
+            <v-form
+              ref="userModifyForm"
+              v-model="valid"
+              lazy-validation
+            >
+              <v-row
+                justify="center"
+                align="center"
+              >
+                <v-col
+                  clos="12"
+                  sm="4"
+                >
+                  <v-text-field
+                    v-model="userName"
+                    :counter="10"
+                    :rules="userNameRules"
+                    label="用户名"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row
+                justify="center"
+                align="center"
+              >
+                <v-col
+                  clos="12"
+                  sm="4"
+                >
+                  <v-text-field
+                    v-model="passWords"
+                    :rules="passWordsRules"
+                    label="密码"
+                    type="password"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col
+                  clos="12"
+                  sm="4"
+                ></v-col>
+                <v-col
+                  clos="12"
+                  sm="2"
+                >
+                  <v-btn
+                    :disabled="!valid"
+                    color="success"
+                    @click="modify"
+                  >
+                    修改
+                  </v-btn>
+                </v-col>
+
+                <v-col
+                  clos="12"
+                  sm="2"
+                >
+                  <v-btn
+                    color="primary"
+                    @click="Logout"
+                  >
+                    登出
+                  </v-btn>
+                </v-col>
+                <v-col
+                  clos="12"
+                  sm="4"
+                ></v-col>
+              </v-row>
+            </v-form>
+          </v-card-text>
+        </v-card>
+
+        <div
+          class="accountManagement"
+          v-if="menu_id == 2"
+        >
+          <AccountManagement></AccountManagement>
+        </div>
+
+        <div
+          class="reviewApplication"
+          v-if="menu_id == 3"
+        >
+          <ReviewApplication></ReviewApplication>
+        </div>
+
+        <div
+          class="systemSettings"
+          v-if="menu_id == 4"
+        >
+          <SystemSetting></SystemSetting>
+        </div>
       </v-card>
-
-      <v-card
-        class="personal"
-        v-if="menu_id == 1"
-        flat
-        outlined
-      >
-        <v-card-title>
-          <v-row
-            justify="center"
-            align="center"
-          >
-            <h1>欢迎进入，{{ this.userOldName }}！</h1>
-          </v-row>
-        </v-card-title>
-
-        <v-card-text>
-          <v-form
-            ref="userModifyForm"
-            v-model="valid"
-            lazy-validation
-          >
-            <v-row
-              justify="center"
-              align="center"
-            >
-              <v-col
-                clos="12"
-                sm="4"
-              >
-                <v-text-field
-                  v-model="userName"
-                  :counter="10"
-                  :rules="userNameRules"
-                  label="用户名"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row
-              justify="center"
-              align="center"
-            >
-              <v-col
-                clos="12"
-                sm="4"
-              >
-                <v-text-field
-                  v-model="passWords"
-                  :rules="passWordsRules"
-                  label="密码"
-                  type="password"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col
-                clos="12"
-                sm="4"
-              ></v-col>
-              <v-col
-                clos="12"
-                sm="2"
-              >
-                <v-btn
-                  :disabled="!valid"
-                  color="success"
-                  @click="modify"
-                >
-                  修改
-                </v-btn>
-              </v-col>
-
-              <v-col
-                clos="12"
-                sm="2"
-              >
-                <v-btn
-                  color="primary"
-                  @click="Logout"
-                >
-                  登出
-                </v-btn>
-              </v-col>
-              <v-col
-                clos="12"
-                sm="4"
-              ></v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-      </v-card>
-
-      <div
-        class="accountManagement"
-        v-if="menu_id == 2"
-      >
-        <AccountManagement></AccountManagement>
-      </div>
-
-      <div
-        class="reviewApplication"
-        v-if="menu_id == 3"
-      >
-        <ReviewApplication></ReviewApplication>
-      </div>
-
-      <div
-        class="systemSettings"
-        v-if="menu_id == 4"
-      >
-        <SystemSetting></SystemSetting>
-      </div>
-
-    </v-container>
-
+    </v-row>
 
   </div>
 </template>

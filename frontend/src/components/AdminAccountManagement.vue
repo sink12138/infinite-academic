@@ -31,11 +31,13 @@
               label="账号搜索"
               single-line
               hide-details
+              @input="searchAccount"
             ></v-text-field>
 
             <v-checkbox
               v-model="scholar"
               :label="'是否仅显示学者账户'"
+              @change="getAccounts"
             ></v-checkbox>
 
             <v-dialog
@@ -63,7 +65,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.username"
@@ -73,7 +74,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.password"
@@ -83,7 +83,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.email"
@@ -93,11 +92,11 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-if="editedIndex != -1"
                           v-model="editedItem.id"
+                          :disabled="true"
                           label="账号ID"
                         ></v-text-field>
                       </v-col>

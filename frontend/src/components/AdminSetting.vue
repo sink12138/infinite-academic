@@ -10,6 +10,7 @@
         :items="tasks"
         :loading="loading"
         :options.sync="options"
+        show-expand
         class="task"
       >
         <template v-slot:top>
@@ -22,6 +23,12 @@
               vertical
             ></v-divider>
             <v-spacer></v-spacer>
+
+            <v-icon
+              @click="getTasks"
+            >
+              mdi-refresh
+            </v-icon>
 
             <v-dialog
               v-model="dialog"
@@ -41,7 +48,7 @@
                       label="频率"
                       max="31"
                       min="1"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
                     <v-slider
@@ -51,11 +58,14 @@
                       label="频率"
                       max="12"
                       min="1"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
 
-                    <v-radio-group v-model="radioGroup">
+                    <v-radio-group 
+                      v-model="radioGroup"
+                      row
+                    >
                       <v-radio
                         v-for="(item, id) in radio"
                         :key="id"
@@ -70,7 +80,7 @@
                       label="时间"
                       max="23"
                       min="0"
-                      thumb-label="always"
+                      thumb-label
                       ticks
                     ></v-slider>
 
@@ -84,19 +94,11 @@
                     >
                       频率：每{{ frequency }}月{{ hour }}点更新
                     </p>
-                    <p>{{ cron }}</p>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    @click="getCron"
-                  >
-                    cron
-                  </v-btn>
-
                   <v-btn
                     color="blue darken-1"
                     :disabled="radioGroup < 0"
@@ -117,6 +119,18 @@
           </v-toolbar>
         </template>
 
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <v-data-table
+              :headers="childheaders"
+              :items="item.tasks"
+              hide-default-footer
+              class="childtask"
+            >
+            </v-data-table>
+          </td>
+        </template>
+
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon
             @click="setItem(item)"
@@ -125,11 +139,13 @@
           </v-icon>
           <v-icon
             @click="runItem(item)"
+            :disabled="item.running"
           >
             mdi-play-circle-outline
           </v-icon>
           <v-icon
             @click="stopItem(item)"
+            :disabled="!item.running"
           >
             mdi-pause-circle-outline
           </v-icon>
@@ -145,6 +161,59 @@
         </template>
       </v-data-table>
     </v-card-text>
+
+    <v-divider></v-divider>
+
+    <v-toolbar
+      flat
+    >
+      <v-toolbar-title>爬虫灵感设置</v-toolbar-title>
+      <v-divider
+        inset
+        vertical
+      ></v-divider>
+      <v-spacer></v-spacer>
+
+      <v-col 
+        cols="12"
+        sm="3"
+      >
+        <v-text-field
+          v-model="text"
+          label="关键词"
+          append-icon="mdi-plus"
+          @click:append="addInspiration"
+          outlined
+          rounded
+          dense
+        ></v-text-field>
+      </v-col>
+
+      <v-btn
+        class="ml-2"
+        icon
+        @click="setInspiration"
+      >
+        <v-icon>mdi-check-bold</v-icon>
+      </v-btn>
+      
+    </v-toolbar>
+
+    <v-card>
+      <v-card-text>
+        <v-chip-group
+          active-class="primary--text"
+          column
+        >
+          <v-chip
+            v-for="inspiration in inspirations"
+            :key="inspiration"
+          >
+            {{ inspiration }}
+          </v-chip>
+        </v-chip-group>
+      </v-card-text>
+    </v-card>
   </v-card>
 </template>
 
@@ -182,8 +251,20 @@ export default {
       frequency: 0,
       hour: 0,
       cron: '',
-      settedItem: [],
       options: {},
+      inspirations: [],
+      totalInsprations: 0,
+      text: '',
+      childheaders: [
+        {
+          text: '子任务名称',
+          align: 'start',
+          value: 'name',
+          sortable: false,
+        },   
+        { text: '运行状态', value: 'status', sortable: false },
+      ],
+      code: '',
     }
   },
   computed: {
@@ -230,34 +311,113 @@ export default {
       this.radioGroup = 0
       this.frequency = 0
       this.hour = 0
-      this.settedItem = item
+
+      if (item.name == "学科话题热点关联分析") {
+        this.code = "analysis"
+      }
+      else {
+        this.code = "spider"
+      }
+
+      if (this.radioGroup == 0) {
+        this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
+      }
+      else {
+        this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
+      }
+
       this.dialog = true
     },
 
     set () {
-      this.$notify({
-        title: "test",
-        message: "设置频率成功",
-        type: "success",
+      this.$axios({
+        method: "post",
+        url: "api/admin/system/timing",
+        params: {
+          code: this.code,
+          cron: this.cron,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "任务频率设置成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "任务频率设置失败",
+            type: "warning",
+          });
+        }
       });
       this.dialog = false
     },
 
     runItem (item) {
-      console.log(item)
-      this.$notify({
-        title: "test",
-        message: "运行任务成功",
-        type: "success",
+      if (item.name == "学科话题热点关联分析") {
+        this.code = "analysis"
+      }
+      else {
+        this.code = "spider"
+      }
+
+      this.$axios({
+        method: "post",
+        url: "api/admin/system/start",
+        params: {
+          code: this.code,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "运行任务成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "运行任务失败",
+            type: "warning",
+          });
+        }
       });
     },
 
     stopItem (item) {
-      console.log(item)
-      this.$notify({
-        title: "test",
-        message: "停止任务成功",
-        type: "success",
+      if (item.name == "学科话题热点关联分析") {
+        this.code = "analysis"
+      }
+      else {
+        this.code = "spider"
+      }
+
+      this.$axios({
+        method: "post",
+        url: "api/admin/system/stop",
+        params: {
+          code: this.code,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        console.log(this.code)
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "停止任务成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "停止任务失败",
+            type: "warning",
+          });
+        }
       });
     },
 
@@ -266,14 +426,35 @@ export default {
       this.dialog = false
     },
 
-    getCron () {
-      if (this.radioGroup == 0) {
-        this.cron = '0 0 ' + this.hour + ' ' + this.frequency +' * ?'
-      }
-      else {
-        this.cron = '0 0 ' + this.hour + ' * ' + this.frequency +' ?'
-      }
+    addInspiration () {
+      this.inspirations[this.totalInsprations++] = this.text
+      this.text = ''
     },
+
+    setInspiration () {
+      this.$axios({
+        method: "post",
+        url: "api/admin/system/inspire",
+        data: JSON.stringify(this.inspirations),
+      }).then((response) => {
+        console.log(JSON.stringify(this.inspirations))
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.inspirations = []
+          this.$notify({
+            title: "成功",
+            message: "爬虫灵感添加成功",
+            type: "success",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "爬虫灵感添加失败",
+            type: "warning",
+          });
+        }
+      });
+    }
   },
 }
 </script>

@@ -10,11 +10,12 @@
       v-on:searchFilter="searchFilter"
     ></BaseSearchBar>
     <v-card>
-      <v-col>
+      <v-col cols="3">
         <BaseFilter
           class="filter"
           ref="filter"
           v-on:handleFilter="handleFilter"
+          v-on:searchFilter="handleFilter2"
           v-show="filter != '机构' && filter != '期刊'"
         ></BaseFilter>
       </v-col>
@@ -319,6 +320,11 @@ export default {
       filters: {
         year1: 1900,
         year2: 2021,
+        citationNum: null,
+        paperNum: null,
+        patentNum: null,
+        hIndex: null,
+        gIndex: null,
         authors_selected: [],
         subjects_selected: [],
         journals_selected: [],
@@ -359,6 +365,18 @@ export default {
       router: [{ href: "/", icon: "mdi-arrow-left", title: "Back" }],
     };
   },
+  created() {
+    setTimeout(() => {
+      if (this.$route.query.text != null && this.$route.query.text != "") {
+        this.$refs.bar.text = this.$route.query.text;
+        console.log(this.$refs.bar.text);
+        this.filter = this.$route.query.filter;
+        this.$refs.filter.showType = this.filter;
+        this.$refs.bar.filter = this.filter;
+        this.$refs.bar.search();
+      }
+    }, 5);
+  },
   methods: {
     href(type, id) {
       this.$router.push({
@@ -368,6 +386,9 @@ export default {
     },
     handleFilter(filter) {
       this.filters = filter;
+    },
+    handleFilter2(filter){
+      this.filters=filter;
     },
     searchResult(data) {
       this.data = data;

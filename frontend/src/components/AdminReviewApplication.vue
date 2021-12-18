@@ -28,6 +28,7 @@
             <v-radio-group
               v-model="radioGroup"
               row
+              @change="getApplications"
             >
               <v-radio
                 v-for="(item, id) in radio"
@@ -54,13 +55,9 @@
                 single-line
                 return-object
                 dense
+                @change="getApplications"
               ></v-select>
             </v-col>
-            <v-icon
-              @click="getApplications"
-            >
-              mdi-refresh
-            </v-icon>
             
             <v-dialog
               v-model="dialog"
@@ -369,7 +366,7 @@ export default {
     passItem (item) {
       this.checkItemIndex = this.applications.indexOf(item)
 
-      console.log(item.id)
+      console.log(item)
 
       if (item.type === "学者认证") {
         this.$axios({
