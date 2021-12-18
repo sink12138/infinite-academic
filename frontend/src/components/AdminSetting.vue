@@ -62,7 +62,10 @@
                       ticks
                     ></v-slider>
 
-                    <v-radio-group v-model="radioGroup">
+                    <v-radio-group 
+                      v-model="radioGroup"
+                      row
+                    >
                       <v-radio
                         v-for="(item, id) in radio"
                         :key="id"

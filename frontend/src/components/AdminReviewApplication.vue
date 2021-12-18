@@ -369,7 +369,7 @@ export default {
     passItem (item) {
       this.checkItemIndex = this.applications.indexOf(item)
 
-      console.log(item.id)
+      console.log(item)
 
       if (item.type === "学者认证") {
         this.$axios({
