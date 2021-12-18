@@ -634,6 +634,9 @@ export default {
         this.$router.push({path:"/search",query:{text:this.text,filter:this.filter}});
       }
     },
+    searchFilter(){
+
+    },
     jumpPage() {
       var url;
       switch (this.filter) {

@@ -15,6 +15,7 @@
           class="filter"
           ref="filter"
           v-on:handleFilter="handleFilter"
+          v-on:searchFilter="handleFilter2"
           v-show="filter != '机构' && filter != '期刊'"
         ></BaseFilter>
       </v-col>
@@ -380,6 +381,10 @@ export default {
     },
     handleFilter(filter) {
       this.filters = filter;
+    },
+    searchFilter2(filter){
+      this.filters=filter;
+      this.$refs.bar.searchFilter();
     },
     searchResult(data) {
       this.data = data;

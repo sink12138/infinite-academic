@@ -189,7 +189,7 @@
         :key="index"
         :label="`${author.term}`"
         :value="author.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -202,7 +202,7 @@
         :key="index"
         :label="`${journal.term}`"
         :value="journal.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -215,7 +215,7 @@
         :key="index"
         :label="`${institution.term}`"
         :value="institution.term"
-        @change="emit()"
+        @change="emitFilter()"
       ></v-checkbox>
     </div>
     <v-divider></v-divider>
@@ -228,7 +228,7 @@
         :key="index"
         :label="`${subject.term}`"
         :value="subject.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -242,7 +242,7 @@
         :key="index"
         :label="`${type.term}`"
         :value="type.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -256,7 +256,7 @@
         :key="index"
         :label="`${keyword.term}`"
         :value="keyword.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -270,7 +270,7 @@
         :key="index"
         :label="`${interest.term}`"
         :value="interest.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -284,7 +284,7 @@
         :key="index"
         :label="`${inventor.term}`"
         :value="inventor.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -298,7 +298,7 @@
         :key="index"
         :label="`${applicant.term}`"
         :value="applicant.term"
-        @change="emit()"
+        @change="emitFilter()"
       >
       </v-checkbox>
     </div>
@@ -384,6 +384,9 @@ export default {
     },
     emit: function () {
       this.$emit("handleFilter", this.filter);
+    },
+    emitFilter: function(){
+      this.$emit("searchFilter",this.filter);
     },
   },
 };
