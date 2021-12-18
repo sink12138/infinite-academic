@@ -237,24 +237,32 @@
                   新增文献
               </v-btn>
             <v-row
-              v-for="(item,i) in papers"
-              :key="item.id"
+              v-for="i in onePageNum"
+              :key="i"
             >
               <v-col cols="9">
-                <PaperCard :item="item"></PaperCard>
+                <PaperCard :item="papers[i+(page-1)*onePageNum-1]"></PaperCard>
               </v-col>
               <v-col>
                 <br/>
                 <br/>
-                <v-btn @click="editPaper(i)">
+                <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
                     编辑文献
                 </v-btn>
-                <v-btn @click="deletePaper(i)">
+                <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
                     删除文献
                 </v-btn>    
               </v-col>
             </v-row>
-            
+            <v-row>
+              <v-col>
+                <v-pagination
+                  v-model="page"
+                  class="my-4"
+                  :length="8>pageNum?pageNum:8"
+                ></v-pagination>
+              </v-col>
+            </v-row>
           </div>
           
         </v-col>
@@ -265,133 +273,143 @@
     <v-card>
       <div class="whole">
         <v-row>
-          <v-col cols="9">
-            <v-text-field
-              v-model="emailE"
-              label="邮箱"
-              :rules="emailRules"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="nameE"
-              :rules="idRules"
-              label="姓名"
-              required
-            ></v-text-field>
-            </v-col>
-            <v-col>
-            <v-text-field
-              v-model="interestsE"
-              label="研究方向"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="gIndexE"
-              label="g指数"
-              required
-            ></v-text-field>
-            </v-col>
-            <v-col>
-            <v-text-field
-              v-model="hIndexE"
-              label="h指数"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="currentInstE.id"
-              label="现工作单位id"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="currentInstE.name"
-              label="现工作单位名称"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row v-for="i in institutionsE.length" :key="i">
-          <v-col cols="5">
-            <v-text-field
-              v-model="institutionsE[i-1].id"
-              label="曾工作单位id"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="5">
-            <v-text-field
-              v-model="institutionsE[i-1].name"
-              label="曾工作单位名称"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="2">
-            <v-btn @click="deleteI(i-1)">
-              删除该项
+          <v-col cols="10">
+            <v-row>
+              <v-col cols="9">
+                <v-text-field
+                  v-model="emailE"
+                  label="邮箱"
+                  :rules="emailRules"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="nameE"
+                  :rules="idRules"
+                  label="姓名"
+                  required
+                ></v-text-field>
+                </v-col>
+                <v-col>
+                <v-text-field
+                  v-model="interestsE"
+                  label="研究方向"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="gIndexE"
+                  label="g指数"
+                  required
+                ></v-text-field>
+                </v-col>
+                <v-col>
+                <v-text-field
+                  v-model="hIndexE"
+                  label="h指数"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="currentInstE.id"
+                  label="现工作单位id"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="currentInstE.name"
+                  label="现工作单位名称"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row v-for="i in institutionsE.length" :key="i">
+              <v-col cols="5">
+                <v-text-field
+                  v-model="institutionsE[i-1].id"
+                  label="曾工作单位id"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="5">
+                <v-text-field
+                  v-model="institutionsE[i-1].name"
+                  label="曾工作单位名称"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2">
+                <v-btn @click="deleteI(i-1)">
+                  删除该项
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-btn @click="addInst()">
+              新增曾工作单位
             </v-btn>
+            <v-row>
+              <v-col >
+                <v-textarea
+                  label="修改说明"
+                  v-model="description"
+                ></v-textarea>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col >
+                <v-text-field
+                  v-model="websiteLink"
+                  label="证明材料链接"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-file-input 
+                chips 
+                label="上传证明文件"
+                ></v-file-input>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="vertifyCode"
+                  label="验证码"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row v-if="editingD">
+              <v-col cols="6">
+                <v-btn v-if="editingD" @click="submit()">
+                  提交修改信息
+                </v-btn>
+              </v-col>
+              <v-col cols="6">
+                <v-btn v-if="editingD" @click="cancelAll()">
+                  取消
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-col>
-        </v-row>
-        <v-btn @click="addInst()">
-          新增曾工作单位
-        </v-btn>
-        <v-row>
-          <v-col >
-            <v-textarea
-              label="修改说明"
-              v-model="description"
-            ></v-textarea>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col >
-            <v-text-field
-              v-model="websiteLink"
-              label="证明材料链接"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
           <v-col>
-            <v-file-input 
-            chips 
-            label="上传证明文件"
-            ></v-file-input>
+            <div class="fixBut">
+              <v-btn @click="getID=true">相关信息ID查询</v-btn>
+            </div>  
           </v-col>
         </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="vertifyCode"
-              label="验证码"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row v-if="editingD">
-          <v-col cols="6">
-            <v-btn v-if="editingD" @click="submit()">
-              提交修改信息
-            </v-btn>
-          </v-col>
-          <v-col cols="6">
-            <v-btn v-if="editingD" @click="editingD=false">
-              取消
-            </v-btn>
-          </v-col>
-        </v-row> 
+         
       </div>
     </v-card>
     </v-dialog>
@@ -400,87 +418,108 @@
       <v-card>
         <div class="whole">
           <v-row>
+            <v-col cols="10">
+              <v-row>
+                <v-col>
+                  <v-text-field
+                    v-model="addDoorID"
+                    label="新认领的门户id"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col >
+                  <v-text-field
+                    v-model="websiteLink"
+                    label="证明材料链接"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-file-input 
+                  chips 
+                  label="上传证明文件"
+                  ></v-file-input>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-btn @click="submitAddDoor()">
+                    提交认领信息
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn @click="cancelAll()">
+                    取消
+                  </v-btn>
+                </v-col>
+              </v-row> 
+            </v-col>
             <v-col>
-              <v-text-field
-                v-model="addDoorID"
-                label="新认领的门户id"
-                required
-              ></v-text-field>
+              <div class="fixBut">
+                <v-btn @click="getID=true">相关信息ID查询</v-btn>
+              </div>  
             </v-col>
           </v-row>
-          <v-row>
-            <v-col >
-              <v-text-field
-                v-model="websiteLink"
-                label="证明材料链接"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-file-input 
-              chips 
-              label="上传证明文件"
-              ></v-file-input>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-btn @click="submitAddDoor()">
-                提交认领信息
-              </v-btn>
-            </v-col>
-            <v-col cols="6">
-              <v-btn @click="addDoor=false">
-                取消
-              </v-btn>
-            </v-col>
-          </v-row> 
+          
         </div>
         
       </v-card>
     </v-dialog>
     <!-- 删除文献 -->
-    <v-dialog v-model="deletingPaper" persistent width=600px >
+    <v-dialog v-model="deletingPaper" persistent width=800px >
       <v-card>
         <div class="whole">
-          <h2>移除文献:{{theDelete.title}}</h2>
           <v-row>
-            <v-col >
-              <v-textarea
-                label="删除原因"
-                v-model="deletePaperReason"
-              ></v-textarea>
+            <v-col cols="10">
+              <h2>移除文献:{{theDelete.title}}</h2>
+              <v-row>
+                <v-col >
+                  <v-textarea
+                    label="删除原因"
+                    v-model="deletePaperReason"
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col >
+                  <v-text-field
+                    v-model="websiteLink"
+                    label="证明材料链接"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-file-input 
+                  chips 
+                  label="上传证明文件"
+                  ></v-file-input>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-btn @click="submitDeletePaper()">
+                    提交认领信息
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn @click="cancelAll()">
+                    取消
+                  </v-btn>
+                </v-col>
+              </v-row> 
             </v-col>
-          </v-row>
-          <v-row>
-            <v-col >
-              <v-text-field
-                v-model="websiteLink"
-                label="证明材料链接"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
             <v-col>
-              <v-file-input 
-              chips 
-              label="上传证明文件"
-              ></v-file-input>
+              <div class="fixBut">
+                <v-btn @click="getID=true">相关信息ID查询</v-btn>
+              </div>  
             </v-col>
+            
           </v-row>
-          <v-row>
-            <v-col cols="6">
-              <v-btn @click="submitDeletePaper()">
-                提交认领信息
-              </v-btn>
-            </v-col>
-            <v-col cols="6">
-              <v-btn @click="deletingPaper=false">
-                取消
-              </v-btn>
-            </v-col>
-          </v-row> 
+          
         </div>
         
       </v-card>
@@ -490,6 +529,7 @@
       <BaseEditPaper 
       :paper="newPaper"
       :edit=false
+      :email="email"
       @closeZ="closeF"
       ></BaseEditPaper>
     </v-dialog>
@@ -498,8 +538,13 @@
       <BaseEditPaper 
       :paper="thePaper"
       :edit=true
+      :email="email"
       @closeZ="closeF"
       ></BaseEditPaper>
+    </v-dialog>
+    <!-- ID -->
+    <v-dialog v-model="getID" persistent width=400px min-height=600px>
+      <BaseGetID @closeID="closeID"></BaseGetID>
     </v-dialog>
 
 
@@ -528,8 +573,9 @@
 import Banner from '../components/BaseBanner.vue'
 import PaperCard from '../components/BasePaperCard.vue'
 import BaseEditPaper from './BaseEditPaper.vue'
+import BaseGetID from './BaseGetID.vue'
   export default {
-    components: {Banner,PaperCard,BaseEditPaper},
+    components: {Banner,PaperCard,BaseEditPaper,BaseGetID},
     data: () => ({
       //门户部分
       editingD:false,
@@ -537,6 +583,7 @@ import BaseEditPaper from './BaseEditPaper.vue'
       deletingPaper:false,
       editingPaper:false,
       addingPaper:false,
+      getID:false,
       deletePaperID:"",
       deletePaperReason:"",
       manage:0,
@@ -665,10 +712,14 @@ import BaseEditPaper from './BaseEditPaper.vue'
         year:""
       },
       thePaper:Object,
-      theDelete:""
+      theDelete:"",
+      page:1,
+      onePageNum:1,
+      pageNum:2,
     }),
     mounted(){
       // this.getInfo()
+      // this.getPapers()
       this.nameE=this.name
       this.emailE=this.email
       this.interestsE=this.interests
@@ -738,13 +789,17 @@ import BaseEditPaper from './BaseEditPaper.vue'
           this.editingPaper=false
         }
       },
+      closeID(msg){
+        if(msg=="close")
+          this.getID=false
+      },
       cancelAll(){
         this.editingD=false,
         this.addDoor=false,
         this.deletingPaper=false,
-        this.clear()
+        this.clearWeb()
       },
-      clear(){
+      clearWeb(){
         this.websiteLink="",
         this.vertifyCode="",
         this.fileToken=""
@@ -778,7 +833,7 @@ import BaseEditPaper from './BaseEditPaper.vue'
           console.log(response.data)
           this.snackbarSub=true
           this.editingD=false
-          this.clear()
+          this.clearWeb()
         }).catch(error => {
           console.log(error)
         })
@@ -801,7 +856,7 @@ import BaseEditPaper from './BaseEditPaper.vue'
           console.log(response.data)
           this.snackbarSub=true
           this.addDoor=false
-          this.clear()
+          this.clearWeb()
         }).catch(error => {
           console.log(error)
         })
@@ -825,7 +880,7 @@ import BaseEditPaper from './BaseEditPaper.vue'
           console.log(response.data)
           this.snackbarSub=true
           this.deletingPaper=false
-          this.clear()
+          this.clearWeb()
         }).catch(error => {
           console.log(error)
         })
@@ -852,6 +907,47 @@ import BaseEditPaper from './BaseEditPaper.vue'
         }).catch(error => {
           console.log(error)
         })
+      },
+      getPapers(){
+        this.papers=[]
+        let aPaper=Object
+        let hasMore=false
+        let page=0
+        this.$axios({
+          method: "get",
+          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
+          params: {
+            entity:"researcher",
+            id: this.id,
+            page:page,
+          }
+        }).then(response => {
+          console.log(response.data)
+          aPaper=response.data.item
+          hasMore=response.data.hasMore
+          this.papers.push(aPaper)
+        }).catch(error => {
+          console.log(error)
+        })
+        while (hasMore) {
+            this.$axios({
+            method: "get",
+            url: "/search/relation/publications/researcher/"+this.id+"/"+page,
+            params: {
+              entity:"researcher",
+              id: this.id,
+              page:page,
+            }
+          }).then(response => {
+            console.log(response.data)
+            aPaper=response.data.item
+            hasMore=response.data.hasMore
+            this.papers.push(aPaper)
+          }).catch(error => {
+            console.log(error)
+          })
+        }
+        this.pageNum=page+1
       }
     }
   }
