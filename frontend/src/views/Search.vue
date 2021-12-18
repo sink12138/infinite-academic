@@ -5,7 +5,9 @@
     <BaseSearchBar
       ref="bar"
       v-on:searchResult="searchResult"
+      v-on:jumpPage="jump"
       v-on:filterChange="filterChange"
+      v-on:searchFilter="searchFilter"
     ></BaseSearchBar>
     <v-card>
       <v-col>
@@ -13,6 +15,7 @@
           class="filter"
           ref="filter"
           v-on:handleFilter="handleFilter"
+          v-show="filter != '机构' && filter != '期刊'"
         ></BaseFilter>
       </v-col>
       <v-col>
@@ -316,10 +319,15 @@ export default {
       filters: {
         year1: 1900,
         year2: 2021,
-        topics_selected: [],
         authors_selected: [],
+        subjects_selected: [],
         journals_selected: [],
         institutions_selected: [],
+        types_selected: [],
+        keywords_selected: [],
+        interests_selected: [],
+        inventors_selected: [],
+        applicants_selected: [],
         paperType: {
           type: "",
           authors: "",
@@ -358,15 +366,6 @@ export default {
         query: { id: id },
       });
     },
-    goToPaper(paper) {
-      console.log(paper.id);
-    },
-    goToJournal(journal) {
-      console.log(journal.id);
-    },
-    goToAuthor(author) {
-      console.log(author.id);
-    },
     handleFilter(filter) {
       this.filters = filter;
     },
@@ -377,10 +376,44 @@ export default {
       this.length = this.data.totalPages;
       this.itemNum = this.data.totalHits;
     },
+    searchFilter(filter) {
+      if (filter.data.authors != null)
+        this.$refs.filter.authors = filter.data.authors;
+      else this.$refs.filter.authors = [];
+      if (filter.data.subjects != null)
+        this.$refs.filter.subjects = filter.data.subjects;
+      else this.$refs.filter.subjects = [];
+      if (filter.data.journals != null)
+        this.$refs.filter.journals = filter.data.journals;
+      else this.$refs.filter.journals = [];
+      if (filter.data.institutions != null)
+        this.$refs.filter.institutions = filter.data.institutions;
+      else this.$refs.filter.institutions = [];
+      if (filter.data.types != null)
+        this.$refs.filter.types = filter.data.types;
+      else this.$refs.filter.types = [];
+      if (filter.data.keywords != null)
+        this.$refs.filter.keywords = filter.data.keywords;
+      else this.$refs.filter.keywords = [];
+      if (filter.data.interests != null)
+        this.$refs.filter.interests = filter.data.interests;
+      else this.$refs.filter.interests = [];
+      if (filter.data.inventors != null)
+        this.$refs.filter.inventors = filter.data.inventors;
+      else this.$refs.filter.inventors = [];
+      if (filter.data.applicants != null)
+        this.$refs.filter.applicants = filter.data.applicants;
+      else this.$refs.filter.applicants = [];
+    },
+    jump(data) {
+      this.data = data;
+      this.results = this.data.items;
+      this.page = this.jumpPage;
+    },
     pageChange() {
-      if (this.jumpPage > this.totalPages) this.jumpPage = this.totalPages;
+      if (this.jumpPage > this.length) this.jumpPage = this.length;
       this.$refs.bar.page = this.jumpPage - 1;
-      this.$refs.bar.search();
+      this.$refs.bar.jumpPage();
     },
     filterChange(filter) {
       this.filter = filter;

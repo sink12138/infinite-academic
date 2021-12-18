@@ -39,6 +39,7 @@ export default {
       data: {},
       request: {},
       page: 0,
+      aggregations: {},
     };
   },
   methods: {
@@ -90,9 +91,11 @@ export default {
                 );
               for (var i = 0; i < this.suggest.length; i++) {
                 this.suggest[i] = this.suggest[i]
-                  .replace("<b>", "")
-                  .replace("</b>", "");
+                  .replaceAll("<b>", "")
+                  .replaceAll("</b>", "");
               }
+            } else {
+              this.suggest=[];
             }
           })
           .catch((error) => {
@@ -125,7 +128,7 @@ export default {
           },
         ],
         filters: [],
-        page: this.page,
+        page: 0,
         size: 10,
       };
       switch (this.filter) {
@@ -576,6 +579,24 @@ export default {
             console.log(response.data);
             this.data = response.data;
             this.$emit("searchResult", this.data.data);
+            if (
+              this.filter == "全部" ||
+              this.filter == "论文" ||
+              this.filter == "科研人员" ||
+              this.filter == "专利"
+            ) {
+              this.$axios({
+                method: "get",
+                url: "/api/analysis/aggregations",
+              })
+                .then((response) => {
+                  this.aggregations = response.data;
+                  this.$emit("searchFilter", this.aggregations);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            }
           })
           .catch((error) => {
             console.log(error);
@@ -606,6 +627,44 @@ export default {
             console.log(error);
           });
       }
+    },
+    jumpPage() {
+      var url;
+      switch (this.filter) {
+        case "全部":
+          url = "/api/search/smart";
+          break;
+        case "论文":
+          url = "/api/search/paper";
+          break;
+        case "科研人员":
+          url = "/api/search/researcher";
+          break;
+        case "专利":
+          url = "/api/search/patent";
+          break;
+        case "期刊":
+          url = "/api/search/journal";
+          break;
+        case "机构":
+          url = "/api/search/institution";
+          break;
+      }
+      this.request.page = this.page;
+      console.log(JSON.stringify(this.request));
+      this.$axios({
+        method: "post",
+        url: url,
+        data: this.request,
+      })
+        .then((response) => {
+          console.log(response.data);
+          this.data = response.data;
+          this.$emit("jumpPage", this.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };
