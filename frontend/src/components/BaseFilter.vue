@@ -123,7 +123,7 @@
           label="引用数量大于"
           v-model="filter.citationNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -133,7 +133,7 @@
           label="专利数量大于"
           v-model="filter.patentNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -143,7 +143,7 @@
           label="论文数量大于"
           v-model="filter.paperNum"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -153,7 +153,7 @@
           label="h指数高于"
           v-model="filter.hIndex"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -163,7 +163,7 @@
           label="g指数高于"
           v-model="filter.gIndex"
           :rules="numberRule"
-          @change="emit()"
+          @change="emitFilter()"
         ></v-text-field>
       </v-col>
     </div>
@@ -381,6 +381,7 @@ export default {
     handleYear(year) {
       this.filter.year1 = year[0];
       this.filter.year2 = year[1];
+      this.$emit("searchFilter",this.filter);
     },
     emit: function () {
       this.$emit("handleFilter", this.filter);
