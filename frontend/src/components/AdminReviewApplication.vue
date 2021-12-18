@@ -58,11 +58,6 @@
                 @change="getApplications"
               ></v-select>
             </v-col>
-            <v-icon
-              @click="getApplications"
-            >
-              mdi-refresh
-            </v-icon>
             
             <v-dialog
               v-model="dialog"

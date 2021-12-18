@@ -24,12 +24,6 @@
             ></v-divider>
             <v-spacer></v-spacer>
 
-            <v-icon
-              @click="getAccounts"
-            >
-              mdi-refresh
-            </v-icon>
-
             <v-text-field
               v-model="accountSearch"
               append-icon="mdi-magnify"
@@ -37,6 +31,7 @@
               label="账号搜索"
               single-line
               hide-details
+              @input="searchAccount"
             ></v-text-field>
 
             <v-checkbox
