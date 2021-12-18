@@ -6,9 +6,9 @@ import vuetify from './plugins/vuetify'
 import './plugins/index'
 import './assets/style/main.css'
 
-import datePicker from 'element-ui/lib/date-picker';
+import ElementUI from 'element-ui'
+Vue.use(ElementUI)
 import 'element-ui/lib/theme-chalk/index.css';
-Vue.use(datePicker);
 Vue.config.productionTip = false
 
 new Vue({
