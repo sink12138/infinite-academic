@@ -185,7 +185,7 @@ public class SearchParser {
         String threadName = Thread.currentThread().getName();
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         String keyword;
-        while (StatusCtrl.keywordQueue.size() > 0) {
+        while (true) {
             keyword = StatusCtrl.keywordQueue.poll();
             if (keyword == null)
                 return;

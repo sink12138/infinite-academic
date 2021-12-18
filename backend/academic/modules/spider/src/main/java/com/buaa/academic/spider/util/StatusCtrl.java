@@ -216,7 +216,7 @@ public class StatusCtrl {
             NativeSearchQuery query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.boolQuery()
                             .must(QueryBuilders.termQuery("crawled", true))
-                            .must(QueryBuilders.existsQuery("authors.id")))
+                            .mustNot(QueryBuilders.existsQuery("authors.id")))
                     .withPageable(PageRequest.of(0, 500))
                     .withFields("title")
                     .build();

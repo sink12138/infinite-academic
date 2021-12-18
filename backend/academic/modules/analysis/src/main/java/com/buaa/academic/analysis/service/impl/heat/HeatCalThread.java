@@ -35,6 +35,7 @@ public class HeatCalThread implements Runnable {
 
     @Override
     public void run() {
+        //System.out.println("thread name: " + threadName);
         while (true) {
 
             if (StatusCtrl.isStopped(threadName))
@@ -46,11 +47,12 @@ public class HeatCalThread implements Runnable {
                 int index = HeatUpdateMainThread.finished.get(threadName);
                 int total = HeatUpdateMainThread.total.get(threadName);
                 bucket = HeatUpdateMainThread.targetTerm.get(threadName).poll();
-                if (HeatUpdateMainThread.aggEnd && bucket == null)
+                if (HeatUpdateMainThread.AggEnd.get(threadName) && bucket == null)
                     return;
                 else if (bucket == null)
                     continue;
                 HeatUpdateMainThread.finished.put(threadName, ++index);
+                //System.out.println("bucket key:" + bucket.getKey() + " from" + threadName);
                 StatusCtrl.runningStatus.put(threadName, "Statics analysis[" + index + "/" + total + "]...");
             }
             String targetName = bucket.getKey().toString();

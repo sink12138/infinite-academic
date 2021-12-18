@@ -21,10 +21,8 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
@@ -33,6 +31,7 @@ public class HeatUpdateMainThread implements Runnable {
     public static Map<String, Integer> finished = new ConcurrentHashMap<>();
     public static Map<String, ConcurrentLinkedQueue<Terms.Bucket>> targetTerm =  new HashMap<>();
     public static Map<Integer, Double> rate = new ConcurrentHashMap<>();
+    public static Map<String, Boolean> AggEnd = new HashMap<>();
     public static boolean aggEnd = false;
 
     private String name;
@@ -75,7 +74,7 @@ public class HeatUpdateMainThread implements Runnable {
     @Override
     public void run() {
         log.info("Heat update started");
-        aggEnd = false;
+        AggEnd.put(name, false);
         ConcurrentLinkedQueue<Terms.Bucket> buckets = new ConcurrentLinkedQueue<>();
         targetTerm.put(name, buckets);
         total.put(name, 0);
@@ -110,7 +109,7 @@ public class HeatUpdateMainThread implements Runnable {
         total.put(name, (int) totalCount);
         finished.put(name, 0);
 
-        int bucketSize = 10000;
+        int bucketSize = 1000;
         int partitionNum = (int) ((totalCount + bucketSize - 1) / bucketSize);
 
         int totalNum = 0;
@@ -122,11 +121,12 @@ public class HeatUpdateMainThread implements Runnable {
                     .field("year").subAggregation(count).order(BucketOrder.key(true)).size(200);
 
             TermsAggregationBuilder term = new TermsAggregationBuilder("term").field(targetIndex + ".raw")
-                    .subAggregation(yearAgg).size(bucketSize).includeExclude(new IncludeExclude(partition, partitionNum));
+                    .subAggregation(yearAgg).size(1500).includeExclude(new IncludeExclude(partition, partitionNum));
 
             NativeSearchQuery aggregationSearch = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.matchAllQuery())
                     .addAggregation(term)
+                    .withMaxResults(0)
                     .build();
             SearchHits<Paper> searchHit = template.search(aggregationSearch, Paper.class);
             Aggregations aggregations = searchHit.getAggregations();
@@ -140,7 +140,9 @@ public class HeatUpdateMainThread implements Runnable {
             buckets.addAll(terms.getBuckets());
         }
 
-        aggEnd = true;
+        synchronized (StatusCtrl.STATUS_LOCK) {
+            AggEnd.put(name, true);
+        }
 
         try {
             for (Thread thread : threads) {
@@ -151,6 +153,8 @@ public class HeatUpdateMainThread implements Runnable {
         }
 
         if (finished.get(name) < total.get(name)) {
+            System.out.println("finished: " + finished.get(name));
+            System.out.println("total: " + total.get(name));
             StatusCtrl.changeRunningStatusToStop("Stopped.", name);
             return;
         }
