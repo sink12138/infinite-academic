@@ -42,6 +42,7 @@
             <v-checkbox
               v-model="scholar"
               :label="'是否仅显示学者账户'"
+              @change="getAccounts"
             ></v-checkbox>
 
             <v-dialog

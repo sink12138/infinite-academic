@@ -28,6 +28,7 @@
             <v-radio-group
               v-model="radioGroup"
               row
+              @change="getApplications"
             >
               <v-radio
                 v-for="(item, id) in radio"
@@ -54,6 +55,7 @@
                 single-line
                 return-object
                 dense
+                @change="getApplications"
               ></v-select>
             </v-col>
             <v-icon
