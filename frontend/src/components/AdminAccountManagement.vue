@@ -24,6 +24,12 @@
             ></v-divider>
             <v-spacer></v-spacer>
 
+            <v-icon
+              @click="getAccounts"
+            >
+              mdi-refresh
+            </v-icon>
+
             <v-text-field
               v-model="accountSearch"
               append-icon="mdi-magnify"
@@ -63,7 +69,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.username"
@@ -73,7 +78,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.password"
@@ -83,7 +87,6 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.email"
@@ -93,11 +96,11 @@
                       <v-col
                         cols="12"
                         sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-if="editedIndex != -1"
                           v-model="editedItem.id"
+                          :disabled="true"
                           label="账号ID"
                         ></v-text-field>
                       </v-col>
