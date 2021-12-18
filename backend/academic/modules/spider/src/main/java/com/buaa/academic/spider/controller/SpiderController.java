@@ -57,13 +57,13 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
-        statusCtrl.setSubjectTopicThreadNum(1);
-        statusCtrl.setPaperSourceThreadNum(3);
-        statusCtrl.setJournalThreadNum(1);
-        statusCtrl.setQueueInitThreadNum(1);
-        statusCtrl.setMainInfoThreadNum(4);
-        statusCtrl.setResearcherThreadNum(5);
+        statusCtrl.setQueueInitThreadNum(2);
+        statusCtrl.setMainInfoThreadNum(3);
+        statusCtrl.setPaperSourceThreadNum(2);
+        statusCtrl.setResearcherThreadNum(3);
         statusCtrl.setInterestsThreadNum(1);
+        statusCtrl.setJournalThreadNum(1);
+        statusCtrl.setSubjectTopicThreadNum(2);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
@@ -154,7 +154,7 @@ public class SpiderController {
     }
 
     @PostMapping("/dedup")
-    public Result<Void> scroll() {
+    public Result<Void> dedup() {
         Query query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.existsQuery("sources"))
                 .withPageable(PageRequest.of(0, 1000))
@@ -192,6 +192,42 @@ public class SpiderController {
         return new Result<>();
     }
 
+    @PostMapping("/strip")
+    public Result<Void> strip() {
+        Query query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.existsQuery("journal.volume"))
+                .withPageable(PageRequest.of(0, 1000))
+                .build();
+        int sum = 0;
+        int fixed = 0;
+        Logger log = LoggerFactory.getLogger(this.getClass());
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(2000, query, Paper.class, IndexCoordinates.of("paper"));
+             scrollHits.hasSearchHits();
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 2000, Paper.class, IndexCoordinates.of("paper"))) {
+            sum += scrollHits.getSearchHits().size();
+            for (SearchHit<Paper> hit : scrollHits) {
+                Paper paper = hit.getContent();
+                boolean edited = false;
+                Paper.Journal journal = paper.getJournal();
+                String volume = journal.getVolume();
+                if (volume.startsWith(" ")) {
+                    if (volume.isBlank())
+                        journal.setVolume(null);
+                    else
+                        journal.setVolume(volume.strip());
+                    edited = true;
+                }
+                if (edited) {
+                    ++fixed;
+                    template.save(paper);
+                }
+            }
+            log.info("Scrolled {}, fixed {}", sum, fixed);
+        }
+        log.info("Scroll done");
+        return new Result<>();
+    }
+
     @PostMapping("/crawlAuId")
     public Result<Void> crawlAuId(@RequestHeader(name = "Auth") String auth) {
         Result<Void> result = new Result<>();
@@ -199,12 +235,12 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
-        statusCtrl.setSubjectTopicThreadNum(1);
-        statusCtrl.setPaperSourceThreadNum(2);
-        statusCtrl.setJournalThreadNum(1);
         statusCtrl.setQueueInitThreadNum(3);
+        statusCtrl.setPaperSourceThreadNum(2);
         statusCtrl.setMainInfoThreadNum(5);
         statusCtrl.setResearcherThreadNum(7);
+        statusCtrl.setSubjectTopicThreadNum(1);
+        statusCtrl.setJournalThreadNum(1);
         statusCtrl.setInterestsThreadNum(1);
         if (statusCtrl.fixResearcherId())
             return result;

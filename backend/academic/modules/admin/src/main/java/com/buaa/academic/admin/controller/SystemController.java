@@ -79,6 +79,7 @@ public class SystemController {
             Result<Schedule> operationResult = operation.getResult();
             if (operationResult == null) {
                 log.warn("Timeout when retrieving status of '" + operation.getTag() + '\'');
+                failures.add(operation.getTag());
                 continue;
             }
             if (!operationResult.isSuccess()) {
@@ -152,13 +153,13 @@ public class SystemController {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation;
         switch (code) {
-            case "ANALYSIS-ASSOCIATION" -> operation = new FeignOperation<>(code) {
+            case "-analysis" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return analysisClient.stop(auth);
                 }
             };
-            case "UPDATE-CRAWLER" -> operation = new FeignOperation<>(code) {
+            case "spider" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return spiderClient.stop(auth);
