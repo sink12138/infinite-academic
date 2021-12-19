@@ -170,6 +170,47 @@ export default {
         }).catch(error => {
           console.log(error)
         })
+      },
+      getPapers(){
+        this.papers=[]
+        let aPaper=Object
+        let hasMore=false
+        let page=0
+        this.$axios({
+          method: "get",
+          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
+          params: {
+            entity:"researcher",
+            id: this.id,
+            page:page,
+          }
+        }).then(response => {
+          console.log(response.data)
+          aPaper=response.data.item
+          hasMore=response.data.hasMore
+          this.papers.push(aPaper)
+        }).catch(error => {
+          console.log(error)
+        })
+        while (hasMore) {
+            this.$axios({
+            method: "get",
+            url: "/search/relation/publications/researcher/"+this.id+"/"+page,
+            params: {
+              entity:"researcher",
+              id: this.id,
+              page:page,
+            }
+          }).then(response => {
+            console.log(response.data)
+            aPaper=response.data.item
+            hasMore=response.data.hasMore
+            this.papers.push(aPaper)
+          }).catch(error => {
+            console.log(error)
+          })
+        }
+        this.pageNum=page+1
       }
     }
 }
