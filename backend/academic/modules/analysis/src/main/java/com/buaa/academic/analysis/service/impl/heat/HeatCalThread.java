@@ -52,9 +52,9 @@ public class HeatCalThread implements Runnable {
                 else if (bucket == null)
                     continue;
                 HeatUpdateMainThread.finished.put(threadName, ++index);
-                //System.out.println("bucket key:" + bucket.getKey() + " from" + threadName);
                 StatusCtrl.runningStatus.put(threadName, "Statics analysis[" + index + "/" + total + "]...");
             }
+
             String targetName = bucket.getKey().toString();
             double heat = 0.0;
             Aggregation aggregationYear = bucket.getAggregations().get("year_term");

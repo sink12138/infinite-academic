@@ -32,7 +32,6 @@ public class HeatUpdateMainThread implements Runnable {
     public static Map<String, ConcurrentLinkedQueue<Terms.Bucket>> targetTerm =  new HashMap<>();
     public static Map<Integer, Double> rate = new ConcurrentHashMap<>();
     public static Map<String, Boolean> AggEnd = new HashMap<>();
-    public static boolean aggEnd = false;
 
     private String name;
     private String targetIndex;
@@ -115,7 +114,6 @@ public class HeatUpdateMainThread implements Runnable {
         int totalNum = 0;
         for (int partition = 0; partition < partitionNum; partition++) {
 
-
             ValueCountAggregationBuilder count = new ValueCountAggregationBuilder("count").field("year");
             TermsAggregationBuilder yearAgg = new TermsAggregationBuilder("year_term")
                     .field("year").subAggregation(count).order(BucketOrder.key(true)).size(200);
@@ -152,9 +150,7 @@ public class HeatUpdateMainThread implements Runnable {
             StatusCtrl.changeRunningStatusToStop(e.toString(), name);
         }
 
-        if (finished.get(name) < total.get(name)) {
-            System.out.println("finished: " + finished.get(name));
-            System.out.println("total: " + total.get(name));
+        if (StatusCtrl.isStopped(name)) {
             StatusCtrl.changeRunningStatusToStop("Stopped.", name);
             return;
         }

@@ -306,6 +306,7 @@ public class PaperParser {
                             // 把url塞进队列
                             PaperObject paperObject = new PaperObject(referUrl, foundReferPaper.getId(), paperCrawl.getDepth() - 1);
                             StatusCtrl.paperObjectQueue.add(paperObject);
+                            StatusCtrl.sourceQueue.add(paperObject);
                         }
                     }
                 }

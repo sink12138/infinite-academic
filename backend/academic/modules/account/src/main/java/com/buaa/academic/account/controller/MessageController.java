@@ -72,7 +72,7 @@ public class MessageController {
     @ApiOperation(value = "标记已读", notes = "将idList中id对应的消息标记为已读，如果idList为空则将全部消息标为已读")
     @ApiImplicitParam(name = "idList", value = "要标为已读的消息的id列表，如果为空则表明要将全部消息标为已读")
     public Result<Void> readMessages(@RequestHeader(value = "Auth") String userId,
-                                     @RequestBody MessageIdList idList) {
+                                     @RequestBody @Validated MessageIdList idList) {
         if (idList.getIdList().isEmpty()) {
             NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.termQuery("ownerId", userId))
@@ -97,7 +97,7 @@ public class MessageController {
     @ApiOperation(value = "删除消息", notes = "将idList中id对应的消息删除，idList为空则删除所有消息")
     @ApiImplicitParam(name = "idList", value = "要删除的消息的id列表，为空则删除所有消息")
     public Result<Void> removeMessage(@RequestHeader(value = "Auth") String userId,
-                                      @RequestBody MessageIdList idList) {
+                                      @RequestBody @Validated MessageIdList idList) {
         if (idList.getIdList().isEmpty())
             messageRepository.deleteByOwnerId(userId);
         else for (String id : idList.getIdList()) {
