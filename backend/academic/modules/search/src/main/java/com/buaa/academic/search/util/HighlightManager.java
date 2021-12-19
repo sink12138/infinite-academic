@@ -108,7 +108,7 @@ public class HighlightManager {
         StringBuilder builder = new StringBuilder();
         int offset = 0;
         for (String word : reference) {
-            Pattern pattern = Pattern.compile(word);
+            Pattern pattern = Pattern.compile("(?i)" + word);
             Matcher matcher = pattern.matcher(this.text);
             if (matcher.find(offset)) {
                 int start = matcher.start(0);
