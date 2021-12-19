@@ -24,44 +24,41 @@ export default {
   },
   mounted() {
     //本地测试
-    this.$axios.get('../../paper.json').then(res=>{
-      this.paperdata=res.data.data;
-    }),
-    //与后端对接
-    // this.$axios.get('api/search/info/paper/'+this.id).then(res=>{
-    //   if(!res.data.success){
-    //     alert(res.data.message);
-    //      return;
-    //   }else{
-    //     this.paperdata=res.data.data;
-    //   }
-    // })
-    //本地
-    this.$axios.get('../../references.json').then(res=>{
-      this.references=res.data.data;
-    }),
-    //后端对接
-    // this.$axios.get('/api/search/relation/references/'+this.paperdata.id+'/'+0).then(res=>{
-    //  if(!res.data.success){
-    //     alert(res.data.message);
-    //      return;
-    //   }else{
-    //     this.references=res.data.data;
-    //    }
+    // this.$axios.get('../../paper.json').then(res=>{
+    //   this.paperdata=res.data.data;
     // }),
-    //本地
-    this.$axios.get('../../citations.json').then(res=>{
-      this.citations=res.data.data;
+    //与后端对接
+    this.$axios.get('api/search/info/paper/'+this.id).then(res=>{
+      if(!res.data.success){
+        alert(res.data.message);
+      }else{
+        this.paperdata=res.data.data;
+      }
     })
+    //本地
+    // this.$axios.get('../../references.json').then(res=>{
+    //   this.references=res.data.data;
+    // }),
     //后端对接
-    // this.$axios.get('/api/search/relation/citations/'+this.paperdata.id+'/'+0).then(res=>{
-    //  if(!res.data.success){
-    //     alert(res.data.message);
-    //      return;
-    //   }else{
-    //     this.citations=res.data.data;
-    //    }
+    this.$axios.get('/api/search/relation/references/'+this.paperdata.id+'/'+0).then(res=>{
+     if(!res.data.success){
+        alert(res.data.message);
+      }else{
+        this.references=res.data.data;
+       }
+    }),
+    //本地
+    // this.$axios.get('../../citations.json').then(res=>{
+    //   this.citations=res.data.data;
     // })
+    //后端对接
+    this.$axios.get('/api/search/relation/citations/'+this.paperdata.id+'/'+0).then(res=>{
+     if(!res.data.success){
+        alert(res.data.message);
+      }else{
+        this.citations=res.data.data;
+       }
+    })
   },
 }
 </script>

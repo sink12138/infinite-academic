@@ -14,7 +14,7 @@
       </v-btn>
     </v-card-title>
     <v-card-subtitle class="pb-0">
-      <span v-if="item.date.substr(0,4)" v-text="item.date.substr(0,4)"></span>&nbsp;
+      <span v-if="item.date" v-text="item.date.substr(0,4)"></span>&nbsp;
       <a
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
@@ -29,7 +29,7 @@
         :key="author.id"
       >
         <a
-          v-if="idx == item.authors.length-1"
+          v-if="item.authors && idx == item.authors.length-1"
           @click="href('author', author.id)"
         >{{author.name}}</a>
         <a
@@ -60,7 +60,7 @@
       <v-btn
         x-small
         outlined
-        v-if="item.abstract.length > 380"
+        v-if="item.abstract && item.abstract.length > 380"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
