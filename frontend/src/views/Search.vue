@@ -1,7 +1,9 @@
 <template>
   <div>
-    <Banner v-if="!fromDoor" :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"></Banner>
-    
+    <Banner
+      v-if="!fromDoor"
+      :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
+    ></Banner>
 
     <BaseSearchBar
       ref="bar"
@@ -175,8 +177,8 @@
                         <a
                           v-if="idx == item.authors.length - 1"
                           @click="href('author', author.id)"
-                          >{{ author.name }}</a
-                        >
+                          v-html="author.name"
+                        ></a>
                         <a v-else @click="href('author', author.id)">{{
                           author.name + ","
                         }}</a>
@@ -195,7 +197,7 @@
                       </span>
                     </v-card-text>
                     <v-card-text>
-                      <span v-if="item.abstract"> {{ item.abstract }} </span>
+                      <span v-if="item.abstract" v-html="item.abstract"></span>
                     </v-card-text>
                   </v-card>
                 </div>
@@ -333,7 +335,7 @@
         </div>
       </v-col>
     </v-card>
-    <div v-if="fromDoor" class="fixBut" style="right:15%">
+    <div v-if="fromDoor" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
@@ -350,11 +352,11 @@ export default {
     Banner,
     BaseSearchBar,
   },
-  props:{
-    fromDoor:{
-      type:Boolean,
-      default:false
-    }
+  props: {
+    fromDoor: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -508,8 +510,8 @@ export default {
       this.filter = filter;
       this.$refs.filter.showType = filter;
     },
-    close(){
-      this.$emit('closeID',"close")
+    close() {
+      this.$emit("closeID", "close");
     },
   },
 };
