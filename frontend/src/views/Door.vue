@@ -82,149 +82,6 @@
               <h3 style="text-align:left;float:left">曾工作单位:</h3>
               <h3 style="text-align:left;float:left" v-for="i in institutions.length" :key="i">{{institutions[i-1].name}}&emsp;&emsp;</h3>
             </div>
-            <!-- <div class="whole">
-              <v-row>
-                <v-col cols="9">
-                  <v-text-field
-                    v-model="email"
-                    label="邮箱"
-                    :rules="emailRules"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                  </v-col>
-                  <v-col>
-                    <div v-if="editingD">
-                      <v-btn @click="getVertifyCode()" v-if="time==0">
-                        发送验证码
-                      </v-btn>
-                      <v-btn disabled v-else>
-                        发送验证码({{time}})
-                      </v-btn>
-                    </div>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="name"
-                    :rules="idRules"
-                    label="姓名"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                  </v-col>
-                  <v-col>
-                  <v-text-field
-                    v-model="interests"
-                    label="研究方向"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="gIndex"
-                    label="g指数"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                  </v-col>
-                  <v-col>
-                  <v-text-field
-                    v-model="hIndex"
-                    label="h指数"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="currentInst.id"
-                    label="现工作单位id"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="currentInst.name"
-                    label="现工作单位名称"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row v-for="i in institutions.length" :key="i">
-                <v-col cols="5">
-                  <v-text-field
-                    v-model="institutions[i-1].id"
-                    label="曾工作单位id"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="5">
-                  <v-text-field
-                    v-model="institutions[i-1].name"
-                    label="曾工作单位名称"
-                    :disabled="!editingD"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="2" v-if="editingD">
-                  <v-btn @click="deleteI(i-1)">
-                    删除该项
-                  </v-btn>
-                </v-col>
-              </v-row>
-              <v-btn v-if="editingD" @click="addInst()">
-                新增曾工作单位
-              </v-btn>
-              <v-row v-if="editingD">
-                <v-col >
-                  <v-text-field
-                    v-model="websiteLink"
-                    label="证明材料链接"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row v-if="editingD">
-                <v-col>
-                  <v-file-input 
-                  chips 
-                  label="上传证明文件"
-                  ></v-file-input>
-                </v-col>
-              </v-row>
-              <v-row v-if="editingD">
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="vertifyCode"
-                    label="验证码"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row v-if="editingD">
-                <v-col cols="6">
-                  <v-btn v-if="editingD" @click="submit()">
-                    提交修改信息
-                  </v-btn>
-                </v-col>
-                <v-col cols="6">
-                  <v-btn v-if="editingD" @click="editingD=false">
-                    取消
-                  </v-btn>
-                </v-col>
-              </v-row> 
-          
-
-            </div>-->
           </div>
         </v-col>
 
@@ -543,8 +400,13 @@
       ></BaseEditPaper>
     </v-dialog>
     <!-- ID -->
-    <v-dialog v-model="getID" persistent width=400px min-height=600px>
-      <BaseGetID @closeID="closeID"></BaseGetID>
+    <v-dialog v-model="getID" persistent width=1200px >
+      <v-card height=1000px>
+        <Search
+          :fromDoor=true
+          @closeID="closeID"
+        ></Search>
+      </v-card>
     </v-dialog>
 
 
@@ -573,9 +435,9 @@
 import Banner from '../components/BaseBanner.vue'
 import PaperCard from '../components/BasePaperCard.vue'
 import BaseEditPaper from './BaseEditPaper.vue'
-import BaseGetID from './BaseGetID.vue'
+import Search from './Search.vue'
   export default {
-    components: {Banner,PaperCard,BaseEditPaper,BaseGetID},
+    components: {Banner,PaperCard,BaseEditPaper,Search},
     data: () => ({
       //门户部分
       editingD:false,

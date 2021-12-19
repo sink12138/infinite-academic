@@ -284,16 +284,14 @@
       
      
     </div>
-  <v-dialog v-model="getID" persistent width=1200px >
-    <!-- <BaseGetID @closeID="closeID"></BaseGetID> -->
-    <v-card height=1000px>
-      <Search
-        :fromDoor=true
-        @closeID="closeID"
-      ></Search>
-    </v-card>
-    
-  </v-dialog>
+    <v-dialog v-model="getID" persistent width=1200px >
+      <v-card height=1000px>
+        <Search
+          :fromDoor=true
+          @closeID="closeID"
+        ></Search>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
