@@ -37,7 +37,7 @@
           <v-expansion-panel-content>
             <v-card-text height=0 v-if="paperdata.journal">
               <div class="text-md-left black--text"><span style="color:#999">期刊标题:</span>&nbsp;&nbsp;{{paperdata.journal.title}}</div>
-              <div class="text-md-left black--text"><span style="color:#999">期刊的数据库id:</span>&nbsp;&nbsp;{{paperdata.journal.id}}</div>
+              <!-- <div class="text-md-left black--text"><span style="color:#999">期刊的数据库id:</span>&nbsp;&nbsp;{{paperdata.journal.id}}</div> -->
               <div class="text-md-left black--text"><span style="color:#999">论文在期刊中的卷号:</span>&nbsp;&nbsp;{{paperdata.journal.volume}}</div>
               <div class="text-md-left black--text"><span style="color:#999">论文在期刊中的期号:</span>&nbsp;&nbsp;{{paperdata.journal.issue}}</div>
               <div class="text-md-left black--text"><span style="color:#999">论文在期刊中的起始页码:</span>&nbsp;&nbsp;{{paperdata.journal.startPage}}</div>
@@ -47,13 +47,12 @@
         </v-expansion-panel>
       </v-expansion-panels>
     <v-tabs v-model="tab">
-      <v-tab key="yinzheng">引证文献</v-tab>
-      <v-tab key="cankao">参考文献</v-tab>
-      <v-tab key="chuban">出版文献</v-tab>
+      <v-tab key="citations">引证文献</v-tab>
+      <v-tab key="references">参考文献</v-tab>
     </v-tabs>
     <v-tabs-items v-model="tab">
-        <v-tab-item key="yinzheng">
-          <v-card-text v-for="item in yinzheng.items" v-bind:key="item.index">
+        <v-tab-item key="citations">
+          <v-card-text v-for="item in citations.items" v-bind:key="item.index">
             <p class="text--md" style="font:Microsoft YaHei,Arial,Helvetica,sans-serif;font-size:20px;line-height:1.2;color:#06c">
               <a href="">{{item.title}}</a>
             </p>
@@ -63,8 +62,8 @@
             <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
           </v-card-text>
         </v-tab-item>
-        <v-tab-item key="cankao">
-          <v-card-text v-for="item in cankao.items" v-bind:key="item.index">
+        <v-tab-item key="references">
+          <v-card-text v-for="item in references.items" v-bind:key="item.index">
             <p class="text--md" style="font:Microsoft YaHei,Arial,Helvetica,sans-serif;font-size:20px;line-height:1.2;color:#06c">
               <a href="">{{item.title}}</a>
             </p>
@@ -74,7 +73,7 @@
             <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
           </v-card-text>
         </v-tab-item>
-        <v-tab-item key="chuban">
+        <!-- <v-tab-item key="chuban">
           <v-card-text v-for="item in chuban.items" v-bind:key="item.index">
             <p class="text--md" style="font:Microsoft YaHei,Arial,Helvetica,sans-serif;font-size:20px;line-height:1.2;color:#06c">
               <a href="">{{item.title}}</a>
@@ -84,37 +83,34 @@
             <div class="text-md-left black--text"><span class="grey--text">论文被引量:</span>&nbsp;&nbsp;{{item.citationNum}}</div>
             <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
           </v-card-text>
-        </v-tab-item>
+        </v-tab-item> -->
     </v-tabs-items>
   </v-card>
 </template>
 <script>
 export default{
-  data(){
-    return{
-      tab:null,
-      yinzheng:{},
-      cankao:{},
-      chuban:{}
-    }
-  },
-  mounted() {
-    this.$axios.get('../../yinzheng.json').then(res=>{
-      this.yinzheng=res.data.data;
-    }),
-    this.$axios.get('../../cankao.json').then(res=>{
-      this.cankao=res.data.data;
-    }),
-    this.$axios.get('../../chuban.json').then(res=>{
-      this.chuban=res.data.data;
-    })
-  },
   props:{
     paperdata: {
       type: Object,
       default:() => {}
+    },
+    references:{
+      type:Object,
+      default:()=>{}
+    },
+    citations:{
+      type:Object,
+      default:()=>{}
     }
   },
+  data(){
+    return{
+      tab:null
+    }
+  },
+  mounted() {
+
+  }
 }
 </script>
 <style scoped>
