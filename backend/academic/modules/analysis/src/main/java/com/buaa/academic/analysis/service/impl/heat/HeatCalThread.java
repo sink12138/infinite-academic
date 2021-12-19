@@ -73,16 +73,18 @@ public class HeatCalThread implements Runnable {
             publicationData.setNums(numbers);
             if (Objects.equals(threadName, JobType.HOT_TOPIC_ANALYSIS.name())) {
                 Topic topic = topicRepository.findTopicByName(targetName);
-                assert topic != null;
-                topic.setHeat(heat);
-                topic.setPubsPerYear(publicationData);
-                topicRepository.save(topic);
+                if (topic != null) {
+                    topic.setHeat(heat);
+                    topic.setPubsPerYear(publicationData);
+                    topicRepository.save(topic);
+                }
             } else {
                 Subject subject = subjectRepository.findSubjectByName(targetName);
-                assert subject != null;
-                subject.setHeat(heat);
-                subject.setPubsPerYear(publicationData);
-                subjectRepository.save(subject);
+                if (subject != null) {
+                    subject.setHeat(heat);
+                    subject.setPubsPerYear(publicationData);
+                    subjectRepository.save(subject);
+                }
             }
         }
     }
