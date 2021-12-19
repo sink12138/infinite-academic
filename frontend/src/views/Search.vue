@@ -30,79 +30,110 @@
               >
             </div>
             <div v-if="data.detection != null">
-              <div v-if="data.detection == 'journal'">
-                <div v-for="item in recommendation" :key="item.id">
+              <v-card>
+                <div v-if="data.detection == 'journal'">
                   <!-- 期刊 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('journal', item.id)"
-                        v-html="item.title"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                    <v-card-text>
-                      <span> {{ item.sponsor }} </span>
-                    </v-card-text>
-                  </v-card>
+                  <tr
+                    v-for="(row, index) in sliceList(data.recommendation, 3)"
+                    :key="index"
+                  >
+                    <td
+                      v-for="item in row"
+                      :key="item.id"
+                      style="width: 33%; height: 50%; table-layout: fixed"
+                    >
+                      <v-card class="text-left my-2" max-width="650">
+                        <v-card-title class="d-flex">
+                          <v-icon class="mx-1">
+                            mdi-text-box-multiple-outline
+                          </v-icon>
+                          <a
+                            @click="href('journal', item.id)"
+                            v-html="item.title"
+                          ></a>
+                          <v-spacer></v-spacer>
+                        </v-card-title>
+                        <v-card-text>
+                          <span> {{ item.sponsor }} </span>
+                        </v-card-text>
+                      </v-card>
+                    </td>
+                  </tr>
                 </div>
-              </div>
-              <div v-else-if="data.detection == 'researcher'">
-                <div v-for="item in recommendation" :key="item.id">
+                <div v-else-if="data.detection == 'researcher'">
                   <!-- 科研人员 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('author', item.id)"
-                        v-html="item.name"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                    <v-card-subtitle class="pb-0">
-                      <span> 研究方向:{{ item.interests }} </span>
-                      &nbsp;
-                      <a
-                        v-if="item.institution"
-                        @click="href('institution', item.institution.id)"
-                      >
-                        {{ item.institution.name }} </a
-                      >&nbsp;
-                      <span v-if="item.citationNum">
-                        被引量:{{ item.citationNum }}
-                      </span>
-                      <span v-if="item.paperNum">
-                        已发表文章:{{ item.paperNum }}
-                      </span>
-                      <span v-if="item.patentNum">
-                        专利数量:{{ item.patentNum }}
-                      </span>
-                    </v-card-subtitle>
-                  </v-card>
+                  <tr
+                    v-for="(row, index) in sliceList(data.recommendation, 3)"
+                    :key="index"
+                  >
+                    <td
+                      v-for="item in row"
+                      :key="item.id"
+                      style="width: 33%; height: 50%; table-layout: fixed"
+                    >
+                      <v-card class="text-left my-2" max-width="650">
+                        <v-card-title class="d-flex">
+                          <v-icon class="mx-1">
+                            mdi-text-box-multiple-outline
+                          </v-icon>
+                          <a
+                            @click="href('author', item.id)"
+                            v-html="item.name"
+                          ></a>
+                          <v-spacer></v-spacer>
+                        </v-card-title>
+                        <v-card-subtitle class="pb-0">
+                          <span v-if="item.interests != null">
+                            研究方向:{{ item.interests }}
+                          </span>
+                          &nbsp;
+                          <a
+                            v-if="item.institution"
+                            @click="href('institution', item.institution.id)"
+                          >
+                            {{ item.institution.name }} </a
+                          >&nbsp;
+                          <span v-if="item.citationNum">
+                            被引量:{{ item.citationNum }}
+                          </span>
+                          <span v-if="item.paperNum">
+                            已发表文章:{{ item.paperNum }}
+                          </span>
+                          <span v-if="item.patentNum">
+                            专利数量:{{ item.patentNum }}
+                          </span>
+                        </v-card-subtitle>
+                      </v-card>
+                    </td>
+                  </tr>
                 </div>
-              </div>
-              <div v-else-if="data.detection == 'institution'">
-                <div v-for="item in recommendation" :key="item.id">
+                <div v-else-if="data.detection == 'institution'">
                   <!-- 机构 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('institution', item.id)"
-                        v-html="item.name"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                  </v-card>
+                  <tr
+                    v-for="(row, index) in sliceList(data.recommendation, 3)"
+                    :key="index"
+                  >
+                    <td
+                      v-for="item in row"
+                      :key="item.id"
+                      style="width: 33%; height: 50%; table-layout: fixed"
+                    >
+                      <v-card class="text-left my-2" max-width="650">
+                        <v-card-title class="d-flex">
+                          <v-icon class="mx-1">
+                            mdi-text-box-multiple-outline
+                          </v-icon>
+                          <a
+                            @click="href('institution', item.id)"
+                            v-html="item.name"
+                          ></a>
+                          <v-spacer></v-spacer>
+                        </v-card-title>
+                      </v-card>
+                    </td>
+                  </tr>
                 </div>
-              </div>
+              </v-card>
             </div>
             <div v-if="results.length != 0">
               <div v-for="item in results" :key="item.id">
@@ -375,6 +406,24 @@ export default {
       router: [{ href: "/", icon: "mdi-arrow-left", title: "Back" }],
     };
   },
+  computed: {
+    sliceList() {
+      return function (data, count) {
+        if (data != undefined) {
+          let index = 0;
+          let arrTemp = [];
+          for (let i = 0; i < data.length; i++) {
+            index = parseInt(i / count);
+            if (arrTemp.length <= index) {
+              arrTemp.push([]);
+            }
+            arrTemp[index].push(data[i]);
+          }
+          return arrTemp;
+        }
+      };
+    },
+  },
   created() {
     setTimeout(() => {
       if (this.$route.query.text != null && this.$route.query.text != "") {
@@ -397,8 +446,8 @@ export default {
     handleFilter(filter) {
       this.filters = filter;
     },
-    handleFilter2(filter){
-      this.filters=filter;
+    handleFilter2(filter) {
+      this.filters = filter;
     },
     searchResult(data) {
       this.data = data;
