@@ -38,6 +38,9 @@ import BaseAnalytics from "../components/BaseAnalytics.vue";
 export default {
     name: "Income",
     components: {BaseAnalytics,Banner},
+    props:{
+      a:Number
+    },
     data() {
         return {
           data:[3,2,4,3,2],

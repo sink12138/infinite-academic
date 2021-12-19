@@ -1,6 +1,7 @@
 <template>
   <div>
-    <Banner :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"></Banner>
+    <Banner v-if="!fromDoor" :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"></Banner>
+    
 
     <BaseSearchBar
       ref="bar"
@@ -301,6 +302,9 @@
         </div>
       </v-col>
     </v-card>
+    <div v-if="fromDoor" class="fixBut" style="right:15%">
+      <v-btn @click="close()">关闭</v-btn>
+    </div>
   </div>
 </template>
 
@@ -314,6 +318,12 @@ export default {
     BaseFilter,
     Banner,
     BaseSearchBar,
+  },
+  props:{
+    fromDoor:{
+      type:Boolean,
+      default:false
+    }
   },
   data() {
     return {
@@ -448,6 +458,9 @@ export default {
     filterChange(filter) {
       this.filter = filter;
       this.$refs.filter.showType = filter;
+    },
+    close(){
+      this.$emit('closeID',"close")
     },
   },
 };
