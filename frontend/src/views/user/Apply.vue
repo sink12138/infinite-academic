@@ -1,10 +1,9 @@
 <template>
-  <v-card height="100%">
+  <v-card>
     <v-tabs
       v-model="window"
       dark
       grow
-      background-color="indigo darken-1"
     >
       <v-tab>
         <v-icon>mdi-timer-sand-full</v-icon>
@@ -30,95 +29,88 @@
 
       <!-- 审核中 -->
       <v-window-item>
-        
+        <v-data-table
+          :headers="getHeaders()"
+          :items="review"
+          :items-per-page="-1"
+          hide-default-footer
+        >
+          <template v-slot:[`item.info`]="{ item }">
+            <MessageDialog :message="item"></MessageDialog>
+          </template>
+        </v-data-table>
       </v-window-item>
       
       <!-- 已通过申请 -->
       <v-window-item>
-        
+        <v-data-table
+          :headers="getHeaders()"
+          :items="passed"
+          :items-per-page="-1"
+          hide-default-footer
+        >
+          <template v-slot:[`item.info`]="{ item }">
+            <MessageDialog :message="item"></MessageDialog>
+          </template>
+        </v-data-table>
       </v-window-item>
       
       <!-- 未通过申请 -->
       <v-window-item>
-        
+        <v-data-table
+          :headers="getHeaders()"
+          :items="failed"
+          :items-per-page="-1"
+          hide-default-footer
+        >
+          <template v-slot:[`item.info`]="{ item }">
+            <MessageDialog :message="item"></MessageDialog>
+          </template>
+        </v-data-table>
       </v-window-item>
       
       <!-- 所有申请 -->
-      <v-window-item>
-        <v-card>
-          <v-list
-            class="text-left"
-          >
-            <v-list-group
-              v-for="item in types"
-              :key="item.type"
-              v-show="item.items.length != 0"
-              prepend-icon="mdi-arrow-down-drop-circle"
-              sub-group
+      <v-window-item height="100%">
+        <v-data-table
+          :headers="getHeaders()"
+          :items="all"
+          :items-per-page="-1"
+          hide-default-footer
+          fixed-header
+          group-by="type"
+        >
+          <template v-slot:[`item.status`]="{ item }">
+            <v-chip
+              v-if="item.status == '审核通过'"
+              color="cyan lighten-2"
             >
-              <template v-slot:activator>
-                <v-icon>{{item.icon}}</v-icon>
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.type"></v-list-item-title>
-                </v-list-item-content>
-              </template>
-
-              <v-list-item
-                v-for="child in item.items"
-                :key="child.title"
-                class="pl-8 item-color"
-              >
-              
-                <v-chip
-                  v-if="child.status == '审核通过'"
-                  dark
-                >
-                  <v-icon color="green lighten-3">
-                    mdi-checkbox-marked
-                  </v-icon>
-                  <span>已通过</span>
-                </v-chip>
-                <v-chip
-                  v-if="child.status == '审核不通过'"
-                  dark
-                >
-                  <v-icon color="red lighten-3">
-                    mdi-close-box
-                  </v-icon>
-                  <span>未通过</span>
-                </v-chip>
-                <v-chip
-                  v-if="child.status == '审核中'"
-                  dark
-                >
-                  <v-icon color="blue lighten-4">
-                    mdi-timer-sand-full
-                  </v-icon>
-                  <span>审核中</span>
-                </v-chip>
-
-                <v-list-item-content class="ml-2">
-                  {{child.type}} : {{child.title}}
-                </v-list-item-content>
-
-                <v-spacer></v-spacer>
-
-                <v-icon>
-                  mdi-clock
-                </v-icon>
-                <v-list-item-content>
-                  {{child.time}}
-                </v-list-item-content>
-                
-                <v-spacer></v-spacer>
-
-                <message-dialog :message="child"></message-dialog>
-                
-              </v-list-item>
-              <v-divider></v-divider>
-            </v-list-group>
-          </v-list>
-        </v-card>
+              已通过
+            </v-chip>
+            <v-chip
+              v-if="item.status == '审核不通过'"
+              color="amber"
+            >
+              未通过
+            </v-chip>
+            <v-chip
+              v-if="item.status == '审核中'"
+              color="blue lighten-4"
+            >
+              审核中
+            </v-chip>
+          </template>
+          <template v-slot:[`group.header`]="{items, isOpen, toggle}">
+            <td :colspan="getHeaders().length">
+              <v-icon @click="toggle">
+                {{ isOpen ? 'mdi-minus' : 'mdi-plus' }}
+              </v-icon>
+              <span>{{items[0].type}}</span>
+            </td>
+          </template>
+          <template v-slot:[`item.info`]="{ item }">
+            <MessageDialog :message="item"></MessageDialog>
+          </template>
+        </v-data-table>
       </v-window-item>
     </v-window>
 
@@ -133,70 +125,167 @@ export default {
   },
   data() {
     return {
-      types: [
+      review: [
         {
-          type: "学者认证",
-          icon: "mdi-school-outline",
-          items: [
-            { 
-              type: "修改",
-              title: "认证申请",
-              status: "审核不通过",
-              "time": "2021-08-17 19:26",
-            },
-          ]
+          title: "人工智能",
+          type: "论文",
+          time: "2018-10-15",
+          id: "GB123ds"
         },
         {
-          type: "门户管理",
-          icon: "mdi-home-outline",
-          items: [
-            { 
-              type: "修改",
-              title: "门户修改",
-              status: "审核中",
-              "time": "2021-08-17 19:26",
-            }
-          ]
+          title: "机器学习",
+          type: "论文",
+          time: "2018-10-14",
         },
         {
-          type: "论文管理",
-          icon: "mdi-book-open-page-variant-outline",
-          items: [
-            { 
-              type: "修改",
-              title: "title",
-              status: "审核不通过",
-              "time": "2021-08-17 19:26",
-             },
-            { 
-              type: "修改",
-              title: "title",
-              status: "审核通过",
-              "time": "2021-08-17 19:26",
-            },
-            { 
-              type: "修改",
-              title: "title",
-              status: "审核中",
-              "time": "2021-08-17 19:26",
-            },
-          ]
+          title: "集群",
+          type: "论文",
+          time: "2018-10-16",
         },
         {
-          type: "专利转让",
-          icon: "mdi-swap-horizontal-circle-outline",
-          items: [
-            { 
-              type: "修改",
-              title: "转让",
-              status: "审核中",
-              "time": "2021-08-17 19:26",
-            }
-          ]
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
         },
       ],
+      passed: [
+        {
+          title: "人工智能",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "机器学习",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "集群",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-15",
+        },
+      ],
+      failed: [
+        {
+          title: "人工智能",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "机器学习",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "集群",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-15",
+        },
+      ],
+      all: [
+        {
+          title: "人工智能",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "机器学习",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "集群",
+          status: "审核不通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核中",
+          type: "期刊",
+          time: "2018-10-15",
+        },
+        {
+          title: "人工智能",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "机器学习",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "集群",
+          status: "审核不通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核中",
+          type: "期刊",
+          time: "2018-10-15",
+        },
+        {
+          title: "人工智能",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "机器学习",
+          status: "审核中",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "集群",
+          status: "审核不通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核通过",
+          type: "论文",
+          time: "2018-10-15",
+        },
+        {
+          title: "分布式",
+          status: "审核中",
+          type: "期刊",
+          time: "2018-10-15",
+        },
+      ],
+      customGroupNames: { "category": "Cat", "dairy": "Dairy" },
       window: 0,
-      
     }
   },
   methods: {
@@ -213,13 +302,148 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    getReview() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/application/list",
+        params: {
+          page: 0,
+          size: 0,
+          status: "审核中",
+        }
+      }).then(res => {
+        console.log(res.data)
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getPassed() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/application/list",
+        params: {
+          page: 0,
+          size: 0,
+          status: "审核通过",
+        }
+      }).then(res => {
+        console.log(res.data)
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getFailed() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/application/list",
+        params: {
+          page: 0,
+          size: 0,
+          status: "审核不通过",
+        }
+      }).then(res => {
+        console.log(res.data)
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getBrief() {
+      this.$axios({
+        method: "post",
+        url: "/api/search/info/brief",
+        data: {
+          entity: "paper",
+          ids: []
+        }
+      }).then(res => {
+        console.log(res.data)
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getHeaders() {
+      var headers = []
+      if (this.window != 3) {
+        headers = [
+          {
+            text: "标题",
+            value: "title",
+            align: "start",
+            width: "40%",
+            sortable: false,
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "种类",
+            value: "type",
+            align: "start",
+            sortable: false,
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "申请时间",
+            value: "time",
+            align: "start",
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "详细信息",
+            value: "info",
+            align: "center",
+            sortable: false,
+            width: "120px",
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+        ]
+      } else {
+        headers = [
+          {
+            text: "标题",
+            value: "title",
+            align: "start",
+            width: "40%",
+            sortable: false,
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "状态",
+            value: "status",
+            align: "start",
+            sortable: false,
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "种类",
+            value: "type",
+            align: "start",
+            sortable: false,
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "申请时间",
+            value: "time",
+            align: "start",
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+          {
+            text: "详细信息",
+            value: "info",
+            align: "center",
+            sortable: false,
+            width: "120px",
+            class: "grey lighten-1 text-body-2 font-weight-black"
+          },
+        ]
+      }
+      return headers;
     }
   }
 }
 </script>
 
 <style scoped>
-.item-color {
-  background-color: #FAFAFA;
+.v-data-table-header {
+  color: grey;
 }
 </style>

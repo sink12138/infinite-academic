@@ -7,8 +7,11 @@
       <v-btn
         v-bind="attrs"
         v-on="on"
+        small
+        @click="getDetails()"
       >
-        详细信息
+        <v-icon>mdi-information-outline</v-icon>
+        详细
       </v-btn>
     </template>
 
@@ -18,7 +21,7 @@
       </v-card-title>
 
       <v-card-text>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        {{message.title}}
       </v-card-text>
 
       <v-divider></v-divider>
@@ -48,6 +51,18 @@ export default {
     message: {
       type: Object,
       default:() => {}
+    }
+  },
+  methods: {
+    getDetails() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/application/details/"+this.message.id,
+      }).then(res => {
+        console.log(res.data)
+      }).catch(error => {
+        console.log(error)
+      })
     }
   }
 }
