@@ -435,6 +435,9 @@ export default {
       this.$axios({
         method: "post",
         url: "api/admin/system/inspire",
+        headers:{
+          'Content-Type':'application/json'
+        },
         data: JSON.stringify(this.inspirations),
       }).then((response) => {
         console.log(JSON.stringify(this.inspirations))

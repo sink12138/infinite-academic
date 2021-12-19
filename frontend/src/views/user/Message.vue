@@ -23,11 +23,11 @@
             <v-checkbox
               v-model="read"
               :label="'是否仅显示为已读消息'"
-              @change="getAccounts"
+              @change="getMessages"
             ></v-checkbox>
             <v-checkbox
               :label="'是否仅显示为未读消息'"
-              @change="getAccounts"
+              @change="getMessages"
             ></v-checkbox>
             <v-dialog
               v-model="dialogDelete"
@@ -40,12 +40,12 @@
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="closeDelete"
+                    @click="closeDelete()"
                   >否</v-btn>
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="submitDelete"
+                    @click="submitDelete()"
                   >是</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
@@ -60,13 +60,31 @@
           >
             mdi-delete
           </v-icon>
-          <v-btn color="primary" @click="details = true">详情</v-btn>
+          <v-btn
+            color="primary"
+            @click="openDetail(item)"
+          >详情</v-btn>
+          <v-card v-if="details === true">
+            <v-card-title>
+              <span class="headline">{{detail.title}}</span>
+            </v-card-title>
+            <v-card-text>{{detail.time}}</v-card-text>
+            <v-card-text>{{detail.content}}</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="green darken-1"
+                text
+                @click="returnList()"
+              >返回</v-btn>
+            </v-card-actions>
+          </v-card>
         </template>
 
         <template v-slot:no-data>
           <v-btn
             color="primary"
-            @click="getAccounts"
+            @click="getMessages"
           >
             重置
           </v-btn>
@@ -74,6 +92,7 @@
       </v-data-table>
     </v-card-text>
   </v-card>
+
 </template>
 
 <script>
@@ -85,7 +104,7 @@ export default {
     }).then((response) => {
       console.log(response.data);
       if (response.data.success) {
-        this.totalMessages = response.data.data;
+        this.totalNotReadMessages = response.data.data;
       }
     });
   },
@@ -94,13 +113,14 @@ export default {
       dialog: false,
       dialogDelete: false,
       dialogValid: false,
+      totalNotReadMessages: 0,
       totalMessages: 0,
       options: {},
       loading: true,
       page: 0,
       read: false,
       size: 10,
-      details:false,
+      details: false,
       headers: [
         {
           text: "ID",
@@ -114,18 +134,29 @@ export default {
         { text: "操作", value: "actions", sortable: false },
       ],
       messages: [],
+      readList: [],
       deleteMessage: {
-        username: "",
-        email: "",
-        password: "",
         id: "",
+        title: "",
+        time: "",
+        content: "",
+        read: true,
+      },
+      detail: {
+        id: "",
+        title: "",
+        time: "",
+        content: "",
+        read: false,
       },
       defaultItem: {
-        username: "",
-        email: "",
-        password: "",
         id: "",
+        title: "",
+        time: "",
+        content: "",
+        read: false,
       },
+      deleteMessages: [],
     };
   },
   watch: {
@@ -137,18 +168,40 @@ export default {
     },
     options: {
       handler() {
-        this.getAccounts();
+        this.getMessages();
       },
       deep: true,
     },
   },
   methods: {
     submitDelete() {
-      this.userName = "";
-      this.passWords = "";
-      this.dialogValid = true;
+      this.deleteMessages.push(this.deleteMessage.id);
+      this.$axios({
+        method: "post",
+        url: "/api/account/message/remove",
+        data: {
+          deleteId: this.deleteMessages,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "信息删除成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "信息删除失败",
+            type: "warning",
+          });
+        }
+      });
+      this.closeDelete();
+      this.getMessages;
     },
-    getAccounts() {
+    getMessages() {
       this.loading = true;
       this.page = this.options.page;
       this.size =
@@ -159,16 +212,18 @@ export default {
         params: {
           page: this.page - 1,
           size: this.size,
+          read: true,
         },
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {
           this.messages = response.data.data.messages;
+          this.totalMessages = response.data.data.pageCount * this.size;
           this.loading = false;
         } else {
           this.$notify({
             title: "失败",
-            message: "账户信息获取失败",
+            message: "信息获取失败",
             type: "warning",
           });
           this.loading = false;
@@ -176,10 +231,27 @@ export default {
       });
     },
 
-    editItem(item) {
-      this.deleteMessage = Object.assign({}, item);
-      this.deleteMessage["password"] = "";
-      this.dialog = true;
+    returnList() {
+      this.details = false;
+      this.detail.read = true;
+      this.readList.push(this.detail.id);
+      console.log(this.detail);
+      this.$axios({
+        method: "post",
+        url: "/api/account/message/read",
+        data: {
+          idList: this.readList,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        this.getMessages();
+      });
+    },
+
+    openDetail(item) {
+      this.detail = Object.assign({}, item);
+      this.details = true;
+      console.log(this.details);
     },
 
     deleteItem(item) {
@@ -187,38 +259,12 @@ export default {
       this.dialogDelete = true;
     },
 
-    deleteItemConfirm() {
-      this.$axios({
-        method: "post",
-        url: "api/account",
-        params: {
-          id: this.deleteMessage.id,
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.$notify({
-            title: "成功",
-            message: "账号删除成功",
-            type: "warning",
-          });
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "账号删除失败",
-            type: "warning",
-          });
-        }
-      });
-      this.closeDelete();
-    },
-
     close() {
       this.dialog = false;
       this.$nextTick(() => {
         this.deleteMessage = Object.assign({}, this.defaultItem);
       });
-      this.getAccounts();
+      this.getMessages();
     },
 
     closeDelete() {
@@ -226,11 +272,7 @@ export default {
       this.$nextTick(() => {
         this.deleteMessage = Object.assign({}, this.defaultItem);
       });
-      this.getAccounts();
-    },
-
-    closeCheck() {
-      this.dialogValid = false;
+      this.getMessages();
     },
   },
 };
