@@ -196,13 +196,14 @@ export default {
     });
   },
   data: () => ({
+    token: "",
     code: "",
     email: "",
     password: "",
     findEmail: "",
     newPassword: "",
     dialog: false,
-    isLogin:false,
+    isLogin: false,
     isRouterAlive: true,
     isFindPassword: false,
     inputNewPassword: false,
@@ -256,6 +257,8 @@ export default {
           console.log(this.password);
           console.log(sha256(this.password));
           console.log(response.data);
+          let token = window.sessionStorage.getItem('TOKEN');
+          console.log(token)
           if (response.data.success === true) {
             this.dialog = false;
             this.isLogin = true;
@@ -274,6 +277,16 @@ export default {
           }
         });
       }
+      this.$axios({
+        method: "get",
+        url: "/api/account/profile",
+      }).then((response) => {
+        console.log(response.data);
+        console.log(response.data.token);
+        if (response.data.success === true) {
+          this.isLogin = true;
+        }
+      });
     },
     logout() {
       this.$axios({

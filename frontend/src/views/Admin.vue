@@ -1,15 +1,15 @@
 <template>
   <div>
-    <Banner 
+    <Banner
       :title="{
-        text: this.isLogin?this.menu[this.menu_id - 1].title:'管理员', 
+        text: this.isLogin?this.menu[this.menu_id - 1].title:'管理员',
         icon: 'mdi-account-cog',
         time: this.logoutTime
       }"
     ></Banner>
 
-    <v-row 
-      justify="center" 
+    <v-row
+      justify="center"
       align="center"
     >
       <v-card
@@ -42,7 +42,7 @@
           </v-list>
         </v-navigation-drawer>
 
-        
+
         <v-card
           class="welcome"
           v-if="menu_id == 0"
@@ -50,26 +50,26 @@
           outlined
         >
           <v-card-title>
-            <v-row 
-              justify="center" 
+            <v-row
+              justify="center"
               align="center"
             >
               <h1>欢迎来到管理员界面！</h1>
             </v-row>
           </v-card-title>
-            
+
           <v-card-text>
             <v-form
               ref="userForm"
               v-model="valid"
               lazy-validation
             >
-              <v-row 
-                justify="center" 
+              <v-row
+                justify="center"
                 align="center"
               >
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 >
                   <v-text-field
@@ -82,12 +82,12 @@
                 </v-col>
               </v-row>
 
-              <v-row 
-                justify="center" 
+              <v-row
+                justify="center"
                 align="center"
               >
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 >
                   <v-text-field
@@ -125,8 +125,8 @@
           outlined
         >
           <v-card-title>
-            <v-row 
-              justify="center" 
+            <v-row
+              justify="center"
               align="center"
             >
               <h1>欢迎进入，{{ this.userOldName }}！</h1>
@@ -139,12 +139,12 @@
               v-model="valid"
               lazy-validation
             >
-              <v-row 
-                justify="center" 
+              <v-row
+                justify="center"
                 align="center"
               >
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 >
                   <v-text-field
@@ -157,12 +157,12 @@
                 </v-col>
               </v-row>
 
-              <v-row 
-                justify="center" 
+              <v-row
+                justify="center"
                 align="center"
               >
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 >
                   <v-text-field
@@ -176,12 +176,12 @@
               </v-row>
 
               <v-row>
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 ></v-col>
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="2"
                 >
                   <v-btn
@@ -193,8 +193,8 @@
                   </v-btn>
                 </v-col>
 
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="2"
                 >
                   <v-btn
@@ -204,8 +204,8 @@
                     登出
                   </v-btn>
                 </v-col>
-                <v-col 
-                  clos="12" 
+                <v-col
+                  clos="12"
                   sm="4"
                 ></v-col>
               </v-row>
@@ -226,7 +226,7 @@
         >
           <ReviewApplication></ReviewApplication>
         </div>
-        
+
         <div
           class="systemSettings"
           v-if="menu_id == 4"
@@ -311,6 +311,7 @@ export default {
         }
       }).then((response) => {
         console.log(response.data);
+        console.log(token)
         if (response.data.success === true) {
           this.$notify({
             title: "成功",
