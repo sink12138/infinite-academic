@@ -124,6 +124,64 @@ export default {
       ],
     }
   },
+  methods:{
+    getInfo(){
+      this.$axios({
+        method: "get",
+        url: "api/search/info/journal/"+this.id,
+        params: {
+          id: this.id
+        }
+      }).then(response => {
+        console.log(response.data)
+        this.avatarUrl=response.data.avatarUrl
+        this.name=response.data.name
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getPapers(){
+      this.papers=[]
+      let aPaper=Object
+      let hasMore=false
+      let page=0
+      this.$axios({
+        method: "get",
+        url: "/search/relation/publications/journal/"+this.id+"/"+page,
+        params: {
+          entity:"journal",
+          id: this.id,
+          page:page,
+        }
+      }).then(response => {
+        console.log(response.data)
+        aPaper=response.data.item
+        hasMore=response.data.hasMore
+        this.papers.push(aPaper)
+      }).catch(error => {
+        console.log(error)
+      })
+      while (hasMore) {
+          this.$axios({
+          method: "get",
+          url: "/search/relation/publications/journal/"+this.id+"/"+page,
+          params: {
+            entity:"researcher",
+            id: this.id,
+            page:page,
+          }
+        }).then(response => {
+          console.log(response.data)
+          aPaper=response.data.item
+          hasMore=response.data.hasMore
+          this.papers.push(aPaper)
+        }).catch(error => {
+          console.log(error)
+        })
+      }
+      this.pageNum=page+1
+    }
+  }
 }
 </script>
 
