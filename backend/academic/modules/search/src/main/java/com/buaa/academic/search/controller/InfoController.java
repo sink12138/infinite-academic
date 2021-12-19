@@ -3,19 +3,20 @@ package com.buaa.academic.search.controller;
 import com.buaa.academic.document.entity.*;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
+import com.buaa.academic.search.model.request.BriefRequest;
 import com.buaa.academic.search.service.InfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/info")
@@ -25,6 +26,9 @@ public class InfoController {
 
     @Autowired
     private InfoService infoService;
+
+    @Autowired
+    private ElasticsearchRestTemplate template;
 
     @GetMapping("/paper/{id}")
     @ApiOperation(value = "学术论文详细信息", notes = "根据论文编号显示文章详细信息")
@@ -79,6 +83,59 @@ public class InfoController {
         if (patent == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
         return result.withData(patent);
+    }
+
+    @PostMapping("/brief")
+    @ApiOperation(value = "查询简要信息", notes = "返回体可以参考搜索结果接口。")
+    public Result<List<Object>> brief(@RequestBody BriefRequest request) {
+        Result<List<Object>> result = new Result<>();
+        List<Object> items = new ArrayList<>();
+        switch (request.getEntity()) {
+            case "paper" -> {
+                for (String id : request.getIds()) {
+                    Paper paper = template.get(id, Paper.class);
+                    if (paper == null)
+                        return result.withFailure(ExceptionType.NOT_FOUND);
+                    items.add(paper.reduce());
+                }
+            }
+            case "researcher" -> {
+                for (String id : request.getIds()) {
+                    Researcher researcher = template.get(id, Researcher.class);
+                    if (researcher == null)
+                        return result.withFailure(ExceptionType.NOT_FOUND);
+                    items.add(researcher.reduce());
+                }
+            }
+            case "journal" -> {
+                for (String id : request.getIds()) {
+                    Journal journal = template.get(id, Journal.class);
+                    if (journal == null)
+                        return result.withFailure(ExceptionType.NOT_FOUND);
+                    items.add(journal.reduce());
+                }
+            }
+            case "institution" -> {
+                for (String id : request.getIds()) {
+                    Institution institution = template.get(id, Institution.class);
+                    if (institution == null)
+                        return result.withFailure(ExceptionType.NOT_FOUND);
+                    items.add(institution.reduce());
+                }
+            }
+            case "patent" -> {
+                for (String id : request.getIds()) {
+                    Patent patent = template.get(id, Patent.class);
+                    if (patent == null)
+                        return result.withFailure(ExceptionType.NOT_FOUND);
+                    items.add(patent.reduce());
+                }
+            }
+            default -> {
+                return result.withFailure(ExceptionType.INVALID_PARAM);
+            }
+        }
+        return result.withData(items);
     }
 
 }
