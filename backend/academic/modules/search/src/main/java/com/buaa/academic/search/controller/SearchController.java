@@ -147,8 +147,11 @@ public class SearchController {
                     detectionQuery = researcherDetection;
                     highlightFields.add("authors.name");
                     session.setAttribute("detection", "researcher");
+                    searchRequest.setTranslated(false);
                     break;
                 }
+                if (keyword.length() < 4 || keyword.matches("^[A-Z][a-z\\s]{4}.*$") && keyword.length() < 12)
+                    break;
                 // Search for institutions
                 SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
                 List<InstitutionItem> institutions = new ArrayList<>();
@@ -195,6 +198,7 @@ public class SearchController {
             }
         }
 
+        // Corrections
         String correctKeyword = keyword;
         if (detectionQuery == null && suggestService.completionSuggest(Paper.class, keyword, "completion", 1).isEmpty()) {
             List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
@@ -215,7 +219,7 @@ public class SearchController {
                         Set.of("title", "keywords", "abstract"),
                         true,
                         searchRequest.isTranslated(),
-                        searchRequest.isTranslated() ? Set.of("en", "zh") : null,
+                        searchRequest.isTranslated() ? Set.of("zh", "en") : null,
                         null));
 
         // Prepare search params

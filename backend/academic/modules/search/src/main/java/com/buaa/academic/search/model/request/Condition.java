@@ -79,7 +79,6 @@ public class Condition {
             }
             if (translated) {
                 Set<String> keywords = new HashSet<>(6);
-                keywords.add(keyword);
                 for (String lang : languages) {
                     keywords.add(Translator.translate(keyword, "auto", lang));
                 }
