@@ -104,7 +104,7 @@ export default {
       }
     },
     search() {
-      if (this.$route.path == "/search") {
+      if (this.$route.path != "/") {
         this.filters = this.$parent.filters;
         console.log("搜索过滤器");
         console.log(this.filters);
