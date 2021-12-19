@@ -25,6 +25,14 @@
       <v-col>
         <div>
           <div class="result">
+            <div v-if="results.length != 0">
+              <v-row></v-row>
+              <v-row>
+                <v-col>
+                  当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条,耗时 {{timeCost}} ms
+                </v-col>
+              </v-row>
+            </div>
             <div v-if="data.correction != null">
               <span
                 >已为您推荐&nbsp;<i v-html="data.correction"></i
@@ -399,6 +407,7 @@ export default {
         queryType: "doi",
       },
       jumpPage: 1,
+      timeCost: 0,
       page: 1,
       length: 1,
       itemNum: 0,
@@ -453,6 +462,7 @@ export default {
     },
     searchResult(data) {
       this.data = data;
+      this.timeCost = this.data.timeCost;
       this.results = this.data.items;
       this.page = this.data.page + 1;
       this.length = this.data.totalPages;
