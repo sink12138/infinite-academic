@@ -42,7 +42,7 @@ public class SuggestServiceImpl implements SuggestService {
                         SuggestBuilders.completionSuggestion(field)
                                 .prefix(text)
                                 .skipDuplicates(true)
-                                .size(size));
+                                .size(size + 3));
         Suggestion<Entry<Option>> suggestion = template
                 .suggest(suggestBuilder, target)
                 .getSuggest()
@@ -52,9 +52,14 @@ public class SuggestServiceImpl implements SuggestService {
         HighlightManager manager = new HighlightManager(config.preTag(), config.postTag());
         for (Entry<Option> entry : suggestion) {
             for (Option option : entry) {
-                suggestionWords.add(option.getText().toString());
+                String optionText = option.getText().toString();
+                if (optionText.equalsIgnoreCase(text))
+                    continue;
+                suggestionWords.add(optionText);
             }
         }
+        if (suggestionWords.size() > size)
+            suggestionWords.subList(size, suggestionWords.size()).clear();
         suggestionWords.sort(Comparator.comparingInt(String::length));
         for (int i = 0; i < suggestionWords.size(); ++i) {
             suggestionWords.set(i, manager
