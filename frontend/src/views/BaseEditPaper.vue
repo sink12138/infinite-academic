@@ -284,16 +284,22 @@
       
      
     </div>
-  <v-dialog v-model="getID" persistent width=400px min-height=600px>
-    <BaseGetID @closeID="closeID"></BaseGetID>
-  </v-dialog>
+    <v-dialog v-model="getID" persistent width=1200px >
+      <v-card height=1000px>
+        <Search
+          :fromDoor=true
+          @closeID="closeID"
+        ></Search>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
-  import BaseGetID from './BaseGetID.vue'
+  // import BaseGetID from './BaseGetID.vue'
+  import Search from './Search.vue'
   export default {
-    components: {BaseGetID},
+    components: {Search},
     props:{
       paper:Object,
       edit:Boolean,
@@ -453,5 +459,6 @@
     position: fixed;
     top:60px;
     right:25%;
+    z-index:9999;
 }
 </style>

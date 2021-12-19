@@ -101,6 +101,7 @@ export default {
       valid: false,
       address: "",
       agency: "",
+      agent: "",
       applicant: "",
       patentId: "",
       transferee: "",
@@ -125,9 +126,6 @@ export default {
             transferee: this.transferee,
             transferor: this.transferor,
           },
-          email: this.email,
-          fileToken: this.fileToken,
-          websiteLink: this.websiteLink,
         },
       }).then((response) => {
         console.log(response.data);
