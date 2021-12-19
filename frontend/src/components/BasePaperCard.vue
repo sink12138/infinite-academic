@@ -1,7 +1,7 @@
 <template>
-  <v-card 
+  <v-card
     class="text-left my-2"
-    max-width="650"
+    max-width="1950"
   >
     <v-card-title class="d-flex">
       <v-icon class="mx-1">
@@ -14,9 +14,9 @@
       </v-btn>
     </v-card-title>
     <v-card-subtitle class="pb-0">
-      <span v-text="item.date.substr(0,4)"></span>&nbsp;
+      <span v-if="item.date.substr(0,4)" v-text="item.date.substr(0,4)"></span>&nbsp;
       <a
-        v-if="item.journal" 
+        v-if="item.journal"
         @click="href('journal', item.journal.id)"
       >
         {{item.journal.title}}
@@ -28,11 +28,11 @@
         v-for="(author, idx) in item.authors"
         :key="author.id"
       >
-        <a 
+        <a
           v-if="idx == item.authors.length-1"
           @click="href('author', author.id)"
         >{{author.name}}</a>
-        <a 
+        <a
           v-else
           @click="href('author', author.id)"
         >{{author.name + ","}}</a>
@@ -43,6 +43,7 @@
         class="mx-1"
         v-for="keyword in item.keywords"
         :key="keyword"
+        v-show="keyword"
       >
         <v-btn small outlined>
           <v-icon small>
@@ -59,7 +60,7 @@
       <v-btn
         x-small
         outlined
-        v-if="item.abstract.length > 110"
+        v-if="item.abstract.length > 380"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
@@ -88,8 +89,8 @@ export default {
   filters: {
     abstract(text) {
       if (!text) return " ";
-      if (text.length > 110) {
-        return text.slice(0,110) + "..."
+      if (text.length > 380) {
+        return text.slice(0,380) + "..."
       }
       return text;
     }

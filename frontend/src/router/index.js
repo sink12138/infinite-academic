@@ -29,7 +29,7 @@ const routes = [{
     component: Home
   },
   {
-    path: '/author',
+    path: '/author/',
     name: 'Author',
     component: Author
   },
