@@ -24,20 +24,44 @@ public class HitsReducer {
                 item.setTitle(title);
             }
             if (hlt.containsKey("keywords")) {
-                item.setKeywords(hlt.get("keywords"));
+                List<String> keywords = item.getKeywords();
+                List<String> highlights = hlt.get("keywords");
+                for (int i = 0, j = 0; i < highlights.size(); ++i) {
+                    while (j < keywords.size() &&
+                            !highlights.get(i).replaceAll(preTag, "").replaceAll(postTag, "").equals(keywords.get(j))) {
+                        ++j;
+                    }
+                    if (j < keywords.size())
+                        keywords.set(j, highlights.get(i));
+                }
             }
-            if (hlt.containsKey("abstract")) {
-                String paperAbstract = hlt.get("abstract").get(0);
+            if (hlt.containsKey("paperAbstract")) {
+                String paperAbstract = hlt.get("paperAbstract").get(0);
                 if (manager.text(paperAbstract).length() > 128)
                     paperAbstract = manager.cut(128).process() + "...";
                 item.setPaperAbstract(paperAbstract);
+            }
+            if (hlt.containsKey("authors.name")) {
+                List<PaperItem.Author> authors = item.getAuthors();
+                List<String> highlights = hlt.get("authors.name");
+                for (int i = 0, j = 0; i < highlights.size(); ++i) {
+                    while (j < authors.size() &&
+                            !highlights.get(i).replaceAll(preTag, "").replaceAll(postTag, "").equals(authors.get(j).getName())) {
+                        ++j;
+                    }
+                    if (j < authors.size())
+                        authors.get(j).setName(highlights.get(i));
+                }
+            }
+            if (hlt.containsKey("journal.title")) {
+                item.getJournal().setTitle(hlt.get("journal.title").get(0));
             }
             result.add(item);
         }
         return result;
     }
 
-    public static List<ResearcherItem> reduceResearcherHits(SearchHits<Researcher> hits) {
+    public static List<ResearcherItem> reduceResearcherHits(SearchHits<Researcher> hits, String preTag, String postTag) {
         List<ResearcherItem> result = new ArrayList<>();
         for (SearchHit<Researcher> hit : hits) {
             ResearcherItem item = hit.getContent().reduce();
@@ -46,7 +70,16 @@ public class HitsReducer {
                 item.setName(hlt.get("name").get(0));
             }
             if (hlt.containsKey("interests")) {
-                item.setInterests(hlt.get("interests"));
+                List<String> interests = item.getInterests();
+                List<String> highlights = hlt.get("interests");
+                for (int i = 0, j = 0; i < highlights.size(); ++i) {
+                    while (j < interests.size() &&
+                            !highlights.get(i).replaceAll(preTag, "").replaceAll(postTag, "").equals(interests.get(j))) {
+                        ++j;
+                    }
+                    if (j < interests.size())
+                        interests.set(j, highlights.get(i));
+                }
             }
             result.add(item);
         }

@@ -25,6 +25,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -118,13 +120,90 @@ public class SearchController {
         // Strip keyword
         String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
 
-        List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
-                new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
-                "title.raw", "keywords.raw", "subjects.raw" }, 1);
+        // Base highlight fields
+        List<String> highlightFields = new ArrayList<>() {{
+            add("title");
+            add("keywords");
+            add("abstract");
+        }};
+
+        QueryBuilder detectionQuery = null;
+
+        // Detect recommendations or read from cache
+        QueryBuilder researcherDetection = QueryBuilders.termQuery("authors.name", keyword).boost(5.0f);
+        QueryBuilder institutionDetection = QueryBuilders.matchQuery("institutions.name", keyword).boost(5.0f);
+        QueryBuilder journalDetection = QueryBuilders.matchQuery("journal.title", keyword).boost(5.0f);
+        HttpSession session = httpServletRequest.getSession();
+        if (searchRequest.getPage() == 0) {
+            // noinspection ConstantConditions
+            do {
+                // Search for researchers
+                SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
+                if (!researchersByName.isEmpty()) {
+                    smartPage.setDetection("researcher");
+                    List<ResearcherItem> researchers = new ArrayList<>();
+                    researchersByName.forEach(item -> researchers.add(item.getContent().reduce()));
+                    smartPage.setRecommendation(researchers);
+                    detectionQuery = researcherDetection;
+                    highlightFields.add("authors.name");
+                    session.setAttribute("detection", "researcher");
+                    break;
+                }
+                // Search for institutions
+                SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
+                List<InstitutionItem> institutions = new ArrayList<>();
+                for (SearchHit<Institution> hit : institutionsByName) {
+                    Institution institution = hit.getContent();
+                    if (institution.getName().startsWith(keyword))
+                        institutions.add(institution.reduce());
+                }
+                if (!institutions.isEmpty()) {
+                    smartPage.setDetection("institution");
+                    smartPage.setRecommendation(institutions);
+                    detectionQuery = institutionDetection;
+                    highlightFields.add("institutions.name");
+                    session.setAttribute("detection", "institution");
+                    break;
+                }
+                // Search for journals
+                SearchPage<Journal> journalsByTitle = journalRepository.findByTitleMatches(keyword, PageRequest.of(0, 6));
+                List<JournalItem> journals = new ArrayList<>();
+                for (SearchHit<Journal> hit : journalsByTitle) {
+                    Journal journal = hit.getContent();
+                    if (journal.getTitle().startsWith(keyword))
+                        journals.add(journal.reduce());
+                }
+                if (!journals.isEmpty()) {
+                    smartPage.setDetection("journal");
+                    smartPage.setRecommendation(journals);
+                    detectionQuery = journalDetection;
+                    highlightFields.add("journal.title");
+                    session.setAttribute("detection", "journal");
+                    break;
+                }
+            } while (false);
+        }
+        else {
+            String detection = (String) session.getAttribute("detection");
+            if (detection != null) {
+                detectionQuery = switch (detection) {
+                    case "researcher" -> researcherDetection;
+                    case "institution" -> institutionDetection;
+                    case "journal" -> journalDetection;
+                    default -> null;
+                };
+            }
+        }
+
         String correctKeyword = keyword;
-        if (!corrections.isEmpty()) {
-            correctKeyword = corrections.get(0);
-            smartPage.setCorrection(correctKeyword);
+        if (detectionQuery == null && suggestService.completionSuggest(Paper.class, keyword, "completion", 1).isEmpty()) {
+            List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
+                    new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
+                            "title.raw", "keywords.raw", "subjects.raw" }, 1);
+            if (!corrections.isEmpty()) {
+                correctKeyword = corrections.get(0).replaceAll(hltConfig.preTag(), "").replaceAll(hltConfig.postTag(), "");
+                smartPage.setCorrection(correctKeyword);
+            }
         }
 
         // Build conditions
@@ -133,48 +212,23 @@ public class SearchController {
                         "or",
                         false,
                         correctKeyword,
-                        Set.of("title", "keyword", "abstract"),
+                        Set.of("title", "keywords", "abstract"),
                         true,
                         searchRequest.isTranslated(),
                         searchRequest.isTranslated() ? Set.of("en", "zh") : null,
-                        null),
-                new Condition(
-                        "or",
-                        false,
-                        keyword,
-                        Set.of("authors.name"),
-                        false,
-                        false,
-                        null,
-                        null),
-                new Condition(
-                        "or",
-                        false,
-                        keyword,
-                        Set.of("journal.title"),
-                        true,
-                        false,
-                        null,
-                        null),
-                new Condition(
-                        "or",
-                        false,
-                        keyword,
-                        Set.of("institutions.name"),
-                        true,
-                        false,
-                        null,
                         null));
 
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "paper");
+        if (detectionQuery != null) {
+            query = QueryBuilders.boolQuery().should(query).should(detectionQuery);
+        }
         QueryBuilder filter = searchService.buildFilter(filters, "paper");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
+        HighlightBuilder hlt = searchService.buildHighlight(highlightFields.toArray(new String[0]));
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
-        HttpSession session = httpServletRequest.getSession();
         session.setAttribute("index", "paper");
         session.setAttribute("query", query.toString());
         if (filter != null)
@@ -187,43 +241,6 @@ public class SearchController {
         smartPage.setHits(baseHits, hltConfig.preTag(), hltConfig.postTag());
         smartPage.setStatistics(baseHits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
-        // Detect recommendations
-        if (searchRequest.getPage() == 0) {
-            // Search for researchers
-            SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
-            if (!researchersByName.isEmpty()) {
-                smartPage.setDetection("researcher");
-                List<ResearcherItem> researchers = new ArrayList<>();
-                researchersByName.forEach(item -> researchers.add(item.getContent().reduce()));
-                smartPage.setRecommendation(researchers);
-                smartPage.setTimeCost(System.currentTimeMillis() - start);
-                return result.withData(smartPage);
-            }
-
-            float baseScore = baseHits.getMaxScore();
-
-            // Search for journals
-            SearchPage<Journal> journalsByTitle = journalRepository.findByTitleMatches(keyword, PageRequest.of(0, 6));
-            if (journalsByTitle.getSearchHits().getMaxScore() >= baseScore * 0.75) {
-                smartPage.setDetection("journal");
-                List<JournalItem> journals = new ArrayList<>();
-                journalsByTitle.forEach(item -> journals.add(item.getContent().reduce()));
-                smartPage.setRecommendation(journals);
-                smartPage.setTimeCost(System.currentTimeMillis() - start);
-                return result.withData(smartPage);
-            }
-
-            // Search for institutions
-            SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
-            if (institutionsByName.getSearchHits().getMaxScore() >= baseScore * 0.75) {
-                smartPage.setDetection("institution");
-                List<InstitutionItem> institutions = new ArrayList<>();
-                institutionsByName.forEach(item -> institutions.add(item.getContent().reduce()));
-                smartPage.setRecommendation(institutions);
-                smartPage.setTimeCost(System.currentTimeMillis() - start);
-                return result.withData(smartPage);
-            }
-        }
         smartPage.setTimeCost(System.currentTimeMillis() - start);
         return result.withData(smartPage);
     }
@@ -465,7 +482,7 @@ public class SearchController {
         SearchHits<Researcher> hits = searchService.runSearch(Researcher.class, query, filter, sort, hlt, page);
 
         // Items & statistics
-        hitPage.setItems(HitsReducer.reduceResearcherHits(hits));
+        hitPage.setItems(HitsReducer.reduceResearcherHits(hits, hltConfig.preTag(), hltConfig.postTag()));
         hitPage.setStatistics(hits.getTotalHits(), searchRequest.getPage(), searchRequest.getSize());
 
         // Time cost

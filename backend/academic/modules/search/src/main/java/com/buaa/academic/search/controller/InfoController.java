@@ -14,6 +14,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +87,8 @@ public class InfoController {
     }
 
     @PostMapping("/brief")
-    @ApiOperation(value = "查询简要信息", notes = "返回体可以参考搜索结果接口。")
-    public Result<List<Object>> brief(@RequestBody BriefRequest request) {
+    @ApiOperation(value = "查询简要信息", notes = "返回体可以参考搜索结果接口")
+    public Result<List<Object>> brief(@RequestBody @Valid BriefRequest request) {
         Result<List<Object>> result = new Result<>();
         List<Object> items = new ArrayList<>();
         switch (request.getEntity()) {

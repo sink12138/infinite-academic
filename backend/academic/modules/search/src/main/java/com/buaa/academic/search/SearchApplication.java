@@ -8,7 +8,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE, maxInactiveIntervalInSeconds = 60)
+@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE)
 public class SearchApplication {
 
     public static void main(String[] args) {
