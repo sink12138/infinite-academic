@@ -9,7 +9,7 @@
         <a href="">{{paperdata.title}}</a>
       </p>
       <div class="text-md-left black--text"><span class="grey--text">摘要:</span>&nbsp;&nbsp;{{paperdata.abstract}}</div>
-      <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in paperdata.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="">{{item.name}}</a>&nbsp;&nbsp;</span></div>
+      <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in paperdata.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="'/api/search/info/researcher/'+item.id">{{item.name}}</a>&nbsp;&nbsp;</span></div>
       <div class="text-md-left black--text"><span class="grey--text">论文被引量:</span>&nbsp;&nbsp;{{paperdata.citationNum}}</div>
       <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{paperdata.date}}</div>
       <div class="text-md-left black--text"><span class="grey--text">DOI编号:</span>&nbsp;&nbsp;{{paperdata.doi}}</div>
@@ -57,7 +57,7 @@
               <a href="">{{item.title}}</a>
             </p>
             <div class="text-md-left black--text"><span class="grey--text">摘要:</span>&nbsp;&nbsp;{{item.abstract}}</div>
-            <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in item.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="">{{item.name}}</a>&nbsp;&nbsp;</span></div>
+            <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in item.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="'/search/info/researcher/'+item.id">{{item.name}}</a>&nbsp;&nbsp;</span></div>
             <div class="text-md-left black--text"><span class="grey--text">论文被引量:</span>&nbsp;&nbsp;{{item.citationNum}}</div>
             <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
           </v-card-text>
@@ -68,22 +68,11 @@
               <a href="">{{item.title}}</a>
             </p>
             <div class="text-md-left black--text"><span class="grey--text">摘要:</span>&nbsp;&nbsp;{{item.abstract}}</div>
-            <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in item.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="">{{item.name}}</a>&nbsp;&nbsp;</span></div>
+            <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in item.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="'/search/info/researcher/'+item.id">{{item.name}}</a>&nbsp;&nbsp;</span></div>
             <div class="text-md-left black--text"><span class="grey--text">论文被引量:</span>&nbsp;&nbsp;{{item.citationNum}}</div>
             <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
           </v-card-text>
         </v-tab-item>
-        <!-- <v-tab-item key="chuban">
-          <v-card-text v-for="item in chuban.items" v-bind:key="item.index">
-            <p class="text--md" style="font:Microsoft YaHei,Arial,Helvetica,sans-serif;font-size:20px;line-height:1.2;color:#06c">
-              <a href="">{{item.title}}</a>
-            </p>
-            <div class="text-md-left black--text"><span class="grey--text">摘要:</span>&nbsp;&nbsp;{{item.abstract}}</div>
-            <div class="text-md-left black--text"><span class="grey--text">作者:</span>&nbsp;&nbsp;<span v-for="item in item.authors" v-bind:key="item.index">&nbsp;&nbsp;<a href="">{{item.name}}</a>&nbsp;&nbsp;</span></div>
-            <div class="text-md-left black--text"><span class="grey--text">论文被引量:</span>&nbsp;&nbsp;{{item.citationNum}}</div>
-            <div class="text-md-left black--text"><span class="grey--text">发表日期:</span>&nbsp;&nbsp;{{item.date}}</div>
-          </v-card-text>
-        </v-tab-item> -->
     </v-tabs-items>
   </v-card>
 </template>
