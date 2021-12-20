@@ -40,6 +40,9 @@ public class AccountController {
     @Autowired
     private ElasticsearchRestTemplate template;
 
+    @Autowired
+    private HttpServletRequest request;
+
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
     public Result<Void> register(@RequestParam(value = "email") @NotNull @Email String email,
@@ -53,9 +56,6 @@ public class AccountController {
         accountService.sendVerifyEmail(original_user, "注册");
         return new Result<>();
     }
-
-    @Autowired
-    private HttpServletRequest request;
 
     @ApiIgnore
     @GetMapping("/verify")
@@ -81,10 +81,9 @@ public class AccountController {
     @Autowired
     private HttpServletResponse response;
 
-    private void setToken(String token) {
+    private void setCookie(String token) {
         Cookie cookie = new Cookie("TOKEN", token);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }
 
@@ -104,7 +103,7 @@ public class AccountController {
             return new Result<Void>().withFailure("密码错误");
         }
         token = accountService.addAuthority(user);
-        setToken(token);
+        setCookie(token);
         return new Result<>();
     }
 
