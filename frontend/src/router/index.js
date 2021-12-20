@@ -29,7 +29,7 @@ const routes = [{
     component: Home
   },
   {
-    path: '/author/',
+    path: '/author',
     name: 'Author',
     component: Author
   },
@@ -59,7 +59,7 @@ const routes = [{
     component: Search
   },
   {
-    path: '/paper/:id',
+    path: '/paper',
     name: 'Paper',
     component: Paper
   },

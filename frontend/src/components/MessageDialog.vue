@@ -17,17 +17,16 @@
 
     <v-card class="text-left">
       <v-card-title class="text-h5 grey lighten-2">
-        {{message.title}}
+        {{message.basic.type}}
       </v-card-title>
 
-      <div v-if="this.type == 'certification'">
-        <div 
-          v-if="this.content.claim != null"
-          class="d-inline-flex"
-        >
+      <v-row v-if="this.type == 'certification'" no-gutters>
+        <v-col cols="4">
           <v-card-text class="font-weight-black">
             申请认领门户ID:
           </v-card-text>
+        </v-col>
+        <v-col cols="8">
           <v-card-text>
             <span
               v-for="portal in this.content.claim.portals"
@@ -36,11 +35,8 @@
               {{portal}}
             </span>
           </v-card-text>
-        </div>
-        <div v-else>
-
-        </div>
-      </div>
+        </v-col>
+      </v-row>
 
       <v-card-text v-if="this.type == 'claim'">
         
@@ -66,14 +62,18 @@
         
       </v-card-text>
 
-      <div class="d-inline-flex">
-        <v-card-text class="font-weight-black">
-          申请时间:
-        </v-card-text>
-        <v-card-text>
-          {{message.time}}
-        </v-card-text>
-      </div>
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black">
+            申请时间:
+          </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-card-text>
+            {{message.basic.time}}
+          </v-card-text>
+        </v-col>
+      </v-row>
 
       <v-divider></v-divider>
 
