@@ -117,7 +117,11 @@
       </v-col>
     </div>
 
-    <div v-show="showType == '全部' || showType == '论文' || showType == '科研人员'">
+    <div
+      v-show="
+        showType == '全部' || showType == '论文' || showType == '科研人员'
+      "
+    >
       <v-col>
         <v-text-field
           label="引用数量大于"
@@ -181,126 +185,153 @@
     ></v-select>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.authors.length != 0">
-      <header class="checkboxLabel">作者</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.authors_selected"
-        v-for="(author, index) in authors"
-        :key="index"
-        :label="`${author.term}`"
-        :value="author.term"
-        @change="emitFilter()"
-      ></v-checkbox>
+      <el-collapse v-model="authorFilter">
+        <el-collapse-item title="作者" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.authors_selected"
+            v-for="(author, index) in authors"
+            :key="index"
+            :label="`${author.term}`"
+            :value="author.term"
+            @change="emitFilter()"
+          ></v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.journals.length != 0">
-      <header class="checkboxLabel">期刊</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.journals_selected"
-        v-for="(journal, index) in journals"
-        :key="index"
-        :label="`${journal.term}`"
-        :value="journal.term"
-        @change="emitFilter()"
-      ></v-checkbox>
+      <el-collapse v-model="journalFilter">
+        <el-collapse-item title="期刊" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.journals_selected"
+            v-for="(journal, index) in journals"
+            :key="index"
+            :label="`${journal.term}`"
+            :value="journal.term"
+            @change="emitFilter()"
+          ></v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.institutions.length != 0">
-      <header class="checkboxLabel">机构</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.institutions_selected"
-        v-for="(institution, index) in institutions"
-        :key="index"
-        :label="`${institution.term}`"
-        :value="institution.term"
-        @change="emitFilter()"
-      ></v-checkbox>
+      <el-collapse v-model="institutionFilter">
+        <el-collapse-item title="机构" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.institutions_selected"
+            v-for="(institution, index) in institutions"
+            :key="index"
+            :label="`${institution.term}`"
+            :value="institution.term"
+            @change="emitFilter()"
+          ></v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.subjects.length != 0">
-      <header class="checkboxLabel">学科</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.subjects_selected"
-        v-for="(subject, index) in subjects"
-        :key="index"
-        :label="`${subject.term}`"
-        :value="subject.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="subjectFilter">
+        <el-collapse-item title="学科" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.subjects_selected"
+            v-for="(subject, index) in subjects"
+            :key="index"
+            :label="`${subject.term}`"
+            :value="subject.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.types.length != 0">
-      <header class="checkboxLabel">类型</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.types_selected"
-        v-for="(type, index) in types"
-        :key="index"
-        :label="`${type.term}`"
-        :value="type.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="typeFilter">
+        <el-collapse-item title="类型" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.types_selected"
+            v-for="(type, index) in types"
+            :key="index"
+            :label="`${type.term}`"
+            :value="type.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.keywords.length != 0">
-      <header class="checkboxLabel">关键词</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.keywords_selected"
-        v-for="(keyword, index) in keywords"
-        :key="index"
-        :label="`${keyword.term}`"
-        :value="keyword.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="keywordFilter">
+        <el-collapse-item title="关键词" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.keywords_selected"
+            v-for="(keyword, index) in keywords"
+            :key="index"
+            :label="`${keyword.term}`"
+            :value="keyword.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.interests.length != 0">
-      <header class="checkboxLabel">研究方向</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.interests_selected"
-        v-for="(interest, index) in interests"
-        :key="index"
-        :label="`${interest.term}`"
-        :value="interest.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="interestFilter">
+        <el-collapse-item title="研究方向" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.interests_selected"
+            v-for="(interest, index) in interests"
+            :key="index"
+            :label="`${interest.term}`"
+            :value="interest.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.inventors.length != 0">
-      <header class="checkboxLabel">发明人</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.inventors_selected"
-        v-for="(inventor, index) in inventor"
-        :key="index"
-        :label="`${inventor.term}`"
-        :value="inventor.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="inventorFilter">
+        <el-collapse-item title="发明人" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.inventors_selected"
+            v-for="(inventor, index) in inventor"
+            :key="index"
+            :label="`${inventor.term}`"
+            :value="inventor.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
     <v-divider></v-divider>
     <div class="checkbox" v-if="this.applicants.length != 0">
-      <header class="checkboxLabel">申请人</header>
-      <v-checkbox
-        class="checkboxItem"
-        v-model="filter.applicants_selected"
-        v-for="(applicant, index) in applicants"
-        :key="index"
-        :label="`${applicant.term}`"
-        :value="applicant.term"
-        @change="emitFilter()"
-      >
-      </v-checkbox>
+      <el-collapse v-model="applicantFilter">
+        <el-collapse-item title="申请人" name="1">
+          <v-checkbox
+            class="checkboxItem"
+            v-model="filter.applicants_selected"
+            v-for="(applicant, index) in applicants"
+            :key="index"
+            :label="`${applicant.term}`"
+            :value="applicant.term"
+            @change="emitFilter()"
+          >
+          </v-checkbox>
+        </el-collapse-item>
+      </el-collapse>
     </div>
   </v-card>
 </template>
@@ -314,6 +345,15 @@ export default {
   },
   data() {
     return {
+      authorFilter: ["1"],
+      journalFilter: ["1"],
+      institutionFilter: ["1"],
+      subjectFilter: ["1"],
+      typeFilter: ["1"],
+      keywordFilter: ["1"],
+      interestFilter: ["1"],
+      inventorFilter: ["1"],
+      applicantFilter: ["1"],
       numberRule: [(v) => /^[0-9]*$/.test(v) || "请输入数字"],
       menu: false,
       showType: "全部",
@@ -381,13 +421,13 @@ export default {
     handleYear(year) {
       this.filter.year1 = year[0];
       this.filter.year2 = year[1];
-      this.$emit("searchFilter",this.filter);
+      this.$emit("searchFilter", this.filter);
     },
     emit: function () {
       this.$emit("handleFilter", this.filter);
     },
-    emitFilter: function(){
-      this.$emit("searchFilter",this.filter);
+    emitFilter: function () {
+      this.$emit("searchFilter", this.filter);
     },
   },
 };

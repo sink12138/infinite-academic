@@ -22,24 +22,32 @@
 </template>
 
 <script>
-import MessageDialog from "../components/MessageDialog.vue";
+import PaperCard from "../components/BasePaperCard.vue";
 
 export default {
   components: {
-    MessageDialog
+    PaperCard,
   },
   data: () => ({
-    test: 
-    {
-      basic: {
-        "email": "114514@qq.com",
-        "fileToken": "B0KAR4A8Q3BHHHPMF0TT0I0B6YQMBAPPPHNPMIYM6GJMDZF4EQB7CLGOCP8S211R",
-        "id": "BcYuon0BGFAD_tUkFP7g",
-        "status": "审核中",
-        "time": "2021-08-17 19:26",
-        "type": "专利转让",
-        "userId": "3cYPmX0BGFAD_tUkT_03",
-        "websiteLink": ""
+    items: [
+      {
+        abstract: "假装这是一大段摘要",
+        authors: [
+          {
+            id: "GF_4ynwBF-Mu8unTG1hc",
+            name: "谭火彬",
+          },
+        ],
+        citationNum: 114,
+        date: "2021-10-15",
+        id: "GF_4ynwBF-Mu8unTG1hc",
+        journal: {
+          id: "GF_4ynwBF-Mu8unTG1hc",
+          title: "Science",
+        },
+        keywords: [12, 23, 34],
+        title: "基于机器学习的无需人工编制词典的切词系统",
+        type: "期刊论文",
       },
       {
         abstract:
