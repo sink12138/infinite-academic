@@ -502,3 +502,70 @@ export const getData = {
     }
   }
 }
+
+export const publishChart = {
+  data:() => ({
+    chart: null,
+    nums: [],
+    years: []
+  }),
+  methods: {
+    initChart() {
+      var id = this.$route.path.substring(1);
+      this.chart = this.$echarts.init(document.getElementById(id), 'infinite', { renderer: 'svg' });
+      this.reload();
+      window.addEventListener('resize', () => { this.chart.resize(); })
+    },
+    reload() {
+      this.getData();
+      var option = {
+        title: {
+          text: '发文趋势'
+        },
+        xAxis: {
+          data: []
+        },
+        yAxis: {},
+        series: [
+          {
+            name: '发文量',
+            type: 'line',
+            areaStyle: {
+              color: '#9fe6f3de'
+            },
+            smooth: 0.3,
+            data: []
+          },
+        ]
+      }
+      this.chart.setOption(option);
+    },
+    getData() {
+      var id = this.$route.query.id;
+      var entity = this.$route.path.substring(1);
+      if (entity == "author") entity = "researcher";
+      this.$axios({
+        method: "get",
+        url: "/api/analysis/statistics/"+entity+"/"+id,
+      }).then(response => {
+        if (response.data.success == true) {
+          this.chart.setOption({
+            xAxis: {
+              data: response.data.data.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: response.data.data.nums
+              }
+            ]
+          })
+        } else {
+          console.log(response.data.message);
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+}

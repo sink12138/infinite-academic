@@ -26,7 +26,12 @@
           </v-col>
         </v-row>
       </div>
-      <BaseAnalytics :data0=data></BaseAnalytics>
+      <v-img
+        id="author"
+        class="ma-auto"
+        height="400"
+        aspect-ratio="16/9"
+      ></v-img>
       <v-row
         v-for="i in onePageNum"
         :key="i"
@@ -52,11 +57,12 @@
 
 <script>
 import Banner from '../components/BaseBanner.vue'
-import BaseAnalytics from "../components/BaseAnalytics.vue";
 import PaperCard from '../components/card/CardPaper.vue'
+import { publishChart } from '../components/mixins/mixin'
 export default {
     name: "Income",
-    components: {BaseAnalytics,Banner,PaperCard},
+    mixins: [publishChart],
+    components: {Banner,PaperCard},
     props:{
       a:Number
     },
@@ -146,6 +152,7 @@ export default {
     },
     mounted(){
       // this.getInfo()
+      this.initChart();
     },
     methods:{
       getInfo(){

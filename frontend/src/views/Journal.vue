@@ -20,7 +20,12 @@
           </v-col>
         </v-row>
       </div>
-      <BaseAnalytics :data0=data></BaseAnalytics>
+      <v-img
+        id="journal"
+        class="ma-auto"
+        height="400"
+        aspect-ratio="16/9"
+      ></v-img>
       <v-row
         v-for="i in onePageNum"
         :key="i"
@@ -45,12 +50,12 @@
 
 <script>
 import Banner from '../components/BaseBanner.vue'
-import BaseAnalytics from "../components/BaseAnalytics.vue";
 import PaperCard from '../components/card/CardPaper.vue'
+import { publishChart } from '../components/mixins/mixin'
 export default {
+  mixins: [publishChart],
   components: {
     Banner,
-    BaseAnalytics,
     PaperCard,
   },
   data() {
@@ -123,6 +128,9 @@ export default {
         },
       ],
     }
+  },
+  mounted() {
+    this.initChart();
   },
   methods:{
     getInfo(){
