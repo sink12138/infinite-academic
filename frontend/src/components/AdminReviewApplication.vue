@@ -13,6 +13,8 @@
         :loading="loading"
         :calculate-widths="true"
         class="applications"
+        show-select
+        v-model="selectedItem"
       >
         <template v-slot:top>
           <v-toolbar
@@ -138,6 +140,12 @@
     >
       test
     </v-btn>
+    <v-btn
+      color="primary"
+      @click="passItems"
+    >
+      一键通过
+    </v-btn>
   </v-card>
 </template>
 
@@ -212,6 +220,7 @@ export default {
         { text: '专利转让', num: '7' },
         
       ],
+      selectedItem: [],
     }
   },
   computed: {
@@ -582,6 +591,12 @@ export default {
       this.dialogFail = false
       this.getApplications()
     },
+
+    passItems () {
+      for (var i in this.selectedItem) {
+        this.passItem(this.selectedItem[i])
+      }
+    }, 
 
     test () {
       this.$axios({
