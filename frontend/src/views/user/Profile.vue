@@ -4,8 +4,8 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th>标签</th>
-            <th>信息</th>
+            <td>标签</td>
+            <td>信息</td>
           </tr>
         </thead>
         <tbody>

@@ -63,11 +63,13 @@
               mdi-delete
             </v-icon>
             <v-btn
-              color="primary"
+              small
               @click="openDetail(item)"
-            >详情</v-btn>
+            >
+              <v-icon>mdi-information-outline</v-icon>
+              详情
+            </v-btn>
           </template>
-
           <template v-slot:no-data>
             <v-btn
               color="primary"
@@ -79,31 +81,56 @@
         </v-data-table>
       </v-card-text>
     </v-card>
-    <v-card v-if="details === true">
-      <v-card-title
-        class="headline grey lighten-2"
-        primary-title
-      >
-        {{detail.title}}
-      </v-card-title>
-      <v-card-text>
-        {{detail.time}}
-      </v-card-text>
-      <v-card-text>
-        {{detail.content}}
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          text
-          @click="returnList()"
+    <v-dialog
+      v-model="details"
+      width="500"
+    >
+      <v-card class="text-left">
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
         >
-          关闭
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+          {{detail.title}}
+        </v-card-title>
+        <v-row
+          no-gutters
+        >
+          <v-col cols="4">
+            <v-card-text class="font-weight-black">
+              消息时间：
+            </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>
+              {{detail.time}}
+            </v-card-text>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black">
+              正文：
+            </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>
+              {{detail.content}}
+            </v-card-text>
+          </v-col>
+        </v-row>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="returnList()"
+          >
+            关闭
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 

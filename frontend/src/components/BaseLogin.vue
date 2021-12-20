@@ -35,8 +35,6 @@
         depressed
         height="100%"
         dark
-        v-bind="attrs"
-        v-on="on"
         v-if="isLogin === false"
       >
         注册
@@ -186,13 +184,19 @@
 import { sha256 } from "js-sha256";
 export default {
   mounted() {
+    console.log(localStorage.getItem("TOKEN"));
     this.$axios({
       method: "get",
       url: "/api/account/profile",
+      header: {
+        Auth: localStorage.getItem("TOKEN"),
+      },
     }).then((response) => {
       console.log(response.data);
       if (response.data.success === true) {
         this.isLogin = true;
+      } else {
+        localStorage.setItem("TOKEN", "");
       }
     });
   },
@@ -218,10 +222,6 @@ export default {
       {
         title: "个人中心",
         url: "/user/profile",
-      },
-      {
-        title: "认证学者",
-        url: "scholarIdentity",
       },
     ],
   }),
@@ -258,8 +258,6 @@ export default {
           console.log(this.password);
           console.log(sha256(this.password));
           console.log(response.data);
-          let token = window.sessionStorage.getItem('TOKEN');
-          console.log(token)
           if (response.data.success === true) {
             this.dialog = false;
             this.isLogin = true;
@@ -269,6 +267,10 @@ export default {
               type: "success",
             });
             console.log(this.isLogin);
+            this.token = document.cookie.slice(6);
+            console.log(this.token);
+            localStorage.setItem("TOKEN",this.token);
+            console.log(localStorage.getItem("TOKEN"))
           } else {
             this.$notify({
               title: "失败",
@@ -281,9 +283,11 @@ export default {
       this.$axios({
         method: "get",
         url: "/api/account/profile",
+        headers: {
+          token: localStorage.getItem("TOKEN"),
+        },
       }).then((response) => {
         console.log(response.data);
-        console.log(response.data.token);
         if (response.data.success === true) {
           this.isLogin = true;
         }
@@ -293,6 +297,9 @@ export default {
       this.$axios({
         method: "post",
         url: "/api/account/logout",
+        headers: {
+          token: localStorage.getItem("TOKEN"),
+        },
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {

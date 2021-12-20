@@ -6,14 +6,12 @@
         color="grey lighten-4"
         class="pa-4"
       >
-        <v-avatar
-          size="64"
-        >
+        <v-avatar size="64">
           <v-icon size="64">mdi-account-circle</v-icon>
         </v-avatar>
 
-        <div>NAME</div>
-        <div>123456@buaa.edu.cn</div>
+        <div>{{username}}</div>
+        <div>{{email}}</div>
       </v-sheet>
 
       <v-divider></v-divider>
@@ -43,20 +41,39 @@
 
 <script>
 export default {
+  mounted() {
+    console.log(localStorage.getItem("TOKEN"));
+    this.$axios({
+      method: "get",
+      url: "/api/account/profile",
+      header: {
+        Auth: localStorage.getItem("TOKEN"),
+      },
+    }).then((response) => {
+      console.log(response.data);
+      if (response.data.success === true) {
+        this.email = response.data.data.email;
+        this.username = response.data.data.username;
+      } else {
+        localStorage.setItem("TOKEN", "");
+      }
+    });
+  },
   data() {
     return {
       links: [
-        ['mdi-inbox-arrow-down', '个人资料', '/user/profile'],
-        ['mdi-send', '申请信息', '/user/apply'],
-        ['mdi-delete', '个人消息', '/user/message'],
-        ['mdi-message-text','专利转移','/user/patenttransfer'],
-        ['mdi-account','学者认证','/user/scholarIdentity']
+        ["mdi-inbox-arrow-down", "个人资料", "/user/profile"],
+        ["mdi-send", "申请信息", "/user/apply"],
+        ["mdi-delete", "个人消息", "/user/message"],
+        ["mdi-message-text", "专利转移", "/user/patenttransfer"],
+        ["mdi-account", "学者认证", "/user/scholarIdentity"],
       ],
-    }
-  }
-}
+      email: "",
+      username: "",
+    };
+  },
+};
 </script>
 
 <style>
-
 </style>
