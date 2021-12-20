@@ -17,7 +17,7 @@
 
     <v-card class="text-left">
       <v-card-title class="text-h5 grey lighten-2">
-        {{message.basic.type}}
+        {{message.type}}
       </v-card-title>
 
       <v-row v-if="this.type == 'certification'" no-gutters>
@@ -70,7 +70,7 @@
         </v-col>
         <v-col cols="8">
           <v-card-text>
-            {{message.basic.time}}
+            {{message.time}}
           </v-card-text>
         </v-col>
       </v-row>

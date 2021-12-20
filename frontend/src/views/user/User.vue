@@ -49,7 +49,8 @@ export default {
         ['mdi-inbox-arrow-down', '个人资料', '/user/profile'],
         ['mdi-send', '申请信息', '/user/apply'],
         ['mdi-delete', '个人消息', '/user/message'],
-        ['mdi-message-text','专利转移','/user/patenttransfer']
+        ['mdi-message-text','专利转移','/user/patenttransfer'],
+        ['mdi-account','学者认证','/user/scholarIdentity']
       ],
     }
   }

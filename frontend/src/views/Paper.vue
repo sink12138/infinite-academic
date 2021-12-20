@@ -23,6 +23,8 @@ export default {
     }
   },
   mounted() {
+    this.id = this.$route.query.id
+    console.log(this.id)
     //本地测试
     // this.$axios.get('../../paper.json').then(res=>{
     //   this.paperdata=res.data.data;
