@@ -10,6 +10,7 @@
           icon
           v-bind="attrs"
           v-on="on"
+          height="100%"
         >
           <v-icon>
             mdi-account-circle

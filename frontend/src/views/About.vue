@@ -22,12 +22,12 @@
 </template>
 
 <script>
-import MessageDialog from "../components/MessageDialog.vue";
+//import MessageDialog from "../components/MessageDialog.vue";
 
 export default {
-  components: {
+  /*components: {
     MessageDialog
-  },
+  },*/
   data: () => ({
     test: 
     {
@@ -41,9 +41,9 @@ export default {
         "userId": "3cYPmX0BGFAD_tUkT_03",
         "websiteLink": ""
       },
+      abstract:
       {
-        abstract:
-          "假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要",
+        abstract:  "假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要",
         authors: [
           {
             id: "GF_4ynwBF-Mu8unTG1hc",
@@ -61,7 +61,7 @@ export default {
         title: "基于机器学习的无需人工编制词典的切词系统",
         type: "期刊论文",
       },
-    ],
+    },
     filter: "论文",
     text: "",
     suggest: [],
