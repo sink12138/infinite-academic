@@ -32,7 +32,8 @@ public class CrawlerQueueInitThread implements Runnable {
                 break;
             String keyword = StatusCtrl.keywordQueue.poll();
             log.info("{} polled new keyword", threadName);
-            String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
+            // String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
+            String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=detail&s=50";
             SearchParser searchParser = new SearchParser();
             searchParser.setHeadless(headless);
             searchParser.setStatusCtrl(statusCtrl);

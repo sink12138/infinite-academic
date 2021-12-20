@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,7 +45,8 @@ public class SearchParser {
                 break;
             }
             try {
-                List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
+                List<WebElement> searchResult = driver.findElementsByXPath("//div[@class=\"normal-list\"]");
+                // List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
                 if (searchResult.size() != 0) {
                     for (WebElement result : searchResult) {
 
@@ -63,10 +66,17 @@ public class SearchParser {
                         PaperObject paperObject = new PaperObject();
 
                         List<Paper.Author> authorList = new ArrayList<>();
-                        List<WebElement> authors = result.findElements(By.xpath(".//td[contains(@style,\"line-height\")]//span[@class=\"authors\"]"));
+                        List<WebElement> authors = result.findElements(By.xpath(".//span[@class=\"authors\"]"));
+                        // List<WebElement> authors = result.findElements(By.xpath(".//td[contains(@style,\"line-height\")]//span[@class=\"authors\"]"));
                         if (authors.size() != 0) {
                             for (WebElement author : authors) {
                                 String authorName = author.getText();
+                                // 剔除年份、期数
+                                Pattern p = Pattern.compile(".*\\d+.*");
+                                Matcher m = p.matcher(authorName);
+                                if(m.matches()){
+                                    continue;
+                                }
                                 Paper.Author paperAuthor = new Paper.Author();
                                 paperAuthor.setName(authorName);
                                 authorList.add(paperAuthor);
@@ -194,7 +204,8 @@ public class SearchParser {
             keyword = StatusCtrl.keywordQueue.poll();
             if (keyword == null)
                 return;
-            String searchUrl = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
+            String searchUrl = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=detail&s=50";
+            // String searchUrl = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
             driver.get(searchUrl);
             ParserUtil.randomSleep(2000);
             try {
@@ -219,10 +230,17 @@ public class SearchParser {
                     statusCtrl.changeRunningStatusTo(threadName, "Found paper: " + titleName + " remain paper: " + StatusCtrl.keywordQueue.size());
 
                     List<Paper.Author> authorList = new ArrayList<>();
-                    List<WebElement> authors = result.findElements(By.xpath(".//td[contains(@style,\"line-height\")]//span[@class=\"authors\"]"));
+                    List<WebElement> authors = result.findElements(By.xpath(".//span[@class=\"authors\"]"));
+                    // List<WebElement> authors = result.findElements(By.xpath(".//td[contains(@style,\"line-height\")]//span[@class=\"authors\"]"));
                     if (authors.size() != 0) {
                         for (WebElement author : authors) {
                             String authorName = author.getText();
+                            // 剔除年份、期数
+                            Pattern p = Pattern.compile(".*\\d+.*");
+                            Matcher m = p.matcher(authorName);
+                            if(m.matches()){
+                                continue;
+                            }
                             Paper.Author paperAuthor = new Paper.Author();
                             paperAuthor.setName(authorName);
                             authorList.add(paperAuthor);

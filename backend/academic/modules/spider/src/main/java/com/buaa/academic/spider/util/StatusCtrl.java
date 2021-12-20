@@ -169,7 +169,7 @@ public class StatusCtrl {
         if (runningJob.size() > 0)
             return false;
         startInit();
-        StatusCtrl.keywordQueue.addAll(List.of("软件设计", "卷积", "计算机体系", "计算机网络", "分布式系统"));
+        StatusCtrl.keywordQueue.addAll(List.of("动态规划", "图算法", "虚拟现实"));
         boolean headless = true;
 
         new Thread(errorHandler, "Error-Handler").start();
