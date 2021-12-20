@@ -132,28 +132,25 @@ public class SearchController {
         // Detect recommendations or read from cache
         QueryBuilder researcherDetection = QueryBuilders.termQuery("authors.name", keyword).boost(5.0f);
         QueryBuilder institutionDetection = QueryBuilders.matchQuery("institutions.name", keyword).boost(5.0f);
-        QueryBuilder journalDetection = QueryBuilders.matchQuery("journal.title", keyword).boost(3.0f);
+        QueryBuilder journalDetection = QueryBuilders.matchQuery("journal.title", keyword).boost(5.0f);
         HttpSession session = httpServletRequest.getSession();
         List<String> completion = suggestService.completionSuggest(Paper.class, keyword, "completion", 2);
+        String detection = null;
         if (searchRequest.getPage() == 0) {
             // noinspection ConstantConditions
             do {
                 // Search for researchers
                 SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
                 if (!researchersByName.isEmpty()) {
-                    smartPage.setDetection("researcher");
+                    detection = "researcher";
                     List<ResearcherItem> researchers = new ArrayList<>();
                     researchersByName.forEach(item -> researchers.add(item.getContent().reduce()));
                     smartPage.setRecommendation(researchers);
-                    detectionQuery = researcherDetection;
-                    highlightFields.add("authors.name");
-                    session.setAttribute("detection", "researcher");
-                    searchRequest.setTranslated(false);
                     break;
                 }
 
                 // Search for institutions
-                if (keyword.length() < 4 || keyword.matches("^[A-Z][a-z\\s]{4}.*$") && keyword.length() < 12)
+                if (keyword.length() < 4 || keyword.matches("^[A-Z][a-z\\s]{3}.*$") && keyword.length() < 12)
                     break;
                 SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
                 List<InstitutionItem> institutions = new ArrayList<>();
@@ -163,11 +160,8 @@ public class SearchController {
                         institutions.add(institution.reduce());
                 }
                 if (!institutions.isEmpty()) {
-                    smartPage.setDetection("institution");
+                    detection = "institution";
                     smartPage.setRecommendation(institutions);
-                    detectionQuery = institutionDetection;
-                    highlightFields.add("institutions.name");
-                    session.setAttribute("detection", "institution");
                     break;
                 }
 
@@ -182,24 +176,35 @@ public class SearchController {
                         journals.add(journal.reduce());
                 }
                 if (!journals.isEmpty()) {
-                    smartPage.setDetection("journal");
+                    detection = "journal";
                     smartPage.setRecommendation(journals);
-                    detectionQuery = journalDetection;
-                    highlightFields.add("journal.title");
-                    session.setAttribute("detection", "journal");
                     break;
                 }
             } while (false);
+            if (detection != null) {
+                smartPage.setDetection(detection);
+                session.setAttribute("detection", detection);
+            }
         }
         else {
-            String detection = (String) session.getAttribute("detection");
-            if (detection != null) {
-                detectionQuery = switch (detection) {
-                    case "researcher" -> researcherDetection;
-                    case "institution" -> institutionDetection;
-                    case "journal" -> journalDetection;
-                    default -> null;
-                };
+            detection = (String) session.getAttribute("detection");
+        }
+
+        if (detection != null) {
+            switch (detection) {
+                case "researcher" -> {
+                    highlightFields.add("authors.name");
+                    searchRequest.setTranslated(false);
+                    detectionQuery = researcherDetection;
+                }
+                case "institution" -> {
+                    highlightFields.add("institutions.name");
+                    detectionQuery = institutionDetection;
+                }
+                case "journal" -> {
+                    highlightFields.add("journal.title");
+                    detectionQuery = journalDetection;
+                }
             }
         }
 
