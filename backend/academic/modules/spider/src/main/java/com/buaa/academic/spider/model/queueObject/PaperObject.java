@@ -18,7 +18,7 @@ public class PaperObject implements Comparable<PaperObject> {
 
     @Override
     public int compareTo(@NonNull PaperObject another) {
-        return this.depth - another.depth;
+        return another.depth - this.depth; // Desc
     }
-    
+
 }
