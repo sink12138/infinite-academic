@@ -3,14 +3,20 @@
     <PaperCard v-for="item in items" :key="item.id" :item="item"></PaperCard>
     <user-menu></user-menu>
     <div>
-      <v-combobox
-          label="Combobox"
-          :value="text"
-          :items="suggest"
-          :search-input.sync="text"
-          @update:search-input="focusCustomer"
-          outlined
-        ></v-combobox>
+      <input
+        v-model="text"
+        type="text"
+        list="suggestList"
+        @change="getSuggest()"
+      />
+      <datalist id="suggestList">
+        <option v-for="(item, index) in suggest" :key="index">
+          <span v-html="item"></span>
+        </option>
+      </datalist>
+    </div>
+    <div>
+      
     </div>
   </div>
 </template>
@@ -64,48 +70,68 @@ export default {
         type: "期刊论文",
       },
     ],
-    text: '',
+    filter: "论文",
+    text: "",
     suggest: [],
-    count: 0
+    count: 0,
   }),
   methods: {
-    focusCustomer() {
-      if (document.querySelector("input") == document.activeElement) {
-        this._debounce(500);
+    getSuggest() {
+      var url = "";
+      switch (this.filter) {
+        case "全部":
+        case "论文":
+          url = "/api/search/suggest/paper";
+          break;
+        case "期刊": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        case "专利": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        case "机构": {
+          url = "/api/search/suggest/paper";
+          break;
+        }
+        default:
+          break;
       }
-      this.showCustomer = true;
-    },
-    // 函数防抖
-    _debounce(wait) {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
+      if (url != "") {
         this.$axios({
           method: "post",
-          url: "/api/search/suggest/paper",
+          url: url,
           params: {
             text: this.text,
           },
         })
           .then((response) => {
-            this.suggest=[];
-            console.log("suggest");
+            this.suggest = [];
             console.log(response);
             if (response.data.success == true) {
               console.log(response.data.data);
               if (response.data.data.correction.length != 0)
-                this.suggest=this.suggest.concat(response.data.data.correction);
+                this.suggest = this.suggest.concat(
+                  response.data.data.correction
+                );
               if (response.data.data.completion.length != 0)
-                this.suggest=this.suggest.concat(response.data.data.completion);
-              console.log(this.suggest);
-              for(var i=0;i<this.suggest.length;i++){
-                this.suggest[i]=this.suggest[i].replace("<b>","").replace("</b>","");
-              }
+                this.suggest = this.suggest.concat(
+                  response.data.data.completion
+                );
+              // for (var i = 0; i < this.suggest.length; i++) {
+              //   this.suggest[i] = this.suggest[i]
+              //     .replaceAll("<b>", "")
+              //     .replaceAll("</b>", "");
+              // }
+            } else {
+              this.suggest = [];
             }
           })
           .catch((error) => {
             console.log(error);
           });
-      }, wait);
+      }
     },
   },
 };
