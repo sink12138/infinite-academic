@@ -90,7 +90,7 @@ public class PaperMainInfoThread implements Runnable{
                 paperParser.wanFangSpider();
                 synchronized (StatusCtrl.queueLock) {
                     paperParser.getPaperCrawl().setUrl("https://kns.cnki.net/kns8/defaultresult/index");
-                    StatusCtrl.subjectAndTopicCrawlerQueue.add(paperParser.getPaperCrawl());
+                    StatusCtrl.subjectsQueue.add(paperParser.getPaperCrawl());
                 }
 
             } catch (Exception e) {

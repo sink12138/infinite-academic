@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -58,9 +59,9 @@ public class SpiderController {
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
         statusCtrl.setQueueInitThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(3);
-        statusCtrl.setPaperSourceThreadNum(2);
-        statusCtrl.setResearcherThreadNum(3);
+        statusCtrl.setMainInfoThreadNum(4);
+        statusCtrl.setPaperSourceThreadNum(4);
+        statusCtrl.setResearcherThreadNum(4);
         statusCtrl.setInterestsThreadNum(1);
         statusCtrl.setJournalThreadNum(1);
         statusCtrl.setSubjectTopicThreadNum(2);
@@ -162,9 +163,9 @@ public class SpiderController {
         int sum = 0;
         int fixed = 0;
         Logger log = LoggerFactory.getLogger(this.getClass());
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(2000, query, Paper.class, IndexCoordinates.of("paper"));
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
              scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 2000, Paper.class, IndexCoordinates.of("paper"))) {
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
             sum += scrollHits.getSearchHits().size();
             for (SearchHit<Paper> hit : scrollHits) {
                 Paper paper = hit.getContent();
@@ -201,9 +202,9 @@ public class SpiderController {
         int sum = 0;
         int fixed = 0;
         Logger log = LoggerFactory.getLogger(this.getClass());
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(2000, query, Paper.class, IndexCoordinates.of("paper"));
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
              scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 2000, Paper.class, IndexCoordinates.of("paper"))) {
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
             sum += scrollHits.getSearchHits().size();
             for (SearchHit<Paper> hit : scrollHits) {
                 Paper paper = hit.getContent();
@@ -219,6 +220,47 @@ public class SpiderController {
                 }
                 if (edited) {
                     ++fixed;
+                    template.save(paper);
+                }
+            }
+            log.info("Scrolled {}, fixed {}", sum, fixed);
+        }
+        log.info("Scroll done");
+        return new Result<>();
+    }
+
+    @PostMapping("/split")
+    public Result<Void> split() {
+        Query query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.existsQuery("keywords"))
+                .withPageable(PageRequest.of(0, 1000))
+                .build();
+        int sum = 0;
+        int fixed = 0;
+        Logger log = LoggerFactory.getLogger(this.getClass());
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
+             scrollHits.hasSearchHits();
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
+            sum += scrollHits.getSearchHits().size();
+            for (SearchHit<Paper> hit : scrollHits) {
+                Paper paper = hit.getContent();
+                boolean edited = false;
+                List<String> keywords = new ArrayList<>();
+                for (String keyword : paper.getKeywords()) {
+                    if (keyword.contains("，") || keyword.contains(",")) {
+                        edited = true;
+                        for (String term : keyword.split("[,，]+")) {
+                            if (!term.isBlank())
+                                keywords.add(term.strip());
+                        }
+                    }
+                    else {
+                        keywords.add(keyword);
+                    }
+                }
+                if (edited) {
+                    ++fixed;
+                    paper.setKeywords(keywords);
                     template.save(paper);
                 }
             }

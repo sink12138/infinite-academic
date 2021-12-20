@@ -1,14 +1,14 @@
 package com.buaa.academic.spider.model.queueObject;
 
-import com.buaa.academic.document.entity.Paper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaperObject {
+public class PaperObject implements Comparable<PaperObject> {
 
     private String url;
 
@@ -16,4 +16,9 @@ public class PaperObject {
 
     private int depth;
 
+    @Override
+    public int compareTo(@NonNull PaperObject another) {
+        return this.depth - another.depth;
+    }
+    
 }

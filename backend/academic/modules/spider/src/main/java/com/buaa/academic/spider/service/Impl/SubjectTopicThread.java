@@ -66,7 +66,7 @@ public class SubjectTopicThread implements Runnable {
 
                 PaperObject paperObject;
                 synchronized (StatusCtrl.queueLock) {
-                    if (StatusCtrl.subjectAndTopicCrawlerQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
+                    if (StatusCtrl.subjectsQueue.size() == 0 && StatusCtrl.runningMainInfoThreadNum == 0) {
                         driver.quit();
                         service.stop();
                         statusCtrl.changeRunningStatusStop(threadName, "Finished.");
@@ -74,7 +74,7 @@ public class SubjectTopicThread implements Runnable {
                         return;
                     }
                 }
-                paperObject = StatusCtrl.subjectAndTopicCrawlerQueue.poll();
+                paperObject = StatusCtrl.subjectsQueue.poll();
                 if (paperObject == null) {
                     Thread.sleep(2000);
                     continue;

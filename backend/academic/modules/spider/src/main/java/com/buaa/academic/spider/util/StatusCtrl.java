@@ -29,8 +29,10 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 @Component
 @NoArgsConstructor
@@ -39,13 +41,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class StatusCtrl {
     public static final Object queueLock = new Object();
 
-    public static ConcurrentLinkedQueue<String> keywordQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<PaperObject> paperObjectQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<Researcher> interestsQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<PaperObject> subjectAndTopicCrawlerQueue = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<String> journalUrls = new ConcurrentLinkedQueue<>();
-    public static ConcurrentLinkedQueue<PaperObject> sourceQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<String> keywordQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<PaperObject> paperObjectQueue = new PriorityBlockingQueue<>();
+    public static Queue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<Researcher> interestsQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<PaperObject> subjectsQueue = new PriorityBlockingQueue<>();
+    public static Queue<String> journalUrls = new ConcurrentLinkedQueue<>();
+    public static Queue<PaperObject> sourceQueue = new PriorityBlockingQueue<>();
 
     public static ConcurrentHashMap<String, String> runningStatus = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Boolean> runningJob = new ConcurrentHashMap<>();
@@ -112,7 +114,7 @@ public class StatusCtrl {
         private String summary() {
             return String.format("Queued items: %d keyword(s), %d paper(s), %d researcher(s), %d interest(s), %d subject(s), %d journal(s), %d source(s)",
                     keywordQueue.size(), paperObjectQueue.size(), researcherQueue.size(), interestsQueue.size(),
-                    subjectAndTopicCrawlerQueue.size(), journalUrls.size(), sourceQueue.size());
+                    subjectsQueue.size(), journalUrls.size(), sourceQueue.size());
         }
 
         @Override
@@ -315,7 +317,7 @@ public class StatusCtrl {
         lastRun = new Date();
         StatusCtrl.jobStopped = false;
         StatusCtrl.paperObjectQueue.clear();
-        StatusCtrl.subjectAndTopicCrawlerQueue.clear();
+        StatusCtrl.subjectsQueue.clear();
         StatusCtrl.runningJob.clear();
         StatusCtrl.runningStatus.clear();
     }
