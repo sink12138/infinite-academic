@@ -23,7 +23,7 @@
   </v-card>
 </template>
 <script>
-import BasePaperCard from './BasePaperCard.vue'
+import BasePaperCard from './card/CardPaper.vue'
 export default{
   components: {
     BasePaperCard

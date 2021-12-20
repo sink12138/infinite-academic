@@ -440,7 +440,7 @@
 
 <script>
 import Banner from '../components/BaseBanner.vue'
-import PaperCard from '../components/BasePaperCard.vue'
+import PaperCard from '../components/card/CardPaper.vue'
 import BaseEditPaper from './BaseEditPaper.vue'
 import Search from './Search.vue'
   export default {

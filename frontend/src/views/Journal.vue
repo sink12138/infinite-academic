@@ -46,7 +46,7 @@
 <script>
 import Banner from '../components/BaseBanner.vue'
 import BaseAnalytics from "../components/BaseAnalytics.vue";
-import PaperCard from '../components/BasePaperCard.vue'
+import PaperCard from '../components/card/CardPaper.vue'
 export default {
   components: {
     Banner,

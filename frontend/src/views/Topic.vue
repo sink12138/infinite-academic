@@ -94,7 +94,7 @@
 <script>
 import {getData, getChart} from "../components/mixins/mixin"
 import Banner from "../components/BaseBanner.vue"
-import PaperCard from "../components/BasePaperCard.vue"
+import PaperCard from "../components/card/CardPaper.vue"
 export default {
   components: {
     Banner,
