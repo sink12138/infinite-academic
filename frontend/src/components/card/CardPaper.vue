@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="text-left my-2"
-    max-width="1950"
+    max-width="850"
   >
     <v-card-title class="d-flex">
       <v-icon class="mx-1">
@@ -9,7 +9,7 @@
       </v-icon>
       <a @click="href('paper', item.id)">{{item.title}}</a>
       <v-spacer></v-spacer>
-      <v-btn icon>
+      <v-btn icon @click="addCitationItem(item)">
         <v-icon>mdi-comma-box</v-icon>
       </v-btn>
     </v-card-title>
@@ -18,8 +18,8 @@
       <a
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
+        v-text="item.journal.title"
       >
-        {{item.journal.title}}
       </a>&nbsp;
       <span>被引量:{{item.citationNum}}</span>
     </v-card-subtitle>
@@ -31,11 +31,13 @@
         <a
           v-if="item.authors && idx == item.authors.length-1"
           @click="href('author', author.id)"
-        >{{author.name}}</a>
+          v-text="author.name"
+        ></a>
         <a
           v-else
           @click="href('author', author.id)"
-        >{{author.name + ","}}</a>
+          v-text="author.name + ','"
+        ></a>
       </span>
     </v-card-text>
     <v-card-text class="pt-2 pb-0">
@@ -45,22 +47,25 @@
         :key="keyword"
         v-show="keyword"
       >
-        <v-btn small outlined>
+        <v-btn 
+          small 
+          outlined
+        >
           <v-icon small>
             mdi-tag-outline
           </v-icon>
-          {{keyword}}
+          <span v-text="keyword"></span>
         </v-btn>
       </span>
     </v-card-text>
     <v-card-text>
-      <span v-if="expand"> {{item.abstract}} </span>
-      <span v-else> {{item.abstract | abstract}} </span>
+      <span v-if="expand" v-text="item.abstract"></span>
+      <span v-else v-text="$options.filters.abstract(item.abstract)"></span>
 
       <v-btn
         x-small
         outlined
-        v-if="item.abstract && item.abstract.length > 380"
+        v-if="item.abstract && item.abstract.length > 110"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
@@ -74,7 +79,9 @@
 </template>
 
 <script>
+import { addCitation } from "../mixins/mixin"
 export default {
+  mixins: [addCitation],
   props:{
     item: {
       type: Object,
@@ -89,8 +96,8 @@ export default {
   filters: {
     abstract(text) {
       if (!text) return " ";
-      if (text.length > 380) {
-        return text.slice(0,380) + "..."
+      if (text.length > 110) {
+        return text.slice(0,110) + "..."
       }
       return text;
     }
