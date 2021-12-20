@@ -132,8 +132,9 @@ public class SearchController {
         // Detect recommendations or read from cache
         QueryBuilder researcherDetection = QueryBuilders.termQuery("authors.name", keyword).boost(5.0f);
         QueryBuilder institutionDetection = QueryBuilders.matchQuery("institutions.name", keyword).boost(5.0f);
-        QueryBuilder journalDetection = QueryBuilders.matchQuery("journal.title", keyword).boost(5.0f);
+        QueryBuilder journalDetection = QueryBuilders.matchQuery("journal.title", keyword).boost(3.0f);
         HttpSession session = httpServletRequest.getSession();
+        List<String> completion = suggestService.completionSuggest(Paper.class, keyword, "completion", 2);
         if (searchRequest.getPage() == 0) {
             // noinspection ConstantConditions
             do {
@@ -150,9 +151,10 @@ public class SearchController {
                     searchRequest.setTranslated(false);
                     break;
                 }
+
+                // Search for institutions
                 if (keyword.length() < 4 || keyword.matches("^[A-Z][a-z\\s]{4}.*$") && keyword.length() < 12)
                     break;
-                // Search for institutions
                 SearchPage<Institution> institutionsByName = institutionRepository.findByNameMatches(keyword, PageRequest.of(0, 6));
                 List<InstitutionItem> institutions = new ArrayList<>();
                 for (SearchHit<Institution> hit : institutionsByName) {
@@ -168,7 +170,10 @@ public class SearchController {
                     session.setAttribute("detection", "institution");
                     break;
                 }
+
                 // Search for journals
+                if (completion.size() == 2)
+                    break;
                 SearchPage<Journal> journalsByTitle = journalRepository.findByTitleMatches(keyword, PageRequest.of(0, 6));
                 List<JournalItem> journals = new ArrayList<>();
                 for (SearchHit<Journal> hit : journalsByTitle) {
@@ -200,7 +205,7 @@ public class SearchController {
 
         // Corrections
         String correctKeyword = keyword;
-        if (detectionQuery == null && suggestService.completionSuggest(Paper.class, keyword, "completion", 1).isEmpty()) {
+        if (detectionQuery == null && completion.isEmpty()) {
             List<String> corrections = suggestService.correctionSuggest(Paper.class, keyword,
                     new String[] { "title.phrase", "keywords.phrase", "subjects.phrase",
                             "title.raw", "keywords.raw", "subjects.raw" }, 1);

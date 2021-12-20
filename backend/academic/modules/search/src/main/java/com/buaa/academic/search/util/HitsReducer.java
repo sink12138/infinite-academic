@@ -19,8 +19,8 @@ public class HitsReducer {
             Map<String, List<String>> hlt = hit.getHighlightFields();
             if (hlt.containsKey("title")) {
                 String title = hlt.get("title").get(0);
-                if (manager.text(title).length() > 64)
-                    title = manager.cut(64).process() + "...";
+                if (manager.text(title).length() > 96)
+                    title = manager.cut(96).process() + "...";
                 item.setTitle(title);
             }
             if (hlt.containsKey("keywords")) {

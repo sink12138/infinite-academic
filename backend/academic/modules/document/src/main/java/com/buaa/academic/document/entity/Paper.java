@@ -204,7 +204,7 @@ public class Paper implements Reducible<PaperItem> {
         PaperItem item = new PaperItem();
         item.setId(id);
         if (title != null)
-            item.setTitle(title.length() > 64 ? title.substring(0, 64) + "..." : title);
+            item.setTitle(title.length() > 96 ? title.substring(0, 96) + "..." : title);
         item.setType(type);
         if (authors != null) {
             List<PaperItem.Author> hitAuthors = new ArrayList<>();
