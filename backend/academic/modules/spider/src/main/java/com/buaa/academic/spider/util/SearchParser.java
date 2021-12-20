@@ -37,6 +37,7 @@ public class SearchParser {
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         driver.get(this.url);
         ParserUtil.randomSleep(2000);
+        int page = 0;
         while (true) {
             if (StatusCtrl.jobStopped) {
                 break;
@@ -105,7 +106,7 @@ public class SearchParser {
                             driver.switchTo().window(originalHandle);
 
                             paperObject.setUrl(url);
-                            paperObject.setDepth(3);
+                            paperObject.setDepth(2);
                             StatusCtrl.paperObjectQueue.add(paperObject);
 
                             PaperObject sourceObj = new PaperObject();
@@ -137,7 +138,7 @@ public class SearchParser {
 
                                 paperObject.setUrl(url);
                                 paperObject.setPaperId(paper.getId());
-                                paperObject.setDepth(3);
+                                paperObject.setDepth(2);
                                 StatusCtrl.paperObjectQueue.add(paperObject);
                             }
                             boolean hasSource = false;
@@ -159,14 +160,18 @@ public class SearchParser {
                     }
                     statusCtrl.changeRunningStatusTo(threadName, "Paper count: " + crawledPaper + " crawled, " + newPaper + " new");
                 }
+                if (page > 20)
+                    break;
                 List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
                 if (nextElement.size() == 0) {
                     break;
-                } else {
+                }
+                else {
                     WebElement next = nextElement.get(0);
                     if (!next.getAttribute("style").equals("display: none;")) {
                         Actions actions = new Actions(driver);
                         actions.click(next).perform();
+                        ++page;
                         ParserUtil.randomSleep(2000);
                     } else break;
                 }
@@ -255,7 +260,7 @@ public class SearchParser {
                         driver.switchTo().window(originalHandle);
 
                         paperObject.setUrl(url);
-                        paperObject.setDepth(3);
+                        paperObject.setDepth(2);
                         StatusCtrl.paperObjectQueue.add(paperObject);
 
                         PaperObject sourceObj = new PaperObject();
@@ -286,7 +291,7 @@ public class SearchParser {
 
                             paperObject.setUrl(url);
                             paperObject.setPaperId(paper.getId());
-                            paperObject.setDepth(3);
+                            paperObject.setDepth(2);
                             StatusCtrl.paperObjectQueue.add(paperObject);
                         }
                         boolean hasSource = false;
