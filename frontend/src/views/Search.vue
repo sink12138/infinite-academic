@@ -459,6 +459,7 @@ export default {
     },
     handleFilter2(filter) {
       this.filters = filter;
+      this.$refs.bar.searchFilters();
     },
     searchResult(data) {
       this.data = data;
