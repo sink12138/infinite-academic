@@ -116,7 +116,13 @@ public class PaperParser {
                 List<String> keywords = new ArrayList<>();
                 for (WebElement keyword : keywordElement) {
                     String word = keyword.getText();
-                    keywords.add(word);
+                    if(word.contains(",")||word.contains("，")){
+                        word=word.strip();
+                        word=word.replace(","," ");
+                        word=word.replace("，"," ");
+                    }
+                    String[] parts = word.split("\\s+");
+                    keywords.addAll(Arrays.asList(parts));
                 }
                 paper.setKeywords(keywords);
             }
