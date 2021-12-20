@@ -15,7 +15,7 @@
       <v-card
         flat
         style="top:60px"
-        width="1350"
+        width="1380"
       >
         <v-navigation-drawer
           v-if="this.isLogin"
