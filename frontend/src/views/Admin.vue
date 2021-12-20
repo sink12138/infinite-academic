@@ -24,6 +24,7 @@
           expand-on-hover
           fixed
           style="top:60px"
+          color="transparent"
         >
           <v-list
             nav

@@ -90,9 +90,13 @@
 
         <v-col v-if="manage==1" offset-md="1">
           <div style="padding-top:10px;">
-            <v-btn @click="addingPaper=true">
+            <v-row>
+              <v-col cols="2">
+                <v-btn @click="addingPaper=true">
                   新增文献
-              </v-btn>
+                </v-btn>
+              </v-col>
+            </v-row>
             <v-row
               v-for="i in onePageNum"
               :key="i"
@@ -103,12 +107,21 @@
               <v-col>
                 <br/>
                 <br/>
-                <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
-                    编辑文献
-                </v-btn>
-                <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
-                    删除文献
-                </v-btn>    
+                <v-row>
+                  <v-col>
+                    <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
+                      编辑文献
+                    </v-btn>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col>
+                    <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
+                      删除文献
+                    </v-btn>    
+                  </v-col>
+                </v-row>
+                
               </v-col>
             </v-row>
             <v-row>
@@ -271,7 +284,7 @@
     </v-card>
     </v-dialog>
     <!-- 认领门户 -->
-    <v-dialog v-model="addDoor" persistent width=600px >
+    <v-dialog v-model="addDoor" persistent width=800px >
       <v-card>
         <div class="whole">
           <v-row>
@@ -315,7 +328,7 @@
               </v-row> 
             </v-col>
             <v-col>
-              <div class="fixBut">
+              <div class="fixBut" style="top:30%;right:26%">
                 <v-btn @click="getID=true">相关信息ID查询</v-btn>
               </div>  
             </v-col>
@@ -369,12 +382,6 @@
                 </v-col>
               </v-row> 
             </v-col>
-            <v-col>
-              <div class="fixBut">
-                <v-btn @click="getID=true">相关信息ID查询</v-btn>
-              </div>  
-            </v-col>
-            
           </v-row>
           
         </div>

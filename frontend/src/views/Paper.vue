@@ -31,7 +31,6 @@ export default {
     this.$axios.get('api/search/info/paper/'+this.id).then(res=>{
       if(!res.data.success){
         alert(res.data.message);
-         return;
       }else{
         this.paperdata=res.data.data;
       }
@@ -44,7 +43,6 @@ export default {
     this.$axios.get('/api/search/relation/references/'+this.paperdata.id+'/'+0).then(res=>{
      if(!res.data.success){
         alert(res.data.message);
-         return;
       }else{
         this.references=res.data.data;
        }
@@ -57,7 +55,6 @@ export default {
     this.$axios.get('/api/search/relation/citations/'+this.paperdata.id+'/'+0).then(res=>{
      if(!res.data.success){
         alert(res.data.message);
-         return;
       }else{
         this.citations=res.data.data;
        }
