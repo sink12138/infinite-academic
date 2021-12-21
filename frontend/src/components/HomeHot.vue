@@ -36,10 +36,10 @@
               <v-list-item-title
                 class="font-weight-bold"
               >
-                <a 
+                <span class="link"
                   v-text="(idx+1)+'.'+item.name"
                   @click="href(type, item.name)"
-                ></a>
+                ></span>
               </v-list-item-title>
               <v-progress-linear 
                 striped 
@@ -80,20 +80,8 @@ export default {
 }
 </script>
 
-<style scoped>
-a {
+<style>
+.link {
   color: #000000;
-}
-a:link {
-  color: #000000;
-  text-decoration: none;
-}
-a:visited {
-  color: #000000;
-  text-decoration: none;
-}
-a:hover {
-  color: #0D47A1;
-  text-decoration: underline;
 }
 </style>

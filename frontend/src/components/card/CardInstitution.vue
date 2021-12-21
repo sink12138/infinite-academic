@@ -1,26 +1,22 @@
 <template>
-  <v-card
-    class="text-left my-2"
-    max-width="240"
-  >
+  <v-card class="text-left my-2" max-width="240">
     <v-row>
       <v-col>
-        <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
+        <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
       </v-col>
     </v-row>
     <v-row no-gutters>
       <v-col cols="2" class="px-1 d-flex">
-        <v-icon size="48">
-          mdi-domain
-        </v-icon>
+        <v-icon size="48"> mdi-domain </v-icon>
       </v-col>
       <v-col>
         <v-card-title>
-          <a 
+          <span
+            class="link"
             @click="href('institution', item.id)"
             v-html="item.name"
             :class="disabled"
-          ></a>
+          ></span>
         </v-card-title>
       </v-col>
     </v-row>
@@ -29,41 +25,26 @@
 
 <script>
 export default {
-  props:{
+  props: {
     item: {
       type: Object,
-      default:() => {}
+      default: () => {},
     },
-    disabled:{
-      type:String,
-      default:""
-    }
+    disabled: {
+      type: String,
+      default: "",
+    },
   },
   methods: {
     href(type, id) {
       this.$router.push({
         path: type,
-        query: { id: id }
-      })
-    }
-  }
-}
+        query: { id: id },
+      });
+    },
+  },
+};
 </script>
 
-<style scoped>
-a {
-  color: #000000;
-}
-a:link {
-  color: #000000;
-  text-decoration: none;
-}
-a:visited {
-  color: #000000;
-  text-decoration: none;
-}
-a:hover {
-  color: #0D47A1;
-  text-decoration: underline;
-}
+<style>
 </style>

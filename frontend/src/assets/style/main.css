@@ -1,13 +1,13 @@
 .big-font {
-  font-family: Fira Code;
+  font-family: 'Lucida Fax', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-size: 72px;
-  font:800;
+  font-weight:600;
 }
 
 .my-font {
-  font-family: Fira Code;
+  font-family: 'Lucida Fax', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-size: 30px;
-  font:800;
+  font-weight:600;
 }
 .betop{
   position:fixed;
@@ -26,4 +26,13 @@
 
 .disabled{
   pointer-events: none;
+}
+
+.link {
+  color: #000000;
+  cursor: pointer
+}
+.link:hover {
+  color: #0D47A1;
+  text-decoration: underline;
 }
