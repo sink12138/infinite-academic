@@ -50,6 +50,7 @@
         <v-btn 
           small 
           outlined
+          @click="href('topic', keyword)"
         >
           <v-icon small>
             mdi-tag-outline
@@ -104,10 +105,23 @@ export default {
   },
   methods: {
     href(type, id) {
-      this.$router.push({
-        path: type,
-        query: { id: id }
-      })
+      var this_path = this.$route.path.substring(1)
+      var this_id = ""
+      if (this.$route.query.id != null)
+        this_id = this.$route.query.id
+      else if (this.$route.query.name !=null)
+        this_id = this.$route.query.name
+      if (type == this_path && id == this_id) return;
+      if (type == "topic" || type == "subject")
+        this.$router.push({
+          path: type,
+          query: { name: id }
+        })
+      else
+        this.$router.push({
+          path: type,
+          query: { id: id }
+        })
     }
   }
 }
