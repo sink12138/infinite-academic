@@ -30,13 +30,27 @@
         v-for="(item, idx) in items"
         :key="item.name"
       >
-        <v-list-item-content>
-          <v-list-item-title
-            class="font-weight-bold"
-            v-text="(idx+1)+'.'+item.name"
-          ></v-list-item-title>
-          <v-progress-linear striped v-model="item.heat"></v-progress-linear>
-        </v-list-item-content>
+        <v-tooltip right>
+          <template v-slot:activator="{ on, attrs }">
+            <v-list-item-content>
+              <v-list-item-title
+                class="font-weight-bold"
+              >
+                <a 
+                  v-text="(idx+1)+'.'+item.name"
+                  @click="href(type, item.name)"
+                ></a>
+              </v-list-item-title>
+              <v-progress-linear 
+                striped 
+                v-model="item.percent"
+                v-bind="attrs"
+                v-on="on"
+              ></v-progress-linear>
+            </v-list-item-content>
+          </template>
+          <div v-text="'热度:'+item.heat.toFixed(2)"></div>
+        </v-tooltip>
       </v-list-item>
     </v-list>
   </v-card>
@@ -51,9 +65,35 @@ export default {
     },
     type: String
   },
+  methods: {
+    href(type, name) {
+      if (type == "学科")
+        type = "subject"
+      else
+        type = "topic"
+      this.$router.push({
+        path: type,
+        query: { name: name }
+      })
+    }
+  }
 }
 </script>
 
-<style>
-
+<style scoped>
+a {
+  color: #000000;
+}
+a:link {
+  color: #000000;
+  text-decoration: none;
+}
+a:visited {
+  color: #000000;
+  text-decoration: none;
+}
+a:hover {
+  color: #0D47A1;
+  text-decoration: underline;
+}
 </style>

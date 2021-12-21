@@ -19,6 +19,11 @@
             height="400"
             aspect-ratio="16/9"
           ></v-img>
+
+          <v-card-text v-if="this.heat != null">
+            <v-icon>mdi-fire-circle</v-icon>
+            热度: {{this.heat.toFixed(2)}}
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="8">
@@ -50,6 +55,14 @@
               机构
             </v-tab>
           </v-tabs>
+
+          <div v-if="tab == 0">
+            <CardPaper
+              v-for="item in items"
+              :key="item.id"
+              :item="item"
+            ></CardPaper>
+          </div>
 
           <v-card-actions>
 
@@ -86,9 +99,11 @@
 <script>
 import {getData, getChart} from "../components/mixins/mixin"
 import Banner from "../components/BaseBanner.vue"
+import CardPaper from "../components/card/CardPaper.vue"
 export default {
   components: {
-    Banner
+    Banner,
+    CardPaper
   },
   mixins: [
     getData, 
@@ -105,6 +120,7 @@ export default {
   },
   watch: {
     $route() {
+      this.tab = 0;
       this.loadData();
       this.chartReload();
     },
@@ -141,6 +157,9 @@ export default {
     loadData() {
       this.getBasic();
       this.getPapers();
+      this.getResearcher();
+      this.getJournal();
+      this.getInstitution();
     },
   }
 }

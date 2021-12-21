@@ -3,8 +3,6 @@
     <BaseNavigation :router="this.router"></BaseNavigation>
     <div class="big-font">Infinite Academic</div>
     <BaseSearchBar class="ma-auto"></BaseSearchBar>
-    <v-divider></v-divider>
-    <v-btn @click="echo"></v-btn>
     <v-row no-gutters>
       <v-col cols="2">
         <Hots :items="this.subjects" type="学科"></Hots>
@@ -39,31 +37,12 @@ export default {
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
         { href: "/about", icon: "mdi-account", title: "About" },
     ],
-    subjects: [
-      { name: "物理", heat: 100},
-      { name: "化学", heat: 94},
-      { name: "生物", heat: 84},
-      { name: "数学", heat: 76},
-      { name: "物理1", heat: 70},
-      { name: "化学1", heat: 62},
-      { name: "生物1", heat: 60},
-      { name: "数学1", heat: 59},
-      { name: "物理2", heat: 55},
-      { name: "化学2", heat: 52},
-    ],
-    topics: [
-      { name: "物理", heat: 100},
-      { name: "化学", heat: 94},
-      { name: "生物", heat: 84},
-      { name: "数学", heat: 76},
-      { name: "物理1", heat: 70},
-      { name: "化学1", heat: 62},
-      { name: "生物1", heat: 60},
-      { name: "数学1", heat: 59},
-      { name: "物理2", heat: 55},
-      { name: "化学2", heat: 52},
-    ]
+    subjects: [],
+    topics: []
   }),
+  mounted() {
+    this.getHots();
+  },
   methods: {
     echo() {
       this.$axios({
@@ -74,7 +53,38 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    getHots() {
+      this.$axios({
+        method: "get",
+        url: "/api/analysis/hotspots",
+        params: {
+          num: 10
+        }
+      }).then(res => {
+        if (res.data.success) {
+          this.subjects = res.data.data.subjects;
+          this.topics = res.data.data.topics;
+          this.standardize();
+        } else {
+          console.log(res.data.message)
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    standardize() {
+      var x = 100;
+      x = this.subjects[0].heat;
+      this.subjects.forEach(function(item) {
+        item.percent  = item.heat*100/x;
+      })
+      x = this.topics[0].heat;
+      this.topics.forEach(function(item) {
+        item.percent  = item.heat*100/x;
+      })
     }
-  }
+  },
+  
 }
 </script>

@@ -1,28 +1,42 @@
 export const addCitation = {
   methods: {
     addCitationItem(item) {
-      var citationList = JSON.parse(localStorage.getItem("citations"));
-      console.log(citationList);
-      if (citationList == null) citationList = {};
-      var citation = {
-        paperId: item.id,
-        MLA: {},
-      };
-      citation["MLA"] = this.MLACitation(item);
-      citationList[item.id] = citation;
-      localStorage.setItem("citations", JSON.stringify(citationList));
-      this.$store.commit('incCitations');
+      this.$axios.get('/api/search/info/paper/'+item.id).then(res=>{
+        if(res.data.success) {
+          item = res.data.data
+          var citationList = JSON.parse(localStorage.getItem("citations"));
+          if (citationList == null) citationList = {};
+          var citation = {
+            paperId: item.id,
+            MLA: {},
+          };
+          citation["MLA"] = this.MLACitation(item);
+          citationList[item.id] = citation;
+          localStorage.setItem("citations", JSON.stringify(citationList));
+          this.$store.commit('incCitations');
+        } else {
+          console.log(res.data.message);
+        }
+      })
     },
     MLACitation(item) {
-      var italicLeft = "<span style='font-style:italic'>"
-      var italicRight = "</span>"
+      /*var italicLeft = "<span style='font-style:italic'>"
+      var italicRight = "</span>"*/
       var text = item.authors[0].name + ", et al.";
       text += "\"" + item.title + ".\"";
-      text += italicLeft + item.journal.title + italicRight;
-      text += ", vol. " + item.journal.volume;
-      text += ", no. " + item.journal.issue;
-      text += ", " + item.year;
-      text += ", pp. " + item.journal.startPage + "-" + item.journal.endPage + ".";
+      if (item.journal != null) {
+        text += item.journal.title;
+        if (item.journal.volume != null)
+          text += ", vol. " + item.journal.volume;
+        if (item.journal.issue != null)
+          text += ", no. " + item.journal.issue;
+        if (item.year != null)
+          text += ", " + item.year;
+        if (item.journal.startPage != null)
+          text += ", pp. " + item.journal.startPage + "-" + item.journal.endPage + ".";
+        else
+          text += "."
+      }
       return text;
     }
   },
@@ -40,9 +54,11 @@ export const getChart = {
       
       var _this = this;
       this.chart2.on('click', function(param) {
-        var target
+        if (param.data.name == null && param.data.url == null) return;
+        var target = ""
+        console.log(param.data.type)
         if (param.data.type == "related") {
-          target = param.data.name;
+          target = param.data.name
           if (target != _this.name)
             _this.$router.push({ path: this.type, query: { name: target}})
         } else {
@@ -87,11 +103,12 @@ export const getChart = {
     },
     reload2() {
       this.$nextTick(() => { 
-        this.chart2.resize({
-          animation: {
-            duration: 400,
-          }
-        });
+        if (this.chart2 != null)
+          this.chart2.resize({
+            animation: {
+              duration: 400,
+            }
+          });
       })
       switch (this.tab) {
         case 1:
@@ -142,8 +159,10 @@ export const getChart = {
       }
       var topic = {
         name: this.name,
+        type: "related",
         symbolSize: 120
       }
+      console.log(this.associations)
       option.series.data.push(topic);
       this.associations.forEach(function(item) {
         var node = {}
@@ -155,7 +174,7 @@ export const getChart = {
         var link = {}
         link.source = 0;
         link.target = (idx+1);
-        link.value = data.confidence;
+        link.value = data.confidence.toFixed(3);
         return link;
       });
       this.chart2.setOption(option);
@@ -422,9 +441,21 @@ export const getData = {
         }
       }).then(response => {
         if (response.data.success == true) {
-          this.heat = response.data.heat;
-          this.pubsPerYear = response.data.pubsPerYear;
-          this.associations = response.data.associationSubjects;
+          this.heat = response.data.data.heat;
+          this.pubsPerYear = response.data.data.pubsPerYear;
+          this.associations = response.data.data.associationSubjects;
+          console.log(response.data)
+          this.chart1.setOption({
+            xAxis: {
+              data: this.pubsPerYear.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: this.pubsPerYear.nums
+              }
+            ]
+          })
         } else {
           console.log(response.data.message);
         }
