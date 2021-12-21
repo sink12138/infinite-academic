@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="text-left my-2"
-    max-width="850"
+    max-width="1500"
   >
     <v-card-title class="d-flex">
       <v-icon class="mx-1">
@@ -104,10 +104,8 @@ export default {
   },
   methods: {
     href(type, id) {
-      this.$router.push({
-        path: type,
-        query: { id: id }
-      })
+      let { href } = this.$router.resolve({ path: type, query: { id: id }})
+      window.open(href, '_blank')
     }
   }
 }

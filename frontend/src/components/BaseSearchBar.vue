@@ -121,9 +121,9 @@ export default {
           conditions: [
             {
               compound: false,
-              fuzzy: true,
+              fuzzy: this.filters.fuzzy,
               keyword: "",
-              languages: ["zh"],
+              languages: ["zh","en"],
               logic: "and",
               translated: true,
             },
@@ -218,13 +218,13 @@ export default {
               for (i = 1; i < keywords.length; i++) {
                 condition1 = {
                   compound: true,
-                  fuzzy: true,
+                  fuzzy: this.filters.fuzzy,
                   keyword: keywords[i],
-                  languages: ["zh"],
+                  languages: ["zh","en"],
                   logic: "and",
                   scope: scope,
                   subConditions: [condition],
-                  translated: true,
+                  translated: this.filters.translated,
                 };
                 condition = condition1;
               }
@@ -289,7 +289,7 @@ export default {
                 .split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: false,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["institutions.name"],
@@ -299,7 +299,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["institutions.name"],
@@ -315,7 +315,7 @@ export default {
               keywords = this.filters.paperType.journal.trim().split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: false,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["journal.title"],
@@ -325,7 +325,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["journal.title"],
@@ -414,11 +414,11 @@ export default {
                   compound: true,
                   fuzzy: true,
                   keyword: keywords[i],
-                  languages: ["zh"],
+                  languages: ["zh","en"],
                   logic: "and",
                   scope: ["title"],
                   subConditions: [condition],
-                  translated: true,
+                  translated: this.filters.translated,
                 };
                 condition = condition1;
               }
@@ -428,6 +428,7 @@ export default {
           }
           case "机构": {
             url = url + "/institution";
+            this.request.size = 20;
             this.request.conditions[0].scope = ["name"];
             this.request.conditions[0].keyword = keywords[0];
             if (keywords.length != 1) {
@@ -437,11 +438,11 @@ export default {
                   compound: true,
                   fuzzy: true,
                   keyword: keywords[i],
-                  languages: ["zh"],
+                  languages: ["zh","en"],
                   logic: "and",
                   scope: ["name"],
                   subConditions: [condition],
-                  translated: true,
+                  translated: this.filters.translated,
                 };
                 condition = condition1;
               }
@@ -459,13 +460,13 @@ export default {
               for (i = 1; i < keywords.length; i++) {
                 condition1 = {
                   compound: true,
-                  fuzzy: true,
+                  fuzzy: this.filters.fuzzy,
                   keyword: keywords[i],
-                  languages: ["zh"],
+                  languages: ["zh","en"],
                   logic: "and",
                   scope: scope,
                   subConditions: [condition],
-                  translated: true,
+                  translated: this.filters.translated,
                 };
                 condition = condition1;
               }
@@ -501,7 +502,7 @@ export default {
               keywords = this.filters.patentType.applicant.trim().split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: true,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["applicant"],
@@ -511,7 +512,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["applicant"],
@@ -594,13 +595,13 @@ export default {
               for (i = 1; i < keywords.length; i++) {
                 condition1 = {
                   compound: true,
-                  fuzzy: true,
+                  fuzzy: false,
                   keyword: keywords[i],
-                  languages: ["zh"],
+                  languages: ["zh","en"],
                   logic: "and",
                   scope: scope,
                   subConditions: [condition],
-                  translated: true,
+                  translated: false,
                 };
                 condition = condition1;
               }
@@ -612,7 +613,7 @@ export default {
                 .split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: true,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["interests"],
@@ -622,7 +623,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["interests"],
@@ -640,7 +641,7 @@ export default {
                 .split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: true,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["currentInst.name"],
@@ -650,7 +651,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["interests"],
@@ -668,7 +669,7 @@ export default {
                 .split(/\s+/);
               condition = {
                 compound: false,
-                fuzzy: true,
+                fuzzy: this.filters.fuzzy,
                 keyword: keywords[0],
                 logic: "and",
                 scope: ["institutions.name"],
@@ -678,7 +679,7 @@ export default {
                 for (i = 1; i < keywords.length; i++) {
                   condition1 = {
                     compound: true,
-                    fuzzy: false,
+                    fuzzy: this.filters.fuzzy,
                     keyword: keywords[i],
                     logic: "and",
                     scope: ["institutions.name"],
@@ -805,6 +806,7 @@ export default {
                   .then((response) => {
                     this.aggregations = response.data;
                     this.$emit("searchFilter", this.aggregations);
+                    console.log(response.data);
                   })
                   .catch((error) => {
                     console.log(error);
@@ -1617,6 +1619,7 @@ export default {
 <style scoped>
 .search_bar {
   width: 66%;
+  margin-top: 20px;
 }
 .select {
   height: 40px;

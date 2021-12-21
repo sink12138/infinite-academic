@@ -34,10 +34,8 @@ export default {
   },
   methods: {
     href(type, id) {
-      this.$router.push({
-        path: type,
-        query: { id: id }
-      })
+      let { href } = this.$router.resolve({ path: type, query: { id: id }})
+      window.open(href, '_blank')
     }
   }
 }
