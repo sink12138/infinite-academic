@@ -23,3 +23,7 @@
   right:0;
   padding-top:10px;
 }
+
+.disabled{
+  pointer-events: none;
+}

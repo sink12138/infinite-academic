@@ -1,13 +1,25 @@
 <template>
   <v-card class="text-left my-2" max-width="850">
     <v-card-title class="d-flex">
-      <v-icon class="mx-1"> mdi-account-tie-outline </v-icon>
-      <a @click="href('author', item.id)" v-html="item.name"></a>
+      <v-row>
+        <v-col>
+          <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
+        </v-col>
+      </v-row>
+      <v-icon class="mx-1">
+        mdi-account-tie-outline
+      </v-icon>
+      <a 
+        @click="href('author', item.id)" 
+        v-html="item.name"
+        :class="disabled"
+      ></a>
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <a
         v-if="item.institution"
         @click="href('institution', item.institution.id)"
+        :class="disabled"
         v-html="item.institution.name"
       >
       </a
@@ -38,8 +50,12 @@ export default {
   props: {
     item: {
       type: Object,
-      default: () => {},
+      default:() => {}
     },
+    disabled:{
+      type:String,
+      default:""
+    }
   },
   methods: {
     href(type, id) {
