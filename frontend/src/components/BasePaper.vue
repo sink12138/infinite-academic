@@ -81,7 +81,7 @@
     <v-card-text class="pb-1">
       <span>所有机构:</span>&nbsp;
       <span v-for="institution in paperdata.institutions" :key="institution.id">
-        <a @click="href('institution',institution.id)">institution.name</a>
+        <a @click="href('institution',institution.id)" v-html="institution.name"></a>
       </span>
       <br>
       <span>论文类别:</span>&nbsp;

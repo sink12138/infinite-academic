@@ -16,9 +16,9 @@
               </h1>
               <h3>g指数:{{this.authorData.gIndex}}  h指数:{{this.authorData.hIndex}}</h3>
               <h3>文章数量:{{this.authorData.paperNum}}  专利数量:{{this.authorData.patentNum}}  引用次数:{{this.authorData.citationNum}}</h3>
-              <h3>现工作单位:{{this.authorData.currentInst.name}}</h3>
+              <!--<h3>现工作单位:{{this.authorData.currentInst.name}}</h3>-->
               <h3 style="text-align:left;float:left">曾工作单位:</h3>
-              <h3 style="text-align:left;float:left" v-for="i in this.authorData.institutions.length" :key="i">{{this.authorData.institutions[i-1].name}}&emsp;&emsp;</h3>
+              <!--<h3 style="text-align:left;float:left" v-for="i in this.authorData.institutions.length" :key="i">{{this.authorData.institutions[i-1].name}}&emsp;&emsp;</h3>-->
             </div>
           </v-col>
         </v-row>
@@ -40,7 +40,6 @@ import Banner from '../components/BaseBanner.vue'
 import { publishChart } from '../components/mixins/mixin'
 import PaperTabs from '../components/PaperTabs.vue'
 export default {
-    name: "Income",
     id:{},
     mixins: [publishChart],
     components: {Banner,PaperTabs},
@@ -59,7 +58,7 @@ export default {
       this.id = this.$route.query.id
       this.getInfo();
       this.getPublications()
-      this.initChart();
+      //this.initChart();
     },
     methods:{
       getInfo(){
@@ -72,6 +71,7 @@ export default {
         }).then(response => {
           console.log(response.data)
           this.authorData=response.data.data
+          console.log("authorData",this.authorData)
           this.avatarUrl=response.data.avatarUrl
           this.citationNum=response.data.citationNum
           this.name=response.data.name
@@ -90,12 +90,7 @@ export default {
         let page=0
         this.$axios({
           method: "get",
-          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-          params: {
-            entity:"researcher",
-            id: this.id,
-            page:page,
-          }
+          url: "api/search/relation/publications/researcher/"+this.id+"/"+page,
         }).then(response => {
           console.log(response.data);
           if(!response.data.success){
@@ -112,10 +107,6 @@ export default {
         this.$axios({
           method: "get",
           url: "api/search/relation/inventions/"+this.id+"/"+page,
-          params: {
-            id: this.id,
-            page:page,
-          }
         }).then(response => {
           console.log(response.data);
           if(!response.data.success){

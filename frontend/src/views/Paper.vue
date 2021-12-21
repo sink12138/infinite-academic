@@ -33,18 +33,20 @@ export default {
         this.paperdata=res.data.data;
       }
     })
-    this.$axios.get('/api/search/relation/references/'+this.paperdata.id+'/'+0).then(res=>{
+    this.$axios.get('/api/search/relation/references/'+this.id+'/'+0).then(res=>{
      if(!res.data.success){
         console.log(res.data.message);
       }else{
         this.references=res.data.data;
+        console.log(this.references)
        }
     }),
-    this.$axios.get('/api/search/relation/citations/'+this.paperdata.id+'/'+0).then(res=>{
+    this.$axios.get('/api/search/relation/citations/'+this.id+'/'+0).then(res=>{
      if(!res.data.success){
         console.log(res.data.message);
       }else{
         this.citations=res.data.data;
+        console.log(this.citations)
        }
     })
   },
