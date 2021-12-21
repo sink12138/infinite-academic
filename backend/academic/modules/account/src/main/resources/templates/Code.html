@@ -128,7 +128,7 @@
     </div>
     <div class="content">
       <h2>请使用以下验证码进行<span th:text="${action}" style="font-weight: bold;"></span>操作：</h2>
-      <span id="code" th:href="${code}" style="font-weight: bold;color: crimson;font-size: xx-large;"></span>
+      <span id="code" th:text="${code}" style="font-weight: bold;color: crimson;font-size: xx-large;"></span>
       <div class="box">
         <p>为了保证您账号的安全性，请勿将验证码泄露给他人</p>
         <p style="font-size: small;">您的验证码有效期为<span style="font-size: medium;color: crimson;"> 1小时</span>

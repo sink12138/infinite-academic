@@ -5,6 +5,7 @@ import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.model.web.Schedule;
+import com.buaa.academic.spider.service.CrawlService;
 import com.buaa.academic.spider.util.StatusCtrl;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -287,5 +287,28 @@ public class SpiderController {
         if (statusCtrl.fixResearcherId())
             return result;
         return result.withFailure("Has been running");
+    }
+
+    @Autowired
+    CrawlService crawlService;
+
+    @PostMapping("/crawlWithUrl")
+    public Result<Void> crawlWithUrl(@RequestHeader(name = "Auth") String auth,
+                                      @RequestParam(name = "url") String url) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        crawlService.crawlWithUrl(url);
+        return result;
+    }
+
+    @PostMapping("/crawlWithTitle")
+    public Result<Void> crawlWithTitle(@RequestHeader(name = "Auth") String auth,
+                                      @RequestParam(name = "title") String title) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        crawlService.crawlWithTitle(title);
+        return result;
     }
 }

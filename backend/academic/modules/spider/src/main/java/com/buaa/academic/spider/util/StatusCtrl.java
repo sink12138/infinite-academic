@@ -10,7 +10,6 @@ import com.buaa.academic.spider.repository.InstitutionRepository;
 import com.buaa.academic.spider.repository.JournalRepository;
 import com.buaa.academic.spider.repository.PaperRepository;
 import com.buaa.academic.spider.repository.ResearcherRepository;
-import com.buaa.academic.spider.service.ExistenceService;
 import com.buaa.academic.spider.service.Impl.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -139,7 +138,7 @@ public class StatusCtrl {
     public ElasticsearchRestTemplate template;
 
     @Autowired
-    public ExistenceService existenceService;
+    public EsUtil esUtil;
 
     @Autowired
     public PaperRepository paperRepository;

@@ -32,7 +32,7 @@ public class PaperParser {
 
     public void wanFangSpider() throws InterruptedException {
         String threadName = Thread.currentThread().getName();
-        Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
+        Paper paper = statusCtrl.esUtil.findPaperById(paperCrawl.getPaperId());
         // 已经爬完了
         boolean withOutAuthorsId = true;
         if (paper.isCrawled()) {
@@ -144,7 +144,7 @@ public class PaperParser {
                         instName = StringUtil.rmPlaceNameAndCode(instName);
                         statusCtrl.changeRunningStatusTo(threadName, "Get info of the institution with name: " + instName);
                         // find inst by name
-                        Institution foundInst = statusCtrl.existenceService.findInstByName(instName);
+                        Institution foundInst = statusCtrl.esUtil.findInstByName(instName);
                         if (foundInst != null) {
                             inst.setId(foundInst.getId());
                             inst.setName(instName);
@@ -178,7 +178,7 @@ public class PaperParser {
                     String journalName = journalElement.get(0).getText();
                     journal.setTitle(journalName);
                     // find journal by name
-                    Journal foundJournal = statusCtrl.existenceService.findJournalByName(journalName);
+                    Journal foundJournal = statusCtrl.esUtil.findJournalByName(journalName);
                     if (foundJournal != null) {
                         journal.setId(foundJournal.getId());
                     } else {
@@ -293,7 +293,7 @@ public class PaperParser {
                         }
                         String refType = type.startsWith("[J]") ? "期刊论文" : "学位论文";
                         // find paper by referTitle and referAuthorName
-                        Paper foundReferPaper = statusCtrl.existenceService.findPaperByTileAndAuthors(referTitle, referAuthorList);
+                        Paper foundReferPaper = statusCtrl.esUtil.findPaperByTileAndAuthors(referTitle, referAuthorList);
                         if (foundReferPaper == null) {
                             foundReferPaper = new Paper();
                             foundReferPaper.setCrawled(false);
@@ -361,7 +361,7 @@ public class PaperParser {
         String threadName = Thread.currentThread().getName();
         driver.get(this.paperCrawl.getUrl());
         ParserUtil.randomSleep(2000);
-        Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
+        Paper paper = statusCtrl.esUtil.findPaperById(paperCrawl.getPaperId());
         String title = paper.getTitle();
         statusCtrl.changeRunningStatusTo(threadName, "Get subjects of paper: " + title);
         List<Paper.Author> paperAuthors = paper.getAuthors();
@@ -517,7 +517,7 @@ public class PaperParser {
         String threadName = Thread.currentThread().getName();
         driver.get(this.paperCrawl.getUrl());
         ParserUtil.randomSleep(2000);
-        Paper paper = statusCtrl.existenceService.findPaperById(paperCrawl.getPaperId());
+        Paper paper = statusCtrl.esUtil.findPaperById(paperCrawl.getPaperId());
         String title = paper.getTitle();
         statusCtrl.changeRunningStatusTo(threadName, "Get sources of paper: " + title);
         List<Paper.Author> paperAuthors = paper.getAuthors();

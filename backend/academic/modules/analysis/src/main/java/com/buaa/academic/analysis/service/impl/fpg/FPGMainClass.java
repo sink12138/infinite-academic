@@ -226,11 +226,11 @@ public class FPGMainClass implements Runnable {
         StatusCtrl.changeRunningStatusTo("Write data to local tmp file...", name);
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.matchAllQuery())
+                .withQuery(QueryBuilders.existsQuery(analysisObject))
                 .withFields(analysisObject)
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
-        SearchScrollHits<Paper> hits = template.searchScrollStart(10000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
+        SearchScrollHits<Paper> hits = template.searchScrollStart(60000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
         String scrollId = hits.getScrollId();
 
         int total = 0;
@@ -288,7 +288,7 @@ public class FPGMainClass implements Runnable {
                     fileWriter.write(inputData);
                 }
             }
-            hits = template.searchScrollContinue(scrollId, 10000, Paper.class, IndexCoordinates.of("paper"));
+            hits = template.searchScrollContinue(scrollId, 60000, Paper.class, IndexCoordinates.of("paper"));
         } while (hits.hasSearchHits());
         StatusCtrl.changeRunningStatusTo("Data is ready!", name);
         fileWriter.close();
