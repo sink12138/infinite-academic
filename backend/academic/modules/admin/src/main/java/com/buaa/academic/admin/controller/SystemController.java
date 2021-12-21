@@ -153,7 +153,7 @@ public class SystemController {
         Result<Void> result = new Result<>();
         FeignOperation<Void> operation;
         switch (code) {
-            case "-analysis" -> operation = new FeignOperation<>(code) {
+            case "analysis" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
                     return analysisClient.stop(auth);
