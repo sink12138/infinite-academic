@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="text-left my-2"
-    max-width="850"
+    max-width="1950"
   >
     <v-card-title class="d-flex">
       <v-icon class="mx-1">
@@ -47,8 +47,8 @@
         :key="keyword"
         v-show="keyword"
       >
-        <v-btn 
-          small 
+        <v-btn
+          small
           outlined
           @click="href('topic', keyword)"
         >
