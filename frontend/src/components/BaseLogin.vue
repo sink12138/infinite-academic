@@ -251,7 +251,7 @@ export default {
           url: "/api/account/login",
           params: {
             email: this.email,
-            password: this.password,
+            password: sha256(this.password),
           },
         }).then((response) => {
           console.log(this.email);

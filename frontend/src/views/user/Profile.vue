@@ -116,6 +116,7 @@
 </template>
 
 <script>
+import { sha256 } from "js-sha256";
 export default {
   mounted() {
     this.$axios({
@@ -209,7 +210,7 @@ export default {
           url: "/api/account/profile/modify/info",
           params: {
             username: this.newUsername,
-            password: this.newPassword,
+            password: sha256(this.newPassword),
           },
         }).then((response) => {
           console.log(this.newUsername);
