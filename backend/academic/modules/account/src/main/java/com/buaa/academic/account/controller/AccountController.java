@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,9 @@ public class AccountController {
 
     @Autowired
     private HttpServletRequest request;
+
+    @Value("${auth.max-inactive-interval}")
+    private long maxInactiveInterval;
 
     @ApiOperation(value = "注册接口")
     @PostMapping("/register")
@@ -81,9 +85,11 @@ public class AccountController {
     @Autowired
     private HttpServletResponse response;
 
-    private void setCookie(String token) {
+    private void setCookie(String token, int maxAge) {
         Cookie cookie = new Cookie("TOKEN", token);
         cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }
 
@@ -103,14 +109,20 @@ public class AccountController {
             return new Result<Void>().withFailure("密码错误");
         }
         token = accountService.addAuthority(user);
-        setCookie(token);
+        setCookie(token, (int) (maxInactiveInterval * 30));
         return new Result<>();
     }
 
     @ApiOperation(value = "登出")
     @PostMapping("/logout")
     public Result<Void> logout(@CookieValue(name = "TOKEN", required = false) String token) {
-        accountService.deleteRedisKey(token);
+        if (token != null) {
+            accountService.deleteRedisKey(token);
+        }
+        else {
+            token = "INVALID";
+        }
+        setCookie(token, 0);
         return new Result<>();
     }
 
