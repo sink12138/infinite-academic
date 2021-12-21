@@ -52,7 +52,7 @@ public class Condition {
     private Set<@NotNull String> languages;
 
     @Valid
-    @Size(min = 1, max = 5)
+    @Size(min = 1, max = 8)
     @SearchCondition
     @ApiModelProperty(value = "查询子条件")
     private List<@NotNull Condition> subConditions;

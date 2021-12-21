@@ -23,13 +23,13 @@ public class SearchRequest {
 
     @Valid
     @NotNull
-    @Size(min = 1, max = 5)
+    @Size(min = 1, max = 12)
     @ApiModelProperty(value = "所有搜索条件（顶层），不可为空", required = true)
     private List<@NotNull @SearchCondition Condition> conditions;
 
     @Valid
     @NotNull
-    @Size(max = 5)
+    @Size(max = 8)
     @ApiModelProperty(value = "过滤条件，可为空不可为null", required = true)
     private List<@NotNull @SearchFilter Filter> filters;
 

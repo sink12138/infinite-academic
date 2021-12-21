@@ -34,7 +34,7 @@ public class SmartSearchRequest {
 
     @Valid
     @NotNull
-    @Size(max = 5)
+    @Size(max = 8)
     @ApiModelProperty(value = "过滤条件，可为空不可为null", required = true)
     private List<@SearchFilter Filter> filters;
 
