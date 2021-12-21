@@ -1,29 +1,34 @@
 <template>
-  <div class="search_bar d-inline-flex">
+  <v-container 
+    class="d-flex"
+    width="66%"
+  >
     <v-select
       class="select"
       v-model="filter"
       :items="items"
+      :menu-props="{maxHeight: 360}"
       hide-details
       prepend-inner-icon="mdi-dots-grid"
       background-color="grey lighten-2"
       filled
       @change="emitFilter"
     ></v-select>
-    <v-divider vertical></v-divider>
     <v-combobox
       class="input"
+      outlined
+      hide-spin-buttons="true"
       label="搜索"
       :value="text"
       :items="suggest"
       :search-input.sync="text"
       @update:search-input="getSuggest"
-      outlined
       append-icon="mdi-magnify"
       @click:append="search"
       @keyup.enter="search"
-    ></v-combobox>
-  </div>
+    >
+    </v-combobox>
+  </v-container>
 </template>
 
 <script>
@@ -1615,14 +1620,10 @@ export default {
 </script>
 
 <style scoped>
-.search_bar {
-  width: 66%;
-}
 .select {
-  height: 40px;
-  width: 15%;
+  width: 10%;
 }
 .input {
-  width: 88%;
+  width: 85%;
 }
 </style>
