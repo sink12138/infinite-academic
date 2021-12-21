@@ -96,7 +96,7 @@ public class SearchServiceImpl implements SearchService {
         for (String field : fields) {
             hlt.field(field);
         }
-        return hlt.preTags(config.preTag()).postTags(config.postTag());
+        return hlt.preTags(config.preTag()).postTags(config.postTag()).fragmentSize(288);
     }
 
 }
