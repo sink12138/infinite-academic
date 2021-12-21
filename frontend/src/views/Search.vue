@@ -11,6 +11,7 @@
       v-on:jumpPage="jump"
       v-on:filterChange="filterChange"
       v-on:searchFilter="searchFilter"
+      v-on:searchType="searchType"
     ></BaseSearchBar>
     <v-card>
       <v-col cols="3">
@@ -29,7 +30,8 @@
               <v-row></v-row>
               <v-row>
                 <v-col>
-                  当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条,耗时 {{timeCost}} ms
+                  当前 第 {{ page }} 页,共 {{ length }} 页,共
+                  {{ itemNum }} 条,耗时 {{ timeCost }} ms
                 </v-col>
               </v-row>
             </div>
@@ -52,21 +54,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <v-card class="text-left my-2" max-width="650">
-                        <v-card-title class="d-flex">
-                          <v-icon class="mx-1">
-                            mdi-text-box-multiple-outline
-                          </v-icon>
-                          <a
-                            @click="href('journal', item.id)"
-                            v-html="item.title"
-                          ></a>
-                          <v-spacer></v-spacer>
-                        </v-card-title>
-                        <v-card-text>
-                          <span> {{ item.sponsor }} </span>
-                        </v-card-text>
-                      </v-card>
+                      <JournalCard :item="item"></JournalCard>
                     </td>
                   </tr>
                 </div>
@@ -81,39 +69,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <v-card class="text-left my-2" max-width="650">
-                        <v-card-title class="d-flex">
-                          <v-icon class="mx-1">
-                            mdi-text-box-multiple-outline
-                          </v-icon>
-                          <a
-                            @click="href('author', item.id)"
-                            v-html="item.name"
-                          ></a>
-                          <v-spacer></v-spacer>
-                        </v-card-title>
-                        <v-card-subtitle class="pb-0">
-                          <span v-if="item.interests != null">
-                            研究方向:{{ item.interests }}
-                          </span>
-                          &nbsp;
-                          <a
-                            v-if="item.institution"
-                            @click="href('institution', item.institution.id)"
-                          >
-                            {{ item.institution.name }} </a
-                          >&nbsp;
-                          <span v-if="item.citationNum">
-                            被引量:{{ item.citationNum }}
-                          </span>
-                          <span v-if="item.paperNum">
-                            已发表文章:{{ item.paperNum }}
-                          </span>
-                          <span v-if="item.patentNum">
-                            专利数量:{{ item.patentNum }}
-                          </span>
-                        </v-card-subtitle>
-                      </v-card>
+                      <AuthorCard :item="item"></AuthorCard>
                     </td>
                   </tr>
                 </div>
@@ -128,18 +84,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <v-card class="text-left my-2" max-width="650">
-                        <v-card-title class="d-flex">
-                          <v-icon class="mx-1">
-                            mdi-text-box-multiple-outline
-                          </v-icon>
-                          <a
-                            @click="href('institution', item.id)"
-                            v-html="item.name"
-                          ></a>
-                          <v-spacer></v-spacer>
-                        </v-card-title>
-                      </v-card>
+                      <InstitutionCard :item="item"></InstitutionCard>
                     </td>
                   </tr>
                 </div>
@@ -147,87 +92,15 @@
             </div>
             <div v-if="results.length != 0">
               <div v-for="item in results" :key="item.id">
-                <div v-if="item.authors != null">
+                <div v-if="searchType1 == '全部' || searchType1 == '论文'">
                   <!-- 论文 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('paper', item.id)"
-                        v-html="item.title"
-                      ></a>
-                      <v-spacer></v-spacer>
-                      <v-btn icon>
-                        <v-icon>mdi-comma-box</v-icon>
-                      </v-btn>
-                    </v-card-title>
-                    <v-card-subtitle class="pb-0">
-                      <span
-                        v-if="item.date"
-                        v-text="item.date.substr(0, 4)"
-                      ></span
-                      >&nbsp;
-                      <a
-                        v-if="item.journal"
-                        @click="href('journal', item.journal.id)"
-                      >
-                        {{ item.journal.title }} </a
-                      >&nbsp;
-                      <span>被引量:{{ item.citationNum }}</span>
-                    </v-card-subtitle>
-                    <v-card-text class="pb-0">
-                      <span
-                        v-for="(author, idx) in item.authors"
-                        :key="author.id"
-                      >
-                        <a
-                          v-if="idx == item.authors.length - 1"
-                          @click="href('author', author.id)"
-                          v-html="author.name"
-                        ></a>
-                        <a v-else @click="href('author', author.id)">{{
-                          author.name + ","
-                        }}</a>
-                      </span>
-                    </v-card-text>
-                    <v-card-text class="pt-2 pb-0">
-                      <span
-                        class="mx-1"
-                        v-for="keyword in item.keywords"
-                        :key="keyword"
-                        v-html="keyword"
-                      >
-                        <v-btn small outlined>
-                          <v-icon small> mdi-tag-outline </v-icon>
-                        </v-btn>
-                      </span>
-                    </v-card-text>
-                    <v-card-text>
-                      <span v-if="item.abstract" v-html="item.abstract"></span>
-                    </v-card-text>
-                  </v-card>
+                  <PaperCard :item="item"></PaperCard>
                 </div>
-                <div v-else-if="item.sponsor != null">
+                <div v-else-if="searchType1 == '期刊'">
                   <!-- 期刊 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('journal', item.id)"
-                        v-html="item.title"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                    <v-card-text>
-                      <span> {{ item.sponsor }} </span>
-                    </v-card-text>
-                  </v-card>
+                  <JournalCard :item="item"></JournalCard>
                 </div>
-                <div v-else-if="item.applicant != null">
+                <div v-else-if="searchType1 == '专利'">
                   <!-- 专利 -->
                   <v-card class="text-left my-2" max-width="650">
                     <v-card-title class="d-flex">
@@ -266,60 +139,13 @@
                     </v-card-text>
                   </v-card>
                 </div>
-                <div v-else-if="item.interests != null">
+                <div v-else-if="searchType1 == '科研人员'">
                   <!-- 科研人员 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        @click="href('author', item.id)"
-                        v-html="item.name"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                    <v-card-subtitle class="pb-0">
-                      <span> 研究方向:{{ item.interests }} </span>
-                      &nbsp;
-                      <a
-                        v-if="item.institution"
-                        @click="href('institution', item.institution.id)"
-                      >
-                        {{ item.institution.name }} </a
-                      >&nbsp;
-                      <span v-if="item.citationNum">
-                        被引量:{{ item.citationNum }}
-                      </span>
-                      <span v-if="item.paperNum">
-                        已发表文章:{{ item.paperNum }}
-                      </span>
-                      <span v-if="item.patentNum">
-                        专利数量:{{ item.patentNum }}
-                      </span>
-                    </v-card-subtitle>
-                  </v-card>
+                  <AuthorCard :item="item"></AuthorCard>
                 </div>
-                <div v-else>
-                  <!-- 机构或期刊 -->
-                  <v-card class="text-left my-2" max-width="650">
-                    <v-card-title class="d-flex">
-                      <v-icon class="mx-1">
-                        mdi-text-box-multiple-outline
-                      </v-icon>
-                      <a
-                        v-if="item.name != null"
-                        @click="href('institution', item.id)"
-                        v-html="item.name"
-                      ></a>
-                      <a
-                        v-if="item.title != null"
-                        @click="href('journal', item.id)"
-                        v-html="item.title"
-                      ></a>
-                      <v-spacer></v-spacer>
-                    </v-card-title>
-                  </v-card>
+                <div v-else-if="searchType1 == '机构'">
+                  <!-- 机构 -->
+                  <InstitutionCard :item="item"></InstitutionCard>
                 </div>
               </div>
             </div>
@@ -354,8 +180,16 @@ import BaseFilter from "../components/BaseFilter.vue";
 import BaseSearchBar from "../components/BaseSearchBar.vue";
 import Banner from "../components/BaseBanner.vue";
 
+import PaperCard from "../components/card/CardPaper.vue";
+import AuthorCard from "../components/card/CardAuthor.vue";
+import InstitutionCard from "../components/card/CardInstitution.vue";
+import JournalCard from "../components/card/CardJournal.vue";
 export default {
   components: {
+    PaperCard,
+    AuthorCard,
+    InstitutionCard,
+    JournalCard,
     BaseFilter,
     Banner,
     BaseSearchBar,
@@ -414,6 +248,7 @@ export default {
       filter: "全部",
       results: [],
       data: {},
+      searchType1: "论文",
       router: [{ href: "/", icon: "mdi-arrow-left", title: "Back" }],
     };
   },
@@ -448,6 +283,9 @@ export default {
     }, 5);
   },
   methods: {
+    searchType(filter) {
+      this.searchType1 = filter;
+    },
     href(type, id) {
       this.$router.push({
         path: type,
@@ -514,6 +352,7 @@ export default {
     },
     pageChange() {
       if (this.jumpPage > this.length) this.jumpPage = this.length;
+      if (this.jumpPage < 1) this.jumpPage = 1;
       this.$refs.bar.page = this.jumpPage - 1;
       this.$refs.bar.jumpPage();
     },

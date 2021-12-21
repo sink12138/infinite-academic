@@ -13,11 +13,11 @@
         <v-card-title class="pb-1">
           <a 
             @click="href('journal', item.id)"
-            v-text="item.title"
+            v-html="item.title"
           ></a>
         </v-card-title>
         <v-card-text
-          v-text="item.sponsor"
+          v-html="item.sponsor"
         ></v-card-text>
       </v-col>
     </v-row>

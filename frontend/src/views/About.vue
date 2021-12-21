@@ -70,7 +70,7 @@ export default {
 					"id": "GF_4ynwBF-Mu8unTG1hc",
 					"name": "北京航空航天大学软件学院"
 				},
-				"interests": ["智能化软件工程"],
+				"interests": ["<b>智能化软件工程</b>"],
 				"name": "谭火彬",
 				"paperNum": 114514,
 				"patentNum": 1919810

@@ -9,14 +9,14 @@
       </v-icon>
       <a 
         @click="href('author', item.id)" 
-        v-text="item.name"
+        v-html="item.name"
       ></a>
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <a
         v-if="item.institution"
         @click="href('institution', item.institution.id)"
-        v-text="item.institution.name"
+        v-html="item.institution.name"
       >
       </a>&nbsp;
       <span>被引量:{{item.citationNum}}</span>
@@ -30,17 +30,17 @@
         <v-icon left>
           mdi-animation
         </v-icon>
-        {{interest}}
+        <span v-html="interest"></span>
       </v-chip>
     </v-card-text>
     <v-card-text>
       <div>
         <span>发表文章数:</span>
-        <span v-html="item.paperNum"></span>
+        <span v-text="item.paperNum"></span>
       </div>
       <div v-if="item.patentNum != '0'">
         <span>发明专利数:</span>
-        <span v-html="item.patentNum"></span>
+        <span v-text="item.patentNum"></span>
       </div>
     </v-card-text>
   </v-card>
