@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>找回密码</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      background-color: #ECECEC;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 550px;
+      margin: auto;
+    }
+
+    .header {
+      height: 110px;
+      text-align: center;
+      background-color: #204969;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      padding-top: 25px;
+    }
+
+    .header h2 {
+      color: white;
+    }
+
+    .content {
+      text-align: center;
+      background-color: #FFFFFF;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+      padding-top: 20px;
+      padding-bottom: 40px;
+    }
+
+    .content h2 {
+      color: #000;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .content p {
+      color: #000;
+      padding-top: 7px;
+      padding-bottom: 5px;
+    }
+
+
+    #verify_click {
+      margin-top: 20px;
+      height: 40px;
+    }
+
+    #verify_click a {
+      text-decoration: none;
+      background: #3b9a9c;
+      color: #FFFFFF;
+
+      padding: 15px 25px 15px 25px;
+      font-size: 16px;
+      font-family: 微软雅黑, 宋体, Arial, Helvetica, Verdana, sans-serif;
+      font-weight: bold;
+      border-radius: 4px;
+
+      -webkit-transition: ease-in-out 0.15s;
+      -moz-transition: ease-in-out 0.15s;
+      transition: ease-in-out 0.15s;
+
+    }
+
+    #verify_click a:hover {
+      background: #626262;
+    }
+
+    .footer {
+      background-color: #204969;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      padding-top: 20px;
+      padding-left: 20px;
+      font-size: 14px;
+    }
+
+    .footer p {
+      color: #fff;
+      padding: 2px;
+    }
+
+    .info {
+      color: #fff;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      text-align: center;
+      font-family: 'Calisto MT';
+      font-size: 14px;
+    }
+
+    .my_font {
+      font-family: 'Calisto MT';
+      font-size: 56px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 class="my_font">Infinite Academic </h2>
+    </div>
+    <div class="content">
+      <h2>请使用以下验证码进行<span th:text="${action}" style="font-weight: bold;"></span>操作：</h2>
+      <span id="code" th:href="${code}" style="font-weight: bold;color: crimson;font-size: xx-large;"></span>
+      <div class="box">
+        <p>为了保证您账号的安全性，请勿将验证码泄露给他人</p>
+        <p style="font-size: small;">您的验证码有效期为<span style="font-size: medium;color: crimson;"> 1小时</span>
+        </p>
+      </div>
+    </div>
+    <div class="footer">
+      <p>此为系统邮件，请勿回复</p>
+      <p>如果您有什么疑问可以联系管理员，Email: <b>3488997405@qq.com</b></p>
+      <div class="info">
+        ©Infinite Academic
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
