@@ -791,6 +791,7 @@ export default {
               console.log(response.data);
               this.data = response.data;
               this.$emit("searchResult", this.data.data);
+              this.$emit("searchType",this.filter);
               if (
                 this.filter == "全部" ||
                 this.filter == "论文" ||

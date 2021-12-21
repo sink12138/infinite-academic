@@ -7,7 +7,7 @@
       <v-icon class="mx-1">
         mdi-text-box-multiple-outline
       </v-icon>
-      <a @click="href('paper', item.id)">{{item.title}}</a>
+      <a @click="href('paper', item.id)" v-html="item.title"></a>
       <v-spacer></v-spacer>
       <v-btn icon @click="addCitationItem(item)">
         <v-icon>mdi-comma-box</v-icon>
@@ -18,7 +18,7 @@
       <a
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
-        v-text="item.journal.title"
+        v-html="item.journal.title"
       >
       </a>&nbsp;
       <span>被引量:{{item.citationNum}}</span>
@@ -31,12 +31,12 @@
         <a
           v-if="item.authors && idx == item.authors.length-1"
           @click="href('author', author.id)"
-          v-text="author.name"
+          v-html="author.name"
         ></a>
         <a
           v-else
           @click="href('author', author.id)"
-          v-text="author.name + ','"
+          v-html="author.name + ','"
         ></a>
       </span>
     </v-card-text>
@@ -54,13 +54,13 @@
           <v-icon small>
             mdi-tag-outline
           </v-icon>
-          <span v-text="keyword"></span>
+          <span v-html="keyword"></span>
         </v-btn>
       </span>
     </v-card-text>
     <v-card-text>
-      <span v-if="expand" v-text="item.abstract"></span>
-      <span v-else v-text="$options.filters.abstract(item.abstract)"></span>
+      <span v-if="expand" v-html="item.abstract"></span>
+      <span v-else v-html="$options.filters.abstract(item.abstract)"></span>
 
       <v-btn
         x-small

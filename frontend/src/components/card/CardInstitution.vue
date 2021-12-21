@@ -13,7 +13,7 @@
         <v-card-title>
           <a 
             @click="href('institution', item.id)"
-            v-text="item.name"
+            v-html="item.name"
           ></a>
         </v-card-title>
       </v-col>
