@@ -80,7 +80,7 @@
       <v-btn
         x-small
         outlined
-        v-if="item.abstract && item.abstract.length > 110"
+        v-if="item.abstract && item.abstract.length > 380"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
@@ -116,8 +116,8 @@ export default {
   filters: {
     abstract(text) {
       if (!text) return " ";
-      if (text.length > 110) {
-        return text.slice(0, 110) + "...";
+      if (text.length > 380) {
+        return text.slice(0,380) + "..."
       }
       return text;
     },

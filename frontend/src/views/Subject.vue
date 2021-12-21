@@ -19,6 +19,11 @@
             height="400"
             aspect-ratio="16/9"
           ></v-img>
+
+          <v-card-text v-if="this.heat != null">
+            <v-icon>mdi-fire-circle</v-icon>
+            热度: {{this.heat.toFixed(2)}}
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="8">
@@ -115,6 +120,7 @@ export default {
   },
   watch: {
     $route() {
+      this.tab = 0;
       this.loadData();
       this.chartReload();
     },

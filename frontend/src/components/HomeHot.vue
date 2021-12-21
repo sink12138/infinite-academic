@@ -49,7 +49,7 @@
               ></v-progress-linear>
             </v-list-item-content>
           </template>
-          <div v-text="'热度:'+item.heat"></div>
+          <div v-text="'热度:'+item.heat.toFixed(2)"></div>
         </v-tooltip>
       </v-list-item>
     </v-list>
