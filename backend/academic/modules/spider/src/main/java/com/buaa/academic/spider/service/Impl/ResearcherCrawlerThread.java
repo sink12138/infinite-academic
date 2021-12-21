@@ -97,7 +97,7 @@ public class ResearcherCrawlerThread implements Runnable {
                         authors.add(new Paper.Author(null, researcherObject.getName()));
                 }
 
-                Paper paper = statusCtrl.existenceService.findPaperById(paperId);
+                Paper paper = statusCtrl.esUtil.findPaperById(paperId);
                 paper.setAuthors(authors);
                 statusCtrl.template.save(paper);
 

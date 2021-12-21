@@ -65,14 +65,14 @@ public class ResearcherParser {
         instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
 
         // 检查数据库中是否已有相同姓名和机构的数据库
-        Researcher researcher = statusCtrl.existenceService.findResearcherByNameAndInst(researcherName, instName);
+        Researcher researcher = statusCtrl.esUtil.findResearcherByNameAndInst(researcherName, instName);
         if (researcher == null) {
             researcher = new Researcher();
             researcher.setName(researcherName);
             researcher.setPaperNum(1);
             Researcher.Institution curInstitution = new Researcher.Institution();
             // get inst by name.
-            Institution institution = statusCtrl.existenceService.findInstByName(instName);
+            Institution institution = statusCtrl.esUtil.findInstByName(instName);
             if (institution == null) {
                 institution = new Institution();
                 institution.setName(instName);
@@ -127,7 +127,7 @@ public class ResearcherParser {
 
                 corInst = StringUtil.rmPlaceNameAndCode(corInst);
 
-                Institution institution = statusCtrl.existenceService.findInstByName(corInst);
+                Institution institution = statusCtrl.esUtil.findInstByName(corInst);
                 if (institution == null) {
                     institution = new Institution();
                     institution.setName(corInst);
@@ -246,7 +246,7 @@ public class ResearcherParser {
                 for (WebElement inst:corInstElement) {
                     Researcher.Institution corInst = new Researcher.Institution();
                     String instName = inst.getAttribute("title");
-                    Institution foundInst = statusCtrl.existenceService.findInstByName(instName);
+                    Institution foundInst = statusCtrl.esUtil.findInstByName(instName);
                     if (foundInst == null) {
                         Institution newInst = new Institution();
                         newInst.setName(instName);

@@ -81,11 +81,11 @@ public class SearchParser {
                                 authorList.add(paperAuthor);
                             }
                         }
-                        if (statusCtrl.existenceService.inTrash(titleName, authorList))
+                        if (statusCtrl.esUtil.inTrash(titleName, authorList))
                             continue;
                         crawledPaper++;
                         // find paper by referTitle and referAuthorName
-                        Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
+                        Paper paper = statusCtrl.esUtil.findPaperByTileAndAuthors(titleName, authorList);
                         if (paper == null) {
                             newPaper++;
                             paper = new Paper();
@@ -246,10 +246,10 @@ public class SearchParser {
                             authorList.add(paperAuthor);
                         }
                     }
-                    if (statusCtrl.existenceService.inTrash(titleName, authorList))
+                    if (statusCtrl.esUtil.inTrash(titleName, authorList))
                         continue;
                     // find paper by referTitle and referAuthorName
-                    Paper paper = statusCtrl.existenceService.findPaperByTileAndAuthors(titleName, authorList);
+                    Paper paper = statusCtrl.esUtil.findPaperByTileAndAuthors(titleName, authorList);
                     if (paper == null) {
                         paper = new Paper();
                         paper.setTitle(titleName);

@@ -128,12 +128,24 @@ public class AccountServiceImpl implements AccountService {
 
                 javaMailSender.send(mimeMessage);
             } else {
-                SimpleMailMessage message = new SimpleMailMessage();
-                message.setTo(user.getEmail());
-                message.setFrom(FROM_ADDRESS);
-                message.setSubject(action);
-                message.setText(code);
-                javaMailSender.send(message);
+                MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+                // set content
+                Context context = new Context();
+                context.setVariable("action", action);
+                context.setVariable("code", code);
+                String process = templateEngine.process("Code.html", context);
+
+                // basic setting
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+                Date date = new Date();
+                helper.setSubject("Infinite Academic | %s邮箱验证".formatted(action));
+                helper.setFrom(FROM_ADDRESS);
+                helper.setTo(user.getEmail());
+                helper.setSentDate(date);
+                helper.setText(process, true);
+
+                javaMailSender.send(mimeMessage);
             }
         }
     }

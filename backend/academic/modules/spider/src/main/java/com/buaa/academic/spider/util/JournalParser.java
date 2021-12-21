@@ -42,7 +42,7 @@ public class JournalParser {
             String subTitle = name.findElement(By.xpath(".//wf-block")).getText();
             String title = allTitle.replace(subTitle, "");
             title = title.strip();
-            journal = statusCtrl.existenceService.findJournalByName(title);
+            journal = statusCtrl.esUtil.findJournalByName(title);
         } else
             return;
 

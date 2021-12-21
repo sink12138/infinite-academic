@@ -2,7 +2,6 @@ package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.spider.repository.InstitutionRepository;
-import com.buaa.academic.spider.service.ExistenceService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,7 @@ public class InstitutionParser {
     private Institution institution;
 
     @Autowired
-    ExistenceService existenceService;
+    EsUtil existenceService;
 
     @Autowired
     InstitutionRepository institutionRepository;
