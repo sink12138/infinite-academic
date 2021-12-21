@@ -26,7 +26,7 @@ export default {
   mounted() {
     this.id = this.$route.query.id
     console.log(this.id)
-    this.$axios.get('api/search/info/paper/'+this.id).then(res=>{
+    this.$axios.get('/api/search/info/paper/'+this.id).then(res=>{
       if(!res.data.success){
         console.log(res.data.message);
       }else{

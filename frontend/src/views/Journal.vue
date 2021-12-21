@@ -59,10 +59,7 @@ export default {
     getInfo(){
       this.$axios({
         method: "get",
-        url: "api/search/info/journal/"+this.id,
-        params: {
-          id: this.id
-        }
+        url: "/api/search/info/journal/"+this.id,
       }).then(response => {
         console.log(response.data)
         this.journalData=response.data.data
@@ -74,12 +71,7 @@ export default {
         let page=0
         this.$axios({
           method: "get",
-          url: "/search/relation/publications/journal/"+this.id+"/"+page,
-          params: {
-            entity:"institution",
-            id: this.id,
-            page:page,
-          }
+          url: "/api/search/relation/publications/journal/"+this.id+"/"+page
         }).then(response => {
           console.log(response.data);
           if(!response.data.success){
