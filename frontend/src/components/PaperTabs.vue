@@ -31,7 +31,7 @@
                 </v-tab-item>
                 <v-tab-item key="patents">
                 <v-card-text v-for="item in patents.items" v-bind:key="item.index">
-                    <CardAuthor :item="item" style="margin:0 auto;left:0;right:0;width:100%;"></CardAuthor>
+                    <RelatedAuthorCard :item="item" style="margin:0 auto;left:0;right:0;width:100%;"></RelatedAuthorCard>
                 </v-card-text>
                 </v-tab-item>
             </v-tabs-items>
@@ -49,7 +49,7 @@
                 </v-tab-item>
                 <v-tab-item key="scholars">
                 <v-card-text v-for="item in scholars.items" v-bind:key="item.index">
-                    <CardInstitution :item="item" style="margin:0 auto;left:0;right:0;width:100%;"></CardInstitution>
+                    <CardAuthor :item="item" style="margin:0 auto;left:0;right:0;width:100%;"></CardAuthor>
                 </v-card-text>
                 </v-tab-item>
             </v-tabs-items>
@@ -69,16 +69,14 @@
     </div>
 </template>
 <script>
-import CardAuthor from '../components/card/CardAuthor.vue'
-import CardInstitution from '../components/card/CardInstitution.vue'
-// import CardJournal from '../components/card/CardJournal.vue'
 import CardPaper from '../components/card/CardPaper.vue'
+import RelatedAuthorCard from '../components/card/RelatedAuthorCard.vue'
+import CardAuthor from '../components/card/CardAuthor.vue'
 export default{
     components:{
-        CardAuthor,
-        CardInstitution,
-        // CardJournal,
-        CardPaper
+        CardPaper,
+        RelatedAuthorCard,
+        CardAuthor
     },
     props:{
         references:{
