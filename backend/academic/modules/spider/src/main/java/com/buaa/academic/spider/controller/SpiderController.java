@@ -20,13 +20,16 @@ import org.springframework.data.elasticsearch.core.SearchScrollHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotBlank;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+@Validated
 @RestController
 public class SpiderController {
     private String authHeader;
@@ -41,6 +44,8 @@ public class SpiderController {
     public void init() {
         if (authHeader == null)
             authHeader = Base64.getEncoder().encodeToString((username + '@' + password).getBytes(StandardCharsets.UTF_8));
+        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.silentOutput", "true");
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -51,13 +56,17 @@ public class SpiderController {
     @Autowired
     private StatusCtrl statusCtrl;
 
+    @Autowired
+    private ElasticsearchRestTemplate template;
+
+    @Autowired
+    private CrawlService crawlService;
+
     @PostMapping("/start")
     public Result<Void> start(@RequestHeader(name = "Auth") String auth) {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
-        System.setProperty("webdriver.chrome.silentOutput", "true");
         statusCtrl.setQueueInitThreadNum(2);
         statusCtrl.setMainInfoThreadNum(4);
         statusCtrl.setPaperSourceThreadNum(4);
@@ -98,9 +107,6 @@ public class SpiderController {
         StatusCtrl.keywordQueue.addAll(keywords);
         return result;
     }
-
-    @Autowired
-    private ElasticsearchRestTemplate template;
 
     @PostMapping("/fix")
     public Result<Void> fix() {
@@ -289,12 +295,9 @@ public class SpiderController {
         return result.withFailure("Has been running");
     }
 
-    @Autowired
-    CrawlService crawlService;
-
     @PostMapping("/crawlWithUrl")
     public Result<Void> crawlWithUrl(@RequestHeader(name = "Auth") String auth,
-                                      @RequestParam(name = "url") String url) {
+                                     @RequestParam(name = "url") @NotBlank String url) {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
@@ -304,7 +307,7 @@ public class SpiderController {
 
     @PostMapping("/crawlWithTitle")
     public Result<Void> crawlWithTitle(@RequestHeader(name = "Auth") String auth,
-                                      @RequestParam(name = "title") String title) {
+                                       @RequestParam(name = "title") @NotBlank String title) {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);

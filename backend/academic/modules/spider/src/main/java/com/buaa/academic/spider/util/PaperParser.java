@@ -115,14 +115,11 @@ public class PaperParser {
             if (keywordElement.size() != 0) {
                 List<String> keywords = new ArrayList<>();
                 for (WebElement keyword : keywordElement) {
-                    String word = keyword.getText();
-                    if(word.contains(",")||word.contains("，")){
-                        word=word.strip();
-                        word=word.replace(","," ");
-                        word=word.replace("，"," ");
+                    String[] terms = keyword.getText().split("[,，]+");
+                    for (String term : terms) {
+                        if (!term.isBlank())
+                            keywords.add(term.strip());
                     }
-                    String[] parts = word.split("\\s+");
-                    keywords.addAll(Arrays.asList(parts));
                 }
                 paper.setKeywords(keywords);
             }
@@ -301,8 +298,7 @@ public class PaperParser {
                             foundReferPaper.setAuthors(referAuthorList);
                             foundReferPaper.setCitationNum(1);
                             foundReferPaper.setType(refType);
-                        }
-                        else {
+                        } else {
                             foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                         }
                         // 插入数据库
