@@ -52,7 +52,7 @@ public class RelationServiceImpl implements RelationService {
         if (page > totalPages || references.isEmpty()) {
             return relations;
         }
-        List<String> refSubList = references.subList(page * 10, (page + 1) * 10);
+        List<String> refSubList = subListAtPage(references, page, 10);
         List<PaperItem> items = new ArrayList<>();
         refSubList.forEach(ref -> {
             if (ref.matches("^[0-9A-Za-z_-]{20}$")) {
@@ -66,6 +66,17 @@ public class RelationServiceImpl implements RelationService {
         });
         relations.setItems(items);
         return relations;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private <T> List<T> subListAtPage(List<T> list, int page, int size) {
+        int length = list.size();
+        int fromIndex = page * size, toIndex = (page + 1) * size;
+        if (fromIndex > length)
+            fromIndex = length;
+        if (toIndex > length)
+            toIndex = length;
+        return list.subList(fromIndex, toIndex);
     }
 
 }
