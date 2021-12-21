@@ -1621,7 +1621,7 @@ export default {
 
 <style scoped>
 .select {
-  width: 10%;
+  width: 12%;
 }
 .input {
   width: 85%;

@@ -422,9 +422,21 @@ export const getData = {
         }
       }).then(response => {
         if (response.data.success == true) {
-          this.heat = response.data.heat;
-          this.pubsPerYear = response.data.pubsPerYear;
-          this.associations = response.data.associationSubjects;
+          this.heat = response.data.data.heat;
+          this.pubsPerYear = response.data.data.pubsPerYear;
+          this.associations = response.data.data.associationTopics;
+          console.log(response.data)
+          this.chart1.setOption({
+            xAxis: {
+              data: this.pubsPerYear.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: this.pubsPerYear.nums
+              }
+            ]
+          })
         } else {
           console.log(response.data.message);
         }
