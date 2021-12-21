@@ -7,15 +7,12 @@
       <v-icon class="mx-1">
         mdi-text-box-multiple-outline
       </v-icon>
-<<<<<<< HEAD
       <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
-      <a @click="href('paper', item.id)" v-html="item.title" :class="disabled"></a>
-=======
-      <a
-        @click="href('paper', item.id)"
-        v-html="item.title"
+      <a 
+        @click="href('paper', item.id)" 
+        v-html="item.title" 
+        :class="disabled"
       ></a>
->>>>>>> 96fab2045592fb72536750b7bd28f4d5bd5780f4
       <v-spacer></v-spacer>
       <v-btn
         icon
@@ -114,17 +111,12 @@ export default {
   props: {
     item: {
       type: Object,
-<<<<<<< HEAD
       default:() => {}
     },
     disabled:{
       type:String,
       default:""
     }
-=======
-      default: () => {},
-    },
->>>>>>> 96fab2045592fb72536750b7bd28f4d5bd5780f4
   },
   data() {
     return {
