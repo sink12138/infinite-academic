@@ -4,10 +4,10 @@ import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.model.web.Result;
 import com.buaa.academic.spider.service.CrawlService;
 import com.buaa.academic.spider.util.EsUtil;
 import com.buaa.academic.spider.util.ParserUtil;
-import com.buaa.academic.spider.util.StatusCtrl;
 import com.buaa.academic.spider.util.StringUtil;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +35,7 @@ public class CrawlServiceImpl implements CrawlService {
     private ElasticsearchRestTemplate template;
 
     public interface AutoSpider extends Runnable {
-        String getMessage();
+        Result<Paper> getResult();
     }
 
     @Override
@@ -44,7 +43,6 @@ public class CrawlServiceImpl implements CrawlService {
         // TODO: Judge website (wanfang/cnki)
         AutoSpider spider = new WanfangUrlSpider(url);
         new Thread(() -> {
-            String message;
             Thread thread = new Thread(spider);
             thread.start();
             try {
@@ -52,7 +50,7 @@ public class CrawlServiceImpl implements CrawlService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            message = Objects.requireNonNullElse(spider.getMessage(), "操作失败");
+            Result<Paper> result = spider.getResult();
             // TODO: send message to user
         }).start();
     }
@@ -61,7 +59,6 @@ public class CrawlServiceImpl implements CrawlService {
     public void crawlWithTitle(String title) {
         AutoSpider spider = new TitleSpider(title);
         new Thread(() -> {
-            String message;
             Thread thread = new Thread(spider);
             thread.start();
             try {
@@ -69,7 +66,7 @@ public class CrawlServiceImpl implements CrawlService {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            message = Objects.requireNonNullElse(spider.getMessage(), "操作失败");
+            Result<Paper> result = spider.getResult();
             // TODO: send message to user
         }).start();
     }
@@ -77,14 +74,13 @@ public class CrawlServiceImpl implements CrawlService {
     @Data
     private class WanfangUrlSpider implements AutoSpider {
 
+        private String url;
+
+        private Result<Paper> result = new Result<>(false, null, null);
+
         public WanfangUrlSpider(String url) {
             this.url = url;
         }
-
-        private String url;
-
-        // TODO: message to the user
-        private String message;
 
         @SneakyThrows
         @Override
@@ -102,7 +98,8 @@ public class CrawlServiceImpl implements CrawlService {
                 paperType = "学位论文";
             }
             else {
-                throw new IllegalArgumentException("url must contain 'periodical' or 'thesis'");
+                result.setMessage("仅支持期刊论文和学位论文");
+                return;
             }
 
             // 获取标题
@@ -111,7 +108,10 @@ public class CrawlServiceImpl implements CrawlService {
             if (titleElement.size() != 0) {
                 title = titleElement.get(0).getText();
             }
-            else return;
+            else {
+                result.setMessage("获取标题失败");
+                return;
+            }
 
             // 获取作者
             List<WebElement> authorElement = driver.findElementsByXPath("//div[@class=\"author list\"]//div[@class=\"itemUrl\"]//a");
@@ -130,8 +130,10 @@ public class CrawlServiceImpl implements CrawlService {
                 }
             }
             Paper paper = esUtil.findPaperByTileAndAuthors(title, authors);
-            if (paper != null && paper.isCrawled())
+            if (paper != null && paper.isCrawled()) {
+                result.setMessage("数据库中已含有该论文");
                 return;
+            }
             else if (paper == null) {
                 paper = new Paper();
                 paper.setCrawled(true);
@@ -389,6 +391,7 @@ public class CrawlServiceImpl implements CrawlService {
 
             paper.setReferences(referenceID);
             template.save(paper);
+            result.setSuccess(true);
             driver.quit();
             authorsDriver.quit();
         }
@@ -554,7 +557,7 @@ public class CrawlServiceImpl implements CrawlService {
 
         private String title;
 
-        private String message;
+        private Result<Paper> result = new Result<>(false, null, null);
 
         public TitleSpider(String title) {
             this.title = title;
@@ -567,41 +570,41 @@ public class CrawlServiceImpl implements CrawlService {
             String searchUrl = "https://s.wanfangdata.com.cn/paper?q=" + title + "&style=detail&s=50";
             driver.get(searchUrl);
             ParserUtil.randomSleep(2000);
-            try {
-                List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
-                if (searchResult.size() != 0) {
-                    WebElement result = searchResult.get(0);
-                    if (StatusCtrl.jobStopped) {
-                        driver.close();
-                        driver.quit();
-                        return;
-                    }
-                    if (result.findElements(By.xpath(".//span[@class=\"essay-type\"]")).isEmpty())
-                        return;
-                    String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
-                    if (!type.equals("期刊论文") && !type.equals("硕士论文") && !type.equals("博士论文")) {
-                        return;
-                    }
-                    WebElement titleEle = result.findElement(By.xpath(".//span[@class=\"title\"]"));
-
-                    String originalHandle = driver.getWindowHandle();
-                    Actions actions = new Actions(driver);
-                    actions.click(titleEle).perform();
-                    ParserUtil.randomSleep(2000);
-                    Set<String> allHandles = driver.getWindowHandles();
-                    allHandles.remove(originalHandle);
-                    assert allHandles.size() == 1;
-                    driver.switchTo().window((String) allHandles.toArray()[0]);
-                    String url = driver.getCurrentUrl();
-                    new Thread(new WanfangUrlSpider(url)).start();
-
-                    driver.close();
-                    driver.switchTo().window(originalHandle);
-
-                }
-            } catch (Exception e) {
-                StatusCtrl.errorHandler.report(e);
+            List<WebElement> searchResult = driver.findElementsByXPath("//table[@class=\"table-list\"]//tbody//tr[@class=\"table-list-item\"]");
+            if (searchResult.isEmpty()) {
+                this.result.setMessage("未能联机搜索到指定的论文");
+                return;
             }
+            WebElement result = searchResult.get(0);
+            if (result.findElements(By.xpath(".//span[@class=\"essay-type\"]")).isEmpty()) {
+                this.result.setMessage("获取论文类型失败");
+                return;
+            }
+            String type = result.findElement(By.xpath(".//span[@class=\"essay-type\"]")).getText();
+            if (!type.equals("期刊论文") && !type.equals("硕士论文") && !type.equals("博士论文")) {
+                this.result.setMessage("仅支持期刊论文和学位论文");
+                return;
+            }
+            WebElement titleEle = result.findElement(By.xpath(".//span[@class=\"title\"]"));
+            // TODO: Judge if the title is exactly what the user wants
+            String originalHandle = driver.getWindowHandle();
+            Actions actions = new Actions(driver);
+            actions.click(titleEle).perform();
+            ParserUtil.randomSleep(2000);
+            Set<String> allHandles = driver.getWindowHandles();
+            allHandles.remove(originalHandle);
+            assert allHandles.size() == 1;
+            driver.switchTo().window((String) allHandles.toArray()[0]);
+            String url = driver.getCurrentUrl();
+            AutoSpider spider = new WanfangUrlSpider(url);
+            Thread thread = new Thread(spider);
+            thread.start();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.result = spider.getResult();
             driver.close();
             driver.quit();
         }
