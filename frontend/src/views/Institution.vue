@@ -61,9 +61,6 @@ export default {
       this.$axios({
         method: "get",
         url: "/api/search/info/institution/"+this.id,
-        params: {
-          id: this.id
-        }
       }).then(response => {
         if(!response.data.success){
           console.log(response.data.message)

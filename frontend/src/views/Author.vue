@@ -62,10 +62,7 @@ export default {
       getInfo(){
         this.$axios({
           method: "get",
-          url: "/api/search/info/researcher/"+this.id,
-          params: {
-            id: this.id
-          }
+          url: "/api/search/info/researcher/"+this.id
         }).then(response => {
           if(!response.data.success){
             console.log(response.data.message);
