@@ -120,19 +120,19 @@ export default {
           },
         }).then((response) => {
           console.log(response.data);
-          if(response.data.success === true){
+          if (response.data.success === true) {
             this.$notify({
-              titile:"注册成功",
-              message:"请到邮箱验证后登录",
-              type:"success"
-            })
-          }
-          else{
+              titile: "注册成功",
+              message: "请到邮箱验证后登录",
+              type: "success",
+            });
+            this.$router.push("/");
+          } else {
             this.$notify({
-              title:"注册失败",
-              message:"用户名过长，请修改",
-              type:"warning",
-            })
+              title: "注册失败",
+              message: "用户名过长，请修改",
+              type: "warning",
+            });
           }
         });
       }

@@ -7,9 +7,11 @@ import elementui from 'element-ui'
 import './plugins/index'
 import './assets/style/main.css'
 import 'element-ui/lib/theme-chalk/index.css';
+import VueClipboard from 'vue-clipboard2';
 
 Vue.config.productionTip = false
 Vue.use(elementui);
+Vue.use(VueClipboard)
 
 new Vue({
   router,

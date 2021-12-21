@@ -19,6 +19,11 @@
             height="400"
             aspect-ratio="16/9"
           ></v-img>
+
+          <v-card-text v-if="this.heat != null">
+            <v-icon>mdi-fire-circle</v-icon>
+            热度: {{this.heat.toFixed(2)}}
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="8">
@@ -110,10 +115,12 @@ export default {
       chart2: null,
       tab: null,
       chartType: 0,
+      items: {}
     }
   },
   watch: {
     $route() {
+      this.tab = 0;
       this.loadData();
       this.chartReload();
     },
@@ -149,6 +156,10 @@ export default {
     },
     loadData() {
       this.getBasic();
+      this.getPapers();
+      this.getResearcher();
+      this.getJournal();
+      this.getInstitution();
     },
   }
 }

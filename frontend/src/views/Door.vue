@@ -408,9 +408,9 @@
     </v-dialog>
     <!-- ID -->
     <v-dialog v-model="getID" persistent width=1200px >
-      <v-card height=1000px>
+      <v-card height=5000px>
         <Search
-          :fromDoor=true
+          :fromDoor="disabled"
           @closeID="closeID"
         ></Search>
       </v-card>
@@ -585,6 +585,8 @@ import Search from './Search.vue'
       page:1,
       onePageNum:1,
       pageNum:2,
+
+      disabled:"disabled"
     }),
     mounted(){
       // this.getInfo()

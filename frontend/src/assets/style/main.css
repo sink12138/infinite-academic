@@ -1,6 +1,6 @@
 .big-font {
   font-family: Fira Code;
-  font-size: 80px;
+  font-size: 72px;
   font:800;
 }
 
@@ -22,4 +22,8 @@
   left:0;
   right:0;
   padding-top:10px;
+}
+
+.disabled{
+  pointer-events: none;
 }

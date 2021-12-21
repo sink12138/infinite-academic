@@ -1,28 +1,42 @@
 export const addCitation = {
   methods: {
     addCitationItem(item) {
-      var citationList = JSON.parse(localStorage.getItem("citations"));
-      console.log(citationList);
-      if (citationList == null) citationList = {};
-      var citation = {
-        paperId: item.id,
-        MLA: {},
-      };
-      citation["MLA"] = this.MLACitation(item);
-      citationList[item.id] = citation;
-      localStorage.setItem("citations", JSON.stringify(citationList));
-      this.$store.commit('incCitations');
+      this.$axios.get('/api/search/info/paper/'+item.id).then(res=>{
+        if(res.data.success) {
+          item = res.data.data
+          var citationList = JSON.parse(localStorage.getItem("citations"));
+          if (citationList == null) citationList = {};
+          var citation = {
+            paperId: item.id,
+            MLA: {},
+          };
+          citation["MLA"] = this.MLACitation(item);
+          citationList[item.id] = citation;
+          localStorage.setItem("citations", JSON.stringify(citationList));
+          this.$store.commit('incCitations');
+        } else {
+          console.log(res.data.message);
+        }
+      })
     },
     MLACitation(item) {
-      var italicLeft = "<span style='font-style:italic'>"
-      var italicRight = "</span>"
+      /*var italicLeft = "<span style='font-style:italic'>"
+      var italicRight = "</span>"*/
       var text = item.authors[0].name + ", et al.";
       text += "\"" + item.title + ".\"";
-      text += italicLeft + item.journal.title + italicRight;
-      text += ", vol. " + item.journal.volume;
-      text += ", no. " + item.journal.issue;
-      text += ", " + item.year;
-      text += ", pp. " + item.journal.startPage + "-" + item.journal.endPage + ".";
+      if (item.journal != null) {
+        text += item.journal.title;
+        if (item.journal.volume != null)
+          text += ", vol. " + item.journal.volume;
+        if (item.journal.issue != null)
+          text += ", no. " + item.journal.issue;
+        if (item.year != null)
+          text += ", " + item.year;
+        if (item.journal.startPage != null)
+          text += ", pp. " + item.journal.startPage + "-" + item.journal.endPage + ".";
+        else
+          text += "."
+      }
       return text;
     }
   },
@@ -37,17 +51,29 @@ export const getChart = {
     },
     initChart2() {
       this.chart2 = this.$echarts.init(document.getElementById('analysis'), 'infinite', { renderer: 'svg'});
+      
       var _this = this;
       this.chart2.on('click', function(param) {
-        var target = param.data.name + 'hello';
-        if (target != _this.name)
-          _this.$router.push({ path: this.type, query: { name: target}})
+        if (param.data.name == null && param.data.url == null) return;
+        var target = ""
+        console.log(param.data.type)
+        if (param.data.type == "related") {
+          target = param.data.name
+          if (target != _this.name)
+            _this.$router.push({ path: this.type, query: { name: target}})
+        } else {
+          var path = param.data.type
+          target = param.data.url;
+          _this.$router.push({ path: path, query: { id: target}})
+        }
       })
       window.addEventListener('resize', () => { this.chart2.resize(); })
     },
     chartReload() {
-      this.reload1();
-      this.reload2();
+      if (this.chart1 != null)
+        this.reload1();
+      if (this.chart2 != null)
+        this.reload2();
     },
     reload1() {
       var option = {
@@ -55,17 +81,21 @@ export const getChart = {
           text: '发文趋势'
         },
         xAxis: {
-          data: ['2012','2013','2014']
+          data: []
         },
         yAxis: {},
+        tooltip: {
+          trigger: 'item'
+        },
         series: [
           {
+            name: '发文量',
             type: 'line',
             areaStyle: {
               color: '#9fe6f3de'
             },
             smooth: 0.3,
-            data: [100,500,400]
+            data: []
           },
         ]
       }
@@ -73,11 +103,12 @@ export const getChart = {
     },
     reload2() {
       this.$nextTick(() => { 
-        this.chart2.resize({
-          animation: {
-            duration: 400,
-          }
-        });
+        if (this.chart2 != null)
+          this.chart2.resize({
+            animation: {
+              duration: 400,
+            }
+          });
       })
       switch (this.tab) {
         case 1:
@@ -128,22 +159,24 @@ export const getChart = {
       }
       var topic = {
         name: this.name,
+        type: "related",
         symbolSize: 120
       }
+      console.log(this.associations)
       option.series.data.push(topic);
       this.associations.forEach(function(item) {
         var node = {}
         node.name = item.name
+        node.type = "related"
         option.series.data.push(node);
       })
       option.series.links = this.associations.map(function (data, idx) {
         var link = {}
         link.source = 0;
         link.target = (idx+1);
-        link.value = data.confidence;
+        link.value = data.confidence.toFixed(3);
         return link;
       });
-      
       this.chart2.setOption(option);
     },
     loadRank() {
@@ -225,7 +258,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "author"
               }
               return obj;
             })
@@ -246,7 +280,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "author"
               }
               return obj;
             })
@@ -266,7 +301,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "journal"
               }
               return obj;
             })
@@ -287,7 +323,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "journal"
               }
               return obj;
             })
@@ -307,7 +344,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "institution"
               }
               return obj;
             })
@@ -328,7 +366,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "institution"
               }
               return obj;
             })
@@ -346,64 +385,21 @@ export const getData = {
       type: null,
       heat: null,
       num: 10,
-      associations: [
-        {
-          "confidence": 0.88,
-          "name": "C"
-        },
-        {
-          "confidence": 0.9,
-          "name": "Java"
-        },
-        {
-          "confidence": 0.75,
-          "name": "Go"
-        },
-        {
-          "confidence": 0.66,
-          "name": "Python"
-        },
-        {
-          "confidence": 0.98,
-          "name": "C++"
-        },
-        {
-          "confidence": 0.92,
-          "name": "C#"
-        },
-      ],
+      associations: [],
       pubsPerYear: [],
-      authors: [
-        { frequency: 1050, term: 'Search Engine', id: 'G1' },
-        { frequency: 735, term: 'Direct', id: 'G2' },
-        { frequency: 580, term: 'Email', id: 'G3' },
-        { frequency: 484, term: 'Union Ads', id: 'G4' },
-        { frequency: 300, term: 'Video Ads', id: 'G5' }
-      ],
-      journals: [
-        { frequency: 21252, term: 'Social Science Research Network', id: 'G1' },
-        { frequency: 12300, term: 'Nature', id: 'G2' },
-        { frequency: 9457, term: 'PLOS ONE', id: 'G3' },
-        { frequency: 4585, term: 'Science', id: 'G4' },
-        { frequency: 2678, term: 'Physical Review Letters', id: 'G5' }
-      ],
-      institutions: [
-        { frequency: 57894, term: 'Harvard University', id: 'G1' },
-        { frequency: 35667, term: 'Chinese Academy of Sciences', id: 'G2' },
-        { frequency: 23543, term: 'Stanford University', id: 'G3' },
-        { frequency: 21235, term: 'Max Planck Society', id: 'G4' },
-        { frequency: 15789, term: 'University of Michigan', id: 'G5' }
-      ]
+      authors: [],
+      journals: [],
+      institutions: []
     }
   },
   methods: {
     getBasic() {
       this.name = this.$route.query.name;
       this.type = this.$route.path.substring(1);
-      /*if (this.type == "topic")
+      if (this.type == "topic")
         this.getTopic();
       else
-        this.getSubject();*/
+        this.getSubject();
     },
     getTopic() {
       this.$axios({
@@ -414,9 +410,21 @@ export const getData = {
         }
       }).then(response => {
         if (response.data.success == true) {
-          this.heat = response.data.heat;
-          this.pubsPerYear = response.data.pubsPerYear;
-          this.associations = response.data.associationTopics;
+          this.heat = response.data.data.heat;
+          this.pubsPerYear = response.data.data.pubsPerYear;
+          this.associations = response.data.data.associationTopics;
+          console.log(response.data)
+          this.chart1.setOption({
+            xAxis: {
+              data: this.pubsPerYear.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: this.pubsPerYear.nums
+              }
+            ]
+          })
         } else {
           console.log(response.data.message);
         }
@@ -433,11 +441,60 @@ export const getData = {
         }
       }).then(response => {
         if (response.data.success == true) {
-          this.heat = response.data.heat;
-          this.pubsPerYear = response.data.pubsPerYear;
-          this.associations = response.data.associationSubjects;
+          this.heat = response.data.data.heat;
+          this.pubsPerYear = response.data.data.pubsPerYear;
+          this.associations = response.data.data.associationSubjects;
+          console.log(response.data)
+          this.chart1.setOption({
+            xAxis: {
+              data: this.pubsPerYear.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: this.pubsPerYear.nums
+              }
+            ]
+          })
         } else {
           console.log(response.data.message);
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getPapers() {
+      var scope = ""
+      if (this.type == "topic")
+        scope = "keywords"
+      else
+        scope = "subjects"
+      this.$axios({
+        method: "post",
+        url: "/api/search/paper",
+        data: {
+          conditions: [
+            {
+              compound: false,
+              fuzzy: false,
+              keyword: this.name,
+              languages: ["zh"],
+              logic: "and",
+              scope: [scope],
+              subConditions: [],
+              translated: false
+            }
+          ],
+          filters: [],
+          page: 0,
+          size: 10,
+          sort: "citationNum.desc"
+        }
+      }).then(res => {
+        if (res.data.success == true) {
+          this.items = res.data.data.items;
+        } else {
+          console.log(res.data.message);
         }
       }).catch(error => {
         console.log(error)
@@ -526,6 +583,9 @@ export const publishChart = {
           data: []
         },
         yAxis: {},
+        tooltip: {
+          trigger: 'item'
+        },
         series: [
           {
             name: '发文量',
@@ -560,6 +620,91 @@ export const publishChart = {
               }
             ]
           })
+        } else {
+          console.log(response.data.message);
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+}
+
+export const relationshipNetworkChart = {
+  data:() => ({
+    netChart: null,
+  }),
+  methods: {
+    initNetChart() {
+      this.netChart = this.$echarts.init(document.getElementById("net"), 'infinite', { renderer: 'svg' });
+      this.loadData();
+      var type = this.$route.path.substring(1);
+      var _this = this;
+      this.netChart.on('click', function(param) {
+        if (param.data.id == null) return;
+        var target = param.data.id
+        if (target != _this.id)
+          _this.$router.push({ path: type, query: { id: target}})
+      })
+      window.addEventListener('resize', () => { this.netChart.resize(); })
+    },
+    loadData() {
+      var id = this.$route.query.id;
+      var entity = this.$route.path.substring(1);
+      if (entity == "author") entity = "researcher";
+      this.$axios({
+        method: "get",
+        url: "/api/analysis/cooperation/"+entity+"/"+id,
+        params: {
+          num: 10
+        }
+      }).then(response => {
+        if (response.data.success == true) {
+          var network = response.data.data;
+          var option = {
+            title: {
+              text: '合作关系网络',
+              left: 'center'
+            },
+            series: {
+              type: 'graph',
+              layout: 'force',
+              force: {
+                repulsion: 500,
+                gravity: 0.1,
+              },
+              label: {
+                show: true,
+                fontSize: 18
+              },
+              edgeLabel: {
+                show: true,
+                position: 'middle',
+                formatter: '合作次数:{c}'
+              },
+              data: [],
+              links: [],
+            }
+          }
+          var origin = {
+            name: this.name,
+            symbolSize: 120
+          }
+          option.series.data.push(origin);
+          network.forEach(function(item) {
+            var node = {}
+            node.name = item.term
+            node.id = item.id
+            option.series.data.push(node);
+          })
+          option.series.links = network.map(function (item, idx) {
+            var link = {}
+            link.source = 0;
+            link.target = (idx+1);
+            link.value = item.frequency;
+            return link;
+          });
+          this.netChart.setOption(option);
         } else {
           console.log(response.data.message);
         }

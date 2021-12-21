@@ -1,9 +1,11 @@
 <template>
-  <v-card
-    class="text-left my-2"
-    max-width="850"
-  >
+  <v-card class="text-left my-2" max-width="850">
     <v-card-title class="d-flex">
+      <v-row>
+        <v-col>
+          <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
+        </v-col>
+      </v-row>
       <v-icon class="mx-1">
         mdi-account-tie-outline
       </v-icon>
@@ -11,6 +13,7 @@
         v-if="item.id!=null"
         @click="href('author', item.id)" 
         v-html="item.name"
+        :class="disabled"
       ></a>
       <a 
         v-if="item.id==null"
@@ -21,20 +24,16 @@
       <a
         v-if="item.institution"
         @click="href('institution', item.institution.id)"
+        :class="disabled"
         v-html="item.institution.name"
       >
-      </a>&nbsp;
-      <span>被引量:{{item.citationNum}}</span>
+      </a
+      >&nbsp;
+      <span>被引量:{{ item.citationNum }}</span>
     </v-card-subtitle>
     <v-card-text class="pt-2 pb-0">
-      <v-chip
-        v-for="interest in item.interests"
-        :key="interest"
-        label
-      >
-        <v-icon left>
-          mdi-animation
-        </v-icon>
+      <v-chip v-for="interest in item.interests" :key="interest" label>
+        <v-icon left> mdi-animation </v-icon>
         <span v-html="interest"></span>
       </v-chip>
     </v-card-text>
@@ -53,10 +52,14 @@
 
 <script>
 export default {
-  props:{
+  props: {
     item: {
       type: Object,
       default:() => {}
+    },
+    disabled:{
+      type:String,
+      default:""
     }
   },
   methods: {
@@ -81,7 +84,7 @@ a:visited {
   text-decoration: none;
 }
 a:hover {
-  color: #0D47A1;
+  color: #0d47a1;
   text-decoration: underline;
 }
 </style>

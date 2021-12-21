@@ -1,237 +1,166 @@
 <template>
   <div>
-    <Banner :title="{text: 'Author', icon: 'mdi-clipboard-account'}"></Banner>
+    <Banner :title="{ text: 'Author', icon: 'mdi-clipboard-account' }"></Banner>
     <div class="whole">
       <div class="message">
         <v-row>
           <v-col cols="3">
-            <div class="roundIMG" style="float:left;">
-              <img :src=avatarUrl>
+            <div class="roundIMG" style="float: left">
+              <img :src="authorData.avatarUrl" />
             </div>
           </v-col>
           <v-col>
             <div>
               <h1>
-                {{name}}
+                {{ authorData.name }}
               </h1>
-              <h3>职位:{{position}}</h3>
-              <h3>科研方向:{{interests}}</h3>
-              <h3>邮箱:{{email}}</h3>
-              <h3>g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
-              <h3>文章数量:{{paperNum}}  专利数量:{{patentNum}}  引用次数:{{citationNum}}</h3>
-              <h3>现工作单位:{{currentInst.name}}</h3>
-              <h3 style="text-align:left;float:left">曾工作单位:</h3>
-              <h3 style="text-align:left;float:left" v-for="i in institutions.length" :key="i">{{institutions[i-1].name}}&emsp;&emsp;</h3>
+              <h3>
+                g指数:{{ authorData.gIndex }} h指数:{{ authorData.hIndex }}
+              </h3>
+              <h3>
+                文章数量:{{ authorData.paperNum }} 专利数量:{{
+                  authorData.patentNum
+                }}
+                引用次数:{{ authorData.citationNum }}
+              </h3>
+              <h3 v-if="authorData.currentInst">
+                现工作单位:{{ authorData.currentInst.name }}
+              </h3>
+              <h3
+                v-if="authorData.institutions"
+                style="text-align: left; float: left"
+              >
+                曾工作单位:
+              </h3>
+              <h3 v-if="authorData.institutions">
+                <h3
+                  style="text-align: left; float: left"
+                  v-for="i in authorData.institutions.length"
+                  :key="i"
+                >
+                  {{ authorData.institutions[i - 1].name }}&emsp;&emsp;
+                </h3>
+              </h3>
             </div>
           </v-col>
         </v-row>
       </div>
-      <v-img
-        id="author"
-        class="ma-auto"
-        height="400"
-        aspect-ratio="16/9"
-      ></v-img>
-      <v-row
-        v-for="i in onePageNum"
-        :key="i"
-        justify="center"
-      >
-        <v-col>
-          <PaperCard :item="papers[i+(page-1)*onePageNum-1]" style="margin:0 auto;left:0;right:0;"></PaperCard>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-pagination
-            v-model="page"
-            class="my-4"
-            :length="8>pageNum?pageNum:8"
-          ></v-pagination>
-        </v-col>
-      </v-row>
+      <v-container class="d-flex">
+        <v-img id="author" class="ma-auto" height="400" width="600"></v-img>
+        <v-img id="net" class="ma-auto" height="400" width="600"></v-img>
+      </v-container>
+      <PaperTabs
+        :styles="styles"
+        :publications="publications"
+        :patents="patents"
+      ></PaperTabs>
     </div>
   </div>
-  
 </template>
 
 <script>
-import Banner from '../components/BaseBanner.vue'
-import PaperCard from '../components/card/CardPaper.vue'
-import { publishChart } from '../components/mixins/mixin'
+import Banner from "../components/BaseBanner.vue";
+import {
+  publishChart,
+  relationshipNetworkChart,
+} from "../components/mixins/mixin";
+import PaperTabs from "../components/PaperTabs.vue";
 export default {
-    name: "Income",
-    mixins: [publishChart],
-    components: {Banner,PaperCard},
-    props:{
-      a:Number
+  mixins: [publishChart, relationshipNetworkChart],
+  components: { Banner, PaperTabs },
+  data() {
+    return {
+      id: null,
+      name: null,
+      styles: "author",
+      authorData: {},
+      publications: {},
+      patents: {},
+    };
+  },
+  watch: {
+    $route() {
+      this.$router.go(0);
     },
-    data() {
-        return {
-          data:[3,2,4,3,2],
-          id:"GF_4ynwBF-Mu8unTG1hc",
-          name:"姓名",
-          position:"职位",
-          interests:"科研方向",
-          email:"1234@buaa.edu.cn",
-          gIndex:0,
-          hIndex:0,
-          paperNum:0,
-          patentNum:0,
-          avatarUrl:"https://ma-v3-images.azureedge.net/images/161269817.jpeg",
-          citationNum:0,
-          currentInst:{
-            id:"000000",
-            name:"机构名"
-          },
-          institutions:[
-            {
-              id:"000000",
-              name:"机构名"
-            }
-          ],
-          page:1,
-          onePageNum:1,
-          pageNum:2,
-          papers: [
-            {
-              "abstract": "假装这是一大段摘要",
-              "authors": [
-                {
-                  "id": "GF_4ynwBF-Mu8unTG1hc",
-                  "name": "谭火彬"
-                }
-              ],
-              "citationNum": 114,
-              "date": "2021-10-15",
-              "id": "GF_4ynwBF-Mu8unTG1hc",
-              "journal": {
-                "id": "GF_4ynwBF-Mu8unTG1hc",
-                "title": "Science"
-              },
-              "keywords": [12,23,34],
-              "title": "基于机器学习的无需人工编制词典的切词系统",
-              "type": "期刊论文"
-            },
-            {
-              "abstract": "假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要假装这是一大段摘要",
-              "authors": [
-                {
-                  "id": "GF_4ynwBF-Mu8unTG1hc",
-                  "name": "谭火彬"
-                }
-              ],
-              "citationNum": 114,
-              "date": "2021-10-15",
-              "doi":"1234123",
-              institutions:[
-                {
-                  id:"in1",
-                  name:"ins1"
-                }
-              ],
-              publisher:"asda",
-              referencePapers:[
-                {
-                  id:"1",
-                  title:"rep1"
-                }
-              ],
-              "subjects":["ma","ca","ph"],
-              "id": "GF_4ynwBF-Mu8unTG1hd",
-              "journal": {
-                "id": "GF_4ynwBF-Mu8unTG1hc",
-                "title": "Science"
-              },
-              "keywords": ["dasd","asdf","agagd","dasd"],
-              "title": "基于机器学习的无需人工编制词典的切词系统",
-              "type": "期刊论文"
-            },
-          ],
-        }
-    },
-    mounted(){
-      // this.getInfo()
-      this.initChart();
-    },
-    methods:{
-      getInfo(){
-        this.$axios({
-          method: "get",
-          url: "api/search/info/researcher/"+this.id,
-          params: {
-            id: this.id
+  },
+  mounted() {
+    this.id = this.$route.query.id;
+    this.getInfo();
+    this.getPublications();
+    this.getPatents();
+    this.initChart();
+    this.initNetChart();
+  },
+  methods: {
+    getInfo() {
+      this.$axios({
+        method: "get",
+        url: "/api/search/info/researcher/" + this.id,
+      })
+        .then((response) => {
+          if (!response.data.success) {
+            console.log(response.data.message);
+          } else {
+            this.authorData = response.data.data;
+            this.name = response.data.data.name;
           }
-        }).then(response => {
-          console.log(response.data)
-          this.avatarUrl=response.data.avatarUrl
-          this.citationNum=response.data.citationNum
-          this.name=response.data.name
-          this.position=response.data.position
-          this.interests=response.data.interests
-          this.email=response.data.email
-          this.hIndex=response.data.gIndex
-          this.paperNum=response.data.paperNum
-          this.patentNum=response.data.patentNum
-          this.currentInst=response.data.currentInst
-        }).catch(error => {
-          console.log(error)
         })
-      },
-      getPapers(){
-        this.papers=[]
-        let aPaper=Object
-        let hasMore=false
-        let page=0
-        this.$axios({
-          method: "get",
-          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-          params: {
-            entity:"researcher",
-            id: this.id,
-            page:page,
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    getPublications() {
+      let page = 0;
+      this.$axios({
+        method: "get",
+        url:
+          "/api/search/relation/publications/researcher/" +
+          this.id +
+          "/" +
+          page,
+      })
+        .then((response) => {
+          console.log(response.data);
+          if (!response.data.success) {
+            console.log(response.data.message);
+          } else {
+            this.publications = response.data.data;
           }
-        }).then(response => {
-          console.log(response.data)
-          aPaper=response.data.item
-          hasMore=response.data.hasMore
-          this.papers.push(aPaper)
-        }).catch(error => {
-          console.log(error)
         })
-        while (hasMore) {
-            this.$axios({
-            method: "get",
-            url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-            params: {
-              entity:"researcher",
-              id: this.id,
-              page:page,
-            }
-          }).then(response => {
-            console.log(response.data)
-            aPaper=response.data.item
-            hasMore=response.data.hasMore
-            this.papers.push(aPaper)
-          }).catch(error => {
-            console.log(error)
-          })
-        }
-        this.pageNum=page+1
-      }
-    }
-}
-
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    getPatents() {
+      let page = 0;
+      this.$axios({
+        method: "get",
+        url: "/api/search/relation/inventions/" + this.id + "/" + page,
+      })
+        .then((response) => {
+          console.log(response.data);
+          if (!response.data.success) {
+            console.log(response.data.message);
+          } else {
+            this.patents = response.data.data;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+};
 </script>
 
 <style>
-.roundIMG{
-  width:200px;
-  height:200px;
+.roundIMG {
+  width: 200px;
+  height: 200px;
   display: flex;
   border-radius: 10%;
   align-items: center;
   justify-content: center;
-  overflow:hidden;
+  overflow: hidden;
 }
 </style>

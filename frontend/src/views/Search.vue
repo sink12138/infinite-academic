@@ -1,7 +1,7 @@
 <template>
   <div>
     <Banner
-      v-if="!fromDoor"
+      v-if="fromDoor==''"
       :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
     ></Banner>
 
@@ -54,7 +54,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <JournalCard :item="item"></JournalCard>
+                      <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
                     </td>
                   </tr>
                 </div>
@@ -69,7 +69,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <AuthorCard :item="item"></AuthorCard>
+                      <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
                     </td>
                   </tr>
                 </div>
@@ -84,7 +84,7 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <InstitutionCard :item="item"></InstitutionCard>
+                      <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
                     </td>
                   </tr>
                 </div>
@@ -94,13 +94,13 @@
               <div v-if="searchType1 == '全部' || searchType1 == '论文'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
-                  <PaperCard :item="item"></PaperCard>
+                  <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
-                  <JournalCard :item="item"></JournalCard>
+                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
                 </div>
               </div>
               <div v-else-if="searchType1 == '专利'">
@@ -147,7 +147,7 @@
               <div v-else-if="searchType1 == '科研人员'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
-                  <AuthorCard :item="item"></AuthorCard>
+                  <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
                 </div>
               </div>
               <div v-else-if="searchType1 == '机构'">
@@ -158,7 +158,7 @@
                     style="width: 33%; height: 50%; table-layout: fixed"
                   >
                     <!-- 机构 -->
-                    <InstitutionCard :item="item"></InstitutionCard>
+                    <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
                   </td>
                 </tr>
               </div>
@@ -183,7 +183,7 @@
         </div>
       </v-col>
     </v-card>
-    <div v-if="fromDoor" class="fixBut" style="right: 15%">
+    <div v-if="fromDoor!=''" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
@@ -210,8 +210,8 @@ export default {
   },
   props: {
     fromDoor: {
-      type: Boolean,
-      default: false,
+      type: String,
+      default: "",
     },
   },
   data() {
