@@ -7,7 +7,8 @@
       <v-icon class="mx-1">
         mdi-text-box-multiple-outline
       </v-icon>
-      <a @click="href('paper', item.id)" v-html="item.title"></a>
+      <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
+      <a @click="href('paper', item.id)" v-html="item.title" :class="disabled"></a>
       <v-spacer></v-spacer>
       <v-btn icon @click="addCitationItem(item)">
         <v-icon>mdi-comma-box</v-icon>
@@ -18,6 +19,7 @@
       <a
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
+        :class="disabled"
         v-html="item.journal.title"
       >
       </a>&nbsp;
@@ -31,11 +33,13 @@
         <a
           v-if="item.authors && idx == item.authors.length-1"
           @click="href('author', author.id)"
+          :class="disabled"
           v-html="author.name"
         ></a>
         <a
           v-else
           @click="href('author', author.id)"
+          :class="disabled"
           v-html="author.name + ','"
         ></a>
       </span>
@@ -51,6 +55,7 @@
           small
           outlined
           @click="href('topic', keyword)"
+          :class="disabled"
         >
           <v-icon small>
             mdi-tag-outline
@@ -87,6 +92,10 @@ export default {
     item: {
       type: Object,
       default:() => {}
+    },
+    disabled:{
+      type:String,
+      default:""
     }
   },
   data() {
