@@ -58,7 +58,7 @@ export default {
       this.id = this.$route.query.id
       this.getInfo();
       this.getPublications()
-      //this.initChart();
+      this.initChart();
     },
     methods:{
       getInfo(){
