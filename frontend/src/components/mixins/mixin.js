@@ -629,3 +629,88 @@ export const publishChart = {
     }
   }
 }
+
+export const relationshipNetworkChart = {
+  data:() => ({
+    netChart: null,
+  }),
+  methods: {
+    initNetChart() {
+      this.netChart = this.$echarts.init(document.getElementById("net"), 'infinite', { renderer: 'svg' });
+      this.loadData();
+      var type = this.$route.path.substring(1);
+      var _this = this;
+      this.netChart.on('click', function(param) {
+        if (param.data.id == null) return;
+        var target = param.data.id
+        if (target != _this.id)
+          _this.$router.push({ path: type, query: { id: target}})
+      })
+      window.addEventListener('resize', () => { this.netChart.resize(); })
+    },
+    loadData() {
+      var id = this.$route.query.id;
+      var entity = this.$route.path.substring(1);
+      if (entity == "author") entity = "researcher";
+      this.$axios({
+        method: "get",
+        url: "/api/analysis/cooperation/"+entity+"/"+id,
+        params: {
+          num: 10
+        }
+      }).then(response => {
+        if (response.data.success == true) {
+          var network = response.data.data;
+          var option = {
+            title: {
+              text: '合作关系网络',
+              left: 'center'
+            },
+            series: {
+              type: 'graph',
+              layout: 'force',
+              force: {
+                repulsion: 500,
+                gravity: 0.1,
+              },
+              label: {
+                show: true,
+                fontSize: 18
+              },
+              edgeLabel: {
+                show: true,
+                position: 'middle',
+                formatter: '合作次数:{c}'
+              },
+              data: [],
+              links: [],
+            }
+          }
+          var origin = {
+            name: this.name,
+            symbolSize: 120
+          }
+          option.series.data.push(origin);
+          network.forEach(function(item) {
+            var node = {}
+            node.name = item.term
+            node.id = item.id
+            option.series.data.push(node);
+          })
+          option.series.links = network.map(function (item, idx) {
+            var link = {}
+            link.source = 0;
+            link.target = (idx+1);
+            link.value = item.frequency;
+            return link;
+          });
+          this.netChart.setOption(option);
+        } else {
+          console.log(response.data.message);
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+}

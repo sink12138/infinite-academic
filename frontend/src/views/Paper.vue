@@ -23,6 +23,11 @@ export default {
       styles:'paper'
     }
   },
+  watch: {
+    $route() {
+      this.$router.go(0);
+    },
+  },
   mounted() {
     this.id = this.$route.query.id
     console.log(this.id)

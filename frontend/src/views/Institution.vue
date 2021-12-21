@@ -18,12 +18,20 @@
           </v-col>
         </v-row>
       </div>
-      <v-img
-        id="institution"
-        class="ma-auto"
-        height="400"
-        aspect-ratio="16/9"
-      ></v-img>
+      <v-container class="d-flex">
+        <v-img
+          id="institution"
+          class="ma-auto"
+          height="400"
+          width="600"
+        ></v-img>
+        <v-img
+          id="net"
+          class="ma-auto"
+          height="400"
+          width="600"
+        ></v-img>
+      </v-container>
       <PaperTabs :styles="styles" :publications="publications" :scholars="scholars"></PaperTabs>
     </div>
   </div>
@@ -31,10 +39,10 @@
 
 <script>
 import Banner from '../components/BaseBanner.vue'
-import { publishChart } from '../components/mixins/mixin'
+import { publishChart,relationshipNetworkChart } from '../components/mixins/mixin'
 import PaperTabs from '../components/PaperTabs.vue'
 export default {
-  mixins: [publishChart],
+  mixins: [publishChart,relationshipNetworkChart],
   components: {
     Banner,
     PaperTabs
@@ -49,12 +57,18 @@ export default {
       name:"",
     }
   },
+  watch: {
+    $route() {
+      this.$router.go(0);
+    },
+  },
   mounted() {
     this.id = this.$route.query.id
-    this.initChart()
     this.getInfo()
     this.getPublications()
     this.getScholars()
+    this.initChart()
+    this.initNetChart();
   },
   methods:{
     getInfo(){

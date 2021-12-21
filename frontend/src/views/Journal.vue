@@ -49,6 +49,11 @@ export default {
       styles:"journals"
     }
   },
+  watch: {
+    $route() {
+      this.$router.go(0);
+    },
+  },
   mounted() {
     this.id = this.$route.query.id
     this.getInfo()
