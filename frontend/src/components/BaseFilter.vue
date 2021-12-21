@@ -5,6 +5,11 @@
       v-show="this.showType == '论文' || this.showType == '全部'"
     ></FilterYearPicker>
     <v-divider></v-divider>
+    <div class="switch">
+      <v-switch v-model="filter.translated" label="语种关联"></v-switch>
+      <v-switch v-model="filter.fuzzy" label="模糊搜索"></v-switch>
+    </div>
+    <v-divider></v-divider>
     <v-select
       v-show="showType == '论文' || showType == '全部'"
       class="select"
@@ -19,11 +24,12 @@
     <v-divider></v-divider>
     <div v-show="showType == '论文'">
       <v-col>
-        <v-text-field
+        <v-select
           label="类型"
+          :items="paperType"
           v-model="filter.paperType.type"
           @change="emit()"
-        ></v-text-field>
+        ></v-select>
       </v-col>
       <v-col>
         <v-text-field
@@ -345,6 +351,7 @@ export default {
   },
   data() {
     return {
+      paperType: ["期刊论文","学位论文"],
       authorFilter: ["1"],
       journalFilter: ["1"],
       institutionFilter: ["1"],
@@ -371,6 +378,8 @@ export default {
       filter: {
         year1: 1900,
         year2: 2021,
+        translated: true,
+        fuzzy:true,
         citationNum: null,
         paperNum: null,
         patentNum: null,
@@ -443,5 +452,8 @@ export default {
 }
 .checkbox {
   margin-left: 15px;
+}
+.switch{
+  margin-left: 10px;
 }
 </style>

@@ -108,16 +108,16 @@ export default {
       if (this.$route.query.id != null) this_id = this.$route.query.id;
       else if (this.$route.query.name != null) this_id = this.$route.query.name;
       if (type == this_path && id == this_id) return;
-      if (type == "topic" || type == "subject")
-        this.$router.push({
+      if (type == "topic" || type == "subject") {
+        let { href } = this.$router.resolve({
           path: type,
           query: { name: id },
         });
-      else
-        this.$router.push({
-          path: type,
-          query: { id: id },
-        });
+        window.open(href, "_blank");
+      } else {
+        let { href } = this.$router.resolve({ path: type, query: { id: id } });
+        window.open(href, "_blank");
+      }
     },
   },
 };

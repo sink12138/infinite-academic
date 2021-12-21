@@ -9,9 +9,15 @@
       <v-icon class="mx-1"> mdi-account-tie-outline </v-icon>
       <span
         class="link"
-        @click="href('author', item.id)"
+        v-if="item.id!=null"
+        @click="href('author', item.id)" 
         v-html="item.name"
         :class="disabled"
+      ></span>
+      <span
+        class="link" 
+        v-if="item.id==null"
+        v-html="item.name"
       ></span>
     </v-card-title>
     <v-card-subtitle class="pb-0">
@@ -58,13 +64,11 @@ export default {
   },
   methods: {
     href(type, id) {
-      this.$router.push({
-        path: type,
-        query: { id: id },
-      });
-    },
-  },
-};
+      let { href } = this.$router.resolve({ path: type, query: { id: id }})
+      window.open(href, '_blank')
+    }
+  }
+}
 </script>
 
 <style>

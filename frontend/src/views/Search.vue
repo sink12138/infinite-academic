@@ -13,7 +13,7 @@
       v-on:searchFilter="searchFilter"
       v-on:searchType="searchType"
     ></BaseSearchBar>
-    <v-card>
+    <v-card class="searchMain">
       <v-col cols="3">
         <BaseFilter
           class="filter"
@@ -23,7 +23,7 @@
           v-show="filter != '机构' && filter != '期刊'"
         ></BaseFilter>
       </v-col>
-      <v-col>
+      <v-col cols="36">
         <div>
           <div class="result">
             <div v-if="results.length != 0">
@@ -100,16 +100,20 @@
               </v-card>
             </div>
             <div v-if="results.length != 0">
-              <div v-for="item in results" :key="item.id">
-                <div v-if="searchType1 == '全部' || searchType1 == '论文'">
+              <div v-if="searchType1 == '全部' || searchType1 == '论文'">
+                <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
                   <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
                 </div>
-                <div v-else-if="searchType1 == '期刊'">
+              </div>
+              <div v-else-if="searchType1 == '期刊'">
+                <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
                   <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
                 </div>
-                <div v-else-if="searchType1 == '专利'">
+              </div>
+              <div v-else-if="searchType1 == '专利'">
+                <div v-for="item in results" :key="item.id">
                   <!-- 专利 -->
                   <v-card class="text-left my-2" max-width="650">
                     <v-card-title class="d-flex">
@@ -155,17 +159,24 @@
                     </v-card-text>
                   </v-card>
                 </div>
-                <div v-else-if="searchType1 == '科研人员'">
+              </div>
+              <div v-else-if="searchType1 == '科研人员'">
+                <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
                   <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
                 </div>
-                <div v-else-if="searchType1 == '机构'">
-                  <!-- 机构 -->
-                  <InstitutionCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></InstitutionCard>
-                </div>
+              </div>
+              <div v-else-if="searchType1 == '机构'">
+                <tr v-for="(row, index) in sliceList(results, 2)" :key="index">
+                  <td
+                    v-for="item in row"
+                    :key="item.id"
+                    style="width: 33%; height: 50%; table-layout: fixed"
+                  >
+                    <!-- 机构 -->
+                    <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
+                  </td>
+                </tr>
               </div>
             </div>
             <div v-if="results.length != 0">
@@ -224,6 +235,7 @@ export default {
       filters: {
         year1: 1900,
         year2: 2021,
+        translated: true,
         citationNum: null,
         paperNum: null,
         patentNum: null,
@@ -387,6 +399,10 @@ export default {
 </script>
 
 <style>
+.searchMain {
+  margin-left: 15%;
+  margin-right: 15%;
+}
 .filter {
   float: left;
 }
