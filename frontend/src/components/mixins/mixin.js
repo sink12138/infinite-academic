@@ -37,17 +37,27 @@ export const getChart = {
     },
     initChart2() {
       this.chart2 = this.$echarts.init(document.getElementById('analysis'), 'infinite', { renderer: 'svg'});
+      
       var _this = this;
       this.chart2.on('click', function(param) {
-        var target = param.data.name + 'hello';
-        if (target != _this.name)
-          _this.$router.push({ path: this.type, query: { name: target}})
+        var target
+        if (param.data.type == "related") {
+          target = param.data.name;
+          if (target != _this.name)
+            _this.$router.push({ path: this.type, query: { name: target}})
+        } else {
+          var path = param.data.type
+          target = param.data.url;
+          _this.$router.push({ path: path, query: { id: target}})
+        }
       })
       window.addEventListener('resize', () => { this.chart2.resize(); })
     },
     chartReload() {
-      this.reload1();
-      this.reload2();
+      if (this.chart1 != null)
+        this.reload1();
+      if (this.chart2 != null)
+        this.reload2();
     },
     reload1() {
       var option = {
@@ -55,17 +65,21 @@ export const getChart = {
           text: '发文趋势'
         },
         xAxis: {
-          data: ['2012','2013','2014']
+          data: []
         },
         yAxis: {},
+        tooltip: {
+          trigger: 'item'
+        },
         series: [
           {
+            name: '发文量',
             type: 'line',
             areaStyle: {
               color: '#9fe6f3de'
             },
             smooth: 0.3,
-            data: [100,500,400]
+            data: []
           },
         ]
       }
@@ -134,6 +148,7 @@ export const getChart = {
       this.associations.forEach(function(item) {
         var node = {}
         node.name = item.name
+        node.type = "related"
         option.series.data.push(node);
       })
       option.series.links = this.associations.map(function (data, idx) {
@@ -143,7 +158,6 @@ export const getChart = {
         link.value = data.confidence;
         return link;
       });
-      
       this.chart2.setOption(option);
     },
     loadRank() {
@@ -225,7 +239,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "author"
               }
               return obj;
             })
@@ -246,7 +261,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "author"
               }
               return obj;
             })
@@ -266,7 +282,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "journal"
               }
               return obj;
             })
@@ -287,7 +304,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "journal"
               }
               return obj;
             })
@@ -307,7 +325,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "institution"
               }
               return obj;
             })
@@ -328,7 +347,8 @@ export const getChart = {
               var obj = {
                 value: item.frequency,
                 name: item.term,
-                url: item.id
+                url: item.id,
+                type : "institution"
               }
               return obj;
             })
@@ -346,64 +366,21 @@ export const getData = {
       type: null,
       heat: null,
       num: 10,
-      associations: [
-        {
-          "confidence": 0.88,
-          "name": "C"
-        },
-        {
-          "confidence": 0.9,
-          "name": "Java"
-        },
-        {
-          "confidence": 0.75,
-          "name": "Go"
-        },
-        {
-          "confidence": 0.66,
-          "name": "Python"
-        },
-        {
-          "confidence": 0.98,
-          "name": "C++"
-        },
-        {
-          "confidence": 0.92,
-          "name": "C#"
-        },
-      ],
+      associations: [],
       pubsPerYear: [],
-      authors: [
-        { frequency: 1050, term: 'Search Engine', id: 'G1' },
-        { frequency: 735, term: 'Direct', id: 'G2' },
-        { frequency: 580, term: 'Email', id: 'G3' },
-        { frequency: 484, term: 'Union Ads', id: 'G4' },
-        { frequency: 300, term: 'Video Ads', id: 'G5' }
-      ],
-      journals: [
-        { frequency: 21252, term: 'Social Science Research Network', id: 'G1' },
-        { frequency: 12300, term: 'Nature', id: 'G2' },
-        { frequency: 9457, term: 'PLOS ONE', id: 'G3' },
-        { frequency: 4585, term: 'Science', id: 'G4' },
-        { frequency: 2678, term: 'Physical Review Letters', id: 'G5' }
-      ],
-      institutions: [
-        { frequency: 57894, term: 'Harvard University', id: 'G1' },
-        { frequency: 35667, term: 'Chinese Academy of Sciences', id: 'G2' },
-        { frequency: 23543, term: 'Stanford University', id: 'G3' },
-        { frequency: 21235, term: 'Max Planck Society', id: 'G4' },
-        { frequency: 15789, term: 'University of Michigan', id: 'G5' }
-      ]
+      authors: [],
+      journals: [],
+      institutions: []
     }
   },
   methods: {
     getBasic() {
       this.name = this.$route.query.name;
       this.type = this.$route.path.substring(1);
-      /*if (this.type == "topic")
+      if (this.type == "topic")
         this.getTopic();
       else
-        this.getSubject();*/
+        this.getSubject();
     },
     getTopic() {
       this.$axios({
@@ -414,9 +391,21 @@ export const getData = {
         }
       }).then(response => {
         if (response.data.success == true) {
-          this.heat = response.data.heat;
-          this.pubsPerYear = response.data.pubsPerYear;
-          this.associations = response.data.associationTopics;
+          this.heat = response.data.data.heat;
+          this.pubsPerYear = response.data.data.pubsPerYear;
+          this.associations = response.data.data.associationTopics;
+          console.log(response.data)
+          this.chart1.setOption({
+            xAxis: {
+              data: this.pubsPerYear.years
+            },
+            series: [
+              {
+                name: '发文量',
+                data: this.pubsPerYear.nums
+              }
+            ]
+          })
         } else {
           console.log(response.data.message);
         }
@@ -438,6 +427,43 @@ export const getData = {
           this.associations = response.data.associationSubjects;
         } else {
           console.log(response.data.message);
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getPapers() {
+      var scope = ""
+      if (this.type == "topic")
+        scope = "keywords"
+      else
+        scope = "subjects"
+      this.$axios({
+        method: "post",
+        url: "/api/search/paper",
+        data: {
+          conditions: [
+            {
+              compound: false,
+              fuzzy: false,
+              keyword: this.name,
+              languages: ["zh"],
+              logic: "and",
+              scope: [scope],
+              subConditions: [],
+              translated: false
+            }
+          ],
+          filters: [],
+          page: 0,
+          size: 10,
+          sort: "citationNum.desc"
+        }
+      }).then(res => {
+        if (res.data.success == true) {
+          this.items = res.data.data.items;
+        } else {
+          console.log(res.data.message);
         }
       }).catch(error => {
         console.log(error)
@@ -526,6 +552,9 @@ export const publishChart = {
           data: []
         },
         yAxis: {},
+        tooltip: {
+          trigger: 'item'
+        },
         series: [
           {
             name: '发文量',

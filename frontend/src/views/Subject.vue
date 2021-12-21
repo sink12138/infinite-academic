@@ -92,14 +92,15 @@ export default {
   },
   mixins: [
     getData, 
-    getChart
+    getChart,
   ],
   data() {
     return {
       chart1: null,
       chart2: null,
       tab: null,
-      chartType: 0
+      chartType: 0,
+      items: {}
     }
   },
   watch: {
@@ -139,6 +140,7 @@ export default {
     },
     loadData() {
       this.getBasic();
+      this.getPapers();
     },
   }
 }

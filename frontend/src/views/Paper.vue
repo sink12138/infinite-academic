@@ -26,7 +26,7 @@ export default {
   mounted() {
     this.id = this.$route.query.id
     console.log(this.id)
-    this.$axios.get('api/search/info/paper/'+this.id).then(res=>{
+    this.$axios.get('/api/search/info/paper/'+this.id).then(res=>{
       if(!res.data.success){
         console.log(res.data.message);
       }else{
@@ -38,6 +38,7 @@ export default {
         console.log(res.data.message);
       }else{
         this.references=res.data.data;
+        console.log(this.references)
        }
     }),
     this.$axios.get('/api/search/relation/citations/'+this.id+'/'+0).then(res=>{
@@ -45,6 +46,7 @@ export default {
         console.log(res.data.message);
       }else{
         this.citations=res.data.data;
+        console.log(this.citations)
        }
     })
   },

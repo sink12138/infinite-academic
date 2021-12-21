@@ -110,6 +110,7 @@ export default {
       chart2: null,
       tab: null,
       chartType: 0,
+      items: {}
     }
   },
   watch: {
@@ -149,6 +150,10 @@ export default {
     },
     loadData() {
       this.getBasic();
+      this.getPapers();
+      this.getResearcher();
+      this.getJournal();
+      this.getInstitution();
     },
   }
 }

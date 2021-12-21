@@ -62,7 +62,7 @@ export default {
       getInfo(){
         this.$axios({
           method: "get",
-          url: "api/search/info/researcher/"+this.id,
+          url: "/api/search/info/researcher/"+this.id,
           params: {
             id: this.id
           }
@@ -80,12 +80,7 @@ export default {
         let page=0
         this.$axios({
           method: "get",
-          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-          params: {
-            entity:"researcher",
-            id: this.id,
-            page:page,
-          }
+          url: "/api/search/relation/publications/researcher/"+this.id+"/"+page,
         }).then(response => {
           console.log(response.data);
           if(!response.data.success){
@@ -101,11 +96,7 @@ export default {
         let page=0
         this.$axios({
           method: "get",
-          url: "api/search/relation/inventions/"+this.id+"/"+page,
-          params: {
-            id: this.id,
-            page:page,
-          }
+          url: "/api/search/relation/inventions/"+this.id+"/"+page,
         }).then(response => {
           console.log(response.data);
           if(!response.data.success){
