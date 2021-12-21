@@ -276,6 +276,42 @@ public class SpiderController {
         return new Result<>();
     }
 
+    @PostMapping("/gm1")
+    public Result<Void> gm1() {
+        Query query = new NativeSearchQueryBuilder()
+                .withQuery(QueryBuilders.termQuery("keywords.raw", "1)模型"))
+                .withPageable(PageRequest.of(0, 1000))
+                .build();
+        int sum = 0;
+        int fixed = 0;
+        Logger log = LoggerFactory.getLogger(this.getClass());
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
+             scrollHits.hasSearchHits();
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
+            sum += scrollHits.getSearchHits().size();
+            for (SearchHit<Paper> hit : scrollHits) {
+                Paper paper = hit.getContent();
+                boolean edited = false;
+                List<String> keywords = paper.getKeywords();
+                for (int i = 0; i < keywords.size(); ++i) {
+                    if (keywords.get(i).matches("^.*\\(\\d$")) {
+                        keywords.set(i, keywords.get(i) + ",1)模型");
+                        keywords.remove(i + 1);
+                        edited = true;
+                        break;
+                    }
+                }
+                if (edited) {
+                    ++fixed;
+                    template.save(paper);
+                }
+            }
+            log.info("Scrolled {}, fixed {}", sum, fixed);
+        }
+        log.info("Scroll done");
+        return new Result<>();
+    }
+
     @PostMapping("/crawlAuId")
     public Result<Void> crawlAuId(@RequestHeader(name = "Auth") String auth) {
         Result<Void> result = new Result<>();

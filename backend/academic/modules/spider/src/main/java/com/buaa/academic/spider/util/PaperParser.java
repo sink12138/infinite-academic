@@ -298,7 +298,8 @@ public class PaperParser {
                             foundReferPaper.setAuthors(referAuthorList);
                             foundReferPaper.setCitationNum(1);
                             foundReferPaper.setType(refType);
-                        } else {
+                        }
+                        else {
                             foundReferPaper.setCitationNum(foundReferPaper.getCitationNum() + 1);
                         }
                         // 插入数据库
