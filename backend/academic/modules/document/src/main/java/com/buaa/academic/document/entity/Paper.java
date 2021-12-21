@@ -204,7 +204,7 @@ public class Paper implements Reducible<PaperItem> {
         PaperItem item = new PaperItem();
         item.setId(id);
         if (title != null)
-            item.setTitle(title.length() > 96 ? title.substring(0, 96) + "..." : title);
+            item.setTitle(title.length() > 128 ? title.substring(0, 128) + "..." : title);
         item.setType(type);
         if (authors != null) {
             List<PaperItem.Author> hitAuthors = new ArrayList<>();
@@ -212,7 +212,7 @@ public class Paper implements Reducible<PaperItem> {
             item.setAuthors(hitAuthors);
         }
         if (paperAbstract != null)
-            item.setPaperAbstract(paperAbstract.length() > 128 ? paperAbstract.substring(0, 128) + "..." : paperAbstract);
+            item.setPaperAbstract(paperAbstract.length() > 256 ? paperAbstract.substring(0, 256) + "..." : paperAbstract);
         item.setKeywords(keywords);
         if (journal != null)
             item.setJournal(new PaperItem.Journal(journal.id, journal.title));

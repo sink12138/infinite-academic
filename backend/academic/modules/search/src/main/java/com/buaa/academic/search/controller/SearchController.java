@@ -118,7 +118,7 @@ public class SearchController {
         }
 
         // Strip keyword
-        String keyword = StringUtils.strip(searchRequest.getKeyword(), 64);
+        String keyword = StringUtils.strip(searchRequest.getKeyword(), 128);
 
         // Base highlight fields
         List<String> highlightFields = new ArrayList<>() {{
@@ -308,7 +308,7 @@ public class SearchController {
                 continue;
             }
             // Strip the keyword
-            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 128));
 
             // Scope validation
             Set<String> scope = condition.getScope();
@@ -419,7 +419,7 @@ public class SearchController {
                 continue;
             }
             // Strip the keyword
-            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 128));
 
             // Scope validation
             Set<String> scope = condition.getScope();
@@ -538,7 +538,7 @@ public class SearchController {
                 continue;
             }
             // Strip the keyword
-            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 128));
 
             // Scope validation
             Set<String> scope = condition.getScope();
@@ -604,7 +604,7 @@ public class SearchController {
                 continue;
             }
             // Strip the keyword
-            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 128));
 
             // Scope validation
             Set<String> scope = condition.getScope();
@@ -681,7 +681,7 @@ public class SearchController {
                 continue;
             }
             // Strip the keyword
-            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 64));
+            condition.setKeyword(StringUtils.strip(condition.getKeyword(), 128));
 
             // Scope validation
             Set<String> scope = condition.getScope();

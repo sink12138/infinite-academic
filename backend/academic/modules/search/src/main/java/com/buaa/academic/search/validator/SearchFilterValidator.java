@@ -82,7 +82,7 @@ public class SearchFilterValidator implements ConstraintValidator<SearchFilter, 
                     for (int i = 0; i < params.length; ++i) {
                         if (params[i] == null)
                             return false;
-                        params[i] = StringUtils.strip(params[i], 32);
+                        params[i] = StringUtils.strip(params[i], 64);
                         if (params[i].isEmpty())
                             return false;
                     }
