@@ -381,9 +381,6 @@ export default {
       default: "全部",
     },
   },
-  mounted() {
-    this.$refs.bar.filter = this.todo;
-  },
   data() {
     return {
       filters: {
@@ -501,7 +498,7 @@ export default {
       if (this.$route.query.filter != null && this.$route.query.filter != "") {
         this.filter = this.$route.query.filter;
       } else {
-        this.filter = "全部";
+        this.filter = this.todo;
       }
       this.$refs.filter.showType = this.filter;
       this.$refs.bar.filter = this.filter;

@@ -390,28 +390,26 @@
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/add",
-          params: {
-            paper:{
-              content:{
-                add:{
-                  abstract:this.abstract,
-                  authors:this.authors,
-                  date:this.date,
-                  doi:this.doi,
-                  institutions:this.institutions,
-                  journal:this.journal,
-                  keywords:this.keywords,
-                  publisher:this.publisher,
-                  subjects:this.subjects,
-                  referencePapers:this.referencePapers,
-                  title:this.title,
-                  type:this.type,
-                  year:this.year,
-                },
+          data: {
+            content:{
+              add:{
+                abstract:this.abstract,
+                authors:this.authors,
+                date:this.date,
+                doi:this.doi,
+                institutions:this.institutions,
+                journal:this.journal,
+                keywords:this.keywords,
+                publisher:this.publisher,
+                subjects:this.subjects,
+                referencePapers:this.referencePapers,
+                title:this.title,
+                type:this.type,
+                year:this.year,
               },
-              email:this.email,
-              websiteLink:this.websiteLink,
-              fileToken:this.fileToken
+            email:this.email,
+            websiteLink:this.websiteLink,
+            fileToken:this.fileToken
             }
           }
         }).then(response => {
@@ -426,30 +424,28 @@
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/edit",
-          params: {
-            paper:{
-              content:{
-                discription:this.description,
-                paperId:this.id,
-                edit:{
-                  abstract:this.abstract,
-                  authors:this.authors,
-                  date:this.date,
-                  doi:this.doi,
-                  institutions:this.institutions,
-                  journal:this.journal,
-                  keywords:this.keywords,
-                  publisher:this.publisher,
-                  subjects:this.subjects,
-                  referencePapers:this.referencePapers,
-                  title:this.title,
-                  type:this.type,
-                  year:this.year,
-                },
-              },
-              email:this.email,
-              websiteLink:this.websiteLink,
-              fileToken:this.fileToken
+          data: {
+            content:{
+              discription:this.description,
+              paperId:this.id,
+              edit:{
+                abstract:this.abstract,
+                authors:this.authors,
+                date:this.date,
+                doi:this.doi,
+                institutions:this.institutions,
+                journal:this.journal,
+                keywords:this.keywords,
+                publisher:this.publisher,
+                subjects:this.subjects,
+                referencePapers:this.referencePapers,
+                title:this.title,
+                type:this.type,
+                year:this.year,
+            },
+            email:this.email,
+            websiteLink:this.websiteLink,
+            fileToken:this.fileToken
             }
           }
         }).then(response => {

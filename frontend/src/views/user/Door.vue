@@ -272,15 +272,6 @@
                 ></v-file-input>
               </v-col>
             </v-row>
-            <v-row>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="vertifyCode"
-                  label="验证码"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
             <v-row v-if="editingD">
               <v-col cols="6">
                 <v-btn v-if="editingD" @click="submit()">
@@ -489,7 +480,7 @@ import Search from '../Search.vue'
       citationNum:0,
       avatarUrl:"",
       websiteLink:"",
-      fileToken:"",
+      fileToken:null,
       vertifyCode:"",
       description:"",
       time:0,
@@ -706,33 +697,46 @@ import Search from '../Search.vue'
       clearWeb(){
         this.websiteLink="",
         this.vertifyCode="",
-        this.fileToken=""
+        this.fileToken=null
       },
       submit(){
+        let d={
+          content:{
+              description:this.description,
+              info:{
+                currentInst:{
+                  id:this.currentInstE.id,
+                  name:this.currentInstE.name
+                },
+                gIndex:this.gIndexE,
+                hIndex:this.hIndexE,
+                institutions:this.institutionsE,
+                interests:this.interestsE,
+                name:this.nameE,
+              }
+            },
+            email:this.emailE,
+            fileToken:this.fileToken,
+            websiteLink:this.websiteLink
+        }
+        if(this.editCur){
+            d.content.info.currentInst.id=null
+          }else{
+            d.content.info.currentInst.name=null
+          }
+          let i=0
+          for(i=0;i<d.content.info.institutions.length;i++){
+            if(this.editIns[i]){
+              d.content.info.institutions[i].id=null
+            }else{
+              d.content.info.institutions[i].name=null
+            }
+          }
+        console.log(JSON.stringify(d))
         this.$axios({
           method: "post",
           url: "/api/scholar/modify",
-          params: {
-            ctfApp:{
-              content:{
-                description:this.description,
-                info:{
-                  currentInst:{
-                    id:this.currentInstE.id,
-                    name:this.currentInstE.name
-                  },
-                  gIndex:this.gIndexE,
-                  hIndex:this.hIndexE,
-                  institutions:this.institutionsE,
-                  interests:this.interestsE,
-                  name:this.nameE,
-                }
-              },
-              email:this.emailE,
-              fileToken:this.fileToken,
-              websiteLink:this.websiteLink
-            }
-          }
+          data:d
         }).then(response => {
           console.log(response.data)
           this.snackbarSub=true
@@ -743,24 +747,27 @@ import Search from '../Search.vue'
         })
       },
       submitAddDoor(){
+        console
         this.$axios({
           method: "post",
           url: "/api/scholar/certify",
-          params: {
-            ctfApp:{
-              content:{
-                portals:this.portals,
-              },  
-              email:this.emailE,
-              fileToken:this.fileToken,
-              websiteLink:this.websiteLink
-            }
+          data:{
+            content:{
+              portals:this.portals,
+            },  
+            email:this.emailE,
+            fileToken:this.fileToken,
+            websiteLink:this.websiteLink
+            
           }
         }).then(response => {
           console.log(response.data)
-          this.snackbarSub=true
-          this.addDoor=false
-          this.clearWeb()
+          if(response.data.success){
+            this.snackbarSub=true
+            this.addDoor=false
+            this.clearWeb()
+          }
+          
         }).catch(error => {
           console.log(error)
         })
@@ -769,16 +776,14 @@ import Search from '../Search.vue'
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/remove",
-          params: {
-            paper:{
-              content:{
-                paperId:this.deletePaperID,
-                reason:this.deletePaperReason
-              },
-              email:this.emailE,
-              fileToken:this.fileToken,
-              websiteLink:this.websiteLink
-            }
+          data: {
+            content:{
+              paperId:this.deletePaperID,
+              reason:this.deletePaperReason
+            },
+            email:this.emailE,
+            fileToken:this.fileToken,
+            websiteLink:this.websiteLink
           }
         }).then(response => {
           console.log(response.data)

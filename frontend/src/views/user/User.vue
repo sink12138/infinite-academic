@@ -62,6 +62,7 @@ export default {
       if (response.data.success === true) {
         this.email = response.data.data.email;
         this.username = response.data.data.username;
+        this.researcherId=response.data.data.researcherId
       }
     });
   },
