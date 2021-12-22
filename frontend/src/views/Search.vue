@@ -140,7 +140,9 @@
                       >&nbsp;
                       <span v-if="item.publicationDate">
                         公开日:{{ item.publicationDate }} </span
-                      >&nbsp; <span v-if="item.applicant">申请人:{{ item.applicant }}</span
+                      >&nbsp;
+                      <span v-if="item.applicant"
+                        >申请人:{{ item.applicant }}</span
                       >&nbsp;
                     </v-card-subtitle>
                     <v-card-text class="pb-0">
@@ -194,19 +196,20 @@
               </div>
             </div>
             <div v-if="results.length != 0">
-              <v-row></v-row>
               <v-row>
-                <v-col>
+                <v-col cols="8">
                   当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条
                 </v-col>
-                <v-col>
-                  <v-text-field
-                    label="跳转至"
-                    v-model="jumpPage"
-                    append-icon="mdi-magnify"
-                    @click:append="pageChange"
-                  ></v-text-field>
-                </v-col>
+              </v-row>
+              <v-row>
+                <el-pagination
+                  @current-change="pageChange"
+                  :current-page.sync="jumpPage"
+                  layout="prev, pager, next, jumper"
+                  :page-size="10"
+                  :total="itemNum"
+                >
+                </el-pagination>
               </v-row>
             </div>
           </div>
@@ -243,10 +246,10 @@ export default {
       type: String,
       default: "",
     },
-    todo:{
-      type:String,
-      default:"全部"
-    }
+    todo: {
+      type: String,
+      default: "全部",
+    },
   },
   mounted() {
     this.$refs.bar.filter = this.todo;
@@ -342,12 +345,16 @@ export default {
         }
       }
       console.log(this.$refs.bar.text);
-      this.filter = this.$route.query.filter;
+      if (this.$route.query.filter != null && this.$route.query.filter != "") {
+        this.filter = this.$route.query.filter;
+      } else {
+        this.filter = "全部";
+      }
       this.$refs.filter.showType = this.filter;
       this.$refs.bar.filter = this.filter;
       if (this.$route.query.text != null && this.$route.query.text != "")
         this.$refs.bar.search();
-    }, 5);
+    }, 1);
   },
   methods: {
     searchType(filter) {

@@ -194,7 +194,6 @@ import { sha256 } from "js-sha256";
 export default {
   mounted() {
     this.getUnreadMessage();
-    console.log(localStorage.getItem("TOKEN"));
     this.$axios({
       method: "get",
       url: "/api/account/profile",
@@ -202,8 +201,6 @@ export default {
       console.log(response.data);
       if (response.data.success === true) {
         this.isLogin = true;
-      } else {
-        localStorage.setItem("TOKEN", "");
       }
     });
     this.$nextTick(() => {
@@ -211,7 +208,7 @@ export default {
     });
   },
   data: () => ({
-    num: 10,
+    num: 0,
     token: "",
     code: "",
     email: "",
@@ -289,10 +286,6 @@ export default {
               type: "success",
             });
             console.log(this.isLogin);
-            this.token = document.cookie.slice(6);
-            console.log(this.token);
-            localStorage.setItem("TOKEN", this.token);
-            console.log(localStorage.getItem("TOKEN"));
           } else {
             this.$notify({
               title: "失败",
