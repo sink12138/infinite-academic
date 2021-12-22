@@ -320,7 +320,7 @@ export default {
         default:
           break;
       }
-      if (url != "") {
+      if (url != "" && val!="" && val!=null) {
         this.$axios({
           method: "post",
           url: url,
@@ -369,7 +369,7 @@ export default {
         default:
           break;
       }
-      if (url != "") {
+      if (url != "" && val!="" && val!=null) {
         this.$axios({
           method: "post",
           url: url,
