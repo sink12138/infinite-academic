@@ -118,7 +118,7 @@ public class RelationController {
     public Result<ScrollPage<ResearcherItem>> scholars(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                        @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<ResearcherItem>> result = new Result<>();
-        if (!infoService.existsDocument(Researcher.class, id))
+        if (!infoService.existsDocument(Institution.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
         Relations<ResearcherItem> relations = relationService.searchRelations(Researcher.class, id, "currentInst.id", page);
         ScrollPage<ResearcherItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());
