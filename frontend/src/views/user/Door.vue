@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Banner :title="{text: 'Door', icon: 'mdi-clipboard-account'}"></Banner>
+    <Banner :title="{text: 'Portal', icon: 'mdi-clipboard-account'}"></Banner>
     <div class="whole">
       <v-row>
         <v-col cols="3">
@@ -102,7 +102,7 @@
               :key="i"
             >
               <v-col cols="9">
-                <PaperCard :item="papers[i+(page-1)*onePageNum-1]"></PaperCard>
+                <CardPaper :item="papers[i+(page-1)*onePageNum-1]"></CardPaper>
               </v-col>
               <v-col>
                 <br/>
@@ -138,12 +138,11 @@
         </v-col>
       </v-row>
     </div>
+
     <!-- 修改信息 -->
     <v-dialog v-model="editingD" persistent width=800px >
     <v-card>
       <div class="whole">
-        <v-row>
-          <v-col cols="10">
             <v-row>
               <v-col cols="9">
                 <v-text-field
@@ -163,14 +162,31 @@
                   required
                 ></v-text-field>
                 </v-col>
-                <v-col>
-                <v-text-field
-                  v-model="interestsE"
-                  label="研究方向"
-                  required
-                ></v-text-field>
+            </v-row>
+            <v-row>
+              <v-col v-for="i in interestsE.length" :key="i" cols="6">
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      label="研究方向"
+                      v-model="interestsE[i-1]"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col>
+                    <v-btn @click="deleteIntrest(i-1)">
+                      删除该项
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
+            <v-row>
+                <v-col>
+                  <v-btn @click="addIntrest()">
+                    添加研究方向
+                  </v-btn>
+                </v-col>
+              </v-row>
             <v-row>
               <v-col cols="6">
                 <v-text-field
@@ -188,33 +204,39 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="6">
-                <v-text-field
-                  v-model="currentInstE.id"
-                  label="现工作单位id"
-                  required
-                ></v-text-field>
-              </v-col>
+              <v-col cols="3">
+                <br/>
+                  <v-btn @click="find('机构','cur')">
+                    查找现工作单位
+                  </v-btn>
+                </v-col>
+                <v-col cols="3">
+                  <v-switch v-model="editCur" label='自行编辑工作单位'></v-switch>
+                </v-col>
               <v-col cols="6">
                 <v-text-field
                   v-model="currentInstE.name"
                   label="现工作单位名称"
+                  :disabled="!editCur"
                   required
                 ></v-text-field>
               </v-col>
             </v-row>
             <v-row v-for="i in institutionsE.length" :key="i">
-              <v-col cols="5">
-                <v-text-field
-                  v-model="institutionsE[i-1].id"
-                  label="曾工作单位id"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="5">
+              <v-col cols="3">
+                <br/>
+                  <v-btn @click="find('机构','ins'+(i-1))">
+                    查找曾工作单位
+                  </v-btn>
+                </v-col>
+                <v-col cols="3">
+                  <v-switch v-model="editIns[i-1]" label='自行编辑工作单位'></v-switch>
+                </v-col>
+              <v-col cols="4">
                 <v-text-field
                   v-model="institutionsE[i-1].name"
                   label="曾工作单位名称"
+                  :disabled="!editIns[i-1]"
                   required
                 ></v-text-field>
               </v-col>
@@ -272,13 +294,6 @@
                 </v-btn>
               </v-col>
             </v-row>
-          </v-col>
-          <v-col>
-            <div class="fixBut">
-              <v-btn @click="getID=true">相关信息ID查询</v-btn>
-            </div>  
-          </v-col>
-        </v-row>
          
       </div>
     </v-card>
@@ -287,17 +302,24 @@
     <v-dialog v-model="addDoor" persistent width=800px >
       <v-card>
         <div class="whole">
-          <v-row>
-            <v-col cols="10">
-              <v-row>
-                <v-col>
-                  <v-text-field
-                    v-model="addDoorID"
-                    label="新认领的门户id"
-                    required
-                  ></v-text-field>
+              <v-row v-for="i in portals.length" :key="i">
+                <v-col cols="3">
+                  <p>{{portalsName[i-1]}}</p>
+                </v-col>
+                <v-col cols="3">
+                  <v-btn @click="find('科研人员','aut'+(i-1))">
+                    查找门户
+                  </v-btn>
+                </v-col>
+                <v-col cols="2">
+                  <v-btn @click="deleteP(i-1)">
+                    删除该项
+                  </v-btn>
                 </v-col>
               </v-row>
+              <v-btn @click="addProtal()">
+                添加希望认领的门户
+              </v-btn>
               <v-row>
                 <v-col >
                   <v-text-field
@@ -326,13 +348,6 @@
                   </v-btn>
                 </v-col>
               </v-row> 
-            </v-col>
-            <v-col>
-              <div class="fixBut" style="top:30%;right:26%">
-                <v-btn @click="getID=true">相关信息ID查询</v-btn>
-              </div>  
-            </v-col>
-          </v-row>
           
         </div>
         
@@ -407,11 +422,14 @@
       ></BaseEditPaper>
     </v-dialog>
     <!-- ID -->
-    <v-dialog v-model="getID" persistent width=1200px >
+    <v-dialog v-model="getID" persistent width=1500px >
       <v-card height=5000px>
         <Search
           :fromDoor="disabled"
+          :todo="todo"
+          :key="timer"
           @closeID="closeID"
+          @findResult="findResult"
         ></Search>
       </v-card>
     </v-dialog>
@@ -439,12 +457,12 @@
 </template>
 
 <script>
-import Banner from '../components/BaseBanner.vue'
-import PaperCard from '../components/card/CardPaper.vue'
-import BaseEditPaper from './BaseEditPaper.vue'
-import Search from './Search.vue'
+import Banner from '../../components/BaseBanner.vue'
+import CardPaper from '../../components/card/CardPaper.vue'
+import BaseEditPaper from '../BaseEditPaper.vue'
+import Search from '../Search.vue'
   export default {
-    components: {Banner,PaperCard,BaseEditPaper,Search},
+    components: {Banner,CardPaper,BaseEditPaper,Search},
     data: () => ({
       //门户部分
       editingD:false,
@@ -460,8 +478,8 @@ import Search from './Search.vue'
       name:"",
       nameE:"",
       position:"",
-      interests:"",
-      interestsE:"",
+      interests:[],
+      interestsE:[],
       email:"",
       emailE:"",
       gIndex:"",
@@ -478,6 +496,7 @@ import Search from './Search.vue'
       description:"",
       time:0,
       portals:[],
+      portalsName:[],
       addDoorID:"",
       snackbarEmail:false,
       snackbarSub:false,
@@ -499,6 +518,7 @@ import Search from './Search.vue'
           name:"b"
         }
       ],
+
       institutionsE:[],
       institutionNum:0,
       idRules: [(v) => !!v || "请填写姓名"],
@@ -586,7 +606,13 @@ import Search from './Search.vue'
       onePageNum:1,
       pageNum:2,
 
-      disabled:"disabled"
+      //找id
+      disabled:"disabled",
+      todo:"全部",
+      editCur:false,
+      editIns:[],
+      itemGetM:null,
+      timer:"",
     }),
     mounted(){
       
@@ -637,9 +663,13 @@ import Search from './Search.vue'
           id:"",
           name:""
         })
+        this.editIns.push(false)
       },
       addProtal(){
         this.portals.push("")
+      },
+      addIntrest(){
+        this.interestsE.push("")
       },
       deleteI(index){
         this.institutionsE.splice(index, 1)
@@ -650,6 +680,10 @@ import Search from './Search.vue'
       deletePaper(index){
         this.deletingPaper=true
         this.theDelete=this.papers[index]
+      },
+      deleteIntrest(index){
+        this.interestsE.splice(index,1)
+        this.interests.splice(index,1)
       },
       editPaper(index){
         this.editingPaper=true
@@ -820,6 +854,27 @@ import Search from './Search.vue'
           })
         }
         this.pageNum=page+1
+      },
+      findResult(msg){
+        msg.name=msg.name.replaceAll('<b>','')
+        msg.name=msg.name.replaceAll('</b>','')
+        let str=this.itemGetM
+        if(str=='cur'){
+          this.currentInstE=msg
+        }else if(str.substring(0,3)=='ins'){
+          let x=Number(str.substring(3))
+          this.institutionsE[x]=msg
+        }else if(str.substring(0,3)=='aut'){
+          let x=Number(str.substring(3))
+          this.portals[x]=msg.id
+          this.portalsName[x]=msg.name
+        }
+      },
+      find(type,it){
+        this.todo=type
+        this.getID=true
+        this.itemGetM=it
+        this.timer=new Date().getTime()
       }
     }
   }

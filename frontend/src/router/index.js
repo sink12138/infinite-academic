@@ -12,7 +12,7 @@ const Paper = () => import("../views/Paper.vue")
 const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
-const Door = () => import("../views/Door.vue")
+const Door = () => import("../views/user/Door.vue")
 
 const User = () => import("../views/user/User.vue")
 const Profile = () => import("../views/user/Profile.vue")
@@ -107,13 +107,14 @@ const routes = [{
         name: 'ScholarIdentity',
         component: ScholarIdentity
       },
+      {
+      path: 'door',
+      name: 'Door',
+      component: Door
+      },
     ]
   },
-  {
-    path: '/door',
-    name: 'Door',
-    component: Door
-  },
+  
   
 ]
 

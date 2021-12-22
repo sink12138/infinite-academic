@@ -5,8 +5,6 @@
     width=100%
   >
     <div class="whole">
-      <v-row>
-        <v-col cols="10">
           <v-row v-if="edit">
             <v-col >
               <v-textarea
@@ -79,9 +77,7 @@
                 添加学科分类
               </v-btn>
             </v-col>
-            
           </v-row>
-          
           <v-row>
             <v-select
               :items="types"
@@ -92,16 +88,19 @@
           </v-row>
           <v-row v-for="i in authors.length" :key="i">
             <v-col cols="3">
-              <v-text-field
-                v-model="authors[i-1].id"
-                label="作者id"
-                required
-              ></v-text-field>
+            <br/>
+              <v-btn @click="find('科研人员','aut'+(i-1))">
+                查找作者
+              </v-btn>
+            </v-col>
+            <v-col cols="3">
+              <v-switch v-model="editAut[i-1]" label='自行编辑作者信息'></v-switch>
             </v-col>
             <v-col cols="3">
               <v-text-field
                 v-model="authors[i-1].name"
                 label="作者姓名"
+                :disabled="!editAut[i-1]"
                 required
               ></v-text-field>
             </v-col>
@@ -109,6 +108,7 @@
               <v-text-field
                 v-model="authors[i-1].instName"
                 label="作者所在机构名"
+                :disabled="!editAut[i-1]"
                 required
               ></v-text-field>
             </v-col>
@@ -137,20 +137,23 @@
             </v-col>
           </v-row>
           <v-row v-for="i in institutions.length" :key="i">
-            <v-col cols="5">
-              <v-text-field
-                v-model="institutions[i-1].id"
-                label="机构id"
-                required
-              ></v-text-field>
-            </v-col>
-            <v-col cols="5">
-              <v-text-field
-                v-model="institutions[i-1].name"
-                label="机构名称"
-                required
-              ></v-text-field>
-            </v-col>
+            <v-col cols="3">
+              <br/>
+                <v-btn @click="find('机构','ins'+(i-1))">
+                  查找机构
+                </v-btn>
+              </v-col>
+              <v-col cols="3">
+                <v-switch v-model="editIns[i-1]" label='自行编辑机构名称'></v-switch>
+              </v-col>
+              <v-col cols="4">
+                <v-text-field
+                  v-model="institutions[i-1].name"
+                  label="机构名称"
+                  :disabled="!editIns[i-1]"
+                  required
+                ></v-text-field>
+              </v-col>
             <v-col cols="2">
               <v-btn @click="deleteI(i-1)">
                 删除该项
@@ -211,17 +214,20 @@
             </v-col>
           </v-row>
           <v-row v-for="i in referencePapers.length" :key="i">
-            <v-col cols="5">
-              <v-text-field
-                v-model="referencePapers[i-1].id"
-                label="引用文献id"
-                required
-              ></v-text-field>
-            </v-col>
+            <v-col cols="3">
+              <br/>
+                <v-btn @click="find('论文','pap'+(i-1))">
+                  查找论文
+                </v-btn>
+              </v-col>
+              <v-col cols="3">
+                <v-switch v-model="editPap[i-1]" label='自行编辑论文名称'></v-switch>
+              </v-col>
             <v-col cols="5">
               <v-text-field
                 v-model="referencePapers[i-1].title"
                 label="引用文献标题"
+                :disabled="!editPap[i-1]"
                 required
               ></v-text-field>
             </v-col>
@@ -274,22 +280,19 @@
               </v-btn>
             </v-col>
           </v-row> 
-        </v-col>
-        <v-col>
-          <div class="fixBut">
-            <v-btn @click="getID=true">相关信息ID查询</v-btn>
-          </div>
-          
-        </v-col>
-      </v-row>
       
      
     </div>
-    <v-dialog v-model="getID" persistent width=1200px >
+
+
+    <v-dialog v-model="getID" persistent width=1500px >
       <v-card height=5000px>
         <Search
+          :key="timer"
           :fromDoor="disabled"
+          :todo="todo"
           @closeID="closeID"
+          @findResult="findResult"
         ></Search>
       </v-card>
     </v-dialog>
@@ -328,6 +331,14 @@
         fileToken:"",
         websiteLink:"",
         getID:false,
+        todo:"全部",
+        disabled:"disabled",
+        editCur:false,
+        editIns:[],
+        editAut:[],
+        editPap:[],
+        itemGetM:null,
+        timer:"",
       }
     },
     methods:{
@@ -337,9 +348,11 @@
           name:"",
           instName:""
         })
+        this.editAut.push(false)
       },
       deleteAuthor(index){
         this.authors.splice(index, 1)
+        this.editAut.splice(index,1)
       },
       addKeyword(){
         this.keywords.push("")
@@ -358,9 +371,11 @@
           id:"",
           title:""
         })
+        this.editPap.push(false)
       },
       deleteReferencePapers(index){
         this.referencePapers.splice(index, 1)
+        this.editPap.splice(index,1)
       },
       addInst(){
         this.institutions.push({
@@ -451,7 +466,42 @@
       closeID(msg){
         if(msg=="close")
           this.getID=false
+      },
+      findResult(msg){
+        let str=this.itemGetM
+        if(str.substring(0,3)=='pap'){
+          msg.name=msg.title.replaceAll('<b>','')
+          msg.name=msg.title.replaceAll('</b>','')
+        }else{
+          msg.name=msg.name.replaceAll('<b>','')
+          msg.name=msg.name.replaceAll('</b>','')
+        }
+        
+        if(str=='cur'){
+          this.currentInst=msg
+        }else if(str.substring(0,3)=='ins'){
+          let x=Number(str.substring(3))
+          this.institutions[x]=msg
+        }else if(str.substring(0,3)=='aut'){
+          let x=Number(str.substring(3))
+          this.authors[x].id=msg.id
+          this.authors[x].name=msg.name
+          this.authors[x].instName=msg.institution.name
+        }else if(str.substring(0,3)=='pap'){
+          let x=Number(str.substring(3))
+          this.referencePapers[x].id=msg.id
+          this.referencePapers[x].title=msg.title
+
+        }
+        
+      },
+      find(type,it){
+        this.todo=type
+        this.getID=true
+        this.itemGetM=it
+        this.timer=new Date().getTime()
       }
+
     }
   }
 </script>

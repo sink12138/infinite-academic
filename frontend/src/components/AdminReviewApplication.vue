@@ -1,6 +1,5 @@
 <template>
   <v-card
-    width="4000"
     flat
     outlined
   >
@@ -11,10 +10,10 @@
         :options.sync="options"
         :server-items-length="totalApplications"
         :loading="loading"
-        :calculate-widths="true"
         class="applications"
         show-select
         v-model="selectedItem"
+        style="word-break:break-all"
       >
         <template v-slot:top>
           <v-toolbar
@@ -60,36 +59,6 @@
                 @change="getApplications"
               ></v-select>
             </v-col>
-            
-            <v-dialog
-              v-model="dialog"
-              max-width="500px"
-            >
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">申请详情</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-text-field
-                      v-model="content"
-                    ></v-text-field>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    关闭
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
 
             <v-dialog v-model="dialogFail" max-width="500px">
               <v-card>
@@ -106,17 +75,17 @@
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
+          <Application
+            :message="item"
+          ></Application>
           <v-icon
-            @click="checkItem(item)"
-          >
-            mdi-eye-settings-outline
-          </v-icon>
-          <v-icon
+            :disabled="item.status!='审核中'"
             @click="passItem(item)"
           >
             mdi-check-circle-outline
           </v-icon>
           <v-icon
+            :disabled="item.status!='审核中'"
             @click="failItem(item)"
           >
             mdi-close-circle-outline
@@ -150,7 +119,13 @@
 </template>
 
 <script>
+import Application from '../components/MessageDialog.vue'
+
 export default {
+  components: {
+    Application
+  },
+
   data() {
     return {
       dialog: false,
@@ -166,12 +141,13 @@ export default {
           align: 'start',
           value: 'id',
           sortable: false,
+          width: 150
         },
         { text: '申请类型', value: 'type', sortable: false },
         { text: '申请人ID', value: 'userId', sortable: false },
         { text: '申请时间', value: 'time', sortable: false },
         { text: '邮箱', value: 'email', sortable: false },
-        { text: 'websiteLink', value: 'websiteLink', sortable: false },
+        { text: 'websiteLink', value: 'websiteLink', sortable: false, width: 230 },
         { text: '文件Token', value: 'fileToken', sortable: false },
         { text: '当前状态', value: 'status', sortable: false },
         { text: '操作', value: 'actions', sortable: false },
@@ -188,7 +164,6 @@ export default {
           status: 'test',
         }
       ],
-      content: '',
       radioGroup: 0,
       radio: [
         {
@@ -346,11 +321,13 @@ export default {
           }
         });
       }
+      this.checkedItem = this.applications[0]
     },
 
     checkItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
+      this.checkedItem = item
+      this.dialog = true
+      /*
       this.$axios({
         method: "get",
         url: "api/admin/review/details/" + item.id,
@@ -360,7 +337,7 @@ export default {
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {
-          this.content = response.data.data.content
+          this.checkedItem = response.data.data
         } else {
           this.$notify({
             title: "失败",
@@ -369,14 +346,10 @@ export default {
           });
         }
       });
-      this.dialog = true
+      this.dialog = true*/
     },
 
     passItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
-      console.log(item)
-
       if (item.type === "学者认证") {
         this.$axios({
           method: "post",
@@ -545,6 +518,7 @@ export default {
           }
         });
       }
+      this.getApplications()
     },
 
     failItem () {
@@ -552,8 +526,6 @@ export default {
     },
 
     fail (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
       this.$axios({
         method: "post",
         url: "api/admin/review/reject",

@@ -25,6 +25,7 @@
           fixed
           style="top:60px"
           color="transparent"
+          width="180"
         >
           <v-list
             nav
