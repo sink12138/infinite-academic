@@ -7,7 +7,7 @@
       <v-icon class="mx-1">
         mdi-text-box-multiple-outline
       </v-icon>
-      <a @click="href('paper', paperdata.id)">{{paperdata.title}}</a>
+      <span class="link" @click="href('paper', paperdata.id)">{{paperdata.title}}</span>
       <v-spacer></v-spacer>
       <v-btn icon @click="addCitationItem(paperdata)">
         <v-icon>mdi-comma-box</v-icon>
@@ -15,16 +15,16 @@
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <span v-if="paperdata.date" v-text="paperdata.date.substr(0,4)"></span>&nbsp;
-      <a
+      <span class="link"
         v-if="paperdata.journal"
         @click="href('journal', paperdata.journal.id)"
         v-text="paperdata.journal.title"
       >
-      </a>&nbsp;
+      </span>&nbsp;
       <span>被引量:{{paperdata.citationNum}}</span>&nbsp;
       <span>来源:</span>&nbsp;
       <span v-for="item in paperdata.sources" :key="item.id">
-        <a @click=toSource(item.url)>{{item.website}}</a>&nbsp;
+        <span class="link" @click=toSource(item.url)>{{item.website}}</span>&nbsp;
       </span>
     </v-card-subtitle>
     <v-card-text class="pb-0">
@@ -32,16 +32,16 @@
         v-for="(author, idx) in paperdata.authors"
         :key="author.id"
       >
-        <a
+        <span class="link"
           v-if="paperdata.authors && idx == paperdata.authors.length-1"
           @click="href('author', author.id)"
           v-text="author.name"
-        ></a>
-        <a
+        ></span>
+        <span class="link"
           v-else
           @click="href('author', author.id)"
           v-text="author.name + ','"
-        ></a>
+        ></span>
       </span>
     </v-card-text>
     <v-card-text class="pt-2 pb-0">
@@ -81,7 +81,7 @@
     <v-card-text class="pb-1">
       <span>所有机构:</span>&nbsp;
       <span v-for="institution in paperdata.institutions" :key="institution.id">
-        <a @click="href('institution',institution.id)" v-html="institution.name"></a>
+        <span class="link" @click="href('institution',institution.id)" v-html="institution.name"></span>
       </span>
       <br>
       <span>论文类别:</span>&nbsp;
@@ -142,20 +142,6 @@ export default {
 }
 </script>
 
-<style scoped>
-a {
-  color: #000000;
-}
-a:link {
-  color: #000000;
-  text-decoration: none;
-}
-a:visited {
-  color: #000000;
-  text-decoration: none;
-}
-a:hover {
-  color: #0D47A1;
-  text-decoration: underline;
-}
+<style>
+
 </style>

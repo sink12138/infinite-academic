@@ -3,32 +3,32 @@
     <v-card-title class="d-flex">
       <v-row>
         <v-col>
-          <h3 v-if="disabled=='disabled'">ID: {{item.id}}</h3>
+          <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
         </v-col>
       </v-row>
-      <v-icon class="mx-1">
-        mdi-account-tie-outline
-      </v-icon>
-      <a 
+      <v-icon class="mx-1"> mdi-account-tie-outline </v-icon>
+      <span
+        class="link"
         v-if="item.id!=null"
         @click="href('author', item.id)" 
         v-html="item.name"
         :class="disabled"
-      ></a>
-      <a 
+      ></span>
+      <span
+        class="link" 
         v-if="item.id==null"
         v-html="item.name"
-      ></a>
+      ></span>
     </v-card-title>
     <v-card-subtitle class="pb-0">
-      <a
+      <span
+        class="link"
         v-if="item.institution"
         @click="href('institution', item.institution.id)"
         :class="disabled"
         v-html="item.institution.name"
-      >
-      </a
-      >&nbsp;
+      ></span>
+      &nbsp;
       <span>被引量:{{ item.citationNum }}</span>
     </v-card-subtitle>
     <v-card-text class="pt-2 pb-0">
@@ -55,12 +55,12 @@ export default {
   props: {
     item: {
       type: Object,
-      default:() => {}
+      default: () => {},
     },
-    disabled:{
-      type:String,
-      default:""
-    }
+    disabled: {
+      type: String,
+      default: "",
+    },
   },
   methods: {
     href(type, id) {
@@ -71,20 +71,5 @@ export default {
 }
 </script>
 
-<style scoped>
-a {
-  color: #000000;
-}
-a:link {
-  color: #000000;
-  text-decoration: none;
-}
-a:visited {
-  color: #000000;
-  text-decoration: none;
-}
-a:hover {
-  color: #0d47a1;
-  text-decoration: underline;
-}
+<style>
 </style>

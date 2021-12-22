@@ -3,11 +3,11 @@
     <v-card-title class="d-flex">
       <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
       <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
-      <a
+      <span class="link"
         @click="href('paper', item.id)"
         v-html="item.title"
         :class="disabled"
-      ></a>
+      ></span>
       <v-spacer></v-spacer>
       <v-btn icon @click="addCitationItem(item)">
         <v-icon>mdi-comma-box</v-icon>
@@ -15,30 +15,31 @@
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <span v-if="item.date" v-text="item.date.substr(0, 4)"></span>&nbsp;
-      <a
+      <span class="link"
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
         :class="disabled"
         v-html="item.journal.title"
-      >
-      </a
-      >&nbsp;
+      ></span>
+      &nbsp;
       <span>被引量:{{ item.citationNum }}</span>
     </v-card-subtitle>
     <v-card-text class="pb-0">
       <span v-for="(author, idx) in item.authors" :key="author.id">
-        <a
+        <span
+          class="link"
           v-if="item.authors && idx == item.authors.length - 1"
           @click="href('author', author.id)"
           :class="disabled"
           v-html="author.name"
-        ></a>
-        <a
+        ></span>
+        <span
+          class="link"
           v-else
           @click="href('author', author.id)"
           :class="disabled"
           v-html="author.name + ','"
-        ></a>
+        ></span>
       </span>
     </v-card-text>
     <v-card-text class="pt-2 pb-0">
@@ -122,20 +123,5 @@ export default {
 };
 </script>
 
-<style scoped>
-a {
-  color: #000000;
-}
-a:link {
-  color: #000000;
-  text-decoration: none;
-}
-a:visited {
-  color: #000000;
-  text-decoration: none;
-}
-a:hover {
-  color: #0d47a1;
-  text-decoration: underline;
-}
+<style>
 </style>

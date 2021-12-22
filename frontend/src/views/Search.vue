@@ -1,7 +1,7 @@
 <template>
   <div>
     <Banner
-      v-if="fromDoor==''"
+      v-if="fromDoor == ''"
       :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
     ></Banner>
 
@@ -54,7 +54,10 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
+                      <JournalCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></JournalCard>
                     </td>
                   </tr>
                 </div>
@@ -69,7 +72,10 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                      <AuthorCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></AuthorCard>
                     </td>
                   </tr>
                 </div>
@@ -84,7 +90,10 @@
                       :key="item.id"
                       style="width: 33%; height: 50%; table-layout: fixed"
                     >
-                      <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
+                      <InstitutionCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></InstitutionCard>
                     </td>
                   </tr>
                 </div>
@@ -111,10 +120,11 @@
                       <v-icon class="mx-1">
                         mdi-text-box-multiple-outline
                       </v-icon>
-                      <a
+                      <span
+                        class="link"
                         @click="href('patent', item.id)"
                         v-html="item.title"
-                      ></a>
+                      ></span>
                       <v-spacer></v-spacer>
                     </v-card-title>
                     <v-card-subtitle class="pb-0">
@@ -131,14 +141,20 @@
                         v-for="(inventor, idx) in item.inventors"
                         :key="inventor.id"
                       >
-                        <a
+                        <span
+                          class="link"
                           v-if="idx == item.inventors.length - 1"
                           @click="href('author', inventor.id)"
-                          >{{ inventor.name }}</a
                         >
-                        <a v-else @click="href('author', inventor.id)">{{
-                          inventor.name + ","
-                        }}</a>
+                          {{ inventor.name }}
+                        </span>
+                        <span
+                          class="link"
+                          v-else
+                          @click="href('author', inventor.id)"
+                        >
+                          {{ inventor.name + "," }}
+                        </span>
                       </span>
                     </v-card-text>
                   </v-card>
@@ -183,7 +199,7 @@
         </div>
       </v-col>
     </v-card>
-    <div v-if="fromDoor!=''" class="fixBut" style="right: 15%">
+    <div v-if="fromDoor != ''" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
