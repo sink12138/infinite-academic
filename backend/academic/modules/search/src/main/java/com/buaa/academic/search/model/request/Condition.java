@@ -62,12 +62,18 @@ public class Condition {
             BoolQueryBuilder builder = QueryBuilders.boolQuery();
             for (Condition subCond : subConditions) {
                 switch (subCond.logic) {
-                    /* The 'mustNot' logic is implemented by subCond.compile() itself. See 'else'. */
+                    /* The 'mustNot' logic is implemented by subCond.compile() itself. */
                     case "and", "not" -> builder.must(subCond.compile(strategy));
                     case "or" -> builder.should(subCond.compile(strategy));
                 }
             }
-            return builder;
+            /* Invert the query if logic is 'not' */
+            if (logic.equals("not")) {
+                return QueryBuilders.boolQuery().mustNot(builder);
+            }
+            else {
+                return builder;
+            }
         }
         else {
             QueryBuilder resultBuilder;
@@ -114,13 +120,13 @@ public class Condition {
                     }
                 }
             }
-            /* Implement the logic of 'not' (mustNot) */
+            /* Invert the query and add 'exists' constraints if logic is 'not'. */
             if (logic.equals("not")) {
-                BoolQueryBuilder notBuilder = QueryBuilders.boolQuery().mustNot(resultBuilder);
+                BoolQueryBuilder invertedBuilder = QueryBuilders.boolQuery().mustNot(resultBuilder);
                 for (String field : fields) {
-                    notBuilder.filter(QueryBuilders.existsQuery(field));
+                    invertedBuilder.filter(QueryBuilders.existsQuery(field));
                 }
-                return notBuilder;
+                return invertedBuilder;
             }
             else {
                 return resultBuilder;
