@@ -46,10 +46,10 @@ export const addCitation = {
     APACitation(item) {
       /* 作者 */
       var text = item.authors[0].name;
-      if (item.authors[0].length > 2) {
+      if (item.authors.length > 2) {
         text += " et al. ";
       }
-      else if (item.authors[0].length == 2) {
+      else if (item.authors.length == 2) {
         text += " and " + item.authors[1].name + " ";
       }
       else {
@@ -76,35 +76,32 @@ export const addCitation = {
       return text;
     },
     GBTCitation(item) {
-      /* 作者 */
-      var text = item.authors[0].name;
-      if (item.authors[0].length > 2) {
-        text += " et al. ";
+      /* 序号 + 作者 */
+      var text = "[序号] " + item.authors[0].name;
+      if (item.authors.length > 3) {
+        text += " , " + item.authors[1].name + ", " + item.authors[2].name + ", 等. ";
       }
-      else if (item.authors[0].length == 2) {
-        text += " and " + item.authors[1].name + " ";
+      else if (item.authors.length == 3) {
+        text += " , " + item.authors[1].name + ", " + item.authors[2].name + ". ";
+      }
+      else if (item.authors.length == 2) {
+        text += " , " + item.authors[1].name + ". ";
       }
       else {
         text += " ";
       }
 
-      /* 出版年份 */
-      text += item.year + " ";
-
-      /* 文章标题 */
-      text += item.title + " ";
+      /* 题名 */
+      text += item.title + "[J]. ";
 
       if (item.journal != null) {
-        /* 期刊标题 */
-        text += item.journal.title + " ";
+        /* 期刊名 */
+        text += item.journal.title + ", ";
 
-        /* 卷 + 期数 + 页码*/
-        text += item.journal.volume + "(" + item.journal.issue + ")" + " n.pag ";
+        /* 年 + 卷 + 期数 + 页码*/
+        text += item.year + ", " + item.journal.volume + "(" + item.journal.issue + ")" + ": " + item.journal.startPage + "-" + item.journal.endPage + ".";
       }
-      
-      /* DOI */
-      text += "doi:" + item.doi
-      
+
       return text;
     }
   },
