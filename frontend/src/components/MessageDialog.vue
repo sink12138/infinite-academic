@@ -159,7 +159,7 @@
           </v-col>
           <v-col cols="8">
             <v-card-text>
-              {{  this.content.description }}
+              {{ this.content.description }}
             </v-card-text>
           </v-col>
         </v-row>
@@ -169,12 +169,43 @@
       <v-container class="pa-0" v-if="this.type == 'new_paper'">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black"> </v-card-text>
+            <v-card-text class="font-weight-black"> 论文标题: </v-card-text>
           </v-col>
           <v-col cols="8">
-            <v-card-text> </v-card-text>
+            <v-card-text>
+              {{ this.content.add.title }}
+            </v-card-text>
           </v-col>
         </v-row>
+        <v-bottom-sheet
+          v-model="sheet"
+          inset
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="orange"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              Open Inset
+            </v-btn>
+          </template>
+          <v-sheet
+            class="text-center"
+            height="200px"
+          >
+            <v-btn
+              class="mt-6"
+              text
+              color="error"
+              @click="sheet = !sheet"
+            >
+              close
+            </v-btn>
+            <CardPaper :item="this.content.add"></CardPaper>
+          </v-sheet>
+        </v-bottom-sheet>
       </v-container>
 
       <!-- 修改论文 -->
@@ -260,7 +291,11 @@
 </template>
 
 <script>
+import CardPaper from "../components/card/CardPaper.vue"
 export default {
+  components: {
+    CardPaper
+  },
   data() {
     return {
       dialog: false,

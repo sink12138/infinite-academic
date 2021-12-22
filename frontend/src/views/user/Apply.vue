@@ -70,7 +70,6 @@
           :items-per-page="-1"
           hide-default-footer
           fixed-header
-          group-by="type"
         >
           <template v-slot:[`item.status`]="{ item }">
             <v-chip v-if="item.status == '审核通过'" color="cyan lighten-2">
@@ -82,14 +81,6 @@
             <v-chip v-if="item.status == '审核中'" color="blue lighten-4">
               审核中
             </v-chip>
-          </template>
-          <template v-slot:[`group.header`]="{ items, isOpen, toggle }">
-            <td :colspan="getHeaders().length">
-              <v-icon @click="toggle">
-                {{ isOpen ? "mdi-minus" : "mdi-plus" }}
-              </v-icon>
-              <span>{{ items[0].type }}</span>
-            </td>
           </template>
           <template v-slot:[`item.info`]="{ item }">
             <MessageDialog :message="item"></MessageDialog>
@@ -433,7 +424,7 @@ export default {
             text: "种类",
             value: "type",
             align: "start",
-            sortable: false,
+            sortable: true,
             class: "grey lighten-1 text-body-2 font-weight-black",
           },
           {
@@ -472,7 +463,7 @@ export default {
             text: "种类",
             value: "type",
             align: "start",
-            sortable: false,
+            sortable: true,
             class: "grey lighten-1 text-body-2 font-weight-black",
           },
           {
