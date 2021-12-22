@@ -547,6 +547,7 @@ export default {
           }
         });
       }
+      this.getApplications()
     },
 
     failItem () {
