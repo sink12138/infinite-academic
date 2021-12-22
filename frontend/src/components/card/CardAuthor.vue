@@ -1,11 +1,7 @@
 <template>
   <v-card class="text-left my-2" max-width="850">
     <v-card-title class="d-flex">
-      <v-row>
-        <v-col>
-          <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
-        </v-col>
-      </v-row>
+      <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
       <v-icon class="mx-1"> mdi-account-tie-outline </v-icon>
       <span
         class="link"
