@@ -54,8 +54,8 @@ public class PaperController {
                     "<b>万方数据</b>：https://d.wanfangdata.com.cn/periodical/... 或 https://d.wanfangdata.com.cn/thesis/...</br>" +
                     "<b>中国知网</b>：https://kns.cnki.net/kcms/detail/detail.aspx...")
     public Result<Void> auto(@RequestHeader(value = "Auth") String userId,
-                             @RequestParam(value = "url") @URL String url,
-                             @RequestParam(value = "title") String title) {
+                             @RequestParam(value = "url", required = false) @URL String url,
+                             @RequestParam(value = "title", required = false) String title) {
         Result<Void> result = new Result<>();
         if (url == null && title == null)
             return result.withFailure(ExceptionType.INVALID_PARAM);
