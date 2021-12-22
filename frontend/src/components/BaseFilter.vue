@@ -135,7 +135,7 @@
             v-model="filter.authors_selected"
             v-for="(author, index) in authors"
             :key="index"
-            :label="`${author.term}`"
+            :label="`${author.term}(${author.frequency})`"
             :value="author.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -151,7 +151,7 @@
             v-model="filter.journals_selected"
             v-for="(journal, index) in journals"
             :key="index"
-            :label="`${journal.term}`"
+            :label="`${journal.term}(${journal.frequency})`"
             :value="journal.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -167,7 +167,7 @@
             v-model="filter.institutions_selected"
             v-for="(institution, index) in institutions"
             :key="index"
-            :label="`${institution.term}`"
+            :label="`${institution.term}(${institution.frequency})`"
             :value="institution.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -183,7 +183,7 @@
             v-model="filter.subjects_selected"
             v-for="(subject, index) in subjects"
             :key="index"
-            :label="`${subject.term}`"
+            :label="`${subject.term}(${subject.frequency})`"
             :value="subject.term"
             @change="emitFilter()"
           >
@@ -200,7 +200,7 @@
             v-model="filter.types_selected"
             v-for="(type, index) in types"
             :key="index"
-            :label="`${type.term}`"
+            :label="`${type.term}(${type.frequency})`"
             :value="type.term"
             @change="emitFilter()"
           >
@@ -217,7 +217,7 @@
             v-model="filter.keywords_selected"
             v-for="(keyword, index) in keywords"
             :key="index"
-            :label="`${keyword.term}`"
+            :label="`${keyword.term}(${keyword.frequency})`"
             :value="keyword.term"
             @change="emitFilter()"
           >
@@ -234,7 +234,7 @@
             v-model="filter.interests_selected"
             v-for="(interest, index) in interests"
             :key="index"
-            :label="`${interest.term}`"
+            :label="`${interest.term}(${interest.frequency})`"
             :value="interest.term"
             @change="emitFilter()"
           >
@@ -251,7 +251,7 @@
             v-model="filter.inventors_selected"
             v-for="(inventor, index) in inventor"
             :key="index"
-            :label="`${inventor.term}`"
+            :label="`${inventor.term}(${inventor.frequency})`"
             :value="inventor.term"
             @change="emitFilter()"
           >
@@ -268,7 +268,7 @@
             v-model="filter.applicants_selected"
             v-for="(applicant, index) in applicants"
             :key="index"
-            :label="`${applicant.term}`"
+            :label="`${applicant.term}(${applicant.frequency})`"
             :value="applicant.term"
             @change="emitFilter()"
           >
