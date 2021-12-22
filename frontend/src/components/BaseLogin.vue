@@ -231,6 +231,10 @@ export default {
         title: "个人中心",
         url: "/user/profile",
       },
+      {
+        title:"个人门户",
+        url:"/door"
+      },
     ],
   }),
   methods: {
