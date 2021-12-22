@@ -111,11 +111,13 @@
             mdi-eye-settings-outline
           </v-icon>
           <v-icon
+            :disabled="item.status!='审核中'"
             @click="passItem(item)"
           >
             mdi-check-circle-outline
           </v-icon>
           <v-icon
+            :disabled="item.status!='审核中'"
             @click="failItem(item)"
           >
             mdi-close-circle-outline
