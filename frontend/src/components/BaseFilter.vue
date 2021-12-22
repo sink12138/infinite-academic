@@ -249,7 +249,7 @@
           <v-checkbox
             class="checkboxItem"
             v-model="filter.inventors_selected"
-            v-for="(inventor, index) in inventor"
+            v-for="(inventor, index) in inventors"
             :key="index"
             :label="`${inventor.term}(${inventor.frequency})`"
             :value="inventor.term"

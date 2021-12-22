@@ -197,6 +197,7 @@
     <v-dialog v-model="getID" persistent width=1500px >
       <v-card height=5000px>
         <Search
+          :key="timer"
           :fromDoor="disabled"
           :todo="todo"
           @closeID="closeID"
@@ -267,6 +268,7 @@
           editCur:false,
           editIns:[],
           itemGetM:null,
+          timer:"",
         }
     },
     methods:{
@@ -390,13 +392,15 @@
           this.getID=false
       },
       findResult(msg){
+        msg.name=msg.name.replaceAll('<b>','')
+        msg.name=msg.name.replaceAll('</b>','')
         let str=this.itemGetM
         if(str=='cur'){
           this.currentInst=msg
         }else if(str.substring(0,3)=='ins'){
           let x=Number(str.substring(3))
           this.institutions[x]=msg
-        }else if(str.substring(0,3)){
+        }else if(str.substring(0,3)=='aut'){
           let x=Number(str.substring(3))
           this.portals[x]=msg.id
           this.portalsName[x]=msg.name
@@ -407,6 +411,7 @@
         this.todo=type
         this.getID=true
         this.itemGetM=it
+        this.timer=new Date().getTime()
       }
     }
   }

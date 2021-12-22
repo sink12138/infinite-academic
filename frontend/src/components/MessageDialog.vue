@@ -174,38 +174,13 @@
           <v-col cols="8">
             <v-card-text>
               {{ this.content.add.title }}
+              <v-btn icon @click="reveal2 = true">
+                <v-icon> mdi-dots-horizontal-circle-outline </v-icon>
+              </v-btn>
             </v-card-text>
           </v-col>
         </v-row>
-        <v-bottom-sheet
-          v-model="sheet"
-          inset
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="orange"
-              dark
-              v-bind="attrs"
-              v-on="on"
-            >
-              Open Inset
-            </v-btn>
-          </template>
-          <v-sheet
-            class="text-center"
-            height="200px"
-          >
-            <v-btn
-              class="mt-6"
-              text
-              color="error"
-              @click="sheet = !sheet"
-            >
-              close
-            </v-btn>
-            <CardPaper :item="this.content.add"></CardPaper>
-          </v-sheet>
-        </v-bottom-sheet>
+        
       </v-container>
 
       <!-- 修改论文 -->
@@ -231,6 +206,28 @@
           </v-col>
         </v-row>
       </v-container>
+
+      <v-expand-transition>
+        <v-card
+          v-if="reveal2"
+          class="transition-fast-in-fast-out v-card--reveal"
+          style="height: 100%"
+        >
+          <v-card-text class="text-h5 text--primary grey lighten-2">
+            论文详细信息
+          </v-card-text>
+          <CardPaper :item="content.add" elevation="0"></CardPaper>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn outlined @click="reveal2 = false">
+              <v-icon>mdi-reply</v-icon>
+              退出
+            </v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-expand-transition>
 
       <!-- 专利转让 -->
       <v-container class="pa-0" v-if="this.type == 'transfer'">
@@ -300,10 +297,48 @@ export default {
     return {
       dialog: false,
       reveal1: false,
+      reveal2: false,
       type: "",
       data: [],
       basic: {},
-      content: {},
+      content: {"add": {
+			"abstract": "假装这是一大段摘要",
+			"authors": [
+				{
+					"id": "GF_4ynwBF-Mu8unTG1hc",
+					"instName": "北京航空航天大学软件学院",
+					"name": "谭火彬"
+				}
+			],
+			"date": "2021-10-15",
+			"doi": "10.1007/BF02943174",
+			"institutions": [
+				{
+					"id": "GF_4ynwBF-Mu8unTG1hc",
+					"name": "北京航空航天大学软件学院"
+				}
+			],
+			"journal": {
+				"endPage": 514,
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"issue": "02",
+				"startPage": 114,
+				"title": "Science",
+				"volume": 43
+			},
+			"keywords": [],
+			"publisher": "Elsevier",
+			"referencePapers": [
+				{
+					"id": "",
+					"title": ""
+				}
+			],
+			"subjects": [],
+			"title": "",
+			"type": "期刊论文",
+			"year": 2021
+		}},
     };
   },
   props: {
