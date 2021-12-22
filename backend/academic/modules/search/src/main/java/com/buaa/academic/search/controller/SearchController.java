@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.SearchPage;
@@ -140,7 +141,7 @@ public class SearchController {
             // noinspection ConstantConditions
             do {
                 // Search for researchers
-                SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6));
+                SearchPage<Researcher> researchersByName = researcherRepository.findByNameEquals(keyword, PageRequest.of(0, 6, Sort.by(Sort.Order.desc("citationNum"))));
                 if (!researchersByName.isEmpty()) {
                     detection = "researcher";
                     List<ResearcherItem> researchers = new ArrayList<>();

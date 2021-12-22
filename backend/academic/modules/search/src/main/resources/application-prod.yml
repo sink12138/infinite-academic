@@ -54,4 +54,4 @@ logging:
 
 search:
   conditions:
-    max-depth: 3
+    max-depth: 5
