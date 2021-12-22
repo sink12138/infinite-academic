@@ -284,9 +284,11 @@ export default {
           time: "2018-10-15",
         },
       ],
-      customGroupNames: { "category": "Cat", "dairy": "Dairy" },
       window: 0,
     }
+  },
+  mounted() {
+    this.getAllApplications();
   },
   methods: {
     getAllApplications() {
@@ -295,10 +297,14 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 0,
+          size: 10,
         }
       }).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.all = res.data.data.applications
+        } else {
+          console.log(res.data.message)
+        }
       }).catch(error => {
         console.log(error)
       })
@@ -309,11 +315,15 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 0,
+          size: 12,
           status: "审核中",
         }
       }).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.review = res.data.data.applications
+        } else {
+          console.log(res.data.message)
+        }
       }).catch(error => {
         console.log(error)
       })
@@ -324,11 +334,15 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 0,
+          size: 12,
           status: "审核通过",
         }
       }).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.passed = res.data.data.applications
+        } else {
+          console.log(res.data.message)
+        }
       }).catch(error => {
         console.log(error)
       })
@@ -339,11 +353,15 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 0,
+          size: 12,
           status: "审核不通过",
         }
       }).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.failed = res.data.data.applications
+        } else {
+          console.log(res.data.message)
+        }
       }).catch(error => {
         console.log(error)
       })

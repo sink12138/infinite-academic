@@ -132,7 +132,12 @@ export default {
         method: "get",
         url: "/api/account/application/details/"+this.message.id,
       }).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.basic = res.data.data.basic
+          this.content = res.data.data.content
+        } else {
+          console.log(res.data.message)
+        }
       }).catch(error => {
         console.log(error)
       })
