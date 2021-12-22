@@ -37,8 +37,8 @@ public class SearchRequest {
     @ApiModelProperty(value = "查询的页码，从0开始", required = true, example = "2")
     private int page;
 
-    @Range(min = 1, max = 25)
-    @ApiModelProperty(value = "每页呈现的条目数量，最多25", required = true, example = "20", allowableValues = "range[1, 25]")
+    @Range(min = 1, max = 50)
+    @ApiModelProperty(value = "每页呈现的条目数量，最多50", required = true, example = "20", allowableValues = "range[1, 25]")
     private int size;
 
     @ApiModelProperty(value = "排序依据，null默认为相关度排序", example = "citationNum.desc")

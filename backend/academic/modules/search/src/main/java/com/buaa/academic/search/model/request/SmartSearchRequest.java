@@ -42,8 +42,8 @@ public class SmartSearchRequest {
     @ApiModelProperty(value = "查询页码，从0开始（页码大于0时，只会返回基准实体）", required = true, example = "0", allowableValues = "range[1,25]")
     private int page;
 
-    @Range(min = 1, max = 25)
-    @ApiModelProperty(value = "每页显示的条目数量，最多25", required = true, example = "20")
+    @Range(min = 1, max = 50)
+    @ApiModelProperty(value = "每页显示的条目数量，最多50", required = true, example = "20")
     private int size;
 
     @AllowValues({"date.asc", "date.desc", "citationNum.desc"})
