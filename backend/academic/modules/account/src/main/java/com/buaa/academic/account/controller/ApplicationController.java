@@ -85,7 +85,7 @@ public class ApplicationController {
         Application application = elasticTemplate.get(id, Application.class);
         if (application == null)
             return result.withFailure(ExceptionType.NOT_FOUND);
-        if (!application.getId().equals(userId))
+        if (!application.getUserId().equals(userId))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         Object content = redisTemplate.opsForValue().get(id);
         return result.withData(new ApplicationDetails<>(application, content));

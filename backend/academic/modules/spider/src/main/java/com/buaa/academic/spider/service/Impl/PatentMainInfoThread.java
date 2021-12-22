@@ -1,22 +1,22 @@
 package com.buaa.academic.spider.service.Impl;
 
-import com.buaa.academic.spider.model.queueObject.PaperObject;
-import com.buaa.academic.spider.util.PaperParser;
+import com.buaa.academic.spider.model.queueObject.PatentObject;
 import com.buaa.academic.spider.util.ParserUtil;
+import com.buaa.academic.spider.util.PatentParser;
 import com.buaa.academic.spider.util.StatusCtrl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.util.Arrays;
+
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Slf4j
-public class PaperSourceThread implements Runnable {
+@AllArgsConstructor
+public class PatentMainInfoThread implements Runnable{
     private StatusCtrl statusCtrl;
 
     private Boolean headless;
@@ -26,8 +26,11 @@ public class PaperSourceThread implements Runnable {
     public void run() {
 
         String threadName = Thread.currentThread().getName();
-        statusCtrl.changeRunningStatusTo(threadName, "Paper source crawler start.");
+        statusCtrl.changeRunningStatusTo(threadName, "Start crawl patent main info...");
         log.info("{} started", threadName);
+
+        PatentParser patentParser = new PatentParser();
+        patentParser.setStatusCtrl(statusCtrl);
 
         ChromeDriverService service = null;
         RemoteWebDriver driver = null;
@@ -48,39 +51,35 @@ public class PaperSourceThread implements Runnable {
                 if (service == null || driver == null) {
                     service = ParserUtil.getDriverService();
                     driver = ParserUtil.getDriver(headless);
-                } else if (loop == 0) {
+                    patentParser.setDriver(driver);
+                }
+                else if (loop == 0) {
                     driver.quit();
                     service.stop();
                     service = ParserUtil.getDriverService();
                     service.start();
                     driver = ParserUtil.getDriver(headless);
+                    patentParser.setDriver(driver);
                 }
 
                 synchronized (StatusCtrl.queueLock) {
-                    if (StatusCtrl.sourceQueue.size() == 0 && StatusCtrl.runningPapersInitThreadNum == 0) {
-                        if (driver != null) {
-                            driver.quit();
-                            service.stop();
-                        }
-                        statusCtrl.changeRunningStatusStop(threadName, "Finished.");
+                    if (StatusCtrl.patentObjectQueue.size() == 0 && StatusCtrl.runningPatentsInitThreadNum == 0) {
+                        driver.quit();
+                        service.stop();
+                        statusCtrl.changeRunningStatusStop(threadName, "Finished");
                         log.info("{} finished", threadName);
                         return;
                     }
                 }
-
-                PaperObject paperObject = StatusCtrl.sourceQueue.poll();
-                if (paperObject == null) {
+                PatentObject patentObject = StatusCtrl.patentObjectQueue.poll();
+                if (patentObject == null) {
                     Thread.sleep(2000);
                     continue;
                 }
-
-                PaperParser paperParser = new PaperParser();
-                paperParser.setPaperCrawl(paperObject);
-                paperParser.setDriver(driver);
-                paperParser.setStatusCtrl(statusCtrl);
-                paperParser.baiduSpider();
+                patentParser.wanFangSpider(patentObject);
 
             } catch (Exception e) {
+                statusCtrl.changeRunningStatusTo(threadName, Arrays.toString(e.getStackTrace()));
                 StatusCtrl.errorHandler.report(e);
                 try {
                     if (driver != null)
@@ -94,6 +93,7 @@ public class PaperSourceThread implements Runnable {
                     service = ParserUtil.getDriverService();
                     service.start();
                     driver = ParserUtil.getDriver(headless);
+                    patentParser.setDriver(driver);
                 } catch (Exception ignored) {}
             }
         }

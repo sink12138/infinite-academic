@@ -1,16 +1,14 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Patent;
+import com.buaa.academic.spider.model.queueObject.PatentObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,35 +16,25 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class PatentParser {
-    private String url;
-
-    private Patent patent;
-
     private StatusCtrl statusCtrl;
 
-    private Boolean headless;
+    private RemoteWebDriver driver;
 
-    public void wanFangSpider(){
+    public void wanFangSpider(PatentObject patentObject){
         String threadName = Thread.currentThread().getName();
-        RemoteWebDriver driver = null;
-        boolean success = false;
-        ChromeOptions options = new ChromeOptions().setHeadless(headless);
-        while (!success) {
-            try {
-                driver = new ChromeDriver(options);
-                success = true;
-            } catch (Exception ignored) {}
-        }
         try {
-            driver.get(this.url);
+            driver.get(patentObject.getUrl());
             ParserUtil.randomSleep(2000);
-//            Patent patent = statusCtrl.existenceService.findPatentById(this.patent.getId());
+            Patent patent = statusCtrl.template.get(patentObject.getPatentId(), Patent.class);
+            if (patent == null)
+                return;
             // 获取标题
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
             if (titleElement.size() != 0) {
                 String title = titleElement.get(0).getText();
                 patent.setTitle(title);
             }
+            statusCtrl.changeRunningStatusTo(threadName, "Crawl info of patent with title: " + patent.getTitle());
             // 获取摘要
             List<WebElement> summaryElement = driver.findElementsByXPath("//div[@class=\"summary\"]");
             if (summaryElement.size() != 0) {
@@ -169,13 +157,10 @@ public class PatentParser {
                 String claim = claimElement.get(0).getText();
                 patent.setClaim(claim);
             }
-            //todo insert into database
-//            statusCtrl.patentRepository.save(patent);
+            statusCtrl.patentRepository.save(patent);
         } catch (Exception e) {
+            System.out.println(patentObject.getUrl());
             e.printStackTrace();
-        } finally {
-            driver.close();
-            driver.quit();
         }
     }
 }

@@ -12,7 +12,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.mapreduce.Job;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -98,9 +97,9 @@ public class StatusCtrl implements Runnable {
         runningStatus.clear();
         lastRunningDate = new Date();
         analysisStarted = true;
-        researcherCitationStatistics();
+        /*researcherCitationStatistics();
         if (jobStopped)
-            return;
+            return;*/
         associationAnalysis();
         if (jobStopped)
             return;
@@ -161,13 +160,13 @@ public class StatusCtrl implements Runnable {
     private void associationAnalysis() throws InterruptedException {
         log.info("Association analysis started");
 
-        double minSupport = 0.2;
-        double minConfidence = 0.3;
+        double minSupport = 0.0001;
+        double minConfidence = 0.03;
 
         FPGMainClass topicFPG = new FPGMainClass("keywords")
                 .setName(JobType.TOPIC_FPG_ANALYSIS.name())
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
-                .setDeleteTmpFiles(false)
+                .setDeleteTmpFiles(true)
                 .setTemplate(template)
                 .setTopicRepository(topicRepository)
                 .setCacheDirectory(cacheDirectory);
@@ -181,7 +180,7 @@ public class StatusCtrl implements Runnable {
         FPGMainClass subjectFPG = new FPGMainClass("subjects")
                 .setName(JobType.SUBJECT_FPG_ANALYSIS.name())
                 .setMinSupport(minSupport).setMinConfidence(minConfidence)
-                .setDeleteTmpFiles(false)
+                .setDeleteTmpFiles(true)
                 .setTemplate(template)
                 .setSubjectRepository(subjectRepository)
                 .setCacheDirectory(cacheDirectory);
@@ -201,7 +200,7 @@ public class StatusCtrl implements Runnable {
     private void heatRankAnalysis() throws InterruptedException {
         log.info("Heat rank analysis started");
 
-        int jobNumber = 10;
+        int jobNumber = 20;
 
         HeatUpdateMainThread topicMainThread = new HeatUpdateMainThread(template)
                 .setName(JobType.HOT_TOPIC_ANALYSIS.name())

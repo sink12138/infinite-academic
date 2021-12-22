@@ -143,6 +143,8 @@ public class FPGMainClass implements Runnable {
         Job countJob = null;
         try {
             countJob = frequencyCal();
+            if (countJob == null)
+                return;
         } catch (IllegalStateException e) {
             e.printStackTrace();
             interruptStop("Stopped. ");
@@ -156,7 +158,8 @@ public class FPGMainClass implements Runnable {
         // 去除非频繁项，根据词频对原数据排序
         try {
             assert countJob != null;
-            sortItem(countJob);
+            if (!sortItem(countJob))
+                return;
         } catch (IllegalStateException e) {
             e.printStackTrace();
             interruptStop("Stopped. ");
@@ -169,7 +172,8 @@ public class FPGMainClass implements Runnable {
 
         // fp-growth生成频繁项集
         try {
-            fpgExc();
+            if(!fpgExc())
+                return;
         } catch (IllegalStateException e) {
             interruptStop("Stopped. ");
         } catch (Exception e) {
@@ -181,7 +185,8 @@ public class FPGMainClass implements Runnable {
 
         // 计算关联规则
         try {
-            associationCal();
+            if (!associationCal())
+                return;
         } catch (IllegalStateException e) {
             e.printStackTrace();
             interruptStop("Stopped. ");
@@ -230,7 +235,7 @@ public class FPGMainClass implements Runnable {
                 .withFields(analysisObject)
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
-        SearchScrollHits<Paper> hits = template.searchScrollStart(60000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
+        SearchScrollHits<Paper> hits = template.searchScrollStart(120000, searchQuery, Paper.class, IndexCoordinates.of("paper"));
         String scrollId = hits.getScrollId();
 
         int total = 0;
@@ -288,7 +293,7 @@ public class FPGMainClass implements Runnable {
                     fileWriter.write(inputData);
                 }
             }
-            hits = template.searchScrollContinue(scrollId, 60000, Paper.class, IndexCoordinates.of("paper"));
+            hits = template.searchScrollContinue(scrollId, 120000, Paper.class, IndexCoordinates.of("paper"));
         } while (hits.hasSearchHits());
         StatusCtrl.changeRunningStatusTo("Data is ready!", name);
         fileWriter.close();
@@ -318,14 +323,14 @@ public class FPGMainClass implements Runnable {
 
             deleteDir(resultDir);
             deleteDir(inputPath);
-            System.exit(-1);
+            return null;
         }
 
         StatusCtrl.changeRunningStatusTo("Frequency count finished!", name);
         return countJob;
     }
 
-    private void sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
+    private boolean sortItem(Job countJob) throws IOException, InterruptedException, ClassNotFoundException {
         StatusCtrl.changeRunningStatusTo("Generating and sorting frequent items...", name);
 
         minSupport = minSupport * countJob.getCounters().findCounter(FPGWordFrequency.Counter.LINE_LEN).getValue();
@@ -354,12 +359,13 @@ public class FPGMainClass implements Runnable {
 
             deleteDir(resultDir);
             deleteDir(inputPath);
-            System.exit(-1);
+            return false;
         }
         StatusCtrl.changeRunningStatusTo("Frequent items sorting finished!", name);
+        return true;
     }
 
-    private void fpgExc() throws IOException, InterruptedException, ClassNotFoundException {
+    private boolean fpgExc() throws IOException, InterruptedException, ClassNotFoundException {
         StatusCtrl.changeRunningStatusTo("FP-growth executing...", name);
 
         String jobName = "FPGrowth";
@@ -386,14 +392,15 @@ public class FPGMainClass implements Runnable {
 
             deleteDir(resultDir);
             deleteDir(inputPath);
-            System.exit(-1);
+            return false;
         }
         fpJob.close();
 
         StatusCtrl.changeRunningStatusTo("FP-Growth finished!", name);
+        return true;
     }
 
-    private void associationCal() throws IOException, InterruptedException, ClassNotFoundException {
+    private boolean associationCal() throws IOException, InterruptedException, ClassNotFoundException {
         StatusCtrl.changeRunningStatusTo("Calculating association rules...", name);
 
         configuration.setDouble("confidence", minConfidence);
@@ -422,11 +429,12 @@ public class FPGMainClass implements Runnable {
 
             deleteDir(resultDir);
             deleteDir(inputPath);
-            System.exit(-1);
+            return false;
         }
         rulesJob.close();
 
         StatusCtrl.changeRunningStatusTo("Association rules calculating finished!", name);
+        return true;
     }
 
     private void saveToEs() throws IOException {
@@ -442,7 +450,7 @@ public class FPGMainClass implements Runnable {
                 String item = rule[0];
                 String[] associationItems = rule[1].split(FPGMainClass.splitChar);
                 String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
-                if (analysisObject.equals("topics")) {
+                if (analysisObject.equals("keywords")) {
                     ArrayList<Association> associationTopics = new ArrayList<>();
                     for (int index = 0; index < associationItems.length; index++) {
                         Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));

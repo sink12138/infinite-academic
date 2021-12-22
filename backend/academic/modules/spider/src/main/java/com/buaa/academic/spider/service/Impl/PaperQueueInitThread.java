@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
-public class CrawlerQueueInitThread implements Runnable {
+public class PaperQueueInitThread implements Runnable {
 
     private StatusCtrl statusCtrl;
 
@@ -25,12 +25,12 @@ public class CrawlerQueueInitThread implements Runnable {
         statusCtrl.changeRunningStatusTo(threadName, "Crawler queue init start...");
         log.info("{} started", threadName);
         synchronized (StatusCtrl.queueLock) {
-            StatusCtrl.runningQueueInitThreadNum ++;
+            StatusCtrl.runningPapersInitThreadNum++;
         }
-        while (StatusCtrl.keywordQueue.size() != 0) {
+        while (StatusCtrl.paperKeywordQueue.size() != 0) {
             if (StatusCtrl.jobStopped)
                 break;
-            String keyword = StatusCtrl.keywordQueue.poll();
+            String keyword = StatusCtrl.paperKeywordQueue.poll();
             log.info("{} polled new keyword", threadName);
             // String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=table&s=50";
             String url = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=detail&s=50";
@@ -45,7 +45,7 @@ public class CrawlerQueueInitThread implements Runnable {
             }
         }
         synchronized (StatusCtrl.queueLock) {
-            StatusCtrl.runningQueueInitThreadNum --;
+            StatusCtrl.runningPapersInitThreadNum--;
         }
         if (StatusCtrl.jobStopped) {
             statusCtrl.changeRunningStatusStop(Thread.currentThread().getName(), "Stopped");

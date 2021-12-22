@@ -2,6 +2,7 @@ package com.buaa.academic.spider.controller;
 
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.entity.User;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.model.web.Schedule;
@@ -67,13 +68,15 @@ public class SpiderController {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        statusCtrl.setQueueInitThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(4);
-        statusCtrl.setPaperSourceThreadNum(4);
-        statusCtrl.setResearcherThreadNum(4);
-        statusCtrl.setInterestsThreadNum(1);
-        statusCtrl.setJournalThreadNum(1);
-        statusCtrl.setSubjectTopicThreadNum(2);
+        statusCtrl.setPapersInitThreadNum(0);
+        statusCtrl.setPaperMainInfoNum(0);
+        statusCtrl.setPaperSourceThreadNum(0);
+        statusCtrl.setResearcherThreadNum(0);
+        statusCtrl.setInterestsThreadNum(0);
+        statusCtrl.setJournalThreadNum(0);
+        statusCtrl.setSubjectTopicThreadNum(0);
+        statusCtrl.setPatentsInitThreadNum(2);
+        statusCtrl.setPatentMainInfoNum(2);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
@@ -104,7 +107,7 @@ public class SpiderController {
         Result<Void> result = new Result<>();
         if (!isValidHeader(auth))
             return result.withFailure(ExceptionType.UNAUTHORIZED);
-        StatusCtrl.keywordQueue.addAll(keywords);
+        StatusCtrl.paperKeywordQueue.addAll(keywords);
         return result;
     }
 
@@ -319,9 +322,9 @@ public class SpiderController {
             return result.withFailure(ExceptionType.UNAUTHORIZED);
         System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
         System.setProperty("webdriver.chrome.silentOutput", "true");
-        statusCtrl.setQueueInitThreadNum(3);
+        statusCtrl.setPapersInitThreadNum(3);
         statusCtrl.setPaperSourceThreadNum(2);
-        statusCtrl.setMainInfoThreadNum(5);
+        statusCtrl.setPaperMainInfoNum(5);
         statusCtrl.setResearcherThreadNum(7);
         statusCtrl.setSubjectTopicThreadNum(1);
         statusCtrl.setJournalThreadNum(1);
@@ -332,22 +335,22 @@ public class SpiderController {
     }
 
     @PostMapping("/crawlWithUrl")
-    public Result<Void> crawlWithUrl(@RequestHeader(name = "Auth") String auth,
+    public Result<Void> crawlWithUrl(@RequestHeader(name = "Auth") String userId,
                                      @RequestParam(name = "url") @NotBlank String url) {
         Result<Void> result = new Result<>();
-        if (!isValidHeader(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        crawlService.crawlWithUrl(url);
+        if (!template.exists(userId, User.class))
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        crawlService.crawlWithUrl(url, userId);
         return result;
     }
 
     @PostMapping("/crawlWithTitle")
-    public Result<Void> crawlWithTitle(@RequestHeader(name = "Auth") String auth,
+    public Result<Void> crawlWithTitle(@RequestHeader(name = "Auth") String userId,
                                        @RequestParam(name = "title") @NotBlank String title) {
         Result<Void> result = new Result<>();
-        if (!isValidHeader(auth))
-            return result.withFailure(ExceptionType.UNAUTHORIZED);
-        crawlService.crawlWithTitle(title);
+        if (!template.exists(userId, User.class))
+            return result.withFailure(ExceptionType.NOT_FOUND);
+        crawlService.crawlWithTitle(title, userId);
         return result;
     }
 }

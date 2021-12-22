@@ -203,7 +203,7 @@ public class SearchParser {
         RemoteWebDriver driver = ParserUtil.getDriver(headless);
         String keyword;
         while (true) {
-            keyword = StatusCtrl.keywordQueue.poll();
+            keyword = StatusCtrl.paperKeywordQueue.poll();
             if (keyword == null)
                 return;
             String searchUrl = "https://s.wanfangdata.com.cn/paper?q=" + keyword + "&style=detail&s=50";
@@ -229,7 +229,7 @@ public class SearchParser {
                     String titleName = title.getText();
                     PaperObject paperObject = new PaperObject();
 
-                    statusCtrl.changeRunningStatusTo(threadName, "Found paper: " + titleName + " remain paper: " + StatusCtrl.keywordQueue.size());
+                    statusCtrl.changeRunningStatusTo(threadName, "Found paper: " + titleName + " remain paper: " + StatusCtrl.paperKeywordQueue.size());
 
                     List<Paper.Author> authorList = new ArrayList<>();
                     List<WebElement> authors = result.findElements(By.xpath(".//span[@class=\"authors\"]"));
@@ -345,7 +345,7 @@ public class SearchParser {
     }
 
     // url:https://s.wanfangdata.com.cn/patent?q= + keyword + &s=50&style=detail
-    public void wangFangPatentSpider() throws InterruptedException{
+    public void wanFangPatentSpider() throws InterruptedException{
         int crawledPaptent = 0;
         int newPatent = 0;
         String threadName = Thread.currentThread().getName();
@@ -374,18 +374,16 @@ public class SearchParser {
                         if(patentNumElement.size()==0){
                             continue;
                         }
-                        String patentNum=patentNumElement.get(1).getText();
-                        //todo find patent by name and num
-                        Patent patent = null;
+                        String patentNum = patentNumElement.get(1).getText();
+                        Patent patent = statusCtrl.patentRepository.findPatentByTitleAndPatentNum(titleName, patentNum);
                         if (patent == null) {
                             newPatent++;
                             patent = new Patent();
                             patent.setPatentNum(patentNum);
                             patent.setTitle(titleName);
 
-                            //todo insert paptent into database
+                            statusCtrl.template.save(patent);
 
-                            // statusCtrl.patentRepository.save(patent);
                             patentObject.setPatentId(patent.getId());
 
                             // 切换窗口,获取url，返回窗口
@@ -401,8 +399,8 @@ public class SearchParser {
                             driver.close();
                             driver.switchTo().window(originalHandle);
 
-                            //todo add patentObject to queue
                             patentObject.setUrl(url);
+                            StatusCtrl.patentObjectQueue.add(patentObject);
                         }
                     }
                     statusCtrl.changeRunningStatusTo(threadName, "Patent count: " + crawledPaptent + " crawled, " + newPatent + " new");

@@ -5,11 +5,9 @@ import com.buaa.academic.document.entity.Researcher;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
+import com.buaa.academic.spider.model.queueObject.PatentObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
-import com.buaa.academic.spider.repository.InstitutionRepository;
-import com.buaa.academic.spider.repository.JournalRepository;
-import com.buaa.academic.spider.repository.PaperRepository;
-import com.buaa.academic.spider.repository.ResearcherRepository;
+import com.buaa.academic.spider.repository.*;
 import com.buaa.academic.spider.service.Impl.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,17 +38,20 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class StatusCtrl {
     public static final Object queueLock = new Object();
 
-    public static Queue<String> keywordQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<String> paperKeywordQueue = new ConcurrentLinkedQueue<>();
+    public static Queue<String> patentKeywordQueue = new ConcurrentLinkedQueue<>();
     public static Queue<PaperObject> paperObjectQueue = new PriorityBlockingQueue<>();
     public static Queue<ResearcherSet> researcherQueue = new ConcurrentLinkedQueue<>();
     public static Queue<Researcher> interestsQueue = new ConcurrentLinkedQueue<>();
     public static Queue<PaperObject> subjectsQueue = new PriorityBlockingQueue<>();
     public static Queue<String> journalUrls = new ConcurrentLinkedQueue<>();
     public static Queue<PaperObject> sourceQueue = new PriorityBlockingQueue<>();
+    public static Queue<PatentObject> patentObjectQueue = new ConcurrentLinkedQueue<>();
 
     public static ConcurrentHashMap<String, String> runningStatus = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Boolean> runningJob = new ConcurrentHashMap<>();
-    public static int runningQueueInitThreadNum = 0;
+    public static int runningPapersInitThreadNum = 0;
+    public static int runningPatentsInitThreadNum = 0;
     public static int runningMainInfoThreadNum = 0;
     public static boolean jobStopped = false;
     public static boolean paperScrollEnd = false;
@@ -110,10 +111,14 @@ public class StatusCtrl {
 
         private long interval = 60000;
 
-        private String summary() {
-            return String.format("Queued items: %d keyword(s), %d paper(s), %d researcher(s), %d interest(s), %d subject(s), %d journal(s), %d source(s)",
-                    keywordQueue.size(), paperObjectQueue.size(), researcherQueue.size(), interestsQueue.size(),
+        private String summaryForPaper() {
+            return String.format("Paper Queued items: %d keyword(s), %d paper(s), %d researcher(s), %d interest(s), %d subject(s), %d journal(s), %d source(s)",
+                    paperKeywordQueue.size(), paperObjectQueue.size(), researcherQueue.size(), interestsQueue.size(),
                     subjectsQueue.size(), journalUrls.size(), sourceQueue.size());
+        }
+        private String summaryForPatent() {
+            return String.format("Patent Queued items: %d keyword(s), %d patent(s)",
+                    patentKeywordQueue.size(), patentObjectQueue.size());
         }
 
         @Override
@@ -122,7 +127,8 @@ public class StatusCtrl {
                 Thread.onSpinWait();
             }
             while (!jobStopped && !runningJob.isEmpty()) {
-                log.info(summary());
+                log.info(summaryForPaper());
+                log.info(summaryForPatent());
                 try {
                     Thread.sleep(interval);
                 } catch (InterruptedException e) {
@@ -152,9 +158,12 @@ public class StatusCtrl {
     @Autowired
     public ResearcherRepository researcherRepository;
 
-    private int queueInitThreadNum;
+    @Autowired
+    public PatentRepository patentRepository;
 
-    private int mainInfoThreadNum;
+    private int papersInitThreadNum;
+
+    private int paperMainInfoNum;
 
     private int subjectTopicThreadNum;
 
@@ -166,18 +175,31 @@ public class StatusCtrl {
 
     private int paperSourceThreadNum;
 
+    private int patentsInitThreadNum;
+
+    private int patentMainInfoNum;
+
     public boolean start() {
         if (runningJob.size() > 0)
             return false;
         startInit();
-        StatusCtrl.keywordQueue.addAll(List.of("动态规划", "图算法", "虚拟现实"));
+        List<String> defaultKeywords = List.of("软件设计", "卷积", "计算机体系", "计算机网络", "分布式系统");
+        StatusCtrl.paperKeywordQueue.addAll(defaultKeywords);
+        StatusCtrl.patentKeywordQueue.addAll(defaultKeywords);
         boolean headless = true;
 
         new Thread(errorHandler, "Error-Handler").start();
         new Thread(queueCounter, "Queue-Counter").start();
-        for (int i = 0; i < queueInitThreadNum; i++) {
-            Thread thread = new Thread(new CrawlerQueueInitThread(this, headless));
-            String threadName = "QueueInit-" + i;
+        for (int i = 0; i < papersInitThreadNum; i++) {
+            Thread thread = new Thread(new PaperQueueInitThread(this, headless));
+            String threadName = "Paper-Init-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+        for (int i = 0; i < patentsInitThreadNum; i++) {
+            Thread thread = new Thread(new PatentQueueInitThread(this, headless));
+            String threadName = "Patent-Init-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();
@@ -225,11 +247,11 @@ public class StatusCtrl {
             String scrollId = searchHit.getScrollId();
             while (searchHit.hasSearchHits()) {
                 for (SearchHit<Paper> paperHit : searchHit.getSearchHits()) {
-                        StatusCtrl.keywordQueue.add(paperHit.getContent().getTitle());
+                        StatusCtrl.paperKeywordQueue.add(paperHit.getContent().getTitle());
                 }
                 searchHit = template.searchScrollContinue(scrollId, 3000, Paper.class, IndexCoordinates.of("paper"));
             }
-            log.info("{} papers without authors id need to be crawled", keywordQueue.size());
+            log.info("{} papers without authors id need to be crawled", paperKeywordQueue.size());
 
             StatusCtrl.startInit();
 
@@ -237,7 +259,7 @@ public class StatusCtrl {
 
             new Thread(errorHandler, "Error-Handler").start();
             new Thread(queueCounter, "Queue-Counter").start();
-            for (int i = 0; i < queueInitThreadNum; i++) {
+            for (int i = 0; i < papersInitThreadNum; i++) {
                 Thread thread = new Thread(new SpiderOneQueueThread(StatusCtrl.this, headless));
                 String threadName = "SpiderOneQueueInit-" + i;
                 runningJob.put(threadName, true);
@@ -274,7 +296,7 @@ public class StatusCtrl {
             thread.setName(threadName);
             thread.start();
         }
-        for (int i = 0; i < mainInfoThreadNum; i++) {
+        for (int i = 0; i < paperMainInfoNum; i++) {
             Thread thread = new Thread(new PaperMainInfoThread(this, headless));
             String threadName = "Paper-Main-" + i;
             runningJob.put(threadName, true);
@@ -305,6 +327,14 @@ public class StatusCtrl {
         for (int i = 0; i < journalThreadNum; i++) {
             Thread thread = new Thread(new JournalCrawlThread(this, headless));
             String threadName = "Journal-" + i;
+            runningJob.put(threadName, true);
+            thread.setName(threadName);
+            thread.start();
+        }
+
+        for (int i = 0; i < patentMainInfoNum; i++) {
+            Thread thread = new Thread(new PatentMainInfoThread(this, headless));
+            String threadName = "Patent-Main-" + i;
             runningJob.put(threadName, true);
             thread.setName(threadName);
             thread.start();

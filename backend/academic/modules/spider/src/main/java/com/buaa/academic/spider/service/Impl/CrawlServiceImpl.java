@@ -4,6 +4,7 @@ import com.buaa.academic.document.entity.Institution;
 import com.buaa.academic.document.entity.Journal;
 import com.buaa.academic.document.entity.Paper;
 import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.system.Message;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.spider.service.CrawlService;
 import com.buaa.academic.spider.util.EsUtil;
@@ -19,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -39,7 +42,7 @@ public class CrawlServiceImpl implements CrawlService {
     }
 
     @Override
-    public void crawlWithUrl(String url) {
+    public void crawlWithUrl(String url, String userId) {
         // TODO: Judge website (wanfang/cnki)
         AutoSpider spider = new WanfangUrlSpider(url);
         new Thread(() -> {
@@ -51,12 +54,12 @@ public class CrawlServiceImpl implements CrawlService {
                 e.printStackTrace();
             }
             Result<Paper> result = spider.getResult();
-            // TODO: send message to user
+            sendMsg(result, userId);
         }).start();
     }
 
     @Override
-    public void crawlWithTitle(String title) {
+    public void crawlWithTitle(String title, String userId) {
         AutoSpider spider = new TitleSpider(title);
         new Thread(() -> {
             Thread thread = new Thread(spider);
@@ -67,8 +70,19 @@ public class CrawlServiceImpl implements CrawlService {
                 e.printStackTrace();
             }
             Result<Paper> result = spider.getResult();
-            // TODO: send message to user
+            sendMsg(result, userId);
         }).start();
+    }
+
+    private void sendMsg(Result<Paper> result, String userId) {
+        Message msg = new Message();
+        msg.setOwnerId(userId);
+        String res = result.isSuccess() ? "成功" : "失败";
+        msg.setTitle("自助添加文章" + res);
+        msg.setContent(result.getMessage());
+        msg.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+        msg.setRead(false);
+        template.save(msg);
     }
 
     @Data

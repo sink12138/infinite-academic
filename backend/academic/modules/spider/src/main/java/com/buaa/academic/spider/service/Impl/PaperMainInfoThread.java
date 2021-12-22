@@ -69,7 +69,7 @@ public class PaperMainInfoThread implements Runnable{
                 }
 
                 synchronized (StatusCtrl.queueLock) {
-                    if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningQueueInitThreadNum == 0) {
+                    if (StatusCtrl.paperObjectQueue.size() == 0 && StatusCtrl.runningPapersInitThreadNum == 0) {
                         driver.quit();
                         service.stop();
                         StatusCtrl.runningMainInfoThreadNum--;
