@@ -110,6 +110,7 @@
                 <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
                   <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
@@ -170,6 +171,7 @@
                 <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
                   <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '机构'">
@@ -241,10 +243,10 @@ export default {
       type: String,
       default: "",
     },
-    todo: {
-      type: String,
-      default: "论文",
-    },
+    todo:{
+      type:String,
+      default:"全部"
+    }
   },
   mounted() {
     this.$refs.bar.filter = this.todo;
