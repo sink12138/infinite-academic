@@ -149,7 +149,7 @@ public class PaperForApp implements Serializable {
     @ApiModel("PaperForApp$Reference")
     public static class ReferencePaper implements Serializable {
 
-        @Pattern(regexp = "^$[0-9A-Za-z_-]{20}")
+        @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
         @ApiModelProperty(value = "引用论文的数据库ID，若含有此字段代表绑定已有论文，否则需指定论文标题")
         private String id;
 
