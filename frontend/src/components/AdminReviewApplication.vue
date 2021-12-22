@@ -59,36 +59,6 @@
                 @change="getApplications"
               ></v-select>
             </v-col>
-            
-            <v-dialog
-              v-model="dialog"
-              max-width="500px"
-            >
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">申请详情</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-text-field
-                      v-model="content"
-                    ></v-text-field>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    关闭
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
 
             <v-dialog v-model="dialogFail" max-width="500px">
               <v-card>
@@ -105,11 +75,9 @@
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon
-            @click="checkItem(item)"
-          >
-            mdi-eye-settings-outline
-          </v-icon>
+          <Application
+            :message="item"
+          ></Application>
           <v-icon
             :disabled="item.status!='审核中'"
             @click="passItem(item)"
@@ -151,7 +119,13 @@
 </template>
 
 <script>
+import Application from '../components/MessageDialog.vue'
+
 export default {
+  components: {
+    Application
+  },
+
   data() {
     return {
       dialog: false,
@@ -190,7 +164,6 @@ export default {
           status: 'test',
         }
       ],
-      content: '',
       radioGroup: 0,
       radio: [
         {
@@ -348,11 +321,13 @@ export default {
           }
         });
       }
+      this.checkedItem = this.applications[0]
     },
 
     checkItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
+      this.checkedItem = item
+      this.dialog = true
+      /*
       this.$axios({
         method: "get",
         url: "api/admin/review/details/" + item.id,
@@ -362,7 +337,7 @@ export default {
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {
-          this.content = response.data.data.content
+          this.checkedItem = response.data.data
         } else {
           this.$notify({
             title: "失败",
@@ -371,14 +346,10 @@ export default {
           });
         }
       });
-      this.dialog = true
+      this.dialog = true*/
     },
 
     passItem (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
-      console.log(item)
-
       if (item.type === "学者认证") {
         this.$axios({
           method: "post",
@@ -555,8 +526,6 @@ export default {
     },
 
     fail (item) {
-      this.checkItemIndex = this.applications.indexOf(item)
-
       this.$axios({
         method: "post",
         url: "api/admin/review/reject",
