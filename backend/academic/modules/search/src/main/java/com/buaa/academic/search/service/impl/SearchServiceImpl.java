@@ -52,9 +52,9 @@ public class SearchServiceImpl implements SearchService {
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             for (Condition condition : conditions) {
                 switch (condition.getLogic()) {
-                    case "and" -> boolQuery.must(condition.compile(strategy));
+                    /* The 'mustNot' logic is implemented by condition.compile() itself. */
+                    case "and", "not" -> boolQuery.must(condition.compile(strategy));
                     case "or" -> boolQuery.should(condition.compile(strategy));
-                    case "not" -> boolQuery.mustNot(condition.compile(strategy));
                 }
             }
             query = boolQuery;

@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>search</artifactId>
-    <version>2.2.1-RELEASE</version>
+    <version>2.2.2-RELEASE</version>
     <name>search</name>
     <description>Search engine for data, entities and relations.</description>
     <packaging>jar</packaging>

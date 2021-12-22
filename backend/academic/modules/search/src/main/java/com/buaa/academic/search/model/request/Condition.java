@@ -62,14 +62,15 @@ public class Condition {
             BoolQueryBuilder builder = QueryBuilders.boolQuery();
             for (Condition subCond : subConditions) {
                 switch (subCond.logic) {
-                    case "and" -> builder.must(subCond.compile(strategy));
+                    /* The 'mustNot' logic is implemented by subCond.compile() itself. See 'else'. */
+                    case "and", "not" -> builder.must(subCond.compile(strategy));
                     case "or" -> builder.should(subCond.compile(strategy));
-                    case "not" -> builder.mustNot(subCond.compile(strategy));
                 }
             }
             return builder;
         }
         else {
+            QueryBuilder resultBuilder;
             String[] fields = scope.toArray(new String[0]);
             if (!fuzzy) {
                 for (int i = 0; i < fields.length; ++i) {
@@ -94,11 +95,11 @@ public class Condition {
                         builder.should(QueryBuilders.termsQuery(field, keyArr));
                     }
                 }
-                return builder;
+                resultBuilder = builder;
             }
             else {
                 if (fuzzy) {
-                    return QueryBuilders.multiMatchQuery(keyword, fields);
+                    resultBuilder = QueryBuilders.multiMatchQuery(keyword, fields);
                 }
                 else {
                     if (fields.length > 1) {
@@ -106,12 +107,23 @@ public class Condition {
                         for (String field : fields) {
                             builder.should(QueryBuilders.termQuery(field, keyword));
                         }
-                        return builder;
+                        resultBuilder = builder;
                     }
                     else {
-                        return QueryBuilders.termQuery(fields[0], keyword);
+                        resultBuilder = QueryBuilders.termQuery(fields[0], keyword);
                     }
                 }
+            }
+            /* Implement the logic of 'not' (mustNot) */
+            if (logic.equals("not")) {
+                BoolQueryBuilder notBuilder = QueryBuilders.boolQuery().mustNot(resultBuilder);
+                for (String field : fields) {
+                    notBuilder.filter(QueryBuilders.existsQuery(field));
+                }
+                return notBuilder;
+            }
+            else {
+                return resultBuilder;
             }
         }
     }
