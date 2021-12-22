@@ -1114,7 +1114,7 @@ export default {
                   type: "warning",
                 });
               } else {
-                this.$router.push({ path: "/search/info/" + this.data.data });
+                this.$router.push({ path: this.data.data });
               }
             })
             .catch((error) => {
