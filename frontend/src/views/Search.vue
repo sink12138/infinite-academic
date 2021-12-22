@@ -36,7 +36,10 @@
               </v-row>
             </div>
             <div v-if="data.correction != null">
-              <span>已为您推荐&nbsp;<i v-html="data.correction"></i>&nbsp;的结果</span>
+              <span
+                >已为您推荐&nbsp;<i v-html="data.correction"></i
+                >&nbsp;的结果</span
+              >
             </div>
             <div v-if="data.detection != null">
               <v-card>
@@ -104,37 +107,22 @@
             </div>
             <div v-if="results.length != 0">
               <div v-if="searchType1 == '全部' || searchType1 == '论文'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
                   <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
-                  <JournalCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></JournalCard>
+                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
                 </div>
               </div>
               <div v-else-if="searchType1 == '专利'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 专利 -->
-                  <v-card
-                    class="text-left my-2"
-                    max-width="650"
-                  >
+                  <v-card class="text-left my-2" max-width="650">
                     <v-card-title class="d-flex">
                       <v-icon class="mx-1">
                         mdi-text-box-multiple-outline
@@ -152,7 +140,9 @@
                       >&nbsp;
                       <span v-if="item.publicationDate">
                         公开日:{{ item.publicationDate }} </span
-                      >&nbsp; <span v-if="item.applicant">申请人:{{ item.applicant }}</span
+                      >&nbsp;
+                      <span v-if="item.applicant"
+                        >申请人:{{ item.applicant }}</span
                       >&nbsp;
                     </v-card-subtitle>
                     <v-card-text class="pb-0">
@@ -180,20 +170,14 @@
                 </div>
               </div>
               <div v-else-if="searchType1 == '科研人员'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
                   <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '机构'">
-                <tr
-                  v-for="(row, index) in sliceList(results, 2)"
-                  :key="index"
-                >
+                <tr v-for="(row, index) in sliceList(results, 2)" :key="index">
                   <td
                     v-for="item in row"
                     :key="item.id"
@@ -231,11 +215,7 @@
         </div>
       </v-col>
     </v-card>
-    <div
-      v-if="fromDoor != ''"
-      class="fixBut"
-      style="right: 15%"
-    >
+    <div v-if="fromDoor != ''" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
@@ -265,10 +245,10 @@ export default {
       type: String,
       default: "",
     },
-    todo:{
-      type:String,
-      default:"全部"
-    }
+    todo: {
+      type: String,
+      default: "全部",
+    },
   },
   mounted() {
     this.$refs.bar.filter = this.todo;
@@ -364,7 +344,11 @@ export default {
         }
       }
       console.log(this.$refs.bar.text);
-      this.filter = this.$route.query.filter;
+      if (this.$route.query.filter != null && this.$route.query.filter != "") {
+        this.filter = this.$route.query.filter;
+      } else {
+        this.filter = "全部";
+      }
       this.$refs.filter.showType = this.filter;
       this.$refs.bar.filter = this.filter;
       if (this.$route.query.text != null && this.$route.query.text != "")
