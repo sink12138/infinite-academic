@@ -310,6 +310,8 @@ export default {
         this.$refs.filter.showType = this.filter;
         this.$refs.bar.filter = this.filter;
         this.$refs.bar.search();
+        this.$refs.bar.high=true;
+        console.log(this.$refs.bar.high);
       }
     }, 5);
   },

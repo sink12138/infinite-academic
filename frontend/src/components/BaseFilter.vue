@@ -31,27 +31,6 @@
           @change="emit()"
         ></v-select>
       </v-col>
-      <v-col>
-        <v-text-field
-          label="作者"
-          v-model="filter.paperType.authors"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="发表机构"
-          v-model="filter.paperType.institutions"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="刊登期刊"
-          v-model="filter.paperType.journal"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
     <div v-show="showType == '专利'">
       <v-select
@@ -65,27 +44,6 @@
         @change="emit()"
       ></v-select>
       <v-divider></v-divider>
-      <v-col>
-        <v-text-field
-          label="类型"
-          v-model="filter.patentType.type"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="申请人"
-          v-model="filter.patentType.applicant"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="发明人"
-          v-model="filter.patentType.inventors"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
     <v-divider></v-divider>
     <div v-show="showType == '科研人员'">
@@ -100,27 +58,6 @@
         @change="emit()"
       ></v-select>
       <v-divider></v-divider>
-      <v-col>
-        <v-text-field
-          label="研究方向"
-          v-model="filter.researcherType.interests"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="所属机构"
-          v-model="filter.researcherType.currentInst"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="合作机构"
-          v-model="filter.researcherType.institutions"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
 
     <div
@@ -351,7 +288,7 @@ export default {
   },
   data() {
     return {
-      paperType: ["期刊论文","学位论文"],
+      paperType: ["期刊论文","学位论文",""],
       authorFilter: ["1"],
       journalFilter: ["1"],
       institutionFilter: ["1"],
