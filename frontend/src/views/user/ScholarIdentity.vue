@@ -315,7 +315,7 @@
         this.$axios({
           method: "post",
           url: "/api/scholar/certify",
-          body: {
+          data: {
             content:{
               code:this.vertifyCode,
               create:create

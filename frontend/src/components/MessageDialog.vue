@@ -1,15 +1,7 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    width="500"
-  >
+  <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        v-bind="attrs"
-        v-on="on"
-        small
-        @click="getDetails()"
-      >
+      <v-btn v-bind="attrs" v-on="on" small @click="getDetails()">
         <v-icon>mdi-information-outline</v-icon>
         详细
       </v-btn>
@@ -17,60 +9,242 @@
 
     <v-card class="text-left">
       <v-card-title class="text-h5 grey lighten-2">
-        {{message.type}}
+        {{ message.type }}
       </v-card-title>
 
-      <v-row v-if="this.type == 'certification'" no-gutters>
-        <v-col cols="4">
-          <v-card-text class="font-weight-black">
-            申请认领门户ID:
+      <!-- 学者认证 -->
+      <v-container class="pa-0" v-if="this.type == 'certification'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> 门户管理: </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text v-if="this.content.create != null">
+              新建门户
+              <v-btn icon @click="reveal1 = true">
+                <v-icon> mdi-dots-horizontal-circle-outline </v-icon>
+              </v-btn>
+            </v-card-text>
+            <v-card-text v-else>
+              认领已有门户
+              <v-btn icon @click="reveal1 = true">
+                <v-icon> mdi-dots-horizontal-circle-outline </v-icon>
+              </v-btn>
+            </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 学者认证 -->
+      <v-expand-transition>
+        <v-card
+          v-if="reveal1"
+          class="transition-fast-in-fast-out v-card--reveal"
+          style="height: 100%"
+        >
+          <v-card-text class="text-h5 text--primary grey lighten-2">
+            门户详细信息
           </v-card-text>
+          <v-row no-gutters>
+            <v-col cols="4">
+              <v-card-text class="font-weight-black"> 门户管理: </v-card-text>
+            </v-col>
+            <v-col cols="8">
+              <v-card-text v-if="this.content.create != null">
+                新建门户
+              </v-card-text>
+              <v-card-text v-else> 认领已有门户 </v-card-text>
+            </v-col>
+          </v-row>
+          <v-container class="pa-0" v-if="this.content.create != null">
+            <v-row no-gutters>
+              <v-col cols="4">
+                <v-card-text class="font-weight-black"> 学者姓名: </v-card-text>
+              </v-col>
+              <v-col cols="8">
+                <v-card-text>
+                  {{ this.content.create.name }}
+                </v-card-text>
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="4">
+                <v-card-text class="font-weight-black"> 机构: </v-card-text>
+              </v-col>
+              <v-col cols="8">
+                <v-card-text
+                  v-if="this.content.create.currentInst.id != null"
+                  class="link"
+                  @click="
+                    href('institution', this.content.create.currentInst.id)
+                  "
+                >
+                  {{ this.content.create.currentInst.name }}
+                </v-card-text>
+                <v-card-text v-else>
+                  {{ this.content.create.currentInst.name }}
+                </v-card-text>
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="4">
+                <v-card-text class="font-weight-black"> 研究兴趣 </v-card-text>
+              </v-col>
+              <v-col cols="8">
+                <v-card-text>
+                  <span
+                    v-for="interest in this.content.create.interests"
+                    :key="interest"
+                  >
+                    {{ interest }}&nbsp;
+                  </span>
+                </v-card-text>
+              </v-col>
+            </v-row>
+          </v-container>
+          <v-container class="pa-0" v-else-if="this.content.claim != null">
+            <v-row no-gutters>
+              <v-col cols="4">
+                <v-card-text class="font-weight-black"> 学者姓名: </v-card-text>
+              </v-col>
+              <v-col cols="8">
+                <v-card-text>
+                  {{ this.content.create.name }}
+                </v-card-text>
+              </v-col>
+            </v-row>
+          </v-container>
+          <v-container class="text-center" v-else>
+            <v-progress-circular size="80" indeterminate></v-progress-circular>
+          </v-container>
+
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn outlined @click="reveal1 = false">
+              <v-icon>mdi-reply</v-icon>
+              退出
+            </v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </v-card>
+      </v-expand-transition>
+
+      <!-- 门户认领 -->
+      <v-container class="pa-0" v-if="this.type == 'claim'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> 申请认领门户: </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>
+              <span
+                class="link"
+                v-for="item in this.data" 
+                :key="item.id"
+                @click="href('author', item.id)"
+              >
+                {{ item.name }}&nbsp;
+              </span>
+            </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 修改门户 -->
+      <v-container class="pa-0" v-if="this.type == 'modification'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> 修改原因: </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>
+              {{  this.content.description }}
+            </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 添加论文 -->
+      <v-container class="pa-0" v-if="this.type == 'new_paper'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text> </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 修改论文 -->
+      <v-container class="pa-0" v-if="this.type == 'edit_paper'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text> </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 移除论文 -->
+      <v-container class="pa-0" v-if="this.type == 'remove_paper'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text> </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 专利转让 -->
+      <v-container class="pa-0" v-if="this.type == 'transfer'">
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black"> </v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text> </v-card-text>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- 申请时间 -->
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 申请时间: </v-card-text>
         </v-col>
         <v-col cols="8">
           <v-card-text>
-            <span
-              v-for="portal in this.content.claim.portals"
-              :key="portal"
-            >
-              {{portal}}
-            </span>
+            {{ message.time }}
           </v-card-text>
         </v-col>
       </v-row>
 
-      <v-card-text v-if="this.type == 'claim'">
-        
-      </v-card-text>
-
-      <v-card-text v-if="this.type == 'edit_paper'">
-        
-      </v-card-text>
-
-      <v-card-text v-if="this.type == 'modification'">
-        
-      </v-card-text>
-
-      <v-card-text v-if="this.type == 'new_paper'">
-        
-      </v-card-text>
-
-      <v-card-text v-if="this.type == 'remove_paper'">
-        
-      </v-card-text>
-
-      <v-card-text v-if="this.type == 'transfer'">
-        
-      </v-card-text>
-
+      <!-- 申请状态 -->
       <v-row no-gutters>
         <v-col cols="4">
-          <v-card-text class="font-weight-black">
-            申请时间:
-          </v-card-text>
+          <v-card-text class="font-weight-black"> 申请状态: </v-card-text>
         </v-col>
         <v-col cols="8">
           <v-card-text>
-            {{message.time}}
+            {{ message.status }}
+          </v-card-text>
+        </v-col>
+      </v-row>
+
+      <!-- 联系邮箱 -->
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 联系邮箱: </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-card-text>
+            {{ message.email }}
           </v-card-text>
         </v-col>
       </v-row>
@@ -79,13 +253,7 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          text
-          @click="dialog = false"
-        >
-          关闭
-        </v-btn>
+        <v-btn color="primary" text @click="dialog = false"> 关闭 </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -96,74 +264,98 @@ export default {
   data() {
     return {
       dialog: false,
-      type: "certification",
-      content: {
-        "claim": {
-          "portals": [12,23,34]
-        },
-        "create": {
-          "currentInst": {
-            "id": "",
-            "name": ""
-          },
-          "gIndex": 0,
-          "hIndex": 0,
-          "institutions": [
-            {
-              "id": "",
-              "name": ""
-            }
-          ],
-          "interests": [],
-          "name": ""
-        }
-      }
-    }
+      reveal1: false,
+      type: "",
+      data: [],
+      basic: {},
+      content: {},
+    };
   },
   props: {
     message: {
       type: Object,
-      default:() => {}
-    }
+      default: () => {},
+    },
   },
   methods: {
     getDetails() {
+      switch (this.message.type) {
+        case "学者认证":
+          this.type = "certification";
+          break;
+        case "门户认领":
+          this.type = "claim";
+          break;
+        case "门户修改":
+          this.type = "modification";
+          break;
+        case "添加论文":
+          this.type = "new_paper";
+          break;
+        case "修改论文":
+          this.type = "edit_paper";
+          break;
+        case "移除论文":
+          this.type = "remove_paper";
+          break;
+        case "专利转让":
+          this.type = "transfer";
+          break;
+        default:
+          this.type = "";
+      }
       this.$axios({
         method: "get",
-        url: "/api/account/application/details/"+this.message.id,
-      }).then(res => {
-        if (res.data.success) {
-          this.basic = res.data.data.basic
-          this.content = res.data.data.content
-        } else {
-          console.log(res.data.message)
-        }
-      }).catch(error => {
-        console.log(error)
+        url: "/api/account/application/details/" + this.message.id,
       })
+        .then((res) => {
+          if (res.data.success) {
+            this.basic = res.data.data.basic;
+            this.content = res.data.data.content;
+            console.log(this.basic);
+            console.log(this.content);
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    certification(content) {
-      this.type = "certification"
-      this.content = content
+    getBrief(entity, ids) {
+      this.$axios({
+        method: "post",
+        url: "/api/search/info/brief",
+        data: {
+          entity: entity,
+          ids: ids,
+        },
+      })
+        .then((res) => {
+          if (res.data.success) {
+            this.data = res.data.data;
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    /*claim(content) {
-      this.type = "claim"
+    href(type, id) {
+      let { href } = this.$router.resolve({ path: type, query: { id: id } });
+      window.open(href, "_blank");
     },
-    editPaper(content) {
-      this.type = "edit_paper"
-    },
-    modification(content) {
-      this.type = "modification"
-    },
-    newPaper(content) {
-      this.type = "new_paper"
-    },
-    removePaper(content) {
-      this.type = "remove_paper"
-    },
-    transfer(content) {
-      this.type = "transfer"
-    }*/
-  }
-}
+  },
+};
 </script>
+
+<style scoped>
+.v-card--reveal {
+  bottom: 0;
+  opacity: 1 !important;
+  position: absolute !important;
+  height: 100%;
+  width: 100%;
+}
+</style>
