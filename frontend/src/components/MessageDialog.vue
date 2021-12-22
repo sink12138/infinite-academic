@@ -376,7 +376,7 @@ export default {
       }
       this.$axios({
         method: "get",
-        url: "/api/account/application/details/" + this.message.id,
+        url: "/api/admin/review/details/" + this.message.id,
       })
         .then((res) => {
           if (res.data.success) {
