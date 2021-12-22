@@ -18,7 +18,7 @@ const User = () => import("../views/user/User.vue")
 const Profile = () => import("../views/user/Profile.vue")
 const Apply = () => import("../views/user/Apply.vue")
 const Message = () => import("../views/user/Message.vue")
-const Patenttransfer = () => import("../views/user/Patenttransfer.vue")
+const PatentTransfer = () => import("../views/user/PatentTransfer.vue")
 const ScholarIdentity = () => import("../views/user/ScholarIdentity.vue")
 
 Vue.use(VueRouter)
@@ -98,9 +98,9 @@ const routes = [{
         component: Message
       },
       {
-        path:'patenttransfer',
-        name:'Patenttransfer',
-        component:Patenttransfer
+        path:'patentTransfer',
+        name:'PatentTransfer',
+        component:PatentTransfer
       },
       {
         path: 'scholarIdentity',
@@ -114,8 +114,8 @@ const routes = [{
       },
     ]
   },
-  
-  
+
+
 ]
 
 const router = new VueRouter({
