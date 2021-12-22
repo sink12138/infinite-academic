@@ -97,7 +97,7 @@
         >
           <v-col cols="4">
             <v-card-text class="font-weight-black">
-              消息时间：
+              消息时间:
             </v-card-text>
           </v-col>
           <v-col cols="8">
@@ -109,7 +109,7 @@
         <v-row no-gutters>
           <v-col cols="4">
             <v-card-text class="font-weight-black">
-              正文：
+              正文:
             </v-card-text>
           </v-col>
           <v-col cols="8">
