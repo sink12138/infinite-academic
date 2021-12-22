@@ -76,7 +76,9 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></AuthorCard>
-                      <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
                     </td>
                   </tr>
                 </div>
@@ -95,7 +97,9 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></InstitutionCard>
-                      <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
                     </td>
                   </tr>
                 </div>
@@ -132,11 +136,11 @@
                     </v-card-title>
                     <v-card-subtitle class="pb-0">
                       <span v-if="item.fillingDate">
-                        申请日:{{ item.fillingDate.substr(0, 4) }} </span
+                        申请日:{{ item.fillingDate }} </span
                       >&nbsp;
                       <span v-if="item.publicationDate">
-                        公开日:{{ item.publicationDate.substr(0, 4) }} </span
-                      >&nbsp; <span>申请人:{{ item.applicant }}</span
+                        公开日:{{ item.publicationDate }} </span
+                      >&nbsp; <span v-if="item.applicant">申请人:{{ item.applicant }}</span
                       >&nbsp;
                     </v-card-subtitle>
                     <v-card-text class="pb-0">
@@ -178,8 +182,13 @@
                     style="width: 33%; height: 50%; table-layout: fixed"
                   >
                     <!-- 机构 -->
-                    <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
-                    <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                    <InstitutionCard
+                      :item="item"
+                      :disabled="fromDoor"
+                    ></InstitutionCard>
+                    <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                      >选择</v-btn
+                    >
                   </td>
                 </tr>
               </div>
@@ -239,8 +248,8 @@ export default {
       default:"全部"
     }
   },
-  mounted(){
-    this.$refs.bar.filter=this.todo
+  mounted() {
+    this.$refs.bar.filter = this.todo;
   },
   data() {
     return {
@@ -316,21 +325,28 @@ export default {
   },
   created() {
     setTimeout(() => {
+      this.$refs.bar.high = true;
+      console.log(this.$refs.bar.high);
       if (this.$route.query.text != null && this.$route.query.text != "") {
         this.$refs.bar.text = this.$route.query.text;
-        switch(this.$route.query.filter){
-          case '论文':this.$refs.bar.paperSearch[0].text=this.$route.query.text;break;
-          case '科研人员':this.$refs.bar.researcherSearch[0].text=this.$route.query.text;break;
-          case '专利':this.$refs.bar.patentSearch[0].text=this.$route.query.text;break;
+        switch (this.$route.query.filter) {
+          case "论文":
+            this.$refs.bar.paperSearch[0].text = this.$route.query.text;
+            break;
+          case "科研人员":
+            this.$refs.bar.researcherSearch[0].text = this.$route.query.text;
+            break;
+          case "专利":
+            this.$refs.bar.patentSearch[0].text = this.$route.query.text;
+            break;
         }
-        console.log(this.$refs.bar.text);
-        this.filter = this.$route.query.filter;
-        this.$refs.filter.showType = this.filter;
-        this.$refs.bar.filter = this.filter;
-        this.$refs.bar.search();
-        this.$refs.bar.high=true;
-        console.log(this.$refs.bar.high);
       }
+      console.log(this.$refs.bar.text);
+      this.filter = this.$route.query.filter;
+      this.$refs.filter.showType = this.filter;
+      this.$refs.bar.filter = this.filter;
+      if (this.$route.query.text != null && this.$route.query.text != "")
+        this.$refs.bar.search();
     }, 5);
   },
   methods: {
@@ -359,42 +375,42 @@ export default {
       this.itemNum = this.data.totalHits;
     },
     searchFilter(filter) {
-      if (filter.data.authors != null)
+      if (filter.data.authors != null) {
         this.$refs.filter.authors = filter.data.authors;
-      else this.$refs.filter.authors = [];
-      if (filter.data.subjects != null)
+        this.$refs.filter.filter.authors_selected = [];
+      } else this.$refs.filter.authors = [];
+      if (filter.data.subjects != null) {
+        this.$refs.filter.filter.subjects_selected = [];
         this.$refs.filter.subjects = filter.data.subjects;
-      else this.$refs.filter.subjects = [];
-      if (filter.data.journals != null)
+      } else this.$refs.filter.subjects = [];
+      if (filter.data.journals != null) {
+        this.$refs.filter.filter.journals_selected = [];
         this.$refs.filter.journals = filter.data.journals;
-      else this.$refs.filter.journals = [];
-      if (filter.data.institutions != null)
+      } else this.$refs.filter.journals = [];
+      if (filter.data.institutions != null) {
+        this.$refs.filter.filter.institutions_selected = [];
         this.$refs.filter.institutions = filter.data.institutions;
-      else this.$refs.filter.institutions = [];
-      if (filter.data.types != null)
+      } else this.$refs.filter.institutions = [];
+      if (filter.data.types != null) {
+        this.$refs.filter.filter.types_selected = [];
         this.$refs.filter.types = filter.data.types;
-      else this.$refs.filter.types = [];
-      if (filter.data.keywords != null)
+      } else this.$refs.filter.types = [];
+      if (filter.data.keywords != null) {
+        this.$refs.filter.filter.keywords_selected = [];
         this.$refs.filter.keywords = filter.data.keywords;
-      else this.$refs.filter.keywords = [];
-      if (filter.data.interests != null)
+      } else this.$refs.filter.keywords = [];
+      if (filter.data.interests != null) {
+        this.$refs.filter.filter.interests_selected = [];
         this.$refs.filter.interests = filter.data.interests;
-      else this.$refs.filter.interests = [];
-      if (filter.data.inventors != null)
+      } else this.$refs.filter.interests = [];
+      if (filter.data.inventors != null) {
+        this.$refs.filter.filter.inventors_selected = [];
         this.$refs.filter.inventors = filter.data.inventors;
-      else this.$refs.filter.inventors = [];
-      if (filter.data.applicants != null)
+      } else this.$refs.filter.inventors = [];
+      if (filter.data.applicants != null) {
+        this.$refs.filter.filter.applicants_selected = [];
         this.$refs.filter.applicants = filter.data.applicants;
-      else this.$refs.filter.applicants = [];
-      this.$refs.filter.filter.authors_selected = [];
-      this.$refs.filter.filter.subjects_selected = [];
-      this.$refs.filter.filter.journals_selected = [];
-      this.$refs.filter.filter.institutions_selected = [];
-      this.$refs.filter.filter.types_selected = [];
-      this.$refs.filter.filter.keywords_selected = [];
-      this.$refs.filter.filter.interests_selected = [];
-      this.$refs.filter.filter.inventors_selected = [];
-      this.$refs.filter.filter.applicants_selected = [];
+      } else this.$refs.filter.applicants = [];
     },
     jump(data) {
       this.data = data;
@@ -414,9 +430,9 @@ export default {
     close() {
       this.$emit("closeID", "close");
     },
-    toDoor(item){
-      this.$emit("findResult",item)
-    }
+    toDoor(item) {
+      this.$emit("findResult", item);
+    },
   },
 };
 </script>
