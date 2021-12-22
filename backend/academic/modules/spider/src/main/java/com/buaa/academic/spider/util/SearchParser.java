@@ -1,7 +1,9 @@
 package com.buaa.academic.spider.util;
 
 import com.buaa.academic.document.entity.Paper;
+import com.buaa.academic.document.entity.Patent;
 import com.buaa.academic.spider.model.queueObject.PaperObject;
+import com.buaa.academic.spider.model.queueObject.PatentObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -330,6 +332,94 @@ public class SearchParser {
                             StatusCtrl.sourceQueue.add(sourceObj);
                         }
                     }
+                }
+            } catch (Exception e) {
+                StatusCtrl.errorHandler.report(e);
+                --life;
+                if (life < 0)
+                    break;
+            }
+        }
+        driver.close();
+        driver.quit();
+    }
+
+    // url:https://s.wanfangdata.com.cn/patent?q= + keyword + &s=50&style=detail
+    public void wangFangPatentSpider() throws InterruptedException{
+        int crawledPaptent = 0;
+        int newPatent = 0;
+        String threadName = Thread.currentThread().getName();
+        RemoteWebDriver driver = ParserUtil.getDriver(headless);
+        driver.get(this.url);
+        ParserUtil.randomSleep(2000);
+        int page = 0;
+        while (true) {
+            if (StatusCtrl.jobStopped) {
+                break;
+            }
+            try {
+                List<WebElement> searchResult = driver.findElementsByXPath("//div[@class=\"normal-list\"]");
+                if (searchResult.size() != 0) {
+                    for (WebElement result : searchResult) {
+                        if (StatusCtrl.jobStopped) {
+                            driver.close();
+                            driver.quit();
+                            return;
+                        }
+                        WebElement title = result.findElement(By.xpath(".//span[@class=\"title\"]"));
+                        String titleName = title.getText();
+                        PatentObject patentObject=new PatentObject();
+
+                        List<WebElement> patentNumElement=result.findElements(By.xpath(".//span[@class=\"t-ML6\"]"));
+                        if(patentNumElement.size()==0){
+                            continue;
+                        }
+                        String patentNum=patentNumElement.get(1).getText();
+                        //todo find patent by name and num
+                        Patent patent = null;
+                        if (patent == null) {
+                            newPatent++;
+                            patent = new Patent();
+                            patent.setPatentNum(patentNum);
+                            patent.setTitle(titleName);
+
+                            //todo insert paptent into database
+
+                            // statusCtrl.patentRepository.save(patent);
+                            patentObject.setPatentId(patent.getId());
+
+                            // 切换窗口,获取url，返回窗口
+                            String originalHandle = driver.getWindowHandle();
+                            Actions actions = new Actions(driver);
+                            actions.click(title).perform();
+                            ParserUtil.randomSleep(2000);
+                            Set<String> allHandles = driver.getWindowHandles();
+                            allHandles.remove(originalHandle);
+                            assert allHandles.size() == 1;
+                            driver.switchTo().window((String) allHandles.toArray()[0]);
+                            String url = driver.getCurrentUrl();
+                            driver.close();
+                            driver.switchTo().window(originalHandle);
+
+                            //todo add patentObject to queue
+                            patentObject.setUrl(url);
+                        }
+                    }
+                    statusCtrl.changeRunningStatusTo(threadName, "Patent count: " + crawledPaptent + " crawled, " + newPatent + " new");
+                }
+                if (page > 50)
+                    break;
+                List<WebElement> nextElement = driver.findElementsByXPath("//span[@class=\"next\"]");
+                if (nextElement.size() == 0) {
+                    break;
+                } else {
+                    WebElement next = nextElement.get(0);
+                    if (!next.getAttribute("style").equals("display: none;")) {
+                        Actions actions = new Actions(driver);
+                        actions.click(next).perform();
+                        ++page;
+                        ParserUtil.randomSleep(2000);
+                    } else break;
                 }
             } catch (Exception e) {
                 StatusCtrl.errorHandler.report(e);
