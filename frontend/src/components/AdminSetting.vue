@@ -273,7 +273,7 @@ export default {
       ],
       code: '',
       autoRefresh: true,
-      lefttime: 2
+      lefttime: 10
     }
   },
   computed: {
@@ -476,7 +476,7 @@ export default {
 
           if (this.lefttime === 0) {
             this.getTasks()
-            this.lefttime = 2
+            this.lefttime = 10
           }
           if (this.autoRefresh == false) {
             clearInterval(this.timer);
