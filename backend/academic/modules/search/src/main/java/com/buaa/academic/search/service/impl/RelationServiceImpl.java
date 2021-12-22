@@ -8,6 +8,8 @@ import com.buaa.academic.search.service.RelationService;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -25,12 +27,13 @@ public class RelationServiceImpl implements RelationService {
     private ElasticsearchRestTemplate template;
 
     @Override
-    public <I, T extends Reducible<I>> Relations<I> searchRelations(Class<T> target, String id, String field, int page) {
+    public <I, T extends Reducible<I>> Relations<I> searchRelations(Class<T> target, String id, String field, int page, String sort) {
         Relations<I> relations = new Relations<>();
+        Pageable pageable = sort == null ? PageRequest.of(page, 10) : PageRequest.of(page, 10, Sort.by(Sort.Order.desc(sort)));
         SearchHits<T> hits = template.search(
                 new NativeSearchQueryBuilder()
                         .withQuery(QueryBuilders.termQuery(field, id))
-                        .withPageable(PageRequest.of(page, 10))
+                        .withPageable(pageable)
                         .withTrackTotalHits(true)
                         .build(),
                 target);

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RelationService {
 
-    <I, T extends Reducible<I>> Relations<I> searchRelations(Class<T> target, String id, String field, int page);
+    <I, T extends Reducible<I>> Relations<I> searchRelations(Class<T> target, String id, String field, int page, String sort);
 
     Relations<PaperItem> searchReferences(List<String> references, int page);
 

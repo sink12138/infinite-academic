@@ -64,7 +64,7 @@ public class RelationController {
         Result<ScrollPage<PaperItem>> result = new Result<>();
         if (!infoService.existsDocument(Paper.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
-        Relations<PaperItem> relations = relationService.searchRelations(Paper.class, id, "references", page);
+        Relations<PaperItem> relations = relationService.searchRelations(Paper.class, id, "references", page, "citationNum");
         ScrollPage<PaperItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());
         return result.withData(scroll);
     }
@@ -105,7 +105,7 @@ public class RelationController {
                 return result.withFailure(ExceptionType.INVALID_PARAM);
             }
         }
-        Relations<PaperItem> relations = relationService.searchRelations(Paper.class, id, field, page);
+        Relations<PaperItem> relations = relationService.searchRelations(Paper.class, id, field, page, "citationNum");
         ScrollPage<PaperItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());
         return result.withData(scroll);
     }
@@ -120,7 +120,7 @@ public class RelationController {
         Result<ScrollPage<ResearcherItem>> result = new Result<>();
         if (!infoService.existsDocument(Institution.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
-        Relations<ResearcherItem> relations = relationService.searchRelations(Researcher.class, id, "currentInst.id", page);
+        Relations<ResearcherItem> relations = relationService.searchRelations(Researcher.class, id, "currentInst.id", page, "citationNum");
         ScrollPage<ResearcherItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());
         return result.withData(scroll);
     }
@@ -135,7 +135,7 @@ public class RelationController {
         Result<ScrollPage<PatentItem>> result = new Result<>();
         if (!infoService.existsDocument(Patent.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
-        Relations<PatentItem> relations = relationService.searchRelations(Patent.class, id, "inventors.id", page);
+        Relations<PatentItem> relations = relationService.searchRelations(Patent.class, id, "inventors.id", page, null);
         ScrollPage<PatentItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());
         return result.withData(scroll);
     }
