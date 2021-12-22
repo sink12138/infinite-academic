@@ -36,7 +36,10 @@
               </v-row>
             </div>
             <div v-if="data.correction != null">
-              <span>已为您推荐&nbsp;<i v-html="data.correction"></i>&nbsp;的结果</span>
+              <span
+                >已为您推荐&nbsp;<i v-html="data.correction"></i
+                >&nbsp;的结果</span
+              >
             </div>
             <div v-if="data.detection != null">
               <v-card>
@@ -73,16 +76,9 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></AuthorCard>
-<<<<<<< HEAD
-                      <v-btn
-                        v-if="fromDoor!=''"
-                        @click="toDoor(item)"
-                      >选择</v-btn>
-=======
                       <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                         >选择</v-btn
                       >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                     </td>
                   </tr>
                 </div>
@@ -101,16 +97,9 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></InstitutionCard>
-<<<<<<< HEAD
-                      <v-btn
-                        v-if="fromDoor!=''"
-                        @click="toDoor(item)"
-                      >选择</v-btn>
-=======
                       <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                         >选择</v-btn
                       >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                     </td>
                   </tr>
                 </div>
@@ -118,55 +107,30 @@
             </div>
             <div v-if="results.length != 0">
               <div v-if="searchType1 == '全部' || searchType1 == '论文'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
-<<<<<<< HEAD
-                  <PaperCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></PaperCard>
-=======
                   <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
-                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
+                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                    >选择</v-btn
+                  >
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
-                  <JournalCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></JournalCard>
+                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
                 </div>
               </div>
               <div v-else-if="searchType1 == '专利'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 专利 -->
-                  <v-card
-                    class="text-left my-2"
-                    max-width="650"
-                  >
+                  <v-card class="text-left my-2" max-width="650">
                     <v-card-title class="d-flex">
                       <v-icon class="mx-1">
                         mdi-text-box-multiple-outline
                       </v-icon>
-                      <v-spacer>
-                      </v-spacer>
-                      <v-dialog
-                        v-model="dialog"
-                        persistent
-                        max-width="600px"
-                      >
+                      <v-spacer> </v-spacer>
+                      <v-dialog v-model="dialog" persistent max-width="600px">
                         <template v-slot:activator="{ on, attrs }">
                           <v-btn
                             depressed
@@ -301,18 +265,14 @@
                     </v-card-title>
                     <v-card-subtitle class="pb-0">
                       <span v-if="item.fillingDate">
-<<<<<<< HEAD
-                        申请日:{{ item.fillingDate.substr(0, 4) }} </span>&nbsp;
-                      <span v-if="item.publicationDate">
-                        公开日:{{ item.publicationDate.substr(0, 4) }} </span>&nbsp; <span>申请人:{{ item.applicant }}</span>&nbsp;
-=======
                         申请日:{{ item.fillingDate }} </span
                       >&nbsp;
                       <span v-if="item.publicationDate">
                         公开日:{{ item.publicationDate }} </span
-                      >&nbsp; <span v-if="item.applicant">申请人:{{ item.applicant }}</span
                       >&nbsp;
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
+                      <span v-if="item.applicant"
+                        >申请人:{{ item.applicant }}</span
+                      >&nbsp;
                     </v-card-subtitle>
                     <v-card-text class="pb-0">
                       <span
@@ -339,27 +299,16 @@
                 </div>
               </div>
               <div v-else-if="searchType1 == '科研人员'">
-                <div
-                  v-for="item in results"
-                  :key="item.id"
-                >
+                <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
-<<<<<<< HEAD
-                  <AuthorCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></AuthorCard>
-=======
                   <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
-                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
+                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                    >选择</v-btn
+                  >
                 </div>
               </div>
               <div v-else-if="searchType1 == '机构'">
-                <tr
-                  v-for="(row, index) in sliceList(results, 2)"
-                  :key="index"
-                >
+                <tr v-for="(row, index) in sliceList(results, 2)" :key="index">
                   <td
                     v-for="item in row"
                     :key="item.id"
@@ -370,16 +319,9 @@
                       :item="item"
                       :disabled="fromDoor"
                     ></InstitutionCard>
-<<<<<<< HEAD
-                    <v-btn
-                      v-if="fromDoor!=''"
-                      @click="toDoor(item)"
-                    >选择</v-btn>
-=======
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
                     >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                   </td>
                 </tr>
               </div>
@@ -404,11 +346,7 @@
         </div>
       </v-col>
     </v-card>
-    <div
-      v-if="fromDoor != ''"
-      class="fixBut"
-      style="right: 15%"
-    >
+    <div v-if="fromDoor != ''" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
@@ -438,10 +376,10 @@ export default {
       type: String,
       default: "",
     },
-    todo:{
-      type:String,
-      default:"全部"
-    }
+    todo: {
+      type: String,
+      default: "全部",
+    },
   },
   mounted() {
     this.$refs.bar.filter = this.todo;
