@@ -498,7 +498,11 @@ export default {
         }
       }
       console.log(this.$refs.bar.text);
-      this.filter = this.$route.query.filter;
+      if (this.$route.query.filter != null && this.$route.query.filter != "") {
+        this.filter = this.$route.query.filter;
+      } else {
+        this.filter = "全部";
+      }
       this.$refs.filter.showType = this.filter;
       this.$refs.bar.filter = this.filter;
       if (this.$route.query.text != null && this.$route.query.text != "")
