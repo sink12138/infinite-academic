@@ -32,7 +32,7 @@
           width="600"
         ></v-img>
       </v-container>
-      <PaperTabs :styles="styles" :publications="publications" :scholars="scholars"></PaperTabs>
+      <PaperTabs :styles="styles"></PaperTabs>
     </div>
   </div>
 </template>

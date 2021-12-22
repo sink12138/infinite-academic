@@ -51,8 +51,6 @@
       </v-container>
       <PaperTabs
         :styles="styles"
-        :publications="publications"
-        :patents="patents"
       ></PaperTabs>
     </div>
   </div>
