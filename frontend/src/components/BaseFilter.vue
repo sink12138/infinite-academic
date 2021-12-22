@@ -31,27 +31,6 @@
           @change="emit()"
         ></v-select>
       </v-col>
-      <v-col>
-        <v-text-field
-          label="作者"
-          v-model="filter.paperType.authors"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="发表机构"
-          v-model="filter.paperType.institutions"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="刊登期刊"
-          v-model="filter.paperType.journal"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
     <div v-show="showType == '专利'">
       <v-select
@@ -65,27 +44,6 @@
         @change="emit()"
       ></v-select>
       <v-divider></v-divider>
-      <v-col>
-        <v-text-field
-          label="类型"
-          v-model="filter.patentType.type"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="申请人"
-          v-model="filter.patentType.applicant"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="发明人"
-          v-model="filter.patentType.inventors"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
     <v-divider></v-divider>
     <div v-show="showType == '科研人员'">
@@ -100,27 +58,6 @@
         @change="emit()"
       ></v-select>
       <v-divider></v-divider>
-      <v-col>
-        <v-text-field
-          label="研究方向"
-          v-model="filter.researcherType.interests"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="所属机构"
-          v-model="filter.researcherType.currentInst"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          label="合作机构"
-          v-model="filter.researcherType.institutions"
-          @change="emit()"
-        ></v-text-field>
-      </v-col>
     </div>
 
     <div
@@ -198,7 +135,7 @@
             v-model="filter.authors_selected"
             v-for="(author, index) in authors"
             :key="index"
-            :label="`${author.term}`"
+            :label="`${author.term}(${author.frequency})`"
             :value="author.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -214,7 +151,7 @@
             v-model="filter.journals_selected"
             v-for="(journal, index) in journals"
             :key="index"
-            :label="`${journal.term}`"
+            :label="`${journal.term}(${journal.frequency})`"
             :value="journal.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -230,7 +167,7 @@
             v-model="filter.institutions_selected"
             v-for="(institution, index) in institutions"
             :key="index"
-            :label="`${institution.term}`"
+            :label="`${institution.term}(${institution.frequency})`"
             :value="institution.term"
             @change="emitFilter()"
           ></v-checkbox>
@@ -246,7 +183,7 @@
             v-model="filter.subjects_selected"
             v-for="(subject, index) in subjects"
             :key="index"
-            :label="`${subject.term}`"
+            :label="`${subject.term}(${subject.frequency})`"
             :value="subject.term"
             @change="emitFilter()"
           >
@@ -263,7 +200,7 @@
             v-model="filter.types_selected"
             v-for="(type, index) in types"
             :key="index"
-            :label="`${type.term}`"
+            :label="`${type.term}(${type.frequency})`"
             :value="type.term"
             @change="emitFilter()"
           >
@@ -280,7 +217,7 @@
             v-model="filter.keywords_selected"
             v-for="(keyword, index) in keywords"
             :key="index"
-            :label="`${keyword.term}`"
+            :label="`${keyword.term}(${keyword.frequency})`"
             :value="keyword.term"
             @change="emitFilter()"
           >
@@ -297,7 +234,7 @@
             v-model="filter.interests_selected"
             v-for="(interest, index) in interests"
             :key="index"
-            :label="`${interest.term}`"
+            :label="`${interest.term}(${interest.frequency})`"
             :value="interest.term"
             @change="emitFilter()"
           >
@@ -314,7 +251,7 @@
             v-model="filter.inventors_selected"
             v-for="(inventor, index) in inventor"
             :key="index"
-            :label="`${inventor.term}`"
+            :label="`${inventor.term}(${inventor.frequency})`"
             :value="inventor.term"
             @change="emitFilter()"
           >
@@ -331,7 +268,7 @@
             v-model="filter.applicants_selected"
             v-for="(applicant, index) in applicants"
             :key="index"
-            :label="`${applicant.term}`"
+            :label="`${applicant.term}(${applicant.frequency})`"
             :value="applicant.term"
             @change="emitFilter()"
           >
@@ -351,7 +288,7 @@ export default {
   },
   data() {
     return {
-      paperType: ["期刊论文","学位论文"],
+      paperType: ["期刊论文","学位论文",""],
       authorFilter: ["1"],
       journalFilter: ["1"],
       institutionFilter: ["1"],

@@ -3,7 +3,8 @@
     <v-card-title class="d-flex">
       <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
       <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
-      <span class="link"
+      <span
+        class="link"
         @click="href('paper', item.id)"
         v-html="item.title"
         :class="disabled"
@@ -15,7 +16,8 @@
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <span v-if="item.date" v-text="item.date.substr(0, 4)"></span>&nbsp;
-      <span class="link"
+      <span
+        class="link"
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
         :class="disabled"
@@ -111,7 +113,7 @@ export default {
       if (type == "topic" || type == "subject") {
         let { href } = this.$router.resolve({
           path: type,
-          query: { name: id },
+          query: { name: id.replaceAll("<b>", "").replaceAll("</b>", "") },
         });
         window.open(href, "_blank");
       } else {
