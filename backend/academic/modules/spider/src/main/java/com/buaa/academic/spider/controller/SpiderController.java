@@ -205,7 +205,7 @@ public class SpiderController {
     @PostMapping("/strip")
     public Result<Void> strip() {
         Query query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.existsQuery("journal.volume"))
+                .withQuery(QueryBuilders.existsQuery("abstract"))
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
         int sum = 0;
@@ -217,15 +217,15 @@ public class SpiderController {
             sum += scrollHits.getSearchHits().size();
             for (SearchHit<Paper> hit : scrollHits) {
                 Paper paper = hit.getContent();
+                String paperAbstract = paper.getPaperAbstract();
                 boolean edited = false;
-                Paper.Journal journal = paper.getJournal();
-                String volume = journal.getVolume();
-                if (volume.startsWith(" ")) {
-                    if (volume.isBlank())
-                        journal.setVolume(null);
-                    else
-                        journal.setVolume(volume.strip());
+                if (paperAbstract.isBlank()) {
                     edited = true;
+                    paper.setPaperAbstract(null);
+                }
+                else if (Character.isWhitespace(paperAbstract.charAt(0))) {
+                    edited = true;
+                    paper.setPaperAbstract(paperAbstract.strip());
                 }
                 if (edited) {
                     ++fixed;

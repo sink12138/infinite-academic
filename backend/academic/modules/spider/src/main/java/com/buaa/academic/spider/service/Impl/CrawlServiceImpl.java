@@ -79,7 +79,12 @@ public class CrawlServiceImpl implements CrawlService {
         msg.setOwnerId(userId);
         String res = result.isSuccess() ? "成功" : "失败";
         msg.setTitle("自助添加文章" + res);
-        msg.setContent(result.getMessage());
+        if (result.isSuccess()) {
+            msg.setContent(String.format("论文 %s 已由本系统自动获取完毕，请及时查看。如您发现错误，请提交修改申请或联系管理员。", result.getData().getTitle()));
+        }
+        else {
+            msg.setContent(String.format("很抱歉，您提交的自助添加请求未能成功完成。原因：%s", result.getMessage()));
+        }
         msg.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
         msg.setRead(false);
         template.save(msg);
@@ -405,6 +410,7 @@ public class CrawlServiceImpl implements CrawlService {
 
             paper.setReferences(referenceID);
             template.save(paper);
+            result.setData(paper);
             result.setSuccess(true);
             driver.quit();
             authorsDriver.quit();
