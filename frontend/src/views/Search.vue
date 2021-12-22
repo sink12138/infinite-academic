@@ -73,16 +73,10 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></AuthorCard>
-<<<<<<< HEAD
                       <v-btn
                         v-if="fromDoor!=''"
                         @click="toDoor(item)"
                       >选择</v-btn>
-=======
-                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                        >选择</v-btn
-                      >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                     </td>
                   </tr>
                 </div>
@@ -101,16 +95,10 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></InstitutionCard>
-<<<<<<< HEAD
                       <v-btn
                         v-if="fromDoor!=''"
                         @click="toDoor(item)"
                       >选择</v-btn>
-=======
-                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                        >选择</v-btn
-                      >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                     </td>
                   </tr>
                 </div>
@@ -123,15 +111,8 @@
                   :key="item.id"
                 >
                   <!-- 论文 -->
-<<<<<<< HEAD
-                  <PaperCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></PaperCard>
-=======
                   <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
@@ -301,18 +282,12 @@
                     </v-card-title>
                     <v-card-subtitle class="pb-0">
                       <span v-if="item.fillingDate">
-<<<<<<< HEAD
-                        申请日:{{ item.fillingDate.substr(0, 4) }} </span>&nbsp;
-                      <span v-if="item.publicationDate">
-                        公开日:{{ item.publicationDate.substr(0, 4) }} </span>&nbsp; <span>申请人:{{ item.applicant }}</span>&nbsp;
-=======
                         申请日:{{ item.fillingDate }} </span
                       >&nbsp;
                       <span v-if="item.publicationDate">
                         公开日:{{ item.publicationDate }} </span
                       >&nbsp; <span v-if="item.applicant">申请人:{{ item.applicant }}</span
                       >&nbsp;
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                     </v-card-subtitle>
                     <v-card-text class="pb-0">
                       <span
@@ -344,15 +319,8 @@
                   :key="item.id"
                 >
                   <!-- 科研人员 -->
-<<<<<<< HEAD
-                  <AuthorCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></AuthorCard>
-=======
                   <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                 </div>
               </div>
               <div v-else-if="searchType1 == '机构'">
@@ -370,16 +338,9 @@
                       :item="item"
                       :disabled="fromDoor"
                     ></InstitutionCard>
-<<<<<<< HEAD
-                    <v-btn
-                      v-if="fromDoor!=''"
-                      @click="toDoor(item)"
-                    >选择</v-btn>
-=======
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
                     >
->>>>>>> 65529610391fe7b2de62d676b0973644cf077fc9
                   </td>
                 </tr>
               </div>
