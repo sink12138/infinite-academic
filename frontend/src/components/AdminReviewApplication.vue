@@ -106,12 +106,6 @@
 
     <v-btn
       color="primary"
-      @click="test"
-    >
-      test
-    </v-btn>
-    <v-btn
-      color="primary"
       @click="passItems"
     >
       一键通过
@@ -570,42 +564,6 @@ export default {
         this.passItem(this.selectedItem[i])
       }
     }, 
-
-    test () {
-      this.$axios({
-        method: "post",
-        url: "/api/scholar/certify",
-        params: {
-          ctfApp:{
-            content:{
-              claim:{
-                portals: [],
-              },
-              code: 'test',
-              create:{
-                currentInst:{
-                  id:'test',
-                  name:'test'
-                },
-                gIndex:'test',
-                hIndex:'test',
-                institutions:'test',
-                interests:'test',
-                name:'test',
-              }
-            },
-            email:'test',
-            fileToken:'test',
-            websiteLink:'test'
-          }
-        }
-      }).then(response => {
-        console.log(response.data)
-        this.snackbarSub=true
-      }).catch(error => {
-        console.log(error)
-      })
-    }
 
   },
 }
