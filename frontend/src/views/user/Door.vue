@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Banner :title="{text: 'Portal', icon: 'mdi-clipboard-account'}"></Banner>
     <div class="whole">
       <v-row>
         <v-col cols="3">
@@ -457,12 +456,11 @@
 </template>
 
 <script>
-import Banner from '../../components/BaseBanner.vue'
 import CardPaper from '../../components/card/CardPaper.vue'
 import BaseEditPaper from '../BaseEditPaper.vue'
 import Search from '../Search.vue'
   export default {
-    components: {Banner,CardPaper,BaseEditPaper,Search},
+    components: {CardPaper,BaseEditPaper,Search},
     data: () => ({
       //门户部分
       editingD:false,
