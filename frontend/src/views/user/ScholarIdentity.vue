@@ -187,14 +187,14 @@
       <br/>
     </div>
 
-    <v-dialog v-model="getID" persistent width=1200px >
+    <!-- <v-dialog v-model="getID" persistent width=1200px >
       <v-card height=5000px>
         <Search
           :fromDoor="disabled"
           @closeID="closeID"
         ></Search>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
     <v-snackbar
       v-model="snackbarEmail"
       top
