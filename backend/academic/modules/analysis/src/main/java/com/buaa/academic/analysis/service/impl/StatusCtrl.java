@@ -97,9 +97,9 @@ public class StatusCtrl implements Runnable {
         runningStatus.clear();
         lastRunningDate = new Date();
         analysisStarted = true;
-        /*researcherCitationStatistics();
+        researcherCitationStatistics();
         if (jobStopped)
-            return;*/
+            return;
         associationAnalysis();
         if (jobStopped)
             return;

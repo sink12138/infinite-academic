@@ -46,7 +46,6 @@ public class CitationStatisticsThread implements Runnable{
             int total = (int) hits.getTotalHits();
             do {
                 finished += hits.getSearchHits().size();
-                log.info("Scrolled researchers: {}", finished);
                 StatusCtrl.changeRunningStatusTo("Finished researcher [" + finished + "/" + total + "]", name);
 
                 if (StatusCtrl.isStopped(name)) {

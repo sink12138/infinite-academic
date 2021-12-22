@@ -598,12 +598,12 @@ public class PaperParser {
         }
     }
 
-    public void baiduPaperSpider() throws InterruptedException{
+    public void zhiwangPaperSpider() throws InterruptedException {
         // todo 线程相关（paperCrawl）
         driver.get(this.paperCrawl.getUrl());
         ParserUtil.randomSleep(2000);
         String curUrl=driver.getCurrentUrl();
-        if(!curUrl.startsWith("https://kns.cnki.net/kcms/detail")){
+        if(!curUrl.startsWith("https://kns.cnki.net/kcms/detail")) {
             driver.close();
             driver.quit();
             return;
@@ -853,7 +853,7 @@ public class PaperParser {
         for(AuthorAndUrl authorAndUrl:authorUrlList){
             String url=authorAndUrl.getUrl();
             String name=authorAndUrl.getName();
-            if(url==null){
+            if(url==null) {
                 Paper.Author paperResearcher=new Paper.Author();
                 paperResearcher.setName(name);
                 researchers.add(paperResearcher);
