@@ -42,10 +42,11 @@ public class CitationStatisticsThread implements Runnable{
                     .build();
             SearchScrollHits<Researcher> hits = template.searchScrollStart(20000, searchQuery, Researcher.class, IndexCoordinates.of("researcher"));
             String scrollId = hits.getScrollId();
-            int total = 0;
+            int finished = 0;
+            int total = (int) hits.getTotalHits();
             do {
-                total += hits.getSearchHits().size();
-                log.info("Scrolled researchers: {}", total);
+                finished += hits.getSearchHits().size();
+                StatusCtrl.changeRunningStatusTo("Finished researcher [" + finished + "/" + total + "]", name);
 
                 if (StatusCtrl.isStopped(name)) {
                     StatusCtrl.changeRunningStatusToStop("Stopped.", name);
