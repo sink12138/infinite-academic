@@ -168,6 +168,7 @@
               <v-row>
                 <v-col>
                   <v-file-input 
+                  v-model="file"
                   chips 
                   label="上传证明文件"
                   ></v-file-input>
@@ -269,6 +270,7 @@
           editIns:[],
           itemGetM:null,
           timer:"",
+          file:null,
         }
     },
     methods:{
@@ -320,7 +322,33 @@
       deleteIntrest(index){
         this.interests.splice(index,1)
       },
+      upload(){
+        this.$axios({
+          method: "post",
+          url: "/api/resource/upload",
+          data: {
+            file:this.file,
+            token:null
+          }
+        }).then(response => {
+          console.log(response.data)
+          if(response.success){
+            this.fileToken=response.data
+            this.$notify({
+          title: 'upload',
+          message: "上传成功",
+          type: 'success'
+        });
+          }
+          
+        }).catch(error => {
+          console.log(error)
+        })
+      },
       submit(){
+        if(this.file!=null){
+          this.upload()
+        }
         var claim={
           portals:this.portals,
         }
