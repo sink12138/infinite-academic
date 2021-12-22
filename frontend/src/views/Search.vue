@@ -236,6 +236,7 @@ export default {
         year1: 1900,
         year2: 2021,
         translated: true,
+        fuzzy: true,
         citationNum: null,
         paperNum: null,
         patentNum: null,
@@ -305,6 +306,11 @@ export default {
     setTimeout(() => {
       if (this.$route.query.text != null && this.$route.query.text != "") {
         this.$refs.bar.text = this.$route.query.text;
+        switch(this.$route.query.filter){
+          case '论文':this.$refs.bar.paperSearch[0].text=this.$route.query.text;break;
+          case '科研人员':this.$refs.bar.researcherSearch[0].text=this.$route.query.text;break;
+          case '专利':this.$refs.bar.patentSearch[0].text=this.$route.query.text;break;
+        }
         console.log(this.$refs.bar.text);
         this.filter = this.$route.query.filter;
         this.$refs.filter.showType = this.filter;
