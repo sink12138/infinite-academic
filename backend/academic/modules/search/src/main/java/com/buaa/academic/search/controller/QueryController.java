@@ -86,7 +86,7 @@ public class QueryController {
                 return result.withFailure(ExceptionType.INVALID_PARAM);
             }
         }
-        return result.withData(entity + "/" + id);
+        return result.withData(entity + "?id=" + id);
     }
 
 }
