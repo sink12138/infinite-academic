@@ -1,6 +1,5 @@
 <template>
   <v-card
-    width="4000"
     flat
     outlined
   >
@@ -11,10 +10,10 @@
         :options.sync="options"
         :server-items-length="totalApplications"
         :loading="loading"
-        :calculate-widths="true"
         class="applications"
         show-select
         v-model="selectedItem"
+        style="word-break:break-all"
       >
         <template v-slot:top>
           <v-toolbar
@@ -166,12 +165,13 @@ export default {
           align: 'start',
           value: 'id',
           sortable: false,
+          width: 150
         },
         { text: '申请类型', value: 'type', sortable: false },
         { text: '申请人ID', value: 'userId', sortable: false },
         { text: '申请时间', value: 'time', sortable: false },
         { text: '邮箱', value: 'email', sortable: false },
-        { text: 'websiteLink', value: 'websiteLink', sortable: false },
+        { text: 'websiteLink', value: 'websiteLink', sortable: false, width: 230 },
         { text: '文件Token', value: 'fileToken', sortable: false },
         { text: '当前状态', value: 'status', sortable: false },
         { text: '操作', value: 'actions', sortable: false },
