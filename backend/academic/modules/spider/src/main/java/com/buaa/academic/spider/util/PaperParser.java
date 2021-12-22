@@ -707,6 +707,7 @@ public class PaperParser {
                     for (String instName : instNames) {
                         Paper.Institution inst = new Paper.Institution();
                         instName = StringUtil.rmPlaceNameAndCode(instName);
+                        instName=instName.replaceAll("\\d+. ","");
                         // find inst by name
                         Institution foundInst = statusCtrl.esUtil.findInstByName(instName);
                         if (foundInst != null) {
