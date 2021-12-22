@@ -100,7 +100,7 @@
             value="APA"
           >APA</v-btn>
           <v-btn
-            value="GB/T"
+            value="GBT"
           >GB/T</v-btn>
         </v-btn-toggle>
         <v-spacer></v-spacer>

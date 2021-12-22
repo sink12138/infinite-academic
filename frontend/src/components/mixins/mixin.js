@@ -9,8 +9,12 @@ export const addCitation = {
           var citation = {
             paperId: item.id,
             MLA: {},
+            APA: {},
+            GBT: {},
           };
           citation["MLA"] = this.MLACitation(item);
+          citation["APA"] = this.APACitation(item);
+          citation["GBT"] = this.GBTCitation(item);
           citationList[item.id] = citation;
           localStorage.setItem("citations", JSON.stringify(citationList));
           this.$store.commit('incCitations');
@@ -37,6 +41,67 @@ export const addCitation = {
         else
           text += "."
       }
+      return text;
+    },
+    APACitation(item) {
+      /* 作者 */
+      var text = item.authors[0].name;
+      if (item.authors.length > 2) {
+        text += " et al. ";
+      }
+      else if (item.authors.length == 2) {
+        text += " and " + item.authors[1].name + " ";
+      }
+      else {
+        text += " ";
+      }
+
+      /* 出版年份 */
+      text += item.year + " ";
+
+      /* 文章标题 */
+      text += item.title + " ";
+
+      if (item.journal != null) {
+        /* 期刊标题(应当为斜体) */
+        text += item.journal.title + " ";
+
+        /* 卷 + 期数 + 页码*/
+        text += item.journal.volume + "(" + item.journal.issue + ")" + " n.pag ";
+      }
+      
+      /* DOI */
+      text += "doi:" + item.doi
+
+      return text;
+    },
+    GBTCitation(item) {
+      /* 序号 + 作者 */
+      var text = "[序号] " + item.authors[0].name;
+      if (item.authors.length > 3) {
+        text += " , " + item.authors[1].name + ", " + item.authors[2].name + ", 等. ";
+      }
+      else if (item.authors.length == 3) {
+        text += " , " + item.authors[1].name + ", " + item.authors[2].name + ". ";
+      }
+      else if (item.authors.length == 2) {
+        text += " , " + item.authors[1].name + ". ";
+      }
+      else {
+        text += " ";
+      }
+
+      /* 题名 */
+      text += item.title + "[J]. ";
+
+      if (item.journal != null) {
+        /* 期刊名 */
+        text += item.journal.title + ", ";
+
+        /* 年 + 卷 + 期数 + 页码*/
+        text += item.year + ", " + item.journal.volume + "(" + item.journal.issue + ")" + ": " + item.journal.startPage + "-" + item.journal.endPage + ".";
+      }
+
       return text;
     }
   },
