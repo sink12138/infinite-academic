@@ -92,13 +92,6 @@
               <v-row>
                 <v-col cols="6">
                   <v-text-field
-                    v-model="currentInst.id"
-                    label="现工作单位id"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
                     v-model="currentInst.name"
                     label="现工作单位名称"
                     required
@@ -106,13 +99,6 @@
                 </v-col>
               </v-row>
               <v-row v-for="i in institutions.length" :key="i">
-                <v-col cols="5">
-                  <v-text-field
-                    v-model="institutions[i-1].id"
-                    label="曾工作单位id"
-                    required
-                  ></v-text-field>
-                </v-col>
                 <v-col cols="5">
                   <v-text-field
                     v-model="institutions[i-1].name"
@@ -238,7 +224,6 @@
           snackbarEmail:false,
           snackbarSub:false,
           currentInst:{
-            id:null,
             name:""
           },
           institutions:[],
@@ -279,7 +264,6 @@
       },
       addInst(){
         this.institutions.push({
-          id:null,
           name:""
         })
       },
@@ -299,12 +283,11 @@
         this.interests.splice(index,1)
       },
       submit(){
-        var claim={
-          portals:this.portals,
-        }
+        // var claim={
+        //   portals:this.portals,
+        // }
         var create={
           currentInst:{
-            id:this.currentInst.id,
             name:this.currentInst.name
           },
           gIndex:this.gIndex,
@@ -313,33 +296,31 @@
           interests:this.interests,
           name:this.name,
         }
-        if(this.type=="新建门户"){
-          claim=null
-        }else if(this.type=="认领已有门户"){
+        // if(this.type=="新建门户"){
+        //   claim=null
+        // }
+        if(this.type=="认领已有门户"){
           create=null
         }
         var b={
             content:{
-              claim:claim,
               code:this.vertifyCode,
               create:create
             },
             email:this.email,
-            fileToken:this.fileToken,
             websiteLink:this.websiteLink
           }
         console.log(b)
+        console.log(JSON.stringify(b));
         this.$axios({
           method: "post",
           url: "/api/scholar/certify",
           body: {
             content:{
-              claim:claim,
               code:this.vertifyCode,
               create:create
             },
             email:this.email,
-            fileToken:this.fileToken,
             websiteLink:this.websiteLink
           }
         }).then(response => {
