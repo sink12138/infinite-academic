@@ -1468,7 +1468,7 @@ export default {
           break;
       }
       this.request.page = this.page;
-      if (this.request.conditions.length == 0) return;
+      if (this.filter!='全部'&&this.request.conditions.length == 0) return;
       console.log(JSON.stringify(this.request));
       this.$axios({
         method: "post",
