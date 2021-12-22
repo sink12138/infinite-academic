@@ -61,9 +61,8 @@ public class PortalForApp implements Serializable {
 
     @Valid
     @NotNull
-    @NotBlank
     @Size(max = 16)
     @ApiModelProperty(value = "研究兴趣")
-    private List<String> interests;
+    private List<@NotBlank String> interests;
 
 }
