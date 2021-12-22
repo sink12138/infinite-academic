@@ -354,7 +354,7 @@ public class SearchController {
         QueryBuilder query = searchService.buildQuery(conditions, "paper");
         QueryBuilder filter = searchService.buildFilter(filters, "paper");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("title", "abstract", "keywords");
+        HighlightBuilder hlt = searchService.buildHighlight("title", "title.raw", "abstract", "keywords", "keywords.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
@@ -483,7 +483,7 @@ public class SearchController {
         QueryBuilder query = searchService.buildQuery(conditions, "researcher");
         QueryBuilder filter = searchService.buildFilter(filters, "researcher");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("name", "interests");
+        HighlightBuilder hlt = searchService.buildHighlight("name", "interests", "interests.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
@@ -550,7 +550,7 @@ public class SearchController {
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "journal");
         SortBuilder<?> sort = SortBuilders.scoreSort();
-        HighlightBuilder hlt = searchService.buildHighlight("title");
+        HighlightBuilder hlt = searchService.buildHighlight("title", "title.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
@@ -616,7 +616,7 @@ public class SearchController {
         // Prepare search params
         QueryBuilder query = searchService.buildQuery(conditions, "institution");
         SortBuilder<?> sort = SortBuilders.scoreSort();
-        HighlightBuilder hlt = searchService.buildHighlight("name");
+        HighlightBuilder hlt = searchService.buildHighlight("name", "name.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache
@@ -734,7 +734,7 @@ public class SearchController {
         QueryBuilder query = searchService.buildQuery(conditions, "patent");
         QueryBuilder filter = searchService.buildFilter(filters, "patent");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("title");
+        HighlightBuilder hlt = searchService.buildHighlight("title", "title.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache

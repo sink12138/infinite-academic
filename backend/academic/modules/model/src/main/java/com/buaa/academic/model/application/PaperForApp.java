@@ -60,7 +60,7 @@ public class PaperForApp implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @ApiModel(value = "PaperAddApp$Institution")
-    public static class Institution {
+    public static class Institution implements Serializable {
 
         @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
         @ApiModelProperty(value = "机构的数据库ID", example = "GF_4ynwBF-Mu8unTG1hc")

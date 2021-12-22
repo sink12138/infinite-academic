@@ -29,7 +29,7 @@ public class PortalForApp implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @ApiModel("PortalForApp$Institution")
-    public static class Institution {
+    public static class Institution implements Serializable {
 
         @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
         @ApiModelProperty(value = "机构ID", notes = "数据库不存在的机构可以只传名称")
