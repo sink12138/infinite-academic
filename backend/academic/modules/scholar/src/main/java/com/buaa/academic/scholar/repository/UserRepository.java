@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends ElasticsearchRepository<User, String> {
 
-    boolean existsByResearcherId(String researcherId);
+    int countByResearcherId(String researcherId);
 
 }

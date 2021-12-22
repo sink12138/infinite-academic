@@ -130,7 +130,7 @@ public  class ExistenceCheck {
         if (claim == null)
             return true;
         for (String id : claim.getPortals()) {
-            if (userRepository.existsByResearcherId(id))
+            if (userRepository.countByResearcherId(id) > 0)
                 return false;
         }
         return true;
