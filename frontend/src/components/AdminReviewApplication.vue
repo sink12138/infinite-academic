@@ -75,21 +75,22 @@
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
-          <Application
-            :message="item"
-          ></Application>
           <v-icon
-            :disabled="item.status!='审核中'"
+            v-if="item.status=='审核中'"
             @click="passItem(item)"
           >
             mdi-check-circle-outline
           </v-icon>
           <v-icon
-            :disabled="item.status!='审核中'"
+            v-if="item.status=='审核中'"
             @click="failItem(item)"
           >
             mdi-close-circle-outline
           </v-icon>
+
+          <Application
+            :message="item"
+          ></Application>
         </template>
 
         <template v-slot:no-data>
@@ -103,12 +104,6 @@
       </v-data-table>
     </v-card-text>
 
-    <v-btn
-      color="primary"
-      @click="test"
-    >
-      test
-    </v-btn>
     <v-btn
       color="primary"
       @click="passItems"
@@ -141,15 +136,15 @@ export default {
           align: 'start',
           value: 'id',
           sortable: false,
-          width: 150
+          width: 120
         },
-        { text: '申请类型', value: 'type', sortable: false },
-        { text: '申请人ID', value: 'userId', sortable: false },
-        { text: '申请时间', value: 'time', sortable: false },
-        { text: '邮箱', value: 'email', sortable: false },
+        { text: '申请类型', value: 'type', sortable: false, width: 135 },
+        { text: '申请人ID', value: 'userId', sortable: false, width: 120 },
+        { text: '申请时间', value: 'time', sortable: false, width: 152 },
+        { text: '邮箱', value: 'email', sortable: false, width: 190 },
         { text: 'websiteLink', value: 'websiteLink', sortable: false, width: 230 },
         { text: '文件Token', value: 'fileToken', sortable: false },
-        { text: '当前状态', value: 'status', sortable: false },
+        { text: '当前状态', value: 'status', sortable: false, width: 115 },
         { text: '操作', value: 'actions', sortable: false },
       ],
       applications: [
@@ -569,42 +564,6 @@ export default {
         this.passItem(this.selectedItem[i])
       }
     }, 
-
-    test () {
-      this.$axios({
-        method: "post",
-        url: "/api/scholar/certify",
-        params: {
-          ctfApp:{
-            content:{
-              claim:{
-                portals: [],
-              },
-              code: 'test',
-              create:{
-                currentInst:{
-                  id:'test',
-                  name:'test'
-                },
-                gIndex:'test',
-                hIndex:'test',
-                institutions:'test',
-                interests:'test',
-                name:'test',
-              }
-            },
-            email:'test',
-            fileToken:'test',
-            websiteLink:'test'
-          }
-        }
-      }).then(response => {
-        console.log(response.data)
-        this.snackbarSub=true
-      }).catch(error => {
-        console.log(error)
-      })
-    }
 
   },
 }

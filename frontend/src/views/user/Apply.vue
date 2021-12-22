@@ -124,25 +124,15 @@ export default {
       ],
       passed: [
         {
-          title: "人工智能",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "机器学习",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "集群",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          type: "论文",
-          time: "2018-10-15",
-        },
+          "email": "114514@qq.com",
+          "fileToken": "B0KAR4A8Q3BHHHPMF0TT0I0B6YQMBAPPPHNPMIYM6GJMDZF4EQB7CLGOCP8S211R",
+          "id": "BcYuon0BGFAD_tUkFP7g",
+          "status": "审核中",
+          "time": "2021-08-17 19:26",
+          "type": "添加论文",
+          "userId": "3cYPmX0BGFAD_tUkT_03",
+          "websiteLink": ""
+        }
       ],
       failed: [
         {

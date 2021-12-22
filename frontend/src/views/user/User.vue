@@ -54,21 +54,14 @@
 <script>
 export default {
   mounted() {
-    console.log(localStorage.getItem("TOKEN"));
     this.$axios({
       method: "get",
       url: "/api/account/profile",
-      header: {
-        Auth: localStorage.getItem("TOKEN"),
-      },
     }).then((response) => {
       console.log(response.data);
       if (response.data.success === true) {
         this.email = response.data.data.email;
         this.username = response.data.data.username;
-        this.researcherId=response.data.data.researcherId
-      } else {
-        localStorage.setItem("TOKEN", "");
       }
     });
   },
