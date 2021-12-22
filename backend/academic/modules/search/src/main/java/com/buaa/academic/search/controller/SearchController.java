@@ -483,7 +483,8 @@ public class SearchController {
         QueryBuilder query = searchService.buildQuery(conditions, "researcher");
         QueryBuilder filter = searchService.buildFilter(filters, "researcher");
         SortBuilder<?> sort = searchService.buildSort(srt);
-        HighlightBuilder hlt = searchService.buildHighlight("name", "interests", "interests.raw");
+        HighlightBuilder hlt = searchService.buildHighlight(
+                "name", "interests", "interests.raw", "currentInst.name", "currentInst.name.raw");
         Pageable page = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
 
         // Store to cache

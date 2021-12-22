@@ -93,6 +93,12 @@ public class HitsReducer {
                         interests.set(j, highlights.get(i));
                 }
             }
+            if (hlt.containsKey("currentInst.name") || hlt.containsKey("currentInst.name.raw")) {
+                List<String> highlights = hlt.get("currentInst.name");
+                if (highlights == null)
+                    highlights = hlt.get("currentInst.name.raw");
+                item.getInstitution().setName(highlights.get(0));
+            }
             result.add(item);
         }
         return result;
