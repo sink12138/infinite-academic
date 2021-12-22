@@ -12,6 +12,7 @@
         :options.sync="options"
         show-expand
         class="task"
+        hide-default-footer
       >
         <template v-slot:top>
           <v-toolbar

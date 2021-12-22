@@ -136,16 +136,16 @@ export default {
           align: 'start',
           value: 'id',
           sortable: false,
-          width: 120
+          width: "9%"
         },
-        { text: '申请类型', value: 'type', sortable: false, width: 135 },
-        { text: '申请人ID', value: 'userId', sortable: false, width: 120 },
-        { text: '申请时间', value: 'time', sortable: false, width: 152 },
-        { text: '邮箱', value: 'email', sortable: false, width: 190 },
-        { text: 'websiteLink', value: 'websiteLink', sortable: false, width: 230 },
-        { text: '文件Token', value: 'fileToken', sortable: false },
-        { text: '当前状态', value: 'status', sortable: false, width: 115 },
-        { text: '操作', value: 'actions', sortable: false },
+        { text: '申请类型', value: 'type', sortable: false, width: "10.5%" },
+        { text: '申请人ID', value: 'userId', sortable: false, width: "9%" },
+        { text: '申请时间', value: 'time', sortable: false, width: "12%" },
+        { text: '邮箱', value: 'email', sortable: false, width: "14%" },
+        { text: 'websiteLink', value: 'websiteLink', sortable: false, width: "18%" },
+        { text: '文件Token', value: 'fileToken', sortable: false, width: "8%" },
+        { text: '当前状态', value: 'status', sortable: false, width: "9%" },
+        { text: '操作', value: 'actions', sortable: false, width: "9%" },
       ],
       applications: [
         {

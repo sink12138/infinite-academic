@@ -196,19 +196,20 @@
               </div>
             </div>
             <div v-if="results.length != 0">
-              <v-row></v-row>
               <v-row>
-                <v-col>
+                <v-col cols="8">
                   当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条
                 </v-col>
-                <v-col>
-                  <v-text-field
-                    label="跳转至"
-                    v-model="jumpPage"
-                    append-icon="mdi-magnify"
-                    @click:append="pageChange"
-                  ></v-text-field>
-                </v-col>
+              </v-row>
+              <v-row>
+                <el-pagination
+                  @current-change="pageChange"
+                  :current-page.sync="jumpPage"
+                  layout="prev, pager, next, jumper"
+                  :page-size="10"
+                  :total="itemNum"
+                >
+                </el-pagination>
               </v-row>
             </div>
           </div>
