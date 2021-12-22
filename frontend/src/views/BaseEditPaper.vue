@@ -86,6 +86,7 @@
             <v-select
               :items="types"
               label="文献类型"
+              v-model="type"
               solo
             ></v-select>
           </v-row>
@@ -285,9 +286,9 @@
      
     </div>
     <v-dialog v-model="getID" persistent width=1200px >
-      <v-card height=1000px>
+      <v-card height=5000px>
         <Search
-          :fromDoor=true
+          :fromDoor="disabled"
           @closeID="closeID"
         ></Search>
       </v-card>

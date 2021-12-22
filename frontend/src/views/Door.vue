@@ -589,6 +589,7 @@ import Search from './Search.vue'
       disabled:"disabled"
     }),
     mounted(){
+      
       // this.getInfo()
       // this.getPapers()
       this.nameE=this.name
