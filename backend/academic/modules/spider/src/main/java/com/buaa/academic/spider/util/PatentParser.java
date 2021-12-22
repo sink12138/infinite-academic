@@ -127,13 +127,14 @@ public class PatentParser {
                     else if (peopleType.equals("发明/设计人：")) {
                         List<WebElement> inventorElement = people.findElements(By.xpath(".//a"));
                         if (inventorElement.size() != 0) {
-                            List<String> inventors = new ArrayList<>();
+                            List<Patent.Inventor> inventors = new ArrayList<>();
                             for (WebElement inventor:inventorElement) {
                                 String inventorName = inventor.getText();
-                                inventors.add(inventorName);
+                                Patent.Inventor patentInventor=new Patent.Inventor();
+                                patentInventor.setName(inventorName);
+                                inventors.add(patentInventor);
                             }
-                            // todo 无法获取发明人具体信息，可直接改为List<String>，需修改实体类
-//                            patent.setInventors(inventors);
+                            patent.setInventors(inventors);
                         }
                     }
                 }
@@ -168,6 +169,7 @@ public class PatentParser {
                 String claim = claimElement.get(0).getText();
                 patent.setClaim(claim);
             }
+            //todo insert into database
 //            statusCtrl.patentRepository.save(patent);
         } catch (Exception e) {
             e.printStackTrace();
