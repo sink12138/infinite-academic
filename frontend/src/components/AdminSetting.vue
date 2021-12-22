@@ -24,6 +24,13 @@
             ></v-divider>
             <v-spacer></v-spacer>
 
+            <v-switch
+              v-model="autoRefresh"
+              @change="autoRefresh_f"
+              inset
+              :label="`自动刷新`"
+            ></v-switch>
+
             <v-icon
               @click="getTasks"
             >
@@ -139,13 +146,13 @@
           </v-icon>
           <v-icon
             @click="runItem(item)"
-            :disabled="item.running"
+            v-if="item.running==false"
           >
             mdi-play-circle-outline
           </v-icon>
           <v-icon
             @click="stopItem(item)"
-            :disabled="!item.running"
+            v-if="item.running==true"
           >
             mdi-pause-circle-outline
           </v-icon>
@@ -265,6 +272,8 @@ export default {
         { text: '运行状态', value: 'status', sortable: false },
       ],
       code: '',
+      autoRefresh: true,
+      lefttime: 2
     }
   },
   computed: {
@@ -275,6 +284,7 @@ export default {
     options: {
       handler () {
         this.getTasks()
+        this.autoRefresh_f()
       },
       deep: true,
     },
@@ -457,6 +467,22 @@ export default {
           });
         }
       });
+    },
+
+    autoRefresh_f () {
+      if (this.autoRefresh == true) {
+        this.timer = setInterval(() => {
+          this.lefttime--;
+
+          if (this.lefttime === 0) {
+            this.getTasks()
+            this.lefttime = 2
+          }
+          if (this.autoRefresh == false) {
+            clearInterval(this.timer);
+          }
+        }, 1000);
+      }
     }
   },
 }
