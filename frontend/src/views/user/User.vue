@@ -29,6 +29,18 @@
 
           <v-list-item-title>{{ text }}</v-list-item-title>
         </v-list-item>
+        <v-list-item
+          v-if="researcherId!=''"
+          link
+          :key="icon"
+          :to="url"
+        >
+          <v-list-item-icon>
+            <v-icon>{{ icon }}</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-title>{{ text }}</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -54,6 +66,7 @@ export default {
       if (response.data.success === true) {
         this.email = response.data.data.email;
         this.username = response.data.data.username;
+        this.researcherId=response.data.data.researcherId
       } else {
         localStorage.setItem("TOKEN", "");
       }
@@ -70,6 +83,10 @@ export default {
       ],
       email: "",
       username: "",
+      researcherId:"",
+      url:"/user/door",
+      icon:"mdi-account",
+      text:"门户页面"
     };
   },
 };
