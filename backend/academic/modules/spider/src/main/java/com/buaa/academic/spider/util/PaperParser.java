@@ -599,7 +599,6 @@ public class PaperParser {
     }
 
     public void zhiwangPaperSpider() throws InterruptedException {
-        // todo 线程相关（paperCrawl）
         driver.get(this.paperCrawl.getUrl());
         ParserUtil.randomSleep(2000);
         String curUrl=driver.getCurrentUrl();
