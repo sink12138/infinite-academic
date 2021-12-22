@@ -12,7 +12,16 @@
           v-on="on"
           height="100%"
         >
-          <v-icon>
+          <v-badge
+            color="red"
+            :content="num"
+            v-if="num != 0"
+          >
+            <v-icon>
+              mdi-account-circle
+            </v-icon>
+          </v-badge>
+          <v-icon v-if="num === 0">
             mdi-account-circle
           </v-icon>
         </v-btn>
@@ -184,13 +193,11 @@
 import { sha256 } from "js-sha256";
 export default {
   mounted() {
+    this.getUnreadMessage();
     console.log(localStorage.getItem("TOKEN"));
     this.$axios({
       method: "get",
       url: "/api/account/profile",
-      header: {
-        Auth: localStorage.getItem("TOKEN"),
-      },
     }).then((response) => {
       console.log(response.data);
       if (response.data.success === true) {
@@ -199,8 +206,12 @@ export default {
         localStorage.setItem("TOKEN", "");
       }
     });
+    this.$nextTick(() => {
+      setInterval(this.getUnreadMessage, 10000);
+    });
   },
   data: () => ({
+    num: 10,
     token: "",
     code: "",
     email: "",
@@ -226,6 +237,17 @@ export default {
     ],
   }),
   methods: {
+    getUnreadMessage() {
+      this.$axios({
+        method: "get",
+        url: "/api/account/message/count",
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success) {
+          this.num = response.data.data;
+        }
+      });
+    },
     href(url) {
       this.$router.push({ path: url });
     },
@@ -269,8 +291,8 @@ export default {
             console.log(this.isLogin);
             this.token = document.cookie.slice(6);
             console.log(this.token);
-            localStorage.setItem("TOKEN",this.token);
-            console.log(localStorage.getItem("TOKEN"))
+            localStorage.setItem("TOKEN", this.token);
+            console.log(localStorage.getItem("TOKEN"));
           } else {
             this.$notify({
               title: "失败",
@@ -280,26 +302,11 @@ export default {
           }
         });
       }
-      this.$axios({
-        method: "get",
-        url: "/api/account/profile",
-        headers: {
-          token: localStorage.getItem("TOKEN"),
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.isLogin = true;
-        }
-      });
     },
     logout() {
       this.$axios({
         method: "post",
         url: "/api/account/logout",
-        headers: {
-          token: localStorage.getItem("TOKEN"),
-        },
       }).then((response) => {
         console.log(response.data);
         if (response.data.success === true) {
@@ -398,3 +405,4 @@ export default {
   }
 }
 </style>
+
