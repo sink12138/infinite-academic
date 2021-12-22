@@ -76,6 +76,7 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></AuthorCard>
+                      <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                     </td>
                   </tr>
                 </div>
@@ -94,6 +95,7 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></InstitutionCard>
+                      <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                     </td>
                   </tr>
                 </div>
@@ -175,6 +177,7 @@
                   >
                     <!-- 机构 -->
                     <InstitutionCard :item="item" :disabled="fromDoor"></InstitutionCard>
+                    <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                   </td>
                 </tr>
               </div>
@@ -229,6 +232,13 @@ export default {
       type: String,
       default: "",
     },
+    todo:{
+      type:String,
+      default:"论文"
+    }
+  },
+  mounted(){
+    this.$refs.bar.filter=this.todo
   },
   data() {
     return {
@@ -394,6 +404,9 @@ export default {
     close() {
       this.$emit("closeID", "close");
     },
+    toDoor(item){
+      this.$emit("findResult",item)
+    }
   },
 };
 </script>

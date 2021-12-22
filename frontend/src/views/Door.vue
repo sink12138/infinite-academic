@@ -407,7 +407,7 @@
       ></BaseEditPaper>
     </v-dialog>
     <!-- ID -->
-    <v-dialog v-model="getID" persistent width=1200px >
+    <v-dialog v-model="getID" persistent width=1500px >
       <v-card height=5000px>
         <Search
           :fromDoor="disabled"
