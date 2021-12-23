@@ -76,6 +76,7 @@
         <v-col v-if="manage==0" offset-md="1">
           <div style="padding-top:10px;">
             <div>
+
               <h1 style="text-align:left">
                 {{name}}
               </h1>
@@ -263,11 +264,16 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col>
+              <v-col cols="9">
                 <v-file-input
-                chips
-                label="上传证明文件"
+                  class="file"
+                  chips
+                  label="上传证明文件"
+                  @change="selectFile"
                 ></v-file-input>
+              </v-col>
+              <v-col>
+                <v-btn @click="upload()">上传</v-btn>
               </v-col>
             </v-row>
             <v-row v-if="editingD">
@@ -317,11 +323,16 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col>
+                <v-col cols="9">
                   <v-file-input
-                  chips
-                  label="上传证明文件"
+                    class="file"
+                    chips
+                    label="上传证明文件"
+                    @change="selectFile"
                   ></v-file-input>
+                </v-col>
+                <v-col>
+                  <v-btn @click="upload()">上传</v-btn>
                 </v-col>
               </v-row>
               <v-row>
@@ -365,11 +376,16 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col>
+                <v-col cols="9">
                   <v-file-input
-                  chips
-                  label="上传证明文件"
+                    class="file"
+                    chips
+                    label="上传证明文件"
+                    @change="selectFile"
                   ></v-file-input>
+                </v-col>
+                <v-col>
+                  <v-btn @click="upload()">上传</v-btn>
                 </v-col>
               </v-row>
               <v-row>
@@ -595,6 +611,7 @@ import Banner from "../components/BaseBanner.vue";
       page:1,
       onePageNum:2,
       pageNum:2,
+      currentFile:null,
 
       //找id
       disabled:"disabled",
@@ -729,6 +746,33 @@ import Banner from "../components/BaseBanner.vue";
         this.hIndexE=this.hIndex
         this.currentInstE=JSON.parse( JSON.stringify(this.currentInst) )
         this.institutionsE=JSON.parse( JSON.stringify(this.institutions) )
+      },
+      selectFile(file){
+        this.currentFile = file;
+      },
+      upload(){
+        let formData = new window.FormData();
+        formData.append("file", this.currentFile);
+        if(this.fileToken!=null){
+          formData.append("token",this.fileToken)
+        }
+        this.$axios({
+          method: "post",
+          url: "/api/resource/upload",
+          data: formData,
+        }).then(response => {
+          console.log(response.data)
+          if(response.data.success){
+            this.fileToken=response.data.data
+            this.$notify({
+              title: 'upload',
+              message: "上传成功",
+              type: 'success'
+            });
+          }
+        }).catch(error => {
+          console.log(error)
+        })
       },
       submit(){
         if(this.email==''){
@@ -967,6 +1011,11 @@ import Banner from "../components/BaseBanner.vue";
           this.portals[x]=msg.id
           this.portalsName[x]=msg.name
         }
+        this.$notify({
+          title: "成功",
+          message: "添加成功",
+          type: "success",
+        });
       },
       find(type,it){
         this.todo=type

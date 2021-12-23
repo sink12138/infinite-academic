@@ -36,8 +36,7 @@
         </div>
         <div v-if="data.correction != null">
           <span
-            >已为您推荐&nbsp;<i v-html="data.correction"></i
-            >&nbsp;的结果</span
+            >已为您推荐&nbsp;<i v-html="data.correction"></i>&nbsp;的结果</span
           >
         </div>
         <div v-if="data.detection != null">
@@ -53,12 +52,19 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <JournalCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></JournalCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn>
+                  <v-row>
+                    <v-col>
+                      <JournalCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></JournalCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn>
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -73,13 +79,20 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <AuthorCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></AuthorCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn
-                  >
+                  <v-row>
+                    <v-col>
+                      <AuthorCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></AuthorCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -94,13 +107,21 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <InstitutionCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></InstitutionCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn
-                  >
+                  <v-row>
+                    <v-col>
+                      <InstitutionCard
+                        :item="item"
+                        :disabled="fromDoor"
+                        style="min-width:33%;max-width:33%"
+                      ></InstitutionCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -110,25 +131,49 @@
           <div v-if="searchType1 == '全部' || searchType1 == '论文'">
             <div v-for="item in results" :key="item.id">
               <!-- 论文 -->
-              <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
-              <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <PaperCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></PaperCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '期刊'">
             <div v-for="item in results" :key="item.id">
               <!-- 期刊 -->
-              <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
-              <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <JournalCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></JournalCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '专利'">
             <div v-for="item in results" :key="item.id">
               <!-- 专利 -->
-              <v-card class="text-left my-2" max-width="650">
+              <v-card
+                class="text-left my-2"
+                max-width="650"
+                style="margin-top: 10px"
+              >
                 <v-card-title class="d-flex">
-                  <v-icon class="mx-1">
-                    mdi-text-box-multiple-outline
-                  </v-icon>
+                  <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
                   <span
                     class="link"
                     @click="href('patent', item.id)"
@@ -143,8 +188,7 @@
                   <span v-if="item.publicationDate">
                     公开日:{{ item.publicationDate }} </span
                   >&nbsp;
-                  <span v-if="item.applicant"
-                    >申请人:{{ item.applicant }}</span
+                  <span v-if="item.applicant">申请人:{{ item.applicant }}</span
                   >&nbsp;
                 </v-card-subtitle>
                 <v-card-text class="pb-0">
@@ -174,8 +218,19 @@
           <div v-else-if="searchType1 == '科研人员'">
             <div v-for="item in results" :key="item.id">
               <!-- 科研人员 -->
-              <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
-              <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <AuthorCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></AuthorCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '机构'">
@@ -186,13 +241,25 @@
                 style="width: 33%; height: 50%; table-layout: fixed"
               >
                 <!-- 机构 -->
-                <InstitutionCard
-                  :item="item"
-                  :disabled="fromDoor"
-                ></InstitutionCard>
-                <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                  >选择</v-btn
-                >
+                <v-row>
+                  <v-col>
+                    <InstitutionCard
+                      :item="item"
+                      :disabled="fromDoor"
+                      style="
+                        max-height: 200px;
+                        min-height: 200px;
+                        min-width: 350px;
+                        margin-left: 10px;
+                      "
+                    ></InstitutionCard>
+                  </v-col>
+                  <v-col>
+                    <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                      >选择</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </td>
             </tr>
           </div>
@@ -356,16 +423,14 @@ export default {
     href(type, id) {
       if (id == null) {
         this.$notify({
-          title: '数据缺失',
-          message: '信息暂未收录，给您带来不便敬请谅解。',
-          type: 'warning'
+          title: "数据缺失",
+          message: "信息暂未收录，给您带来不便敬请谅解。",
+          type: "warning",
         });
         return;
       }
-      this.$router.push({
-        path: type,
-        query: { id: id },
-      });
+      let { href } = this.$router.resolve({ path: type, query: { id: id } });
+      window.open(href, "_blank");
     },
     handleFilter(filter) {
       this.filters = filter;
