@@ -29,16 +29,21 @@
               append-icon="mdi-magnify"
               @click:append="searchAccount"
               label="账号搜索"
-              single-line
               hide-details
+              outlined
               @input="searchAccount"
             ></v-text-field>
 
-            <v-checkbox
+            <v-spacer></v-spacer>
+
+            <v-switch
+              class="pr-2"
               v-model="scholar"
-              :label="'是否仅显示学者账户'"
               @change="getAccounts"
-            ></v-checkbox>
+              inset
+              hide-details
+              label="仅显示学者账户"
+            ></v-switch>
 
             <v-dialog
               v-model="dialog"
@@ -46,16 +51,13 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
-                  class="addAccount"
-                  dark
+                  outlined
                   v-bind="attrs"
                   v-on="on"
-                  rounded
                 >
-                  <v-icon dark>
+                  <v-icon>
                     mdi-plus
                   </v-icon>
-
                   新增账户
                 </v-btn>
               </template>

@@ -26,17 +26,23 @@
             <v-spacer></v-spacer>
 
             <v-switch
+              class="pr-2"
               v-model="autoRefresh"
               @change="autoRefresh_f"
               inset
-              :label="`自动刷新`"
+              hide-details
+              label="自动刷新"
             ></v-switch>
 
-            <v-icon
+            <v-btn outlined>
+              <v-icon
               @click="getTasks"
             >
               mdi-refresh
             </v-icon>
+              刷新
+            </v-btn>
+            
 
             <v-dialog
               v-model="dialog"
@@ -95,12 +101,12 @@
                     <p
                       v-if="radioGroup == 0"
                     >
-                      频率：每{{ frequency }}天{{ hour }}点更新
+                      频率:每{{ frequency }}天{{ hour }}点更新
                     </p>
                     <p
                       v-if="radioGroup == 1"
                     >
-                      频率：每{{ frequency }}月{{ hour }}点更新
+                      频率:每{{ frequency }}月{{ hour }}点更新
                     </p>
                   </v-container>
                 </v-card-text>

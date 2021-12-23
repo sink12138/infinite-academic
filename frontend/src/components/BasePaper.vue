@@ -58,6 +58,7 @@
         <v-btn
           small
           outlined
+          @click="hrefname('topic', keyword)"
         >
           <v-icon small>
             mdi-tag-outline
@@ -98,7 +99,7 @@
       <span v-if="paperdata.subjects">
         <span>学科分类:</span>&nbsp;
         <span v-for="subject in paperdata.subjects" :key="subject.id">
-          <a @click="hrefname('subject',subject)">{{subject}}&nbsp;</a>
+          <span class="link" @click="hrefname('subject',subject)">{{subject}}&nbsp;</span>
         </span>
       </span>
       <br>
