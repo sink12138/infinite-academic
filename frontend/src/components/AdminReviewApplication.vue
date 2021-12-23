@@ -111,7 +111,11 @@
       class="passAll"
       @click="passItems"
       rounded
+      dark
     >
+      <v-icon dark>
+        mdi-check
+      </v-icon>
       一键通过
     </v-btn>
   </v-card>
