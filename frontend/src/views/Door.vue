@@ -23,7 +23,6 @@
                   <v-list-item-content>
                     <v-list-item-title class="title">{{name}}</v-list-item-title>
                   </v-list-item-content>
-
                 </v-list-item>
               </v-list>
               <v-divider></v-divider>
@@ -33,7 +32,6 @@
               >
                 <v-list-item-group color="primary">
                   <v-list-item @click="manage=0">
-
                     <v-list-group
                     >
                       <template v-slot:activator>
@@ -41,15 +39,14 @@
                           <v-list-item-title>门户管理</v-list-item-title>
                         </v-list-item-content>
                       </template>
-
                       <v-list-item link>
-                        <v-list-item-title 
+                        <v-list-item-title
                           @click="addDoor=true"
                           :disabled="editingD"
                         >认领门户</v-list-item-title>
                       </v-list-item>
                       <v-list-item link>
-                        <v-list-item-title 
+                        <v-list-item-title
                           @click="editDoor()"
                           :disabled="editingD"
                         >编辑门户信息</v-list-item-title>
@@ -57,7 +54,6 @@
                     </v-list-group>
                   </v-list-item>
                   <v-list-item @click="manage=1">
-
                     <v-list-group
                     >
                       <template v-slot:activator>
@@ -65,9 +61,8 @@
                           <v-list-item-title>论文管理</v-list-item-title>
                         </v-list-item-content>
                       </template>
-
                       <v-list-item link>
-                        <v-list-item-title 
+                        <v-list-item-title
                           @click="addingPaper=true"
                         >添加论文</v-list-item-title>
                       </v-list-item>
@@ -81,6 +76,7 @@
         <v-col v-if="manage==0" offset-md="1">
           <div style="padding-top:10px;">
             <div>
+
               <h1 style="text-align:left">
                 {{name}}
               </h1>
@@ -94,10 +90,6 @@
             </div>
           </div>
         </v-col>
-
-
-
-
         <v-col v-if="manage==1" offset-md="1">
           <div style="padding-top:10px;">
             <v-row
@@ -122,13 +114,13 @@
                     <v-col>
                       <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
                         删除文献
-                      </v-btn>    
+                      </v-btn>
                     </v-col>
                   </v-row>
-                  
+
                 </v-col>
               <!-- </div> -->
-              
+
             </v-row>
             <v-row>
               <v-col>
@@ -140,7 +132,7 @@
               </v-col>
             </v-row>
           </div>
-          
+
         </v-col>
       </v-row>
     </div>
@@ -272,11 +264,16 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col>
-                <v-file-input 
-                chips 
-                label="上传证明文件"
+              <v-col cols="9">
+                <v-file-input
+                  class="file"
+                  chips
+                  label="上传证明文件"
+                  @change="selectFile"
                 ></v-file-input>
+              </v-col>
+              <v-col>
+                <v-btn @click="upload()">上传</v-btn>
               </v-col>
             </v-row>
             <v-row v-if="editingD">
@@ -291,7 +288,7 @@
                 </v-btn>
               </v-col>
             </v-row>
-         
+
       </div>
     </v-card>
     </v-dialog>
@@ -326,11 +323,16 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col>
-                  <v-file-input 
-                  chips 
-                  label="上传证明文件"
+                <v-col cols="9">
+                  <v-file-input
+                    class="file"
+                    chips
+                    label="上传证明文件"
+                    @change="selectFile"
                   ></v-file-input>
+                </v-col>
+                <v-col>
+                  <v-btn @click="upload()">上传</v-btn>
                 </v-col>
               </v-row>
               <v-row>
@@ -344,10 +346,10 @@
                     取消
                   </v-btn>
                 </v-col>
-              </v-row> 
-          
+              </v-row>
+
         </div>
-        
+
       </v-card>
     </v-dialog>
     <!-- 删除文献 -->
@@ -374,11 +376,16 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col>
-                  <v-file-input 
-                  chips 
-                  label="上传证明文件"
+                <v-col cols="9">
+                  <v-file-input
+                    class="file"
+                    chips
+                    label="上传证明文件"
+                    @change="selectFile"
                   ></v-file-input>
+                </v-col>
+                <v-col>
+                  <v-btn @click="upload()">上传</v-btn>
                 </v-col>
               </v-row>
               <v-row>
@@ -392,17 +399,17 @@
                     取消
                   </v-btn>
                 </v-col>
-              </v-row> 
+              </v-row>
             </v-col>
           </v-row>
-          
+
         </div>
-        
+
       </v-card>
     </v-dialog>
     <!-- 新增文献 -->
     <v-dialog v-model="addingPaper" persistent width=800px>
-      <BaseEditPaper 
+      <BaseEditPaper
       :paper="newPaper"
       :edit=false
       :email="email"
@@ -412,7 +419,7 @@
     </v-dialog>
     <!-- 修改文献 -->
     <v-dialog v-model="editingPaper" persistent width=800px>
-      <BaseEditPaper 
+      <BaseEditPaper
       :paper="thePaper"
       :edit=true
       :email="email"
@@ -451,8 +458,8 @@
       申请成功!
     </v-snackbar>
   </div>
-  
-  
+
+
 </template>
 
 <script>
@@ -526,7 +533,7 @@ import Banner from "../components/BaseBanner.vue";
         (v) => !!v || "请填写邮箱",
         (v) => /.+@.+\..+/.test(v) || "邮箱格式不合法",
       ],
-      
+
       //文献部分
       papers: [
         {
@@ -604,6 +611,7 @@ import Banner from "../components/BaseBanner.vue";
       page:1,
       onePageNum:2,
       pageNum:2,
+      currentFile:null,
 
       //找id
       disabled:"disabled",
@@ -627,8 +635,6 @@ import Banner from "../components/BaseBanner.vue";
           this.getPapers()
         }
       });
-      
-      
     },
     methods:{
       mDoor(){
@@ -660,7 +666,7 @@ import Banner from "../components/BaseBanner.vue";
         }else{
           this.snackbarEmail=true
         }
-        
+
       },
       addInst(){
         this.institutionsE.push({
@@ -741,6 +747,33 @@ import Banner from "../components/BaseBanner.vue";
         this.currentInstE=JSON.parse( JSON.stringify(this.currentInst) )
         this.institutionsE=JSON.parse( JSON.stringify(this.institutions) )
       },
+      selectFile(file){
+        this.currentFile = file;
+      },
+      upload(){
+        let formData = new window.FormData();
+        formData.append("file", this.currentFile);
+        if(this.fileToken!=null){
+          formData.append("token",this.fileToken)
+        }
+        this.$axios({
+          method: "post",
+          url: "/api/resource/upload",
+          data: formData,
+        }).then(response => {
+          console.log(response.data)
+          if(response.data.success){
+            this.fileToken=response.data.data
+            this.$notify({
+              title: 'upload',
+              message: "上传成功",
+              type: 'success'
+            });
+          }
+        }).catch(error => {
+          console.log(error)
+        })
+      },
       submit(){
         if(this.email==''){
           this.$notify({
@@ -806,7 +839,7 @@ import Banner from "../components/BaseBanner.vue";
               type: "error",
             });
           }
-          
+
         }).catch(error => {
           console.log(error)
         })
@@ -823,7 +856,7 @@ import Banner from "../components/BaseBanner.vue";
         let dat={
           content:{
             portals:this.portals,
-          },  
+          },
           email:this.emailE,
           fileToken:this.fileToken,
           websiteLink:this.websiteLink
@@ -846,7 +879,7 @@ import Banner from "../components/BaseBanner.vue";
               type: "error",
             });
           }
-          
+
         }).catch(error => {
           console.log(error)
         })
@@ -861,7 +894,7 @@ import Banner from "../components/BaseBanner.vue";
             fileToken:this.fileToken,
             websiteLink:this.websiteLink
           }
-        console.log(JSON.stringify(data))  
+        console.log(JSON.stringify(data))
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/remove",
@@ -873,7 +906,7 @@ import Banner from "../components/BaseBanner.vue";
             this.deletingPaper=false
             this.clearWeb()
           }
-          
+
         }).catch(error => {
           console.log(error)
         })
@@ -900,7 +933,7 @@ import Banner from "../components/BaseBanner.vue";
             this.currentInst=response.data.data.currentInst
             this.institutions=response.data.data.institutions
           }
-          
+
         }).catch(error => {
           console.log(error)
         })
@@ -951,18 +984,18 @@ import Banner from "../components/BaseBanner.vue";
               })
             }
           }
-          
+
         }).catch(error => {
           console.log(error)
         })
-        
+
         this.timer = setTimeout(()=>{   //设置延迟执行
           this.pageNum=Math.ceil(this.papers.length/this.onePageNum)
           console.log(this.pageNum)
           console.log(this.papers)
           console.log(this.papers.length)
         },1000);
-        
+
       },
       findResult(msg){
         msg.name=msg.name.replaceAll('<b>','')
@@ -978,6 +1011,11 @@ import Banner from "../components/BaseBanner.vue";
           this.portals[x]=msg.id
           this.portalsName[x]=msg.name
         }
+        this.$notify({
+          title: "成功",
+          message: "添加成功",
+          type: "success",
+        });
       },
       find(type,it){
         this.todo=type

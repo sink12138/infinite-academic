@@ -1,10 +1,5 @@
 <template>
   <v-card class="text-left my-2" max-width="240">
-    <v-row>
-      <v-col>
-        <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
-      </v-col>
-    </v-row>
     <v-row no-gutters>
       <v-col cols="2" class="px-1 d-flex">
         <v-icon size="48"> mdi-domain </v-icon>

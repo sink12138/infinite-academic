@@ -107,7 +107,6 @@ const routes = [{
         name: 'ScholarIdentity',
         component: ScholarIdentity
       },
-      
     ]
   },
   {
