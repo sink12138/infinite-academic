@@ -65,7 +65,7 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPub('journal','page3')">
+            <v-btn elevation="2" @click="getLastPub('researcher','page3')">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -73,7 +73,7 @@
             &nbsp;&nbsp;
             <v-btn
               elevation="2"
-              @click="getNextPub(publications,'journal','page3')"
+              @click="getNextPub(publications,'researcher','page3')"
             >下一页</v-btn>
           </div>
         </v-tab-item>
