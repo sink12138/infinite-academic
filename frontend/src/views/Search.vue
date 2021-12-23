@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <div>
     
     <Banner
       v-if="fromDoor == ''"
@@ -14,8 +14,8 @@
       v-on:searchFilter="searchFilter"
       v-on:searchType="searchType"
     ></BaseSearchBar>
-    
-    <v-row no-gutters class="mx-auto">
+
+    <v-row class="mx-auto">
       <v-col cols="1"></v-col>
       <v-col cols="3">
         <BaseFilter
@@ -28,13 +28,11 @@
       </v-col>
       <v-col cols="7">
         <div v-if="results.length != 0">
-          <v-row></v-row>
-          <v-row>
-            <v-col>
-              当前 第 {{ page }} 页,共 {{ length }} 页,共
-              {{ itemNum }} 条,耗时 {{ timeCost }} ms
-            </v-col>
-          </v-row>
+          <v-sheet class="py-2" elevation="1">
+            共找到<b>{{ itemNum }}</b>条结果
+            当前第 <b>{{ page }}/{{ length }}</b> 页
+            <span>(耗时 {{ timeCost }} ms)</span>
+          </v-sheet>
         </div>
         <div v-if="data.correction != null">
           <span
@@ -200,13 +198,9 @@
           </div>
         </div>
         <div v-if="results.length != 0">
-          <v-row>
-            <v-col cols="8">
-              当前 第 {{ page }} 页,共 {{ length }} 页,共 {{ itemNum }} 条
-            </v-col>
-          </v-row>
-          <v-row>
+          <v-row class="mt-4">
             <el-pagination
+              background
               @current-change="pageChange"
               :current-page.sync="jumpPage"
               layout="prev, pager, next, jumper"
@@ -221,7 +215,7 @@
     <div v-if="fromDoor != ''" class="fixBut" style="right: 15%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
-  </v-main>
+  </div>
 </template>
 
 <script>
