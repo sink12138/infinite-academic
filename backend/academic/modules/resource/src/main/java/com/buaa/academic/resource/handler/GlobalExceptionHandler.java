@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartException;
 
 import javax.servlet.ServletException;
 import javax.validation.ValidationException;
@@ -29,6 +30,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException.class,
             ValidationException.class,
             TypeMismatchException.class,
+            MultipartException.class,
             ServletException.class })
     @ResponseBody
     public Result<Void> handleParamException(Exception exception) {

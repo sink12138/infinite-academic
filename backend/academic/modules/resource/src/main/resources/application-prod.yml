@@ -33,5 +33,5 @@ logging:
     com.netflix.discovery.DiscoveryClient: warn
 
 resource:
-  storage-directory: /data/resource
+  storage-directory: /data/resources
   allowed-suffixes: jpg, png, bmp, gif, tif, doc, docx, pdf, zip, rar
