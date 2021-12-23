@@ -7,33 +7,39 @@
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item key="citations">
-          <v-card-text v-for="(item,index) in showCitations" v-bind:key="index">
+          <v-card-text v-for="(item,index) in citations.items" v-bind:key="index">
             <CardPaper
               :item="item"
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page1"
-              v-if="citations.items"
-              :length=getLength(this.citations.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastCit()">
+              上一页
+            </v-btn>
+            <span>第 {{page1+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextCit()"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
         <v-tab-item key="references">
-          <v-card-text v-for="(item,index) in showReferences" v-bind:key="index">
+          <v-card-text v-for="(item,index) in references.items" v-bind:key="index">
               <CardPaper
                 :item="item"
                 style="margin: 0 auto; left: 0; right: 0; width: 100%"
               ></CardPaper>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page2"
-              v-if="references.items"
-              :length=getLength(this.references.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastRef()">
+              上一页
+            </v-btn>
+            <span>第 {{page2+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextRef()"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -46,7 +52,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item key="publications">
           <v-card-text
-            v-for="(item,index) in showPublications1"
+            v-for="(item,index) in publications"
             v-bind:key="index"
           >
             <CardPaper
@@ -55,26 +61,32 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page3"
-              v-if="publications.items"
-              :length=getLength(this.publications.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastPub(page3,'journal','page3')">
+              上一页
+            </v-btn>
+            <span>第 {{page3+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextPub(publications,page5,'journal','page3')"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
         <v-tab-item key="patents">
-          <v-card-text v-for="(item,index) in showPatents" v-bind:key="index">
+          <v-card-text v-for="(item,index) in patents" v-bind:key="index">
             <CardPatent
               :item="item"
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
             ></CardPatent>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page4"
-              v-if="patents.items"
-              :length=getLength(this.patents.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastPat()">
+              上一页
+            </v-btn>
+            <span>第 {{page4+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextPat()"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -87,7 +99,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item key="publications">
           <v-card-text
-            v-for="(item,index) in showPublications2"
+            v-for="(item,index) in publications"
             v-bind:key="index"
           >
             <CardPaper
@@ -96,26 +108,32 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page5"
-              v-if="publications.items"
-              :length=getLength(this.publications.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastPub(page7,'journal','page5')">
+              上一页
+            </v-btn>
+            <span>第 {{page5+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextPub(publications,page5,'journal','page5')"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
         <v-tab-item key="scholars">
-          <v-card-text v-for="(item,index) in showScholars" v-bind:key="index">
+          <v-card-text v-for="(item,index) in scholars" v-bind:key="index">
             <CardAuthor
               :item="item"
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
             ></CardAuthor>
           </v-card-text>
           <div class="text-center">
-              <v-pagination
-              v-model="page6"
-              v-if="scholars.items"
-              :length=getLength(this.scholars.items.length)
-              ></v-pagination>
+            <v-btn elevation="2" @click="getLastSch()">
+              上一页
+            </v-btn>
+            <span>第 {{page6+1}} 页</span>
+            <v-btn
+              elevation="2"
+              @click="getNextSch()"
+            >下一页</v-btn>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -127,7 +145,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item key="publications">
           <v-card-text
-            v-for="(item,index) in showPublications3"
+            v-for="(item,index) in publications.items"
             v-bind:key="index"
           >
             <CardPaper
@@ -135,14 +153,18 @@
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
             ></CardPaper>
           </v-card-text>
-          <div class="text-center">
-              <v-pagination
-              v-model="page7"
-              v-if="publications.items"
-              :length=getLength(THIS.publications.ITEMS.length)
-              ></v-pagination>
-          </div>
         </v-tab-item>
+        <div class="text-center">
+          <v-btn elevation="2" @click="getLastPub(page7,'journal','page7')">
+            上一页
+          </v-btn>
+          <span>第 {{page7+1}} 页</span>
+          <v-btn
+            elevation="2"
+            @click="getNextPub(publications,page7,'journal','page7')"
+            id="next"
+          >下一页</v-btn>
+      </div>
       </v-tabs-items>
     </v-card>
   </div>
@@ -158,26 +180,6 @@ export default {
     CardAuthor,
   },
   props: {
-    references: {
-      type: Object,
-      default: () => {},
-    },
-    citations: {
-      type: Object,
-      default: () => {},
-    },
-    publications: {
-      type: Object,
-      default: () => {},
-    },
-    patents: {
-      type: Object,
-      default: () => {},
-    },
-    scholars: {
-      type: Object,
-      default: () => {},
-    },
     styles: {
       type: String,
     },
@@ -188,66 +190,181 @@ export default {
   data() {
     return {
       tab: null,
-      page1:1,page2:1,page3:1,page4:1,page5:1,page6:1,page7:1,
+      publications:{},
+      references:{},
+      citations:{},
+      patents:{},
+      scholars:{},
+      page1:0,page2:0,page3:0,page4:0,page5:0,page6:0,page7:0,
     };
   },
   mounted(){
+    this.id = this.$route.query.id
+    if(this.styles=="journals"){
+      this.getPublications("journal",this.page7)
+    }else if(this.styles=="paper"){
+      this.getReferences()
+      this.getCitations()
+    }else if(this.styles=="institution"){
+      this.getScholars()
+      this.getPublications("institution",this.page5)
+    }else if(this.styles=="author"){
+      this.getPatents()
+      this.getPublications("researcher",this.page3)
+    }
   },
   computed:{
-    showReferences:function(){
-      if(this.references.items){
-        return this.references.items.slice((this.page2-1)*3,this.page2*3);
-      }else{
-        return null
-      }
-    },
-    showCitations:function(){
-      if(this.citations.items){
-        return this.citations.items.slice((this.page1-1)*3,this.page1*3);
-      }else{
-        return null
-      }
-    },
-    showPublications1:function(){
-      if(this.publications.items){
-        return this.publications.items.slice((this.page3-1)*3,this.page3*3);
-      }else{
-        return null
-      }
-    },
-    showPublications2:function(){
-      if(this.publications.items){
-        return this.publications.items.slice((this.page5-1)*3,this.page5*3);
-      }else{
-        return null
-      }
-    },
-    showPublications3:function(){
-      if(this.publications.items){
-        return this.publications.items.slice((this.page7-1)*3,this.page7*3);
-      }else{
-        return null
-      }
-    },
-    showPatents:function(){
-      if(this.patents.items){
-        return this.patents.items.slice((this.page4-1)*3,this.page4*3);
-      }else{
-        return null
-      }
-    },
-    showScholars:function(){
-      if(this.scholars.items){
-        return this.scholars.items.slice((this.page6-1)*3,this.page6*3);
-      }else{
-        return null
-      }
-    }
+
   },
   methods:{
-    getLength(a){
-        return parseInt(a/3)+1
-    }
+    getPublications(entity,page){
+        this.$axios({
+          method: "get",
+          url: "/api/search/relation/publications/"+entity+"/"+this.id+"/"+page
+        }).then(response => {
+          console.log(response.data);
+          if(!response.data.success){
+            console.log(response.data.message);
+          }else{
+            this.publications=response.data.data
+            console.log(this.id)
+            console.log("第"+page+"页的数据是")
+            console.log(this.publications)
+          }
+        }).catch(error => {
+          console.log(error)
+        })
+      },
+    getReferences(){
+      this.$axios.get('/api/search/relation/references/'+this.id+'/'+this.page2).then(res=>{
+      if(!res.data.success){
+          console.log(res.data.message);
+        }else{
+          this.references=res.data.data;
+          console.log(this.id)
+          console.log("第"+this.page2+"页的数据是")
+          console.log(this.references)
+        }
+      })
+    },
+    getCitations(){
+      this.$axios.get('/api/search/relation/citations/'+this.id+'/'+this.page1).then(res=>{
+      if(!res.data.success){
+          console.log(res.data.message);
+        }else{
+          this.citations=res.data.data;
+          console.log(this.id)
+          console.log("第"+this.page1+"页的数据是")
+          console.log(this.citations)
+        }
+      })
+    },
+    getScholars(){
+      this.$axios.get("/api/search/relation/scholars/"+this.id+"/"+this.page6).then(res=>{
+      if(!res.data.success){
+          console.log(res.data.message);
+        }else{
+          this.scholars=res.data.data;
+          console.log(this.id)
+          console.log("第"+this.page6+"页的数据是")
+          console.log(this.citations)
+        }
+      })
+    },
+    getNextSch(){
+      if(this.scholars.hasMore){
+        this.page6++
+        this.getScholars()
+      }
+    },
+    getLastSch(){
+      if(this.page6>0){
+        this.page6--
+        this.getScholars()
+      }
+    },
+    getPatents(){
+      this.$axios.get("/api/search/relation/inventions/" + this.id + "/" + this.page4).then(res=>{
+      if(!res.data.success){
+          console.log(res.data.message);
+        }else{
+          this.patents=res.data.data;
+          console.log(this.id)
+          console.log("第"+this.page4+"页的数据是")
+          console.log(this.patents)
+        }
+      })
+    },
+    getNextPat(){
+      if(this.patents.hasMore){
+        this.page4++
+        this.getPatents()
+      }
+    },
+    getLastPat(){
+      if(this.page4>0){
+        this.page4--
+        this.getPatents()
+      }
+    },
+    getNextRef(){
+      if(this.references.hasMore){
+        this.page2++
+        this.getReferences()
+      }
+    },
+    getLastRef(){
+      if(this.page2>0){
+        this.page2--
+        this.getReferences()
+      }
+    },
+    getNextCit(){
+      if(this.citations.hasMore){
+        this.page1++
+        this.getCitations()
+      }
+    },
+    getLastCit(){
+      if(this.page1>0){
+        this.page1--
+        this.getCitations()
+      }
+    },
+    getNextPub(a,page,entity,str){
+        if(a.hasMore){
+          if(str.includes('3')){
+            this.page3++
+          }else if(str.includes('5')){
+            this.page5++
+          }else{
+            this.page7++
+          }
+          page++
+          this.getPublications(entity,page)
+        }
+      },
+    getLastPub(page,entity,str){
+      if(str.includes('3')){
+            if(this.page3>0){
+            this.page3--
+            page--
+            this.getPublications(entity,page)
+        }
+          }else if(str.includes('5')){
+            if(this.page5>0){
+            this.page5--
+            page--
+            this.getPublications(entity,page)
+        }
+          }else{
+            if(this.page7>0){
+            this.page7--
+            page--
+            this.getPublications(entity,page)
+        }
+        }
+      }
   }
 };
 </script>
