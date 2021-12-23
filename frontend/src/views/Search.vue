@@ -36,8 +36,7 @@
         </div>
         <div v-if="data.correction != null">
           <span
-            >已为您推荐&nbsp;<i v-html="data.correction"></i
-            >&nbsp;的结果</span
+            >已为您推荐&nbsp;<i v-html="data.correction"></i>&nbsp;的结果</span
           >
         </div>
         <div v-if="data.detection != null">
@@ -113,6 +112,7 @@
                       <InstitutionCard
                         :item="item"
                         :disabled="fromDoor"
+                        style="min-width:33%;max-width:33%"
                       ></InstitutionCard>
                     </v-col>
                     <v-col>
@@ -133,7 +133,11 @@
               <!-- 论文 -->
               <v-row>
                 <v-col>
-                  <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
+                  <PaperCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></PaperCard>
                 </v-col>
                 <v-col>
                   <br/>
@@ -147,7 +151,11 @@
               <!-- 期刊 -->
               <v-row>
                 <v-col>
-                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
+                  <JournalCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></JournalCard>
                 </v-col>
                 <v-col>
                   <br/>
@@ -159,11 +167,13 @@
           <div v-else-if="searchType1 == '专利'">
             <div v-for="item in results" :key="item.id">
               <!-- 专利 -->
-              <v-card class="text-left my-2" max-width="650">
+              <v-card
+                class="text-left my-2"
+                max-width="650"
+                style="margin-top: 10px"
+              >
                 <v-card-title class="d-flex">
-                  <v-icon class="mx-1">
-                    mdi-text-box-multiple-outline
-                  </v-icon>
+                  <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
                   <span
                     class="link"
                     @click="href('patent', item.id)"
@@ -178,8 +188,7 @@
                   <span v-if="item.publicationDate">
                     公开日:{{ item.publicationDate }} </span
                   >&nbsp;
-                  <span v-if="item.applicant"
-                    >申请人:{{ item.applicant }}</span
+                  <span v-if="item.applicant">申请人:{{ item.applicant }}</span
                   >&nbsp;
                 </v-card-subtitle>
                 <v-card-text class="pb-0">
@@ -211,7 +220,11 @@
               <!-- 科研人员 -->
               <v-row>
                 <v-col>
-                  <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                  <AuthorCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></AuthorCard>
                 </v-col>
                 <v-col>
                   <br/>
@@ -233,6 +246,12 @@
                     <InstitutionCard
                       :item="item"
                       :disabled="fromDoor"
+                      style="
+                        max-height: 200px;
+                        min-height: 200px;
+                        min-width: 350px;
+                        margin-left: 10px;
+                      "
                     ></InstitutionCard>
                   </v-col>
                   <v-col>
@@ -404,16 +423,14 @@ export default {
     href(type, id) {
       if (id == null) {
         this.$notify({
-          title: '数据缺失',
-          message: '信息暂未收录，给您带来不便敬请谅解。',
-          type: 'warning'
+          title: "数据缺失",
+          message: "信息暂未收录，给您带来不便敬请谅解。",
+          type: "warning",
         });
         return;
       }
-      this.$router.push({
-        path: type,
-        query: { id: id },
-      });
+      let { href } = this.$router.resolve({ path: type, query: { id: id } });
+      window.open(href, "_blank");
     },
     handleFilter(filter) {
       this.filters = filter;
