@@ -105,6 +105,14 @@ export default {
   },
   methods: {
     href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       var this_path = this.$route.path.substring(1);
       var this_id = "";
       if (this.$route.query.id != null) this_id = this.$route.query.id;

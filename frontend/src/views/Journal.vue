@@ -14,8 +14,8 @@
               <h1>
                 {{journalData.title}}
               </h1>
-              <h3>主办单位:{{journalData.sponsor}}</h3>
-              <h3>ISSN:{{journalData.issn}}</h3>
+              <h3 v-if="journalData.sponsor">主办单位:{{journalData.sponsor}}</h3>
+              <h3 v-if="journalData.issn">ISSN:{{journalData.issn}}</h3>
             </div>
           </v-col>
         </v-row>
@@ -26,7 +26,7 @@
         height="400"
         aspect-ratio="16/9"
       ></v-img>
-    <PaperTabs :styles="styles" :publications="publications"></PaperTabs>
+      <PaperTabs :styles="styles"></PaperTabs>
     </div>
   </div>
 </template>
@@ -45,8 +45,8 @@ export default {
     return{
       id:{},
       journalData:{},
-      publications:{},
-      styles:"journals"
+      styles:"journals",
+      page:0
     }
   },
   watch: {
@@ -57,7 +57,6 @@ export default {
   mounted() {
     this.id = this.$route.query.id
     this.getInfo()
-    this.getPublications()
     this.initChart();
   },
   methods:{
@@ -71,23 +70,7 @@ export default {
       }).catch(error => {
         console.log(error)
       })
-    },
-    getPublications(){
-        let page=0
-        this.$axios({
-          method: "get",
-          url: "/api/search/relation/publications/journal/"+this.id+"/"+page
-        }).then(response => {
-          console.log(response.data);
-          if(!response.data.success){
-            console.log(response.data.message);
-          }else{
-            this.publications=response.data.data
-          }
-        }).catch(error => {
-          console.log(error)
-        })
-      }
+    }
   }
 }
 </script>

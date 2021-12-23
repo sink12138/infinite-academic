@@ -729,7 +729,7 @@ export const relationshipNetworkChart = {
           var option = {
             title: {
               text: '合作关系网络',
-              left: 'center'
+              left: 'left'
             },
             series: {
               type: 'graph',
