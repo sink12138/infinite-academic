@@ -4,8 +4,10 @@
       :title="{
         text: this.isLogin?this.menu[this.menu_id - 1].title:'管理员',
         icon: 'mdi-account-cog',
-        time: this.logoutTime
+        time: this.logoutTime,
+        status: this.isLogin
       }"
+      @logout="Logout"
     ></Banner>
 
     <v-row
@@ -14,7 +16,7 @@
     >
       <v-card
         flat
-        style="top:60px"
+        style="top:30px"
         width="80%"
       >
         <v-navigation-drawer
@@ -123,95 +125,16 @@
           class="personal"
           v-if="menu_id == 1"
           flat
-          outlined
+          height="150"
         >
           <v-card-title>
             <v-row
               justify="center"
               align="center"
             >
-              <h1>欢迎进入，{{ this.userOldName }}！</h1>
+              <h1>欢迎进入管理员系统，{{ this.userName }}！</h1>
             </v-row>
           </v-card-title>
-
-          <v-card-text>
-            <v-form
-              ref="userModifyForm"
-              v-model="valid"
-              lazy-validation
-            >
-              <v-row
-                justify="center"
-                align="center"
-              >
-                <v-col
-                  clos="12"
-                  sm="4"
-                >
-                  <v-text-field
-                    v-model="userName"
-                    :counter="10"
-                    :rules="userNameRules"
-                    label="用户名"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row
-                justify="center"
-                align="center"
-              >
-                <v-col
-                  clos="12"
-                  sm="4"
-                >
-                  <v-text-field
-                    v-model="passWords"
-                    :rules="passWordsRules"
-                    label="密码"
-                    type="password"
-                    required
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-              <v-row>
-                <v-col
-                  clos="12"
-                  sm="4"
-                ></v-col>
-                <v-col
-                  clos="12"
-                  sm="2"
-                >
-                  <v-btn
-                    :disabled="!valid"
-                    color="success"
-                    @click="modify"
-                  >
-                    修改
-                  </v-btn>
-                </v-col>
-
-                <v-col
-                  clos="12"
-                  sm="2"
-                >
-                  <v-btn
-                    color="primary"
-                    @click="Logout"
-                  >
-                    登出
-                  </v-btn>
-                </v-col>
-                <v-col
-                  clos="12"
-                  sm="4"
-                ></v-col>
-              </v-row>
-            </v-form>
-          </v-card-text>
         </v-card>
 
         <div
@@ -259,7 +182,6 @@ export default {
       isLogin: false,
       logoutTime: "",
       valid: true,
-      userOldName: "管理员",
       userName: "admin",
       userNameRules: [
         v => !!v || "用户名不能为空",
@@ -312,7 +234,6 @@ export default {
         }
       }).then((response) => {
         console.log(response.data);
-        console.log(token)
         if (response.data.success === true) {
           this.$notify({
             title: "成功",
@@ -321,7 +242,6 @@ export default {
           });
           this.isLogin = true;
           this.menu_id = 1;
-          this.userOldName = this.userName;
           this.logoutTime = new Date((new Date().getTime() + 1000 * 30 * 60)).toLocaleTimeString();
           this.leftTime = 30 * 60;
           this.timer = setInterval(() => {
@@ -330,6 +250,11 @@ export default {
             if (this.leftTime === 0) {
               this.Logout();
               clearInterval(this.timer);
+              this.$notify({
+                title: "成功",
+                message: "自动登出成功",
+                type: "success",
+              });
             }
           }, 1000);
         } else {
@@ -341,41 +266,10 @@ export default {
         }
       });
     },
-    Logout() {
-      let token = window.localStorage.token;
-      this.$axios({
-        method: "post",
-        url: "api/admin/logout",
-        headers:{
-          'token':token
-        }
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.$notify({
-            title: "成功",
-            message: "登出成功",
-            type: "success",
-          });
-          this.isLogin = false;
-          this.menu_id = 0;
-          this.userOldName = "管理员";
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "登出失败",
-            type: "warning",
-          });
-        }
-      });
-    },
-    modify() {
-      this.userOldName = this.userName;
-      this.$notify({
-            title: "修改成功",
-            message: "修改成功！",
-            type: "success",
-      });
+    
+    Logout () {
+      this.isLogin = false
+      this.menu_id = 0
     },
   },
 }
