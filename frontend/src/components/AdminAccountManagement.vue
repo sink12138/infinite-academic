@@ -46,10 +46,11 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
-                  color="primary"
+                  class="addAccount"
                   dark
                   v-bind="attrs"
                   v-on="on"
+                  rounded
                 >
                   <v-icon dark>
                     mdi-plus
@@ -607,5 +608,9 @@ export default {
 </script>
 
 <style>
-
+.addAccount {
+  background:-webkit-gradient(linear, 100% 0%, 0% 0%,from(#59C2FD), to(#2B99FF));
+  border-radius: 20px;
+  color: #fff;
+}
 </style>
