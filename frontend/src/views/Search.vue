@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <Banner
       v-if="fromDoor == ''"
       :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
@@ -28,8 +29,8 @@
       <v-col cols="7">
         <div v-if="results.length != 0">
           <v-sheet class="py-2" elevation="1">
-            共找到<b>{{ itemNum }}</b
-            >条结果 当前第 <b>{{ page }}/{{ length }}</b> 页
+            共找到<b>{{ itemNum }}</b>条结果
+            当前第 <b>{{ page }}/{{ length }}</b> 页
             <span>(耗时 {{ timeCost }} ms)</span>
           </v-sheet>
         </div>
