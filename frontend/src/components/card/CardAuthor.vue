@@ -60,6 +60,14 @@ export default {
   },
   methods: {
     href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       let { href } = this.$router.resolve({ path: type, query: { id: id }})
       window.open(href, '_blank')
     }

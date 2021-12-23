@@ -21,7 +21,6 @@
           v-if="this.isLogin"
           permanent
           floating
-          expand-on-hover
           fixed
           style="top:60px"
           color="transparent"
