@@ -84,8 +84,6 @@ export default {
   mounted() {
     this.id = this.$route.query.id;
     this.getInfo();
-    this.getPublications();
-    this.getPatents();
     this.initChart();
     this.initNetChart();
   },
@@ -106,47 +104,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    getPublications() {
-      let page = 0;
-      this.$axios({
-        method: "get",
-        url:
-          "/api/search/relation/publications/researcher/" +
-          this.id +
-          "/" +
-          page,
-      })
-        .then((response) => {
-          console.log(response.data);
-          if (!response.data.success) {
-            console.log(response.data.message);
-          } else {
-            this.publications = response.data.data;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    getPatents() {
-      let page = 0;
-      this.$axios({
-        method: "get",
-        url: "/api/search/relation/inventions/" + this.id + "/" + page,
-      })
-        .then((response) => {
-          console.log(response.data);
-          if (!response.data.success) {
-            console.log(response.data.message);
-          } else {
-            this.patents = response.data.data;
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
+    }
   },
 };
 </script>

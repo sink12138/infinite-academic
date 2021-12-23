@@ -51,8 +51,6 @@ export default {
     return{
       id:{},
       styles:"institutions",
-      publications:{},
-      scholars:{},
       logoUrl:"",
       name:"",
     }
@@ -65,8 +63,6 @@ export default {
   mounted() {
     this.id = this.$route.query.id
     this.getInfo()
-    this.getPublications()
-    this.getScholars()
     this.initChart()
     this.initNetChart();
   },
@@ -86,39 +82,7 @@ export default {
       }).catch(error => {
         console.log(error)
       })
-    },
-    getPublications(){
-        let page=0
-        this.$axios({
-          method: "get",
-          url: "/api/search/relation/publications/institution/"+this.id+"/"+page,
-        }).then(response => {
-          console.log(response.data);
-          if(!response.data.success){
-            console.log(response.data.message);
-          }else{
-            this.publications=response.data.data
-          }
-        }).catch(error => {
-          console.log(error)
-        })
-      },
-    getScholars(){
-        let page=0
-        this.$axios({
-          method: "get",
-          url: "/api/search/relation/scholars/"+this.id+"/"+page,
-        }).then(response => {
-          console.log(response.data);
-          if(!response.data.success){
-            console.log(response.data.message);
-          }else{
-            this.scholars=response.data.data
-          }
-        }).catch(error => {
-          console.log(error)
-        })
-      }
+    }
   }
 }
 </script>

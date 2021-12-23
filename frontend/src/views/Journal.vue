@@ -45,7 +45,6 @@ export default {
     return{
       id:{},
       journalData:{},
-      publications:{},
       styles:"journals",
       page:0
     }

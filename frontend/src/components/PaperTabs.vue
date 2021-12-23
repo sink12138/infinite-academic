@@ -52,7 +52,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item key="publications">
           <v-card-text
-            v-for="(item,index) in publications"
+            v-for="(item,index) in publications.items"
             v-bind:key="index"
           >
             <CardPaper
@@ -61,18 +61,18 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPub(page3,'journal','page3')">
+            <v-btn elevation="2" @click="getLastPub('journal','page3')">
               上一页
             </v-btn>
             <span>第 {{page3+1}} 页</span>
             <v-btn
               elevation="2"
-              @click="getNextPub(publications,page5,'journal','page3')"
+              @click="getNextPub(publications,'journal','page3')"
             >下一页</v-btn>
           </div>
         </v-tab-item>
         <v-tab-item key="patents">
-          <v-card-text v-for="(item,index) in patents" v-bind:key="index">
+          <v-card-text v-for="(item,index) in patents.items" v-bind:key="index">
             <CardPatent
               :item="item"
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
@@ -99,7 +99,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item key="publications">
           <v-card-text
-            v-for="(item,index) in publications"
+            v-for="(item,index) in publications.items"
             v-bind:key="index"
           >
             <CardPaper
@@ -108,18 +108,18 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPub(page7,'journal','page5')">
+            <v-btn elevation="2" @click="getLastPub('institution','page5')">
               上一页
             </v-btn>
             <span>第 {{page5+1}} 页</span>
             <v-btn
               elevation="2"
-              @click="getNextPub(publications,page5,'journal','page5')"
+              @click="getNextPub(publications,'institution','page5')"
             >下一页</v-btn>
           </div>
         </v-tab-item>
         <v-tab-item key="scholars">
-          <v-card-text v-for="(item,index) in scholars" v-bind:key="index">
+          <v-card-text v-for="(item,index) in scholars.items" v-bind:key="index">
             <CardAuthor
               :item="item"
               style="margin: 0 auto; left: 0; right: 0; width: 100%"
@@ -155,13 +155,13 @@
           </v-card-text>
         </v-tab-item>
         <div class="text-center">
-          <v-btn elevation="2" @click="getLastPub(page7,'journal','page7')">
+          <v-btn elevation="2" @click="getLastPub('journal','page7')">
             上一页
           </v-btn>
           <span>第 {{page7+1}} 页</span>
           <v-btn
             elevation="2"
-            @click="getNextPub(publications,page7,'journal','page7')"
+            @click="getNextPub(publications,'journal','page7')"
             id="next"
           >下一页</v-btn>
       </div>
@@ -205,7 +205,7 @@ export default {
     }else if(this.styles=="paper"){
       this.getReferences()
       this.getCitations()
-    }else if(this.styles=="institution"){
+    }else if(this.styles=="institutions"){
       this.getScholars()
       this.getPublications("institution",this.page5)
     }else if(this.styles=="author"){
@@ -331,39 +331,37 @@ export default {
         this.getCitations()
       }
     },
-    getNextPub(a,page,entity,str){
+    getNextPub(a,entity,str){
         if(a.hasMore){
           if(str.includes('3')){
             this.page3++
+            this.getPublications(entity,this.page3)
           }else if(str.includes('5')){
             this.page5++
+            this.getPublications(entity,this.page5)
           }else{
             this.page7++
+            this.getPublications(entity,this.page7)
           }
-          page++
-          this.getPublications(entity,page)
         }
       },
-    getLastPub(page,entity,str){
+    getLastPub(entity,str){
       if(str.includes('3')){
-            if(this.page3>0){
-            this.page3--
-            page--
-            this.getPublications(entity,page)
+        if(this.page3>0){
+          this.page3--
+          this.getPublications(entity,this.page3)
         }
-          }else if(str.includes('5')){
-            if(this.page5>0){
-            this.page5--
-            page--
-            this.getPublications(entity,page)
+      }else if(str.includes('5')){
+        if(this.page5>0){
+          this.page5--
+          this.getPublications(entity,this.page5)
         }
-          }else{
-            if(this.page7>0){
+      }else{
+        if(this.page7>0){
             this.page7--
-            page--
-            this.getPublications(entity,page)
+            this.getPublications(entity,this.page7)
         }
-        }
+      }
       }
   }
 };
