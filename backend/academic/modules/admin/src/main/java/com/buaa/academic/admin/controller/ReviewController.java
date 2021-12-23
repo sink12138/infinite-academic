@@ -289,6 +289,8 @@ public class ReviewController {
             else if (StatusType.PASSED.equals(status))
                 return result;
 
+            application.setStatus(StatusType.PASSED);
+            elasticTemplate.save(application);
             reviewService.savePaper(null, paperAdd.getAdd());
             messageService.sendAcceptMessage(application);
         }
@@ -322,6 +324,8 @@ public class ReviewController {
             else if (StatusType.PASSED.equals(status))
                 return result;
 
+            application.setStatus(StatusType.PASSED);
+            elasticTemplate.save(application);
             reviewService.savePaper(paperEdit.getPaperId(), paperEdit.getEdit());
             messageService.sendAcceptMessage(application);
         }
