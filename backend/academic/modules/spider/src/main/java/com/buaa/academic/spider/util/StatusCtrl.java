@@ -56,6 +56,10 @@ public class StatusCtrl {
     public static boolean jobStopped = false;
     public static boolean paperScrollEnd = false;
     public static Date lastRun;
+    public static Date nextRunningDate;
+    public static String cron = "0 0 18 * * ?";
+    public static int paperDurationHours = 3;
+    public static int patentDurationHours = 2;
 
     @Slf4j
     public static class ErrorHandler implements Runnable {

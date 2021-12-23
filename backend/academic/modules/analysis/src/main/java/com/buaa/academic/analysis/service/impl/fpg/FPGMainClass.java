@@ -42,6 +42,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -449,11 +450,22 @@ public class FPGMainClass implements Runnable {
                 String[] rule = line.split(":");
                 String item = rule[0];
                 String[] associationItems = rule[1].split(FPGMainClass.splitChar);
-                String[] confidencesStr = rule[2].split(FPGMainClass.splitChar);
+                List<String> confidencesStr = Arrays.asList(rule[2].split(FPGMainClass.splitChar));
+                ArrayList<Double> confidences = new ArrayList<>();
+                confidencesStr.forEach(s -> confidences.add(Double.parseDouble(s)));
+                Double maxConfidence = confidences.get(0);
+                double times = 1;
+                while (maxConfidence * 1.25 < 1) {
+                    maxConfidence = maxConfidence * 1.25;
+                    times *= 1.25;
+                }
+                for (int i = 0; i < confidences.size(); i++) {
+                    confidences.set(i, confidences.get(i) * times);
+                }
                 if (analysisObject.equals("keywords")) {
                     ArrayList<Association> associationTopics = new ArrayList<>();
                     for (int index = 0; index < associationItems.length; index++) {
-                        Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                        Association associationTopic = new Association(associationItems[index], confidences.get(index));
                         associationTopics.add(associationTopic);
                     }
                     Topic topic = topicRepository.findTopicByName(item);
@@ -463,7 +475,7 @@ public class FPGMainClass implements Runnable {
                 } else {
                     ArrayList<Association> associationSubjects = new ArrayList<>();
                     for (int index = 0; index < associationItems.length; index++) {
-                        Association associationTopic = new Association(associationItems[index], Double.parseDouble(confidencesStr[index]));
+                        Association associationTopic = new Association(associationItems[index], confidences.get(index));
                         associationSubjects.add(associationTopic);
                     }
                     Subject subject = subjectRepository.findSubjectByName(item);

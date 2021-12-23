@@ -61,10 +61,11 @@ public class SpiderController {
         statusCtrl.setPaperSourceThreadNum(0);
         statusCtrl.setResearcherThreadNum(0);
         statusCtrl.setInterestsThreadNum(0);
+
         statusCtrl.setJournalThreadNum(0);
         statusCtrl.setSubjectTopicThreadNum(0);
-        statusCtrl.setPatentsInitThreadNum(2);
-        statusCtrl.setPatentMainInfoNum(2);
+        statusCtrl.setPatentsInitThreadNum(3);
+        statusCtrl.setPatentMainInfoNum(6);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");
@@ -122,6 +123,9 @@ public class SpiderController {
     public Result<Void> crawlWithUrl(@RequestHeader(name = "Auth") String userId,
                                      @RequestParam(name = "url") @NotBlank String url) {
         Result<Void> result = new Result<>();
+        if (!url.startsWith("https://kns.cnki.net/kcms/detail") && !url.startsWith("https://d.wanfangdata.com.cn/")) {
+            return result.withFailure(ExceptionType.INVALID_PARAM);
+        }
         if (!template.exists(userId, User.class))
             return result.withFailure(ExceptionType.NOT_FOUND);
         crawlService.crawlWithUrl(url, userId);
