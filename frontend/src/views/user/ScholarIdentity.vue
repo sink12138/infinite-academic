@@ -208,22 +208,6 @@
         ></Search>
       </v-card>
     </v-dialog>
-    <v-snackbar
-      v-model="snackbarEmail"
-      top
-      timeout=3000
-      color="red"
-    >
-      请输入真实的邮箱号
-    </v-snackbar>
-    <v-snackbar
-      v-model="snackbarSub"
-      top
-      timeout=3000
-      color="green"
-    >
-      申请成功!
-    </v-snackbar>
   </div>
 </template>
 

@@ -75,18 +75,27 @@
         </v-col>
         <v-col v-if="manage==0" offset-md="1">
           <div style="padding-top:10px;">
-            <div>
-
-              <h1 style="text-align:left">
-                {{name}}
-              </h1>
-              <h3 style="text-align:left">科研方向:{{interests}}</h3>
-              <h3 style="text-align:left">邮箱:{{email}}</h3>
-              <h3 style="text-align:left">g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
-              <h3 style="text-align:left">文章数量:{{paperNum}}  专利数量:{{patentNum}}  引用次数:{{citationNum}}</h3>
-              <h3 style="text-align:left">现工作单位:{{currentInst.name}}</h3>
-              <h3 style="text-align:left;float:left">曾工作单位:</h3>
-              <h3 style="text-align:left;float:left" v-for="i in institutions.length" :key="i">{{institutions[i-1].name}}&emsp;&emsp;</h3>
+            <div style="padding-top:50px;">
+              <v-card>
+                <v-card-text>
+                  <h1 style="text-align:left">{{name}}</h1>
+                  <h3 style="text-align:left" v-for="i in interests.length" :key="i">科研方向:{{interests[i-1]}}&emsp;&emsp;</h3>
+                  <h3 style="text-align:left">邮箱:{{email}}</h3>
+                  <h3 style="text-align:left">g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
+                  <h3 style="text-align:left">文章数量:{{paperNum}}  专利数量:{{patentNum}}  引用次数:{{citationNum}}</h3>
+                  <h3 style="text-align:left">现工作单位:{{currentInst.name}}</h3>
+                  <v-row no-gutters>
+                    <v-col cols=auto>
+                      <h3 style="text-align:left">曾工作单位:</h3>
+                    </v-col>
+                    <v-col  cols=auto>
+                      <div v-for="i in institutions.length" :key="i">
+                        <h3 style="text-align:left">{{institutions[i-1].name}}</h3>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
             </div>
           </div>
         </v-col>
@@ -441,22 +450,6 @@
     </v-dialog>
 
 
-    <v-snackbar
-      v-model="snackbarEmail"
-      top
-      timeout=3000
-      color="red"
-    >
-      请输入真实的邮箱号
-    </v-snackbar>
-    <v-snackbar
-      v-model="snackbarSub"
-      top
-      timeout=3000
-      color="green"
-    >
-      申请成功!
-    </v-snackbar>
   </div>
 
 
@@ -832,6 +825,11 @@ import Banner from "../components/BaseBanner.vue";
             this.snackbarSub=true
             this.editingD=false
             this.clearWeb()
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
           }else{
             this.$notify({
               title: "失败",
@@ -872,6 +870,11 @@ import Banner from "../components/BaseBanner.vue";
             this.snackbarSub=true
             this.addDoor=false
             this.clearWeb()
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
           }else{
             this.$notify({
               title: "失败",
@@ -905,6 +908,11 @@ import Banner from "../components/BaseBanner.vue";
             this.snackbarSub=true
             this.deletingPaper=false
             this.clearWeb()
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
           }
 
         }).catch(error => {

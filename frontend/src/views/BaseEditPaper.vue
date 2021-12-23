@@ -563,6 +563,11 @@
           if(response.data.success){
             // this.snackbarSub=true
             this.$emit('closeZ',"close")
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
           }
           
         }).catch(error => {
@@ -642,6 +647,11 @@
           if(response.data.success){
             // this.snackbarSub=true
             this.$emit('closeZ',"close")
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
           }
           
         }).catch(error => {
