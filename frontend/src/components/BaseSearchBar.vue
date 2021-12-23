@@ -1505,4 +1505,10 @@ export default {
 .btn {
   margin-left: 10px;
 }
+.v-text-field {
+  font-family: 'Fira code', 'Lucida Sans Regular', sans-serif;
+}
+.v-list-item__title {
+  font-family: 'Fira code', 'Lucida Sans Regular', sans-serif;
+}
 </style>

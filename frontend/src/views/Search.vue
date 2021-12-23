@@ -28,10 +28,12 @@
       </v-col>
       <v-col cols="7">
         <div v-if="results.length != 0">
-          <v-sheet class="py-2" elevation="1">
-            共找到<b>{{ itemNum }}</b>条结果
-            当前第 <b>{{ page }}/{{ length }}</b> 页
-            <span>(耗时 {{ timeCost }} ms)</span>
+          <v-sheet class="pa-2 d-flex justify-space-between" elevation="1">
+            <span>
+              当前第 <b>{{ page }}/{{ length }}</b> 页
+              <span class="font-weight-thin">(耗时 {{ timeCost }} ms)</span>
+            </span>
+            <span> 共找到<b>{{ itemNum }}</b>条结果</span>
           </v-sheet>
         </div>
         <div v-if="data.correction != null">
@@ -197,9 +199,10 @@
             </tr>
           </div>
         </div>
-        <div v-if="results.length != 0">
+        <div v-if="results.length != 0" >
           <v-row class="mt-4">
             <el-pagination
+              class="mx-auto"
               background
               @current-change="pageChange"
               :current-page.sync="jumpPage"
