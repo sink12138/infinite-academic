@@ -99,6 +99,7 @@
           <v-btn
             color="primary"
             @click="refresh"
+            rounded
           >
             重置
           </v-btn>
@@ -107,8 +108,9 @@
     </v-card-text>
 
     <v-btn
-      color="primary"
+      class="passAll"
       @click="passItems"
+      rounded
     >
       一键通过
     </v-btn>
@@ -572,5 +574,9 @@ export default {
 </script>
 
 <style>
-
+.passAll {
+  background:-webkit-gradient(linear, 100% 0%, 0% 0%,from(#59C2FD), to(#2B99FF));
+  border-radius: 20px;
+  color: #fff;
+}
 </style>

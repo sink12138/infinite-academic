@@ -106,9 +106,10 @@
               <v-row>
                 <v-col>
                   <v-btn
+                    class="login"
                     v-if="!isLogin"
-                    color="light-blue lighten-4"
                     @click="Login"
+                    dark
                   >
                     <v-icon left>
                       mdi-account-cog
@@ -276,5 +277,9 @@ export default {
 </script>
 
 <style>
-
+.login {
+  background:-webkit-gradient(linear, 100% 0%, 0% 0%,from(#59C2FD), to(#2B99FF));
+  border-radius: 20px;
+  color: #fff;
+}
 </style>
