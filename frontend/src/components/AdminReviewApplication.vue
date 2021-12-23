@@ -199,6 +199,7 @@ export default {
         
       ],
       selectedItem: [],
+      refreshtime: 2,
     }
   },
   computed: {
@@ -330,26 +331,6 @@ export default {
     checkItem (item) {
       this.checkedItem = item
       this.dialog = true
-      /*
-      this.$axios({
-        method: "get",
-        url: "api/admin/review/details/" + item.id,
-        params: {
-          id: item.id,
-        },
-      }).then((response) => {
-        console.log(response.data);
-        if (response.data.success === true) {
-          this.checkedItem = response.data.data
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "账户信息获取失败",
-            type: "warning",
-          });
-        }
-      });
-      this.dialog = true*/
     },
 
     passItem (item) {
@@ -521,7 +502,15 @@ export default {
           }
         });
       }
-      this.getApplications()
+      this.timer = setInterval(() => {
+        this.refreshtime--;
+
+        if (this.refreshtime === 0) {
+          this.refreshtime = 2
+          this.getApplications();
+          clearInterval(this.timer);
+        }
+      }, 1000);
     },
 
     failItem () {
@@ -558,13 +547,28 @@ export default {
       this.dialog = false
       this.content = ''
 
-      this.getApplications()
-      this.getApplications()
+      this.timer = setInterval(() => {
+        this.refreshtime--;
+
+        if (this.refreshtime === 0) {
+          this.refreshtime = 2
+          this.getApplications();
+          clearInterval(this.timer);
+        }
+      }, 1000);
     },
 
     closeFail () {
       this.dialogFail = false
-      this.getApplications()
+      this.timer = setInterval(() => {
+        this.refreshtime--;
+
+        if (this.refreshtime === 0) {
+          this.refreshtime = 2
+          this.getApplications();
+          clearInterval(this.timer);
+        }
+      }, 1000);
     },
 
     passItems () {
