@@ -1,8 +1,9 @@
 <template>
   <div>
+    <Banner :title="{ text: 'Portal', icon: 'mdi-clipboard-account' }"></Banner>
     <div class="whole">
       <v-row>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-card
             class="mx-auto left"
             width="256"
@@ -14,19 +15,15 @@
               <v-list>
                 <v-list-item>
                   <v-list-item-avatar>
-                    <v-img src="https://cdn.vuetifyjs.com/images/john.png"></v-img>
+                    <v-img :src="avatarUrl"></v-img>
                   </v-list-item-avatar>
                 </v-list-item>
 
                 <v-list-item link>
                   <v-list-item-content>
-                    <v-list-item-title class="title">John Leider</v-list-item-title>
-                    <v-list-item-subtitle>john@vuetifyjs.com</v-list-item-subtitle>
+                    <v-list-item-title class="title">{{name}}</v-list-item-title>
                   </v-list-item-content>
 
-                  <v-list-item-action>
-                    <v-icon>mdi-menu-down</v-icon>
-                  </v-list-item-action>
                 </v-list-item>
               </v-list>
               <v-divider></v-divider>
@@ -37,11 +34,44 @@
                 <v-list-item-group color="primary">
                   <v-list-item @click="manage=0">
 
-                    <v-list-item-content>门户管理</v-list-item-content>
+                    <v-list-group
+                    >
+                      <template v-slot:activator>
+                        <v-list-item-content>
+                          <v-list-item-title>门户管理</v-list-item-title>
+                        </v-list-item-content>
+                      </template>
+
+                      <v-list-item link>
+                        <v-list-item-title 
+                          @click="addDoor=true"
+                          :disabled="editingD"
+                        >认领门户</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item link>
+                        <v-list-item-title 
+                          @click="editDoor()"
+                          :disabled="editingD"
+                        >编辑门户信息</v-list-item-title>
+                      </v-list-item>
+                    </v-list-group>
                   </v-list-item>
                   <v-list-item @click="manage=1">
 
-                    <v-list-item-content>文献管理</v-list-item-content>
+                    <v-list-group
+                    >
+                      <template v-slot:activator>
+                        <v-list-item-content>
+                          <v-list-item-title>论文管理</v-list-item-title>
+                        </v-list-item-content>
+                      </template>
+
+                      <v-list-item link>
+                        <v-list-item-title 
+                          @click="addingPaper=true"
+                        >添加论文</v-list-item-title>
+                      </v-list-item>
+                    </v-list-group>
                   </v-list-item>
                 </v-list-item-group>
               </v-list>
@@ -50,29 +80,10 @@
         </v-col>
         <v-col v-if="manage==0" offset-md="1">
           <div style="padding-top:10px;">
-            <v-row  class="mb-6">
-              <v-col cols="3">
-                <v-btn 
-                @click="addDoor=true"
-                :disabled="editingD"
-                >
-                  认领新的门户
-                </v-btn>
-              </v-col>
-              <v-col cols="3">
-                <v-btn 
-                @click="editingD=true"
-                :disabled="editingD"
-                >
-                  编辑门户信息
-                </v-btn>
-              </v-col>
-            </v-row>
             <div>
               <h1 style="text-align:left">
                 {{name}}
               </h1>
-              <h3 style="text-align:left">职位:{{position}}</h3>
               <h3 style="text-align:left">科研方向:{{interests}}</h3>
               <h3 style="text-align:left">邮箱:{{email}}</h3>
               <h3 style="text-align:left">g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
@@ -89,39 +100,35 @@
 
         <v-col v-if="manage==1" offset-md="1">
           <div style="padding-top:10px;">
-            <v-row>
-              <v-col cols="2">
-                <v-btn @click="addingPaper=true">
-                  新增文献
-                </v-btn>
-              </v-col>
-            </v-row>
             <v-row
               v-for="i in onePageNum"
               :key="i"
             >
-              <v-col cols="9">
-                <CardPaper :item="papers[i+(page-1)*onePageNum-1]"></CardPaper>
-              </v-col>
-              <v-col>
-                <br/>
-                <br/>
-                <v-row>
-                  <v-col>
-                    <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
-                      编辑文献
-                    </v-btn>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col>
-                    <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
-                      删除文献
-                    </v-btn>    
-                  </v-col>
-                </v-row>
-                
-              </v-col>
+              <!-- <div > -->
+                <v-col cols="9" v-if="(i+(page-1)*onePageNum-1)<papers.length">
+                  <CardPaper :item="papers[i+(page-1)*onePageNum-1]"></CardPaper>
+                </v-col>
+                <v-col v-if="(i+(page-1)*onePageNum-1)<papers.length">
+                  <br/>
+                  <br/>
+                  <v-row>
+                    <v-col>
+                      <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
+                        编辑文献
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
+                        删除文献
+                      </v-btn>    
+                    </v-col>
+                  </v-row>
+                  
+                </v-col>
+              <!-- </div> -->
+              
             </v-row>
             <v-row>
               <v-col>
@@ -302,7 +309,7 @@
                   </v-btn>
                 </v-col>
                 <v-col cols="2">
-                  <v-btn @click="deleteP(i-1)">
+                  <v-btn @click="deletePortal(i-1)">
                     删除该项
                   </v-btn>
                 </v-col>
@@ -399,6 +406,7 @@
       :paper="newPaper"
       :edit=false
       :email="email"
+      :portalid="id"
       @closeZ="closeF"
       ></BaseEditPaper>
     </v-dialog>
@@ -408,6 +416,7 @@
       :paper="thePaper"
       :edit=true
       :email="email"
+      :portalid="id"
       @closeZ="closeF"
       ></BaseEditPaper>
     </v-dialog>
@@ -447,11 +456,12 @@
 </template>
 
 <script>
-import CardPaper from '../../components/card/CardPaper.vue'
-import BaseEditPaper from '../BaseEditPaper.vue'
-import Search from '../Search.vue'
+import CardPaper from '../components/card/CardPaper.vue'
+import BaseEditPaper from './BaseEditPaper.vue'
+import Search from './Search.vue'
+import Banner from "../components/BaseBanner.vue";
   export default {
-    components: {CardPaper,BaseEditPaper,Search},
+    components: {CardPaper,BaseEditPaper,Search,Banner},
     data: () => ({
       //门户部分
       editingD:false,
@@ -479,7 +489,7 @@ import Search from '../Search.vue'
       patentNum:0,
       citationNum:0,
       avatarUrl:"",
-      websiteLink:"",
+      websiteLink:null,
       fileToken:null,
       vertifyCode:"",
       description:"",
@@ -579,20 +589,20 @@ import Search from '../Search.vue'
         abstract:"",
         authors:[],
         date:"",
-        doi:"",//
+        doi:null,//
         institutions:[],//
         journal:Object,
         keywords:[],
-        publisher:"",//
+        publisher:null,//
         referencePapers:[],//
         subjects:[],//
         type:"",
-        year:""
+        year:null
       },
       thePaper:Object,
       theDelete:"",
       page:1,
-      onePageNum:1,
+      onePageNum:2,
       pageNum:2,
 
       //找id
@@ -604,16 +614,21 @@ import Search from '../Search.vue'
       timer:"",
     }),
     mounted(){
+      this.$axios({
+        method: "get",
+        url: "/api/account/profile",
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.email = response.data.data.email;
+          this.username = response.data.data.username;
+          this.id=response.data.data.researcherId
+          this.getInfo()
+          this.getPapers()
+        }
+      });
       
-      // this.getInfo()
-      // this.getPapers()
-      this.nameE=this.name
-      this.emailE=this.email
-      this.interestsE=this.interests
-      this.gIndexE=this.gIndex
-      this.hIndexE=this.hIndex
-      this.currentInstE=JSON.parse( JSON.stringify(this.currentInst) )
-      this.institutionsE=JSON.parse( JSON.stringify(this.institutions) )
+      
     },
     methods:{
       mDoor(){
@@ -656,6 +671,7 @@ import Search from '../Search.vue'
       },
       addProtal(){
         this.portals.push("")
+        this.portalsName.push("")
       },
       addIntrest(){
         this.interestsE.push("")
@@ -663,8 +679,9 @@ import Search from '../Search.vue'
       deleteI(index){
         this.institutionsE.splice(index, 1)
       },
-      deleteP(index){
+      deletePortal(index){
         this.portals.splice(index, 1)
+        this.portalsName.splice(index, 1)
       },
       deletePaper(index){
         this.deletingPaper=true
@@ -675,6 +692,21 @@ import Search from '../Search.vue'
         this.interests.splice(index,1)
       },
       editPaper(index){
+        if(this.papers[index].subjects==null){
+          this.papers[index].subjects=[]
+        }
+        if(this.papers[index].institutions==null){
+          this.papers[index].institutions=[]
+        }
+        if(this.papers[index].authors==null){
+          this.papers[index].authors=[]
+        }
+        if(this.papers[index].referencePapers==null){
+          this.papers[index].referencePapers=[]
+        }
+        if(this.papers[index].journal==null){
+          this.papers[index].journal={}
+        }
         this.editingPaper=true
         this.thePaper=this.papers[index]
       },
@@ -695,11 +727,36 @@ import Search from '../Search.vue'
         this.clearWeb()
       },
       clearWeb(){
-        this.websiteLink="",
+        this.websiteLink=null,
         this.vertifyCode="",
         this.fileToken=null
       },
+      editDoor(){
+        this.editingD=true
+        this.nameE=this.name
+        this.emailE=this.email
+        this.interestsE=this.interests
+        this.gIndexE=this.gIndex
+        this.hIndexE=this.hIndex
+        this.currentInstE=JSON.parse( JSON.stringify(this.currentInst) )
+        this.institutionsE=JSON.parse( JSON.stringify(this.institutions) )
+      },
       submit(){
+        if(this.email==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入邮箱",
+            type: "error",
+          });
+          return
+        }else if(this.websiteLink==null&&this.fileToken==null){
+          this.$notify({
+            title: "失败",
+            message: "网址证明和文件证明至少需要一个",
+            type: "error",
+          });
+          return
+        }
         let d={
           content:{
               description:this.description,
@@ -720,52 +777,74 @@ import Search from '../Search.vue'
             websiteLink:this.websiteLink
         }
         if(this.editCur){
-            d.content.info.currentInst.id=null
+          d.content.info.currentInst.id=null
+        }else{
+          d.content.info.currentInst.name=null
+        }
+        let i=0
+        for(i=0;i<d.content.info.institutions.length;i++){
+          if(this.editIns[i]){
+            d.content.info.institutions[i].id=null
           }else{
-            d.content.info.currentInst.name=null
+            d.content.info.institutions[i].name=null
           }
-          let i=0
-          for(i=0;i<d.content.info.institutions.length;i++){
-            if(this.editIns[i]){
-              d.content.info.institutions[i].id=null
-            }else{
-              d.content.info.institutions[i].name=null
-            }
-          }
-        console.log(JSON.stringify(d))
+        }
         this.$axios({
           method: "post",
           url: "/api/scholar/modify",
           data:d
         }).then(response => {
           console.log(response.data)
-          this.snackbarSub=true
-          this.editingD=false
-          this.clearWeb()
+          if(response.data.success){
+            this.snackbarSub=true
+            this.editingD=false
+            this.clearWeb()
+          }else{
+            this.$notify({
+              title: "失败",
+              message: "请核对信息完整程度",
+              type: "error",
+            });
+          }
+          
         }).catch(error => {
           console.log(error)
         })
       },
       submitAddDoor(){
-        console
+        if(this.websiteLink==null&&this.fileToken==null){
+          this.$notify({
+            title: "失败",
+            message: "网址证明和文件证明至少需要一个",
+            type: "error",
+          });
+          return
+        }
+        let dat={
+          content:{
+            portals:this.portals,
+          },  
+          email:this.emailE,
+          fileToken:this.fileToken,
+          websiteLink:this.websiteLink
+        }
+        console.log(JSON.stringify(dat))
         this.$axios({
           method: "post",
-          url: "/api/scholar/certify",
-          data:{
-            content:{
-              portals:this.portals,
-            },  
-            email:this.emailE,
-            fileToken:this.fileToken,
-            websiteLink:this.websiteLink
-            
-          }
+          url: "/api/scholar/claim",
+          data:dat
         }).then(response => {
           console.log(response.data)
           if(response.data.success){
             this.snackbarSub=true
             this.addDoor=false
             this.clearWeb()
+          }else{
+            this.$notify({
+              title: "失败",
+              message: "请核对信息完整程度，检查验证码是否正确",
+              type: "error",
+            });
           }
           
         }).catch(error => {
@@ -773,28 +852,34 @@ import Search from '../Search.vue'
         })
       },
       submitDeletePaper(){
-        this.$axios({
-          method: "post",
-          url: "/api/scholar/paper/remove",
-          data: {
+        let data={
             content:{
-              paperId:this.deletePaperID,
+              paperId:this.theDelete.id,
               reason:this.deletePaperReason
             },
-            email:this.emailE,
+            email:this.email,
             fileToken:this.fileToken,
             websiteLink:this.websiteLink
           }
+        console.log(JSON.stringify(data))  
+        this.$axios({
+          method: "post",
+          url: "/api/scholar/paper/remove",
+          data: data
         }).then(response => {
           console.log(response.data)
-          this.snackbarSub=true
-          this.deletingPaper=false
-          this.clearWeb()
+          if(response.data.success){
+            this.snackbarSub=true
+            this.deletingPaper=false
+            this.clearWeb()
+          }
+          
         }).catch(error => {
           console.log(error)
         })
       },
       getInfo(){
+        console.log("api/search/info/researcher/"+this.id)
         this.$axios({
           method: "get",
           url: "api/search/info/researcher/"+this.id,
@@ -803,60 +888,81 @@ import Search from '../Search.vue'
           }
         }).then(response => {
           console.log(response.data)
-          this.avatarUrl=response.data.avatarUrl
-          this.citationNum=response.data.citationNum
-          this.name=response.data.name
-          this.position=response.data.position
-          this.interests=response.data.interests
-          this.email=response.data.email
-          this.hIndex=response.data.gIndex
-          this.paperNum=response.data.paperNum
-          this.patentNum=response.data.patentNum
-          this.currentInst=response.data.currentInst
+          if(response.data.success){
+            this.avatarUrl=response.data.data.avatarUrl
+            this.citationNum=response.data.data.citationNum
+            this.name=response.data.data.name
+            this.position=response.data.data.position
+            this.interests=response.data.data.interests
+            this.hIndex=response.data.data.gIndex
+            this.paperNum=response.data.data.paperNum
+            this.patentNum=response.data.data.patentNum
+            this.currentInst=response.data.data.currentInst
+            this.institutions=response.data.data.institutions
+          }
+          
         }).catch(error => {
           console.log(error)
         })
       },
       getPapers(){
         this.papers=[]
-        let aPaper=Object
         let hasMore=false
         let page=0
+        let i
         this.$axios({
           method: "get",
-          url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-          params: {
+          url: "/api/search/relation/publications/researcher/"+this.id+"/"+page,
+          data: {
             entity:"researcher",
             id: this.id,
             page:page,
           }
         }).then(response => {
           console.log(response.data)
-          aPaper=response.data.item
-          hasMore=response.data.hasMore
-          this.papers.push(aPaper)
+          if(response.data.success){
+            console.log(response.data.data.items)
+            hasMore=response.data.data.hasMore
+            for(i=0;i<response.data.data.items.length;i++){
+              this.papers.push(response.data.data.items[i])
+            }
+            page++
+            while (hasMore) {
+                this.$axios({
+                method: "get",
+                url: "/search/relation/publications/researcher/"+this.id+"/"+page,
+                params: {
+                  entity:"researcher",
+                  id: this.id,
+                  page:page,
+                }
+              }).then(response => {
+                console.log(response.data)
+                if(response.data.success){
+                  console.log(response.data.data.items)
+                  hasMore=response.data.data.hasMore
+                  for(i=0;i<response.data.data.items.length;i++){
+                    this.papers.push(response.data.data.items[i])
+                  }
+                  page++
+                }
+              }).catch(error => {
+                console.log(error)
+              })
+            }
+          }
+          
         }).catch(error => {
           console.log(error)
         })
-        while (hasMore) {
-            this.$axios({
-            method: "get",
-            url: "/search/relation/publications/researcher/"+this.id+"/"+page,
-            params: {
-              entity:"researcher",
-              id: this.id,
-              page:page,
-            }
-          }).then(response => {
-            console.log(response.data)
-            aPaper=response.data.item
-            hasMore=response.data.hasMore
-            this.papers.push(aPaper)
-          }).catch(error => {
-            console.log(error)
-          })
-        }
-        this.pageNum=page+1
+        
+        this.timer = setTimeout(()=>{   //设置延迟执行
+          this.pageNum=Math.ceil(this.papers.length/this.onePageNum)
+          console.log(this.pageNum)
+          console.log(this.papers)
+          console.log(this.papers.length)
+        },1000);
+        
       },
       findResult(msg){
         msg.name=msg.name.replaceAll('<b>','')

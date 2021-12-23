@@ -258,8 +258,8 @@
           },
           institutions:[],
           institutionNum:0,
-          idRules: [(v) => !!v || "请填写姓名"],
-          passwordRules: [(v) => !!v || "请填写密码"],
+          // idRules: [(v) => !!v || "请填写姓名"],
+          // passwordRules: [(v) => !!v || "请填写密码"],
           emailRules: [
             (v) => !!v || "请填写邮箱",
             (v) => /.+@.+\..+/.test(v) || "邮箱格式不合法",
@@ -323,22 +323,24 @@
         this.interests.splice(index,1)
       },
       upload(){
-        this.$axios({
-          method: "post",
-          url: "/api/resource/upload",
-          data: {
+        let data={
             file:this.file,
             token:null
           }
+        console.log(JSON.stringify(data))
+        this.$axios({
+          method: "post",
+          url: "/api/resource/upload",
+          data: data
         }).then(response => {
           console.log(response.data)
           if(response.success){
             this.fileToken=response.data
             this.$notify({
-          title: 'upload',
-          message: "上传成功",
-          type: 'success'
-        });
+              title: 'upload',
+              message: "上传成功",
+              type: 'success'
+            });
           }
           
         }).catch(error => {
@@ -348,6 +350,28 @@
       submit(){
         if(this.file!=null){
           this.upload()
+        }
+        if(this.email==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入邮箱",
+            type: "error",
+          });
+          return
+        }else if(this.websiteLink==null&&this.fileToken==null){
+          this.$notify({
+            title: "失败",
+            message: "网址证明和文件证明至少需要一个",
+            type: "error",
+          });
+          return
+        }else if(this.vertifyCode==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入验证码",
+            type: "error",
+          });
+          return
         }
         var claim={
           portals:this.portals,
@@ -408,7 +432,17 @@
         }).then(response => {
           console.log(response.data)
           if(response.data.success){
-            this.snackbarSub=true
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
+          }else{
+            this.$notify({
+              title: "失败",
+              message: "请核对信息完整程度，检查验证码是否正确",
+              type: "error",
+            });
           }
           
         }).catch(error => {

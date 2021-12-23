@@ -58,6 +58,8 @@
                         :item="item"
                         :disabled="fromDoor"
                       ></JournalCard>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn>
                     </td>
                   </tr>
                 </div>
@@ -117,6 +119,7 @@
                 <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
                   <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '专利'">

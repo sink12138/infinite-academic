@@ -29,18 +29,6 @@
 
           <v-list-item-title>{{ text }}</v-list-item-title>
         </v-list-item>
-        <v-list-item
-          v-if="researcherId!=''"
-          link
-          :key="icon1"
-          :to="url1"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ icon1 }}</v-icon>
-          </v-list-item-icon>
-
-          <v-list-item-title>{{ text1 }}</v-list-item-title>
-        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -78,9 +66,6 @@ export default {
       email: "",
       username: "",
       researcherId:"",
-      url1:"/user/door",
-      icon1:"mdi-account",
-      text1:"门户页面"
     };
   },
 };

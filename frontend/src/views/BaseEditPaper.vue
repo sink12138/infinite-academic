@@ -164,16 +164,20 @@
             添加机构
           </v-btn>
           <v-row>
-            <v-col cols="6">
-              <v-text-field
-                label="期刊ID"
-                v-model="journal.id"
-              ></v-text-field>
+            <v-col cols="3">
+            <br/>
+              <v-btn @click="find('期刊','jou')">
+                查找期刊
+              </v-btn>
+            </v-col>
+            <v-col cols="3">
+              <v-switch v-model="editCur" label='自行编辑期刊信息'></v-switch>
             </v-col>
             <v-col cols="6">
               <v-text-field
                 label="期刊标题"
                 v-model="journal.title"
+                :disabled="!editJou"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -241,13 +245,6 @@
             添加引用文献
           </v-btn>
           <v-row>
-            <v-text-field
-                v-model="year"
-                label="发表年份"
-                required
-              ></v-text-field>
-          </v-row>
-          <v-row>
             <v-col >
               <v-text-field
                 v-model="websiteLink"
@@ -308,6 +305,7 @@
       paper:Object,
       edit:Boolean,
       email:String,
+      portalid:String,
     },
     data(){
       return{
@@ -328,12 +326,13 @@
         types:["图书","学位论文","期刊论文"],
         close:"",
         discription:"",
-        fileToken:"",
-        websiteLink:"",
+        fileToken:null,
+        websiteLink:null,
         getID:false,
         todo:"全部",
         disabled:"disabled",
         editCur:false,
+        editJou:false,
         editIns:[],
         editAut:[],
         editPap:[],
@@ -386,72 +385,232 @@
       deleteI(index){
         this.institutions.splice(index, 1)
       },
+      check(){
+        if(this.title==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入标题",
+            type: "error",
+          });
+          return false
+        }else if(this.abstract==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入摘要",
+            type: "error",
+          });
+          return false
+        }else if(this.date==''){
+          this.$notify({
+            title: "失败",
+            message: "请选择发表日期",
+            type: "error",
+          });
+          return false
+        }else if(this.authors.length==0){
+          this.$notify({
+            title: "失败",
+            message: "请添加作者",
+            type: "error",
+          });
+          return false
+        }else if(this.institutions.length==0){
+          this.$notify({
+            title: "失败",
+            message: "请添加机构",
+            type: "error",
+          });
+          return false
+        }else if(this.keywords.length==0){
+          this.$notify({
+            title: "失败",
+            message: "请添加关键词",
+            type: "error",
+          });
+          return false
+        }else if(this.subjects.length==0){
+          this.$notify({
+            title: "失败",
+            message: "请添加学科分类",
+            type: "error",
+          });
+          return false
+        }else if(this.websiteLink==null&&this.fileToken==null){
+          this.$notify({
+            title: "失败",
+            message: "网址证明和文件证明至少需要一个",
+            type: "error",
+          });
+          return false
+        }else if(this.type==""){
+          this.$notify({
+            title: "失败",
+            message: "请选择类型",
+            type: "error",
+          });
+          return false
+        }else{
+          let i
+          for(i=0;i<this.authors.length;i++){
+            if(this.authors[i].id==this.portalid){
+              break
+            }
+          }
+          if(i==this.authors.length){
+            this.$notify({
+              title: "失败",
+              message: "不能添加作者不包括自己的文献",
+              type: "error",
+            });
+            return false
+          }
+        }
+      },
       submitAddPaper(){
+        if(this.check()==false){
+          return
+        }
+        let data={
+          content:{
+            add:{
+              abstract:this.abstract,
+              authors:this.authors,
+              date:this.date,
+              doi:this.doi,
+              institutions:this.institutions,
+              journal:this.journal,
+              keywords:this.keywords,
+              publisher:this.publisher,
+              subjects:this.subjects,
+              referencePapers:this.referencePapers,
+              title:this.title,
+              type:this.type,
+              year:this.date.substring(0,4),
+            },
+          },
+          email:this.email,
+          websiteLink:this.websiteLink,
+          fileToken:this.fileToken
+        }
+        if(this.editJou){
+          data.content.add.journal.id=null
+        }else{
+          data.content.add.journal.title=null
+        }
+        let i=0
+        for(i=0;i<data.content.add.institutions.length;i++){
+          if(this.editIns[i]){
+            data.content.add.institutions[i].id=null
+          }else{
+            data.content.add.institutions[i].name=null
+          }
+        }
+        for(i=0;i<data.content.add.authors.length;i++){
+          if(this.editAut[i]){
+            data.content.add.authors[i].id=null
+          }else{
+            data.content.add.authors[i].name=null
+            data.content.add.authors[i].instName=null
+          }
+        }
+        for(i=0;i<data.content.add.referencePapers.length;i++){
+          if(this.editPap[i]){
+            data.content.add.referencePapers[i].id=null
+          }else{
+            data.content.add.referencePapers[i].title=null
+          }
+        }
+        console.log(JSON.stringify(data))
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/add",
-          data: {
-            content:{
-              add:{
-                abstract:this.abstract,
-                authors:this.authors,
-                date:this.date,
-                doi:this.doi,
-                institutions:this.institutions,
-                journal:this.journal,
-                keywords:this.keywords,
-                publisher:this.publisher,
-                subjects:this.subjects,
-                referencePapers:this.referencePapers,
-                title:this.title,
-                type:this.type,
-                year:this.year,
-              },
-            email:this.email,
-            websiteLink:this.websiteLink,
-            fileToken:this.fileToken
-            }
-          }
+          data: data
         }).then(response => {
           console.log(response.data)
-          // this.snackbarSub=true
-          this.$emit('closeZ',"close")
+          if(response.data.success){
+            // this.snackbarSub=true
+            this.$emit('closeZ',"close")
+          }
+          
         }).catch(error => {
           console.log(error)
         })
       },
       submitEditPaper(){
+        if(this.check==false){
+          return
+        }else if(this.description==''){
+          this.$notify({
+            title: "失败",
+            message: "请输入修改原因或修改描述",
+            type: "error",
+          });
+          return
+        }
+        let data={
+          content:{
+            discription:this.description,
+            paperId:this.id,
+            edit:{
+              abstract:this.abstract,
+              authors:this.authors,
+              date:this.date,
+              doi:this.doi,
+              institutions:this.institutions,
+              journal:this.journal,
+              keywords:this.keywords,
+              publisher:this.publisher,
+              subjects:this.subjects,
+              referencePapers:this.referencePapers,
+              title:this.title,
+              type:this.type,
+              year:this.date.substring(0,4),
+            }
+          },
+          email:this.email,
+          websiteLink:this.websiteLink,
+          fileToken:this.fileToken
+        }
+        if(this.editJou){
+          data.content.edit.journal.id=null
+        }else{
+          data.content.edit.journal.title=null
+        }
+        let i=0
+        for(i=0;i<data.content.edit.institutions.length;i++){
+          if(this.editIns[i]){
+            data.content.edit.institutions[i].id=null
+          }else{
+            data.content.edit.institutions[i].name=null
+          }
+        }
+        for(i=0;i<data.content.edit.authors.length;i++){
+          if(this.editAut[i]){
+            data.content.edit.authors[i].id=null
+          }else{
+            data.content.edit.authors[i].name=null
+            data.content.edit.authors[i].instName=null
+          }
+        }
+        for(i=0;i<data.content.edit.referencePapers.length;i++){
+          if(this.editPap[i]){
+            data.content.edit.referencePapers[i].id=null
+          }else{
+            data.content.edit.referencePapers[i].title=null
+          }
+        }
+        console.log(JSON.stringify(data))
         this.$axios({
           method: "post",
           url: "/api/scholar/paper/edit",
-          data: {
-            content:{
-              discription:this.description,
-              paperId:this.id,
-              edit:{
-                abstract:this.abstract,
-                authors:this.authors,
-                date:this.date,
-                doi:this.doi,
-                institutions:this.institutions,
-                journal:this.journal,
-                keywords:this.keywords,
-                publisher:this.publisher,
-                subjects:this.subjects,
-                referencePapers:this.referencePapers,
-                title:this.title,
-                type:this.type,
-                year:this.year,
-            },
-            email:this.email,
-            websiteLink:this.websiteLink,
-            fileToken:this.fileToken
-            }
-          }
+          data: data
         }).then(response => {
           console.log(response.data)
-          // this.snackbarSub=true
-          this.$emit('closeZ',"close")
+          if(response.data.success){
+            // this.snackbarSub=true
+            this.$emit('closeZ',"close")
+          }
+          
         }).catch(error => {
           console.log(error)
         })
@@ -465,9 +624,9 @@
       },
       findResult(msg){
         let str=this.itemGetM
-        if(str.substring(0,3)=='pap'){
-          msg.name=msg.title.replaceAll('<b>','')
-          msg.name=msg.title.replaceAll('</b>','')
+        if(str.substring(0,3)=='pap'||str.substring(0,3)=='jou'){
+          msg.title=msg.title.replaceAll('<b>','')
+          msg.title=msg.title.replaceAll('</b>','')
         }else{
           msg.name=msg.name.replaceAll('<b>','')
           msg.name=msg.name.replaceAll('</b>','')
@@ -487,7 +646,10 @@
           let x=Number(str.substring(3))
           this.referencePapers[x].id=msg.id
           this.referencePapers[x].title=msg.title
-
+        }else if(str.substring(0,3)=='jou'){
+          this.journal.id=msg.id
+          this.journal.title=msg.title
+          
         }
         
       },
