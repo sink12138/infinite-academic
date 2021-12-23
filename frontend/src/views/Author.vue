@@ -71,9 +71,7 @@ export default {
       id: null,
       name: null,
       styles: "author",
-      authorData: {},
-      publications: {},
-      patents: {},
+      authorData: {}
     };
   },
   watch: {

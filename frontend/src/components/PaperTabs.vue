@@ -14,7 +14,7 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastCit()">
+            <v-btn elevation="2" @click="getLastCit()" :disabled="page1==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -23,6 +23,7 @@
             <v-btn
               elevation="2"
               @click="getNextCit()"
+              :disabled="citations.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -34,7 +35,7 @@
               ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastRef()">
+            <v-btn elevation="2" @click="getLastRef()" :disabled="page2==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -43,6 +44,7 @@
             <v-btn
               elevation="2"
               @click="getNextRef()"
+              :disabled="references.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -65,7 +67,7 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPub('researcher','page3')">
+            <v-btn elevation="2" @click="getLastPub('researcher','page3')" :disabled="page3==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -74,6 +76,7 @@
             <v-btn
               elevation="2"
               @click="getNextPub(publications,'researcher','page3')"
+              :disabled="publications.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -85,7 +88,7 @@
             ></CardPatent>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPat()">
+            <v-btn elevation="2" @click="getLastPat()" :disabled="page4==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -94,6 +97,7 @@
             <v-btn
               elevation="2"
               @click="getNextPat()"
+              :disabled="patents.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -116,7 +120,7 @@
             ></CardPaper>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastPub('institution','page5')">
+            <v-btn elevation="2" @click="getLastPub('institution','page5')" :disabled="page5==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -125,6 +129,7 @@
             <v-btn
               elevation="2"
               @click="getNextPub(publications,'institution','page5')"
+              :disabled="publications.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -136,7 +141,7 @@
             ></CardAuthor>
           </v-card-text>
           <div class="text-center">
-            <v-btn elevation="2" @click="getLastSch()">
+            <v-btn elevation="2" @click="getLastSch()" :disabled="page6==0">
               上一页
             </v-btn>
             &nbsp;&nbsp;
@@ -145,6 +150,7 @@
             <v-btn
               elevation="2"
               @click="getNextSch()"
+              :disabled="scholars.hasMore == false"
             >下一页</v-btn>
           </div>
         </v-tab-item>
@@ -167,7 +173,7 @@
           </v-card-text>
         </v-tab-item>
         <div class="text-center">
-          <v-btn elevation="2" @click="getLastPub('journal','page7')">
+          <v-btn elevation="2" @click="getLastPub('journal','page7')" :disabled="page7==0">
             上一页
           </v-btn>
           &nbsp;&nbsp;
@@ -176,7 +182,7 @@
           <v-btn
             elevation="2"
             @click="getNextPub(publications,'journal','page7')"
-            id="next"
+            :disabled="publications.hasMore == false"
           >下一页</v-btn>
       </div>
       </v-tabs-items>
