@@ -37,9 +37,19 @@
         @keyup.enter="search"
       >
       </v-combobox>
+      <el-button
+        icon="el-icon-search"
+        round
+        @click="searchInResult"
+        style="max-height: 56px"
+        class="btn"
+        v-show="!this.normal && this.filter != '全部' && this.filter != '精确'"
+      >
+        在结果中检索
+      </el-button>
     </v-container>
     <v-container width="66%" v-else :key="2">
-      <tr>
+      <tr class="d-flex">
         <v-select
           v-model="filter"
           :items="items"
@@ -50,6 +60,9 @@
           filled
           @change="emitFilter"
         ></v-select>
+        <el-button icon="el-icon-search" round @click="searchInResult">
+          在结果中检索
+        </el-button>
       </tr>
       <div v-if="filter == '论文'">
         <tr
@@ -227,6 +240,7 @@
 export default {
   data() {
     return {
+      normal: true,
       items: ["全部", "论文", "期刊", "专利", "机构", "科研人员", "精确"],
       logics: ["and", "or", "not"],
       filter: "全部",
@@ -249,6 +263,11 @@ export default {
       ],
       high: false,
     };
+  },
+  created() {
+    setTimeout(() => {
+      if (this.$route.path != "/") this.normal = false;
+    }, 1);
   },
   methods: {
     add(type) {
@@ -480,12 +499,14 @@ export default {
               size: 10,
               translated: true,
             };
-            this.request.filters.push({
-              attr: "year",
-              format: "numeric",
-              intParams: [this.filters.year1, this.filters.year2],
-              type: "range",
-            });
+            if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
+              this.request.filters.push({
+                attr: "year",
+                format: "numeric",
+                intParams: [this.filters.year1, this.filters.year2],
+                type: "range",
+              });
+            }
             if (
               this.filters.citationNum != null &&
               this.filters.citationNum != ""
@@ -555,12 +576,14 @@ export default {
               }
               this.request.conditions.push(condition);
             }
-            this.request.filters.push({
-              attr: "year",
-              format: "numeric",
-              intParams: [this.filters.year1, this.filters.year2],
-              type: "range",
-            });
+            if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
+              this.request.filters.push({
+                attr: "year",
+                format: "numeric",
+                intParams: [this.filters.year1, this.filters.year2],
+                type: "range",
+              });
+            }
             if (
               this.filters.citationNum != null &&
               this.filters.citationNum != ""
@@ -1179,7 +1202,7 @@ export default {
           keywords = keyword.split(/\s+/);
         }
         console.log(keywords);
-        this.request.filters=[];
+        this.request.filters = [];
         switch (this.filter) {
           case "全部": {
             url = url + "/smart";
@@ -1396,7 +1419,8 @@ export default {
           }
         }
         console.log(url);
-        if (this.filter!='全部'&&this.request.conditions.length == 0) return;
+        if (this.filter != "全部" && this.request.conditions.length == 0)
+          return;
         if (this.filter != "精确") {
           console.log(JSON.stringify(this.request));
           this.$axios({
@@ -1445,6 +1469,410 @@ export default {
         });
       }
     },
+    searchInResult() {
+      this.filters = this.$parent.filters;
+      console.log("搜索过滤器");
+      console.log(this.filters);
+      var i, j, scope;
+      var url = "/api/search";
+      var keyword = this.text.trim();
+      var keywords = keyword.split(/\s+/);
+      var condition;
+      var condition1;
+      var fuzzy = true;
+      var translated = true;
+      console.log(keywords);
+      this.request.filters = [];
+      switch (this.filter) {
+        case "论文": {
+          url = url + "/paper";
+          for (i = 0; i < this.paperSearch.length; i++) {
+            if (
+              this.paperSearch[i].text == null ||
+              this.paperSearch[i].text.match(/\s+/)
+            )
+              continue;
+            switch (this.paperSearch[i].scope) {
+              case "篇关摘":
+                scope = ["title", "abstract", "keywords", "subjects"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "作者":
+                scope = ["authors.name"];
+                fuzzy = false;
+                translated = false;
+                break;
+              case "发表机构":
+                scope = ["institutions.name"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "刊登期刊":
+                scope = ["journal.title"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+            }
+            keywords = this.paperSearch[i].text.trim().split(/\s+/);
+            console.log(keywords);
+            condition = {
+              compound: false,
+              fuzzy: fuzzy,
+              keyword: keywords[0],
+              logic: this.paperSearch[i].logic,
+              scope: scope,
+              languages: ["zh", "en"],
+              translated: translated,
+            };
+            if (keywords.length != 1) {
+              for (j = 1; j < keywords.length; j++) {
+                condition1 = {
+                  compound: true,
+                  fuzzy: fuzzy,
+                  keyword: keywords[j],
+                  logic: this.paperSearch[i].logic,
+                  scope: scope,
+                  subConditions: [condition],
+                  languages: ["zh", "en"],
+                  translated: translated,
+                };
+                condition = condition1;
+              }
+            }
+            this.request.conditions.push(condition);
+          }
+          if (this.filters.paperType.type != "") {
+            keywords = this.filters.paperType.type.trim().split(/\s+/);
+            console.log(keywords);
+            condition = {
+              compound: false,
+              fuzzy: false,
+              keyword: keywords[0],
+              logic: "and",
+              scope: ["type"],
+              translated: false,
+            };
+            if (keywords.length != 1) {
+              for (i = 1; i < keywords.length; i++) {
+                condition1 = {
+                  compound: true,
+                  fuzzy: false,
+                  keyword: keywords[i],
+                  logic: "and",
+                  scope: ["type"],
+                  subConditions: [condition],
+                  translated: false,
+                };
+                condition = condition1;
+              }
+            }
+            this.request.conditions.push(condition);
+          }
+          if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
+            this.request.filters.push({
+              attr: "year",
+              format: "numeric",
+              intParams: [this.filters.year1, this.filters.year2],
+              type: "range",
+            });
+          }
+          if (
+            this.filters.citationNum != null &&
+            this.filters.citationNum != ""
+          ) {
+            this.request.filters.push({
+              attr: "citationNum",
+              format: "numeric",
+              intParams: [Number(this.filters.citationNum)],
+              type: "above",
+            });
+          }
+          if (this.filters.paperSort == "出版日期倒序") {
+            this.request.sort = "date.desc";
+          } else if (this.filters.paperSort == "出版日期正序") {
+            this.request.sort = "date.asc";
+          } else if (this.filters.paperSort == "引用数量") {
+            this.request.sort = "citationNum.desc";
+          }
+          break;
+        }
+        case "专利": {
+          url = url + "/patent";
+          for (i = 0; i < this.patentSearch.length; i++) {
+            if (
+              this.patentSearch[i].text == null ||
+              this.patentSearch[i].text.match(/\s+/)
+            )
+              continue;
+            switch (this.patentSearch[i].scope) {
+              case "标题摘要":
+                scope = ["title", "abstract"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "类型":
+                scope = ["type"];
+                fuzzy = false;
+                translated = false;
+                break;
+              case "申请人":
+                scope = ["applicant"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "发明人":
+                scope = ["inventors.name"];
+                fuzzy = false;
+                translated = false;
+                break;
+            }
+            keywords = this.patentSearch[i].text.trim().split(/\s+/);
+            console.log(keywords);
+            condition = {
+              compound: false,
+              fuzzy: fuzzy,
+              keyword: keywords[0],
+              logic: this.patentSearch[i].logic,
+              scope: scope,
+              languages: ["zh", "en"],
+              translated: translated,
+            };
+            if (keywords.length != 1) {
+              for (j = 1; j < keywords.length; j++) {
+                condition1 = {
+                  compound: true,
+                  fuzzy: fuzzy,
+                  keyword: keywords[j],
+                  logic: this.patentSearch[i].logic,
+                  scope: scope,
+                  subConditions: [condition],
+                  languages: ["zh", "en"],
+                  translated: translated,
+                };
+                condition = condition1;
+              }
+            }
+            this.request.conditions.push(condition);
+          }
+          if (this.filters.patentSort == "申请日期倒序") {
+            this.request.sort = "fillingDate.desc";
+          } else if (this.filters.patentSort == "申请日期正序") {
+            this.request.sort = "fillingDate.asc";
+          }
+          break;
+        }
+        case "科研人员": {
+          url = url + "/researcher";
+          for (i = 0; i < this.researcherSearch.length; i++) {
+            if (
+              this.researcherSearch[i].text == null ||
+              this.researcherSearch[i].text.match(/\s+/)
+            )
+              continue;
+            switch (this.researcherSearch[i].scope) {
+              case "姓名":
+                scope = ["name"];
+                fuzzy = false;
+                translated = false;
+                break;
+              case "研究方向":
+                scope = ["interests"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "合作机构":
+                scope = ["institutions.name"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+              case "所属机构":
+                scope = ["currentInst.name"];
+                fuzzy = this.filters.fuzzy;
+                translated = this.filters.translated;
+                break;
+            }
+            keywords = this.researcherSearch[i].text.trim().split(/\s+/);
+            console.log(keywords);
+            condition = {
+              compound: false,
+              fuzzy: fuzzy,
+              keyword: keywords[0],
+              logic: this.researcherSearch[i].logic,
+              scope: scope,
+              languages: ["zh", "en"],
+              translated: translated,
+            };
+            if (keywords.length != 1) {
+              for (j = 1; j < keywords.length; j++) {
+                condition1 = {
+                  compound: true,
+                  fuzzy: fuzzy,
+                  keyword: keywords[j],
+                  logic: this.researcherSearch[i].logic,
+                  scope: scope,
+                  subConditions: [condition],
+                  languages: ["zh", "en"],
+                  translated: translated,
+                };
+                condition = condition1;
+              }
+            }
+            this.request.conditions.push(condition);
+          }
+          if (
+            this.filters.citationNum != null &&
+            this.filters.citationNum != ""
+          ) {
+            this.request.filters.push({
+              attr: "citationNum",
+              format: "numeric",
+              intParams: [Number(this.filters.citationNum)],
+              type: "above",
+            });
+          }
+          if (this.filters.paperNum != null && this.filters.paperNum != "") {
+            this.request.filters.push({
+              attr: "paperNum",
+              format: "numeric",
+              intParams: [Number(this.filters.paperNum)],
+              type: "above",
+            });
+          }
+          if (this.filters.patentNum != null && this.filters.patentNum != "") {
+            this.request.filters.push({
+              attr: "patentNum",
+              format: "numeric",
+              intParams: [Number(this.filters.patentNum)],
+              type: "above",
+            });
+          }
+          if (this.filters.hIndex != null && this.filters.hIndex != "") {
+            this.request.filters.push({
+              attr: "hIndex",
+              format: "numeric",
+              intParams: [Number(this.filters.hIndex)],
+              type: "above",
+            });
+          }
+          if (this.filters.gIndex != null && this.filters.gIndex != "") {
+            this.request.filters.push({
+              attr: "gIndex",
+              format: "numeric",
+              intParams: [Number(this.filters.gIndex)],
+              type: "above",
+            });
+          }
+          if (this.filters.researcherSort == "论文数量") {
+            this.request.sort = "paperNum.desc";
+          } else if (this.filters.researcherSort == "专利数量") {
+            this.request.sort = "patentNum.desc";
+          } else if (this.filters.researcherSort == "引用数量") {
+            this.request.sort = "citationNum.desc";
+          } else if (this.filters.researcherSort == "h指数") {
+            this.request.sort = "hIndex.desc";
+          } else if (this.filters.researcherSort == "g指数") {
+            this.request.sort = "gIndex.desc";
+          }
+          break;
+        }
+        case "期刊": {
+          if (this.text == null || this.text == "") return;
+          url = url + "/journal";
+          condition = {
+            compound: false,
+            fuzzy: true,
+            keyword: keywords[0],
+            languages: ["zh", "en"],
+            logic: "and",
+            scope: ["title"],
+            translated: this.filters.translated,
+          };
+          if (keywords.length != 1) {
+            for (i = 1; i < keywords.length; i++) {
+              condition1 = {
+                compound: true,
+                fuzzy: true,
+                keyword: keywords[i],
+                languages: ["zh", "en"],
+                logic: "and",
+                scope: ["title"],
+                subConditions: [condition],
+                translated: this.filters.translated,
+              };
+              condition = condition1;
+            }
+          }
+          this.request.conditions.push(condition);
+          break;
+        }
+        case "机构": {
+          if (this.text == null || this.text == "") return;
+          url = url + "/institution";
+          this.request.size = 20;
+          condition = {
+            compound: false,
+            fuzzy: true,
+            keyword: keywords[0],
+            languages: ["zh", "en"],
+            logic: "and",
+            scope: ["name"],
+            translated: this.filters.translated,
+          };
+          if (keywords.length != 1) {
+            for (i = 1; i < keywords.length; i++) {
+              condition1 = {
+                compound: true,
+                fuzzy: true,
+                keyword: keywords[i],
+                languages: ["zh", "en"],
+                logic: "and",
+                scope: ["name"],
+                subConditions: [condition],
+                translated: this.filters.translated,
+              };
+              condition = condition1;
+            }
+          }
+          this.request.conditions.push(condition);
+          break;
+        }
+      }
+      console.log(url);
+      console.log(JSON.stringify(this.request));
+      this.$axios({
+        method: "post",
+        url: url,
+        data: this.request,
+      })
+        .then((response) => {
+          console.log(response.data);
+          this.data = response.data;
+          this.$emit("searchResult", this.data.data);
+          this.$emit("searchType", this.filter);
+          if (
+            this.filter == "论文" ||
+            this.filter == "科研人员" ||
+            this.filter == "专利"
+          ) {
+            this.$axios({
+              method: "get",
+              url: "/api/analysis/aggregations",
+            })
+              .then((response) => {
+                this.aggregations = response.data;
+                this.$emit("searchFilter", this.aggregations);
+                console.log(response.data);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     jumpPage() {
       var url;
       switch (this.filter) {
@@ -1468,7 +1896,7 @@ export default {
           break;
       }
       this.request.page = this.page;
-      if (this.filter!='全部'&&this.request.conditions.length == 0) return;
+      if (this.filter != "全部" && this.request.conditions.length == 0) return;
       console.log(JSON.stringify(this.request));
       this.$axios({
         method: "post",

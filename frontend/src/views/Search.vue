@@ -23,7 +23,7 @@
           v-show="filter != '机构' && filter != '期刊'"
         ></BaseFilter>
       </v-col>
-      <v-col cols="36">
+      <v-col>
         <div>
           <div class="result">
             <div v-if="results.length != 0">
@@ -57,6 +57,7 @@
                       <JournalCard
                         :item="item"
                         :disabled="fromDoor"
+                        style="min-height:200px;"
                       ></JournalCard>
                       <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                         >选择</v-btn>
@@ -77,6 +78,7 @@
                       <AuthorCard
                         :item="item"
                         :disabled="fromDoor"
+                        style="min-height:200px;"
                       ></AuthorCard>
                       <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                         >选择</v-btn
@@ -98,6 +100,7 @@
                       <InstitutionCard
                         :item="item"
                         :disabled="fromDoor"
+                        style="min-height:200px;"
                       ></InstitutionCard>
                       <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                         >选择</v-btn
@@ -111,21 +114,21 @@
               <div v-if="searchType1 == '全部' || searchType1 == '论文'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 论文 -->
-                  <PaperCard :item="item" :disabled="fromDoor"></PaperCard>
+                  <PaperCard :item="item" :disabled="fromDoor" style="margin-top:10px;"></PaperCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '期刊'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 期刊 -->
-                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
+                  <JournalCard :item="item" :disabled="fromDoor" style="margin-top:10px;"></JournalCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
               <div v-else-if="searchType1 == '专利'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 专利 -->
-                  <v-card class="text-left my-2" max-width="650">
+                  <v-card class="text-left my-2" max-width="650" style="margin-top:10px;">
                     <v-card-title class="d-flex">
                       <v-icon class="mx-1">
                         mdi-text-box-multiple-outline
@@ -175,7 +178,7 @@
               <div v-else-if="searchType1 == '科研人员'">
                 <div v-for="item in results" :key="item.id">
                   <!-- 科研人员 -->
-                  <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                  <AuthorCard :item="item" :disabled="fromDoor" style="margin-top:10px;"></AuthorCard>
                   <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
                 </div>
               </div>
@@ -190,6 +193,7 @@
                     <InstitutionCard
                       :item="item"
                       :disabled="fromDoor"
+                      style="max-height:200px;min-height:200px;min-width:350px;margin-left:10px;"
                     ></InstitutionCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
@@ -369,10 +373,8 @@ export default {
         });
         return;
       }
-      this.$router.push({
-        path: type,
-        query: { id: id },
-      });
+      let { href } = this.$router.resolve({ path: type, query: { id: id }})
+      window.open(href, '_blank')
     },
     handleFilter(filter) {
       this.filters = filter;
@@ -454,8 +456,8 @@ export default {
 
 <style>
 .searchMain {
-  margin-left: 15%;
-  margin-right: 15%;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 .filter {
   float: left;
