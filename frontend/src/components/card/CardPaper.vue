@@ -2,7 +2,6 @@
   <v-card class="text-left my-2" max-width="1950">
     <v-card-title class="d-flex">
       <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
-      <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
       <span
         class="link"
         @click="href('paper', item.id)"

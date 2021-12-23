@@ -28,10 +28,12 @@
       </v-col>
       <v-col cols="7">
         <div v-if="results.length != 0">
-          <v-sheet class="py-2" elevation="1">
-            共找到<b>{{ itemNum }}</b>条结果
-            当前第 <b>{{ page }}/{{ length }}</b> 页
-            <span>(耗时 {{ timeCost }} ms)</span>
+          <v-sheet class="pa-2 d-flex justify-space-between" elevation="1">
+            <span>
+              当前第 <b>{{ page }}/{{ length }}</b> 页
+              <span class="font-weight-thin">(耗时 {{ timeCost }} ms)</span>
+            </span>
+            <span> 共找到<b>{{ itemNum }}</b>条结果</span>
           </v-sheet>
         </div>
         <div v-if="data.correction != null">
@@ -52,13 +54,19 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <JournalCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></JournalCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn
-                  >
+                  <v-row>
+                    <v-col>
+                      <JournalCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></JournalCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn>
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -73,13 +81,20 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <AuthorCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></AuthorCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn
-                  >
+                  <v-row>
+                    <v-col>
+                      <AuthorCard
+                        :item="item"
+                        :disabled="fromDoor"
+                      ></AuthorCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -94,14 +109,21 @@
                   :key="item.id"
                   style="width: 50%; height: 50%; table-layout: fixed"
                 >
-                  <InstitutionCard
-                    :item="item"
-                    :disabled="fromDoor"
-                    style="min-width:33%;max-width:33%"
-                  ></InstitutionCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
-                    >选择</v-btn
-                  >
+                  <v-row>
+                    <v-col>
+                      <InstitutionCard
+                        :item="item"
+                        :disabled="fromDoor"
+                        style="min-width:33%;max-width:33%"
+                      ></InstitutionCard>
+                    </v-col>
+                    <v-col>
+                      <br/>
+                      <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                        >选择</v-btn
+                      >
+                    </v-col>
+                  </v-row>
                 </td>
               </tr>
             </div>
@@ -111,23 +133,37 @@
           <div v-if="searchType1 == '全部' || searchType1 == '论文'">
             <div v-for="item in results" :key="item.id">
               <!-- 论文 -->
-              <PaperCard
-                :item="item"
-                :disabled="fromDoor"
-                style="margin-top: 10px"
-              ></PaperCard>
-              <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <PaperCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></PaperCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '期刊'">
             <div v-for="item in results" :key="item.id">
               <!-- 期刊 -->
-              <JournalCard
-                :item="item"
-                :disabled="fromDoor"
-                style="margin-top: 10px"
-              ></JournalCard>
-              <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <JournalCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></JournalCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '专利'">
@@ -184,12 +220,19 @@
           <div v-else-if="searchType1 == '科研人员'">
             <div v-for="item in results" :key="item.id">
               <!-- 科研人员 -->
-              <AuthorCard
-                :item="item"
-                :disabled="fromDoor"
-                style="margin-top: 10px"
-              ></AuthorCard>
-              <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+              <v-row>
+                <v-col>
+                  <AuthorCard
+                    :item="item"
+                    :disabled="fromDoor"
+                    style="margin-top: 10px"
+                  ></AuthorCard>
+                </v-col>
+                <v-col>
+                  <br/>
+                  <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                </v-col>
+              </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '机构'">
@@ -200,24 +243,33 @@
                 style="width: 33%; height: 50%; table-layout: fixed"
               >
                 <!-- 机构 -->
-                <InstitutionCard
-                  :item="item"
-                  :disabled="fromDoor"
-                  style="
-                    max-height: 200px;
-                    min-height: 200px;
-                    min-width: 350px;
-                    margin-left: 10px;
-                  "
-                ></InstitutionCard>
-                <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+                <v-row>
+                  <v-col>
+                    <InstitutionCard
+                      :item="item"
+                      :disabled="fromDoor"
+                      style="
+                        max-height: 200px;
+                        min-height: 200px;
+                        min-width: 350px;
+                        margin-left: 10px;
+                      "
+                    ></InstitutionCard>
+                  </v-col>
+                  <v-col>
+                    <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                      >选择</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </td>
             </tr>
           </div>
         </div>
-        <div v-if="results.length != 0">
+        <div v-if="results.length != 0" >
           <v-row class="mt-4">
             <el-pagination
+              class="mx-auto"
               background
               @current-change="pageChange"
               :current-page.sync="jumpPage"

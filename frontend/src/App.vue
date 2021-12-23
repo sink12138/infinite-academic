@@ -15,10 +15,10 @@ html,body {
   overflow-y: auto !important;
 }
 #app {
-  font-family: 微软雅黑;
+  font-family: 'Fira code', 微软雅黑;
   text-align: center;
 }
 textarea {
-	font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-family: 'Fira code', 'Lucida Sans Regular', sans-serif;
 }
 </style>
