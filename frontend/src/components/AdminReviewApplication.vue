@@ -57,6 +57,8 @@
                 return-object
                 dense
                 @change="getApplications"
+                label="申请类型"
+                solo
               ></v-select>
             </v-col>
 

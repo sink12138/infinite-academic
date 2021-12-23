@@ -51,6 +51,10 @@
                   v-bind="attrs"
                   v-on="on"
                 >
+                  <v-icon dark>
+                    mdi-plus
+                  </v-icon>
+
                   新增账户
                 </v-btn>
               </template>
