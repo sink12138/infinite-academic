@@ -17,7 +17,9 @@
             <v-btn elevation="2" @click="getLastCit()">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page1+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextCit()"
@@ -35,7 +37,9 @@
             <v-btn elevation="2" @click="getLastRef()">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page2+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextRef()"
@@ -64,7 +68,9 @@
             <v-btn elevation="2" @click="getLastPub('journal','page3')">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page3+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextPub(publications,'journal','page3')"
@@ -82,7 +88,9 @@
             <v-btn elevation="2" @click="getLastPat()">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page4+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextPat()"
@@ -111,7 +119,9 @@
             <v-btn elevation="2" @click="getLastPub('institution','page5')">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page5+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextPub(publications,'institution','page5')"
@@ -129,7 +139,9 @@
             <v-btn elevation="2" @click="getLastSch()">
               上一页
             </v-btn>
+            &nbsp;&nbsp;
             <span>第 {{page6+1}} 页</span>
+            &nbsp;&nbsp;
             <v-btn
               elevation="2"
               @click="getNextSch()"
@@ -158,7 +170,9 @@
           <v-btn elevation="2" @click="getLastPub('journal','page7')">
             上一页
           </v-btn>
+          &nbsp;&nbsp;
           <span>第 {{page7+1}} 页</span>
+          &nbsp;&nbsp;
           <v-btn
             elevation="2"
             @click="getNextPub(publications,'journal','page7')"

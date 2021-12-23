@@ -14,8 +14,8 @@
               <h1>
                 {{journalData.title}}
               </h1>
-              <h3>主办单位:{{journalData.sponsor}}</h3>
-              <h3>ISSN:{{journalData.issn}}</h3>
+              <h3 v-if="journalData.sponsor">主办单位:{{journalData.sponsor}}</h3>
+              <h3 v-if="journalData.issn">ISSN:{{journalData.issn}}</h3>
             </div>
           </v-col>
         </v-row>
