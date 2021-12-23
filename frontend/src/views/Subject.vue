@@ -16,7 +16,7 @@
           <v-img
             id="publish"
             class="ma-auto"
-            height="400"
+            height="500"
             aspect-ratio="16/9"
           ></v-img>
 
@@ -24,6 +24,17 @@
             <v-icon>mdi-fire-circle</v-icon>
             热度: {{this.heat.toFixed(2)}}
           </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn outlined @click="changePage(0)">
+              <v-icon>mdi-arrow-left-bold-outline</v-icon>
+            </v-btn>
+            <v-btn outlined>{{this.page}}</v-btn>
+            <v-btn outlined @click="changePage(1)">
+              <v-icon>mdi-arrow-right-bold-outline</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
         </v-card>
       </v-col>
       <v-col cols="8">
@@ -58,7 +69,7 @@
 
           <div v-if="tab == 0">
             <CardPaper
-              v-for="item in items"
+              v-for="item in sliceList(items, 3)[this.page-1]"
               :key="item.id"
               :item="item"
             ></CardPaper>
@@ -75,6 +86,7 @@
             ></v-img>
 
             <v-btn-toggle
+              style="flex-direction: column;"
               v-if="tab > 1"
               v-model="chartType"
               tile
@@ -115,7 +127,10 @@ export default {
       chart2: null,
       tab: null,
       chartType: 0,
-      items: {}
+      items: [],
+      page: 1,
+      currentPage: 0,
+      total: 0
     }
   },
   watch: {
@@ -144,7 +159,28 @@ export default {
     chartType() {
       if (this.tab != 0)
         this.reload2();
+    },
+    currentPage() {
+      this.getPapers(this.currentPage);
     }
+  },
+  computed: {
+    sliceList() {
+      return function (data, count) {
+        if (data != undefined) {
+          let index = 0;
+          let arrTemp = [];
+          for (let i = 0; i < data.length; i++) {
+            index = parseInt(i / count);
+            if (arrTemp.length <= index) {
+              arrTemp.push([]);
+            }
+            arrTemp[index].push(data[i]);
+          }
+          return arrTemp;
+        }
+      };
+    },
   },
   mounted() {
     this.init();
@@ -156,17 +192,26 @@ export default {
     },
     loadData() {
       this.getBasic();
-      this.getPapers();
+      this.getPapers(0);
       this.getResearcher();
       this.getJournal();
       this.getInstitution();
     },
+    changePage(f) {
+      if (f == 1) {
+        if (this.page*3 > this.total) return;
+        this.page++;
+      }
+      else {
+        if (this.page == 1) return;
+        this.page--;
+      }
+      if (Math.floor((this.page-1) / 4) > this.currentPage)
+        this.currentPage = Math.floor((this.page-1) / 4)
+    }
   }
 }
 </script>
 
-<style scoped>
-.v-btn-toggle {
-  flex-direction: column;
-}
+<style>
 </style>

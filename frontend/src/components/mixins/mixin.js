@@ -200,7 +200,7 @@ export const getChart = {
       var option = {
         title: {
           text: '关联关系',
-          left: 'center'
+          left: 'left'
         },
         series: {
           type: 'graph',
@@ -528,7 +528,7 @@ export const getData = {
         console.log(error)
       })
     },
-    getPapers() {
+    getPapers(page) {
       var scope = ""
       if (this.type == "topic")
         scope = "keywords"
@@ -551,13 +551,15 @@ export const getData = {
             }
           ],
           filters: [],
-          page: 0,
-          size: 10,
+          page: page,
+          size: 12,
           sort: "citationNum.desc"
         }
       }).then(res => {
         if (res.data.success == true) {
-          this.items = res.data.data.items;
+          this.items = this.items.concat(res.data.data.items);
+          if (page == 0)
+            this.total = res.data.data.totalHits;
         } else {
           console.log(res.data.message);
         }
