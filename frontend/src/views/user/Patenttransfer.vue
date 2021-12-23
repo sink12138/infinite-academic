@@ -111,6 +111,14 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
+                    <v-row>
+                      <v-col cols="12">
+                        <v-file-input
+                          chips
+                          label="上传证明文件"
+                        ></v-file-input>
+                      </v-col>
+                    </v-row>
                   </div>
                   <v-btn
                     color="primary"
