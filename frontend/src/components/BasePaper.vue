@@ -15,16 +15,20 @@
     </v-card-title>
     <v-card-subtitle class="pb-0">
       <span v-if="paperdata.date" v-text="paperdata.date.substr(0,4)"></span>&nbsp;
-      <span class="link"
-        v-if="paperdata.journal"
-        @click="href('journal', paperdata.journal.id)"
-        v-text="paperdata.journal.title"
-      >
-      </span>&nbsp;
       <span>被引量:{{paperdata.citationNum}}</span>&nbsp;
       <span>来源:</span>&nbsp;
       <span v-for="item in paperdata.sources" :key="item.id">
         <span class="link" @click=toSource(item.url)>{{item.website}}</span>&nbsp;
+      </span>
+      <br>
+      <span v-if="paperdata.journal">
+        <span class="link"
+          @click="href('journal', paperdata.journal.id)"
+          v-text="paperdata.journal.title"
+        >
+        </span>&nbsp;
+        <span v-if="paperdata.journal.volume">第{{paperdata.journal.volume}}卷第{{paperdata.journal.issue}}期</span>&nbsp;
+        <span v-if="paperdata.journal.startPage">{{paperdata.journal.startPage}}到{{paperdata.journal.endPage}}页</span>
       </span>
     </v-card-subtitle>
     <v-card-text class="pb-0">
@@ -79,24 +83,34 @@
       </v-btn>
     </v-card-text>
     <v-card-text class="pb-1">
-      <span>所有机构:</span>&nbsp;
-      <span v-for="institution in paperdata.institutions" :key="institution.id">
-        <span class="link" @click="href('institution',institution.id)" v-html="institution.name"></span>
+      <span v-if="paperdata.institutions">
+        <span>所有机构:</span>&nbsp;
+        <span v-for="institution in paperdata.institutions" :key="institution.id">
+          <span class="link" @click="href('institution',institution.id)" v-html="institution.name"></span>
+        </span>
       </span>
       <br>
-      <span>论文类别:</span>&nbsp;
-      <span>{{paperdata.type}}</span>
-      <br>
-      <span>学科分类:</span>&nbsp;
-      <span v-for="subject in paperdata.subjects" :key="subject.id">
-        {{subject}}&nbsp;
+      <span v-if="paperdata.type">
+        <span>论文类别:</span>&nbsp;
+        <span>{{paperdata.type}}</span>
       </span>
       <br>
-      <span>出版商:</span>&nbsp;
-      <span>{{paperdata.publisher}}</span>
+      <span v-if="paperdata.subjects">
+        <span>学科分类:</span>&nbsp;
+        <span v-for="subject in paperdata.subjects" :key="subject.id">
+          <a @click="hrefname('subject',subject)">{{subject}}&nbsp;</a>
+        </span>
+      </span>
       <br>
-      <span>doi:</span>
-      {{paperdata.doi}}
+      <span v-if="paperdata.publisher">
+        <span>出版商:</span>&nbsp;
+        <span>{{paperdata.publisher}}</span>
+      </span>
+      <br>
+      <span v-if="paperdata.doi">
+        <span>doi:</span>
+        {{paperdata.doi}}
+      </span>
     </v-card-text>
   </v-card>
 </template>
@@ -127,9 +141,31 @@ export default {
   },
   methods: {
     href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       this.$router.push({
         path: type,
         query: { id: id }
+      })
+    },
+    hrefname(type,name){
+      if (name == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
+      this.$router.push({
+        path: type,
+        query: { name: name }
       })
     },
     toSource(url){

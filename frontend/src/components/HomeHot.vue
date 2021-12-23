@@ -67,6 +67,14 @@ export default {
   },
   methods: {
     href(type, name) {
+      if (name == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       if (type == "学科")
         type = "subject"
       else

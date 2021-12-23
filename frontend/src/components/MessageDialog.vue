@@ -374,23 +374,45 @@ export default {
         default:
           this.type = "";
       }
-      this.$axios({
-        method: "get",
-        url: "/api/account/application/details/" + this.message.id,
-      })
-        .then((res) => {
-          if (res.data.success) {
-            this.basic = res.data.data.basic;
-            this.content = res.data.data.content;
-            console.log(this.basic);
-            console.log(this.content);
-          } else {
-            console.log(res.data.message);
-          }
+      console.log(this.$route.path)
+      if (this.$route.path == "/user/apply") {
+        this.$axios({
+          method: "get",
+          url: "/api/account/application/details/" + this.message.id,
         })
-        .catch((error) => {
-          console.log(error);
-        });
+          .then((res) => {
+            if (res.data.success) {
+              this.basic = res.data.data.basic;
+              this.content = res.data.data.content;
+              console.log(this.basic);
+              console.log(this.content);
+            } else {
+              console.log(res.data.message);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+      else if (this.$route.path == "/admin") {
+        this.$axios({
+          method: "get",
+          url: "/api/admin/review/details/" + this.message.id,
+        })
+          .then((res) => {
+            if (res.data.success) {
+              this.basic = res.data.data.basic;
+              this.content = res.data.data.content;
+              console.log(this.basic);
+              console.log(this.content);
+            } else {
+              console.log(res.data.message);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
     getBrief(entity, ids) {
       this.$axios({
@@ -413,6 +435,14 @@ export default {
         });
     },
     href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       let { href } = this.$router.resolve({ path: type, query: { id: id } });
       window.open(href, "_blank");
     },

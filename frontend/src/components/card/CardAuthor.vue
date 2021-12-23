@@ -1,17 +1,17 @@
 <template>
-  <v-card class="text-left my-2" max-width="850">
+  <v-card class="text-left my-2" max-width="1950">
     <v-card-title class="d-flex">
       <h3 v-if="disabled == 'disabled'">ID: {{ item.id }}</h3>
       <v-icon class="mx-1"> mdi-account-tie-outline </v-icon>
       <span
         class="link"
         v-if="item.id!=null"
-        @click="href('author', item.id)" 
+        @click="href('author', item.id)"
         v-html="item.name"
         :class="disabled"
       ></span>
       <span
-        class="link" 
+        class="link"
         v-if="item.id==null"
         v-html="item.name"
       ></span>
@@ -60,6 +60,14 @@ export default {
   },
   methods: {
     href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: '数据缺失',
+          message: '信息暂未收录，给您带来不便敬请谅解。',
+          type: 'warning'
+        });
+        return;
+      }
       let { href } = this.$router.resolve({ path: type, query: { id: id }})
       window.open(href, '_blank')
     }

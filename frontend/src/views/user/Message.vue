@@ -8,10 +8,11 @@
         <v-data-table
           :headers="headers"
           :items="messages"
-          :options.sync="options"
-          :server-items-length="totalMessages"
-          :loading="loading"
-          class="message"
+          :page.sync="page"
+          :items-per-page="itemsPerPage"
+          hide-default-footer
+          class="elevation-1"
+          @page-count="pageCount = $event"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -79,6 +80,11 @@
             </v-btn>
           </template>
         </v-data-table>
+        <v-pagination
+          v-model="page"
+          :length="pageCount"
+          @click="this.getMessages()"
+        ></v-pagination>
       </v-card-text>
     </v-card>
     <v-dialog
@@ -92,12 +98,10 @@
         >
           {{detail.title}}
         </v-card-title>
-        <v-row
-          no-gutters
-        >
+        <v-row no-gutters>
           <v-col cols="4">
             <v-card-text class="font-weight-black">
-              消息时间：
+              消息时间:
             </v-card-text>
           </v-col>
           <v-col cols="8">
@@ -109,7 +113,7 @@
         <v-row no-gutters>
           <v-col cols="4">
             <v-card-text class="font-weight-black">
-              正文：
+              正文:
             </v-card-text>
           </v-col>
           <v-col cols="8">
@@ -146,6 +150,7 @@ export default {
         this.totalNotReadMessages = response.data.data;
       }
     });
+    this.getMessages();
   },
   data() {
     return {
@@ -156,9 +161,8 @@ export default {
       dialogValid: false,
       totalNotReadMessages: 0,
       totalMessages: 0,
-      options: {},
       loading: true,
-      page: 0,
+      page: 1,
       read: false,
       size: 10,
       details: false,
@@ -191,6 +195,8 @@ export default {
         read: false,
       },
       deleteMessages: [],
+      pageCount: 0,
+      itemsPerPage: 10,
     };
   },
   watch: {
@@ -199,12 +205,6 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    },
-    options: {
-      handler() {
-        this.getMessages();
-      },
-      deep: true,
     },
   },
   methods: {
@@ -254,16 +254,13 @@ export default {
         }
       });
       this.closeDelete();
-      this.getMessages;
+      this.getMessages();
     },
     getMessages() {
+      console.log(this.page);
+      console.log(this.size);
       if (this.isChooseRead === false && this.isChooseNotRead === false) {
         this.loading = true;
-        this.page = this.options.page;
-        this.size =
-          this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
-        console.log(this.page);
-        console.log(this.size);
         this.$axios({
           method: "get",
           url: "/api/account/message/list",
@@ -275,7 +272,7 @@ export default {
           console.log(response.data);
           if (response.data.success === true) {
             this.messages = response.data.data.messages;
-            this.totalMessages = response.data.data.totalPages * this.size;
+            this.pageCount = response.data.data.totalPages;
             this.loading = false;
           } else {
             this.$notify({
@@ -288,11 +285,6 @@ export default {
         });
       } else if (this.isChooseRead === true) {
         this.loading = true;
-        this.page = this.options.page;
-        this.size =
-          this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
-        console.log(this.page);
-        console.log(this.size);
         this.$axios({
           method: "get",
           url: "/api/account/message/list",
@@ -318,11 +310,6 @@ export default {
         });
       } else {
         this.loading = true;
-        this.page = this.options.page;
-        this.size =
-          this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
-        console.log(this.page);
-        console.log(this.size);
         this.$axios({
           method: "get",
           url: "/api/account/message/list",
