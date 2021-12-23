@@ -149,7 +149,7 @@ public class PaperParser {
                     String[] instNames = instNameText.split("[；;]");
                     for (String instName : instNames) {
                         Paper.Institution inst = new Paper.Institution();
-                        instName = StringUtil.rmPlaceNameAndCode(instName);
+                        instName = StringUtil.formatInstitutionName(instName);
                         statusCtrl.changeRunningStatusTo(threadName, "Get info of the institution with name: " + instName);
                         // find inst by name
                         Institution foundInst = statusCtrl.esUtil.findInstByName(instName);
@@ -705,7 +705,7 @@ public class PaperParser {
                     String[] instNames = instNameText.split("[；;]");
                     for (String instName : instNames) {
                         Paper.Institution inst = new Paper.Institution();
-                        instName = StringUtil.rmPlaceNameAndCode(instName);
+                        instName = StringUtil.formatInstitutionName(instName);
                         instName=instName.replaceAll("\\d+. ","");
                         // find inst by name
                         Institution foundInst = statusCtrl.esUtil.findInstByName(instName);

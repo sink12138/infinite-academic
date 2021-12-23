@@ -8,10 +8,17 @@ import com.buaa.academic.document.entity.Researcher;
 import java.util.List;
 
 public interface EsUtil {
+
     Paper findPaperByTileAndAuthors(String title, List<Paper.Author> authors);
+
     Paper findPaperById(String id);
+
     Researcher findResearcherByNameAndInst(String name, String inst);
+
     Institution findInstByName(String name);
+
     Journal findJournalByName(String name);
-    Boolean inTrash(String title, List<Paper.Author> authors);
+
+    boolean inTrash(String title, List<Paper.Author> authors);
+
 }

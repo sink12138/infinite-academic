@@ -15,8 +15,6 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,7 +221,7 @@ public class CrawlServiceImpl implements CrawlService {
                         String[] instNames = instNameText.split("[；;]");
                         for (String instName : instNames) {
                             Paper.Institution inst = new Paper.Institution();
-                            instName = StringUtil.rmPlaceNameAndCode(instName);
+                            instName = StringUtil.formatInstitutionName(instName);
                             // find inst by name
                             Institution foundInst = esUtil.findInstByName(instName);
                             if (foundInst != null) {
@@ -633,7 +631,7 @@ public class CrawlServiceImpl implements CrawlService {
                         String[] instNames = instNameText.split("[；;]");
                         for (String instName : instNames) {
                             Paper.Institution inst = new Paper.Institution();
-                            instName = StringUtil.rmPlaceNameAndCode(instName);
+                            instName = StringUtil.formatInstitutionName(instName);
                             // find inst by name
                             Institution foundInst = esUtil.findInstByName(instName);
                             if (foundInst != null) {
@@ -857,7 +855,7 @@ public class CrawlServiceImpl implements CrawlService {
             String instName = curInstElement.get(0).getAttribute("textContent");
 
             String[] instNames = instName.split("[;；]");
-            instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
+            instName = StringUtil.formatInstitutionName(instNames[0]);
 
             // 检查数据库中是否已有相同姓名和机构的学者
             Researcher researcher = esUtil.findResearcherByNameAndInst(researcherName, instName);
@@ -915,7 +913,7 @@ public class CrawlServiceImpl implements CrawlService {
                 for (WebElement inst : instElement) {
                     String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]/a")).getAttribute("textContent");
 
-                    corInst = StringUtil.rmPlaceNameAndCode(corInst);
+                    corInst = StringUtil.formatInstitutionName(corInst);
 
                     Institution institution = esUtil.findInstByName(corInst);
                     if (institution == null) {

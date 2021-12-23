@@ -19,6 +19,7 @@ import java.util.List;
 
 @Service
 public class EsUtilImpl implements EsUtil {
+
     @Autowired
     private ElasticsearchRestTemplate template;
 
@@ -85,7 +86,7 @@ public class EsUtilImpl implements EsUtil {
     }
 
     @Override
-    public Boolean inTrash(String title, List<Paper.Author> authors) {
+    public boolean inTrash(String title, List<Paper.Author> authors) {
         List<String> authorsNames = new ArrayList<>();
         authors.forEach(author -> authorsNames.add(author.getName()));
         QueryBuilder queryBuilder;

@@ -62,7 +62,7 @@ public class ResearcherParser {
         String instName = curInstElement.get(0).getAttribute("textContent");
 
         String[] instNames = instName.split("[;；]");
-        instName = StringUtil.rmPlaceNameAndCode(instNames[0]);
+        instName = StringUtil.formatInstitutionName(instNames[0]);
 
         // 检查数据库中是否已有相同姓名和机构的数据库
         Researcher researcher = statusCtrl.esUtil.findResearcherByNameAndInst(researcherName, instName);
@@ -125,7 +125,7 @@ public class ResearcherParser {
             for (WebElement inst : instElement) {
                 String corInst = inst.findElement(By.xpath(".//p[@class=\"list-title\"]/a")).getAttribute("textContent");
 
-                corInst = StringUtil.rmPlaceNameAndCode(corInst);
+                corInst = StringUtil.formatInstitutionName(corInst);
 
                 Institution institution = statusCtrl.esUtil.findInstByName(corInst);
                 if (institution == null) {
