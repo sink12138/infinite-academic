@@ -12,16 +12,7 @@
           v-on="on"
           height="100%"
         >
-          <v-badge
-            color="red"
-            :content="num"
-            v-if="num != 0"
-          >
-            <v-icon>
-              mdi-account-circle
-            </v-icon>
-          </v-badge>
-          <v-icon v-if="num === 0">
+          <v-icon>
             mdi-account-circle
           </v-icon>
         </v-btn>
@@ -39,6 +30,34 @@
         </v-list-item>
       </v-list>
     </v-menu>
+    <template
+      v-bind="attrs"
+      v-on="on"
+    >
+      <v-badge
+        color="red"
+        :content="num"
+        v-if="num != 0"
+      >
+        <router-link to="/user/message">
+          <v-btn
+            icon
+            height="100%"
+          >
+            <v-icon>mdi-message-text</v-icon>
+          </v-btn>
+        </router-link>
+      </v-badge>
+      <router-link to="/user/message">
+        <v-btn
+          v-if="num === 0"
+          height="100%"
+          icon
+        >
+          <v-icon>mdi-message-text</v-icon>
+        </v-btn>
+      </router-link>
+    </template>
     <router-link to='/register'>
       <v-btn
         depressed
@@ -232,8 +251,8 @@ export default {
         url: "/user/profile",
       },
       {
-        title:"个人门户",
-        url:"/door"
+        title: "个人门户",
+        url: "/door",
       },
     ],
   }),

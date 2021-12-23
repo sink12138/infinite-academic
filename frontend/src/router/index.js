@@ -98,9 +98,9 @@ const routes = [{
         component: Message
       },
       {
-        path:'patentTransfer',
-        name:'PatentTransfer',
-        component:PatentTransfer
+        path: 'patentTransfer',
+        name: 'PatentTransfer',
+        component: PatentTransfer
       },
       {
         path: 'scholarIdentity',
@@ -108,9 +108,9 @@ const routes = [{
         component: ScholarIdentity
       },
       {
-      path: 'door',
-      name: 'Door',
-      component: Door
+        path: 'door',
+        name: 'Door',
+        component: Door
       },
     ]
   },
