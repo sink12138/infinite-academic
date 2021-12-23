@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <Banner
       v-if="fromDoor == ''"
       :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
@@ -28,7 +27,7 @@
       </v-col>
       <v-col cols="7">
         <div v-if="results.length != 0">
-          <v-sheet 
+          <v-sheet
             class="pa-2 mb-2 d-flex justify-space-between"
             elevation="1"
             rounded="lg"
@@ -38,18 +37,24 @@
               当前第 <b>{{ page }}/{{ length }}</b> 页
               <span class="font-weight-thin">(耗时 {{ timeCost }} ms)</span>
             </span>
-            <span> 共找到<b>{{ itemNum }}</b>条结果</span>
+            <span>
+              共找到<b>{{ itemNum }}</b
+              >条结果</span
+            >
           </v-sheet>
         </div>
         <div v-if="data.correction != null">
-          <v-sheet 
+          <v-sheet
             class="pa-2 my-4"
             rounded="lg"
             elevation="1"
             color="light-blue lighten-5"
           >
             <v-icon>mdi-information-outline</v-icon>
-            <span>已为您推荐&nbsp;<i v-html="data.correction"></i>&nbsp;的结果</span>
+            <span
+              >已为您推荐&nbsp;<i v-html="data.correction"></i
+              >&nbsp;的结果</span
+            >
           </v-sheet>
         </div>
         <div v-if="data.detection != null">
@@ -60,17 +65,12 @@
               :key="index"
               no-gutters
             >
-              <v-col 
-                v-for="item in row"
-                :key="item.id"
-                cols="4"
-              >
+              <v-col v-for="item in row" :key="item.id" cols="4">
                 <v-row class="d-flex ma-1">
-                  <JournalCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></JournalCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+                  <JournalCard :item="item" :disabled="fromDoor"></JournalCard>
+                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                    >选择</v-btn
+                  >
                 </v-row>
               </v-col>
             </v-row>
@@ -82,17 +82,12 @@
               :key="index"
               no-gutters
             >
-              <v-col 
-                v-for="item in row"
-                :key="item.id"
-                cols="4"
-              >
+              <v-col v-for="item in row" :key="item.id" cols="4">
                 <v-row class="d-flex ma-1">
-                  <AuthorCard
-                    :item="item"
-                    :disabled="fromDoor"
-                  ></AuthorCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+                  <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                    >选择</v-btn
+                  >
                 </v-row>
               </v-col>
             </v-row>
@@ -104,17 +99,15 @@
               :key="index"
               no-gutters
             >
-              <v-col 
-                v-for="item in row"
-                :key="item.id"
-                cols="4"
-              >
+              <v-col v-for="item in row" :key="item.id" cols="4">
                 <v-row class="d-flex ma-1">
                   <InstitutionCard
                     :item="item"
                     :disabled="fromDoor"
                   ></InstitutionCard>
-                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
+                  <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
+                    >选择</v-btn
+                  >
                 </v-row>
               </v-col>
             </v-row>
@@ -130,7 +123,7 @@
                   :disabled="fromDoor"
                   style="margin-top: 10px"
                 ></PaperCard>
-                <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
               </v-row>
             </div>
           </div>
@@ -143,7 +136,7 @@
                   :disabled="fromDoor"
                   style="margin-top: 10px"
                 ></JournalCard>
-                <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
               </v-row>
             </div>
           </div>
@@ -207,17 +200,13 @@
                   :disabled="fromDoor"
                   style="margin-top: 10px"
                 ></AuthorCard>
-                <v-btn v-if="fromDoor!=''" @click="toDoor(item)">选择</v-btn>
+                <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
               </v-row>
             </div>
           </div>
           <div v-else-if="searchType1 == '机构'">
             <v-row v-for="(row, index) in sliceList(results, 2)" :key="index">
-              <v-col
-                v-for="item in row"
-                :key="item.id"
-                cols="6"
-              >
+              <v-col v-for="item in row" :key="item.id" cols="6">
                 <!-- 机构 -->
                 <v-row class="d-flex">
                   <InstitutionCard
@@ -238,7 +227,7 @@
             </v-row>
           </div>
         </div>
-        <div v-if="results.length != 0" >
+        <div v-if="results.length != 0">
           <v-row class="mt-4 d-flex">
             <el-pagination
               class="mx-auto"
