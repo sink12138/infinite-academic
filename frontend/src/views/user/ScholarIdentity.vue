@@ -165,19 +165,12 @@
               </v-row>
               <v-row>
                 <v-col>
-                  <!-- <v-file-input 
-                  v-model="file"
-                  class="file"
-                  ref="file"
-                  chips 
-                  label="上传证明文件"
-                  ></v-file-input> -->
-                  <input
-                    type="file"
+                  <v-file-input 
                     class="file"
-                    ref="file"
-                    accept=".doc,.docx,.pdf,.zip"
-                  />
+                    chips 
+                    label="上传证明文件"
+                    @change="selectFile"
+                  ></v-file-input>
                 </v-col>
               </v-row>
               <v-row>
@@ -276,7 +269,7 @@
           editIns:[],
           itemGetM:null,
           timer:"",
-          file:null,
+          currentFile:null,
         }
     },
     methods:{
@@ -328,23 +321,16 @@
       deleteIntrest(index){
         this.interests.splice(index,1)
       },
+      selectFile(file){
+        this.currentFile = file;
+      },
       upload(){
-        // let file = this.$refs.file.files[0];
-        // let formData = new FormData();
-        // formData.append("file", file);
-        console.log(this.$refs.file)
-        let file = this.$refs.file.files[0];
-        let formData = new FormData();
-        formData.append("file", file);
-        let data={
-          file:formData,
-          token:null
-        }
-        console.log(JSON.stringify(data))
+        let formData = new window.FormData();
+        formData.append("file", this.currentFile);
         this.$axios({
           method: "post",
           url: "/api/resource/upload",
-          data: data
+          data: formData,
         }).then(response => {
           console.log(response.data)
           if(response.success){
@@ -361,7 +347,7 @@
         })
       },
       submit(){
-        if(this.$refs.file.files.length!=0){
+        if(this.currentFile){
           this.upload()
         }
         if(this.email==''){
