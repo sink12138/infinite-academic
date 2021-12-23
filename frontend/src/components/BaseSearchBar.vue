@@ -1213,12 +1213,14 @@ export default {
               size: 10,
               translated: true,
             };
-            this.request.filters.push({
-              attr: "year",
-              format: "numeric",
-              intParams: [this.filters.year1, this.filters.year2],
-              type: "range",
-            });
+            if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
+              this.request.filters.push({
+                attr: "year",
+                format: "numeric",
+                intParams: [this.filters.year1, this.filters.year2],
+                type: "range",
+              });
+            }
             if (
               this.filters.citationNum != null &&
               this.filters.citationNum != ""
