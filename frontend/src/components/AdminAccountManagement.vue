@@ -271,6 +271,7 @@ export default {
         password: '',
         id: '',
       },
+      refreshtime: 2,
     }
   },
   computed: {
@@ -501,8 +502,16 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
-      this.getAccounts()
-      this.getAccounts()
+
+      this.timer = setInterval(() => {
+        this.refreshtime--;
+
+        if (this.refreshtime === 0) {
+          this.refreshtime = 2
+          this.getAccounts();
+          clearInterval(this.timer);
+        }
+      }, 1000);
     },
 
     closeDelete () {
@@ -511,7 +520,16 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
-      this.getAccounts()
+      
+      this.timer = setInterval(() => {
+        this.refreshtime--;
+
+        if (this.refreshtime === 0) {
+          this.refreshtime = 2
+          this.getAccounts();
+          clearInterval(this.timer);
+        }
+      }, 1000);
     },
 
     closeCheck () {

@@ -20,12 +20,13 @@
     >
       <span>自动退出</span>
       <v-icon>mdi-clock</v-icon>
-      <span>{{title.time}}</span>
+      <span> {{ title.time }} </span>
       <v-btn
         height="100%"
         dark
         @click="Logout"
         bottom
+        outlined
       >
         登出
       </v-btn>
