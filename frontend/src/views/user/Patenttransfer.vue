@@ -112,13 +112,18 @@
                       </v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="12">
-                        <v-file-input
-                          chips
-                          label="上传证明文件"
-                        ></v-file-input>
-                      </v-col>
-                    </v-row>
+                <v-col cols="9">
+                  <v-file-input
+                    class="file"
+                    chips
+                    label="上传证明文件"
+                    @change="selectFile"
+                  ></v-file-input>
+                </v-col>
+                <v-col>
+                  <v-btn @click="upload()">上传</v-btn>
+                </v-col>
+              </v-row>
                   </div>
                   <v-btn
                     color="primary"
@@ -132,7 +137,6 @@
                   <v-btn
                     color="primary"
                     large
-                    v
                     @click="submit()"
                     width="160px"
                   >
@@ -213,20 +217,18 @@ export default {
     };
   },
   mounted() {
-    /*this.$axios({
+    this.$axios({
       method: "get",
       url: "/api/account/profile",
     }).then((response) => {
       console.log(response.data);
       if (response.data.success === true) {
-        var i = 0;
         for (var p in response.data.data) {
           if (p === "researcherId") {
             this.id = response.data.data.researcherId;
           }
         }
         console.log(this.id);
-        console.log(i);
         if (this.id === "abc") {
           this.$notify({
             title: "提示",
@@ -235,7 +237,7 @@ export default {
           });
         }
       }
-    });*/
+    });
     this.getPatents();
     this.$axios({
       method: "get",
@@ -281,6 +283,27 @@ export default {
       this.getPatents();
     },
     submit() {
+      let formData = new window.FormData();
+      formData.append("file", this.currentFile);
+      if (this.fileToken != null) {
+        formData.append("token", this.fileToken);
+      }
+      this.$axios({
+        method: "post",
+        url: "/api/resource/upload",
+        data: formData,
+      })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.success) {
+            this.fileToken = response.data.data;
+            this.$notify({
+              title: "upload",
+              message: "上传成功",
+              type: "success",
+            });
+          }
+        })
       this.$axios({
         method: "post",
         url: "/api/account/patent/transfer",
