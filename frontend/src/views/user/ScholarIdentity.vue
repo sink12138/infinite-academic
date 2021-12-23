@@ -42,7 +42,6 @@
                 <v-col cols="6">
                   <v-text-field
                     v-model="name"
-                    :rules="idRules"
                     label="姓名"
                     required
                   ></v-text-field>
@@ -76,7 +75,6 @@
                 <v-col cols="6">
                   <v-text-field
                     v-model="gIndex"
-                    :rules="idRules"
                     label="g指数"
                     required
                   ></v-text-field>
@@ -167,11 +165,19 @@
               </v-row>
               <v-row>
                 <v-col>
-                  <v-file-input 
+                  <!-- <v-file-input 
                   v-model="file"
+                  class="file"
+                  ref="file"
                   chips 
                   label="上传证明文件"
-                  ></v-file-input>
+                  ></v-file-input> -->
+                  <input
+                    type="file"
+                    class="file"
+                    ref="file"
+                    accept=".doc,.docx,.pdf,.zip"
+                  />
                 </v-col>
               </v-row>
               <v-row>
@@ -323,10 +329,17 @@
         this.interests.splice(index,1)
       },
       upload(){
+        // let file = this.$refs.file.files[0];
+        // let formData = new FormData();
+        // formData.append("file", file);
+        console.log(this.$refs.file)
+        let file = this.$refs.file.files[0];
+        let formData = new FormData();
+        formData.append("file", file);
         let data={
-            file:this.file,
-            token:null
-          }
+          file:formData,
+          token:null
+        }
         console.log(JSON.stringify(data))
         this.$axios({
           method: "post",
@@ -348,7 +361,7 @@
         })
       },
       submit(){
-        if(this.file!=null){
+        if(this.$refs.file.files.length!=0){
           this.upload()
         }
         if(this.email==''){
