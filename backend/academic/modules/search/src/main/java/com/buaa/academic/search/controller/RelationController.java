@@ -133,7 +133,7 @@ public class RelationController {
     public Result<ScrollPage<PatentItem>> inventions(@PathVariable(name = "id") @NotBlank @Length(min = 20, max = 20) String id,
                                                      @PathVariable(name = "page") @PositiveOrZero int page) {
         Result<ScrollPage<PatentItem>> result = new Result<>();
-        if (!infoService.existsDocument(Patent.class, id))
+        if (!infoService.existsDocument(Researcher.class, id))
             return result.withFailure(ExceptionType.NOT_FOUND);
         Relations<PatentItem> relations = relationService.searchRelations(Patent.class, id, "inventors.id", page, null);
         ScrollPage<PatentItem> scroll = new ScrollPage<>(relations.hasMore(), relations.getItems());

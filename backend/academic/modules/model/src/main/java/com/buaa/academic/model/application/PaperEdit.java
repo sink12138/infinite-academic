@@ -10,12 +10,13 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(description = "修改论文具体内容")
-public class PaperEdit {
+public class PaperEdit implements Serializable {
 
     @NotNull
     @Pattern(regexp = "^[0-9A-Za-z_-]{20}$")
