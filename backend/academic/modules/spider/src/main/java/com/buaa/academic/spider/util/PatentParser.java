@@ -155,6 +155,9 @@ public class PatentParser {
             List<WebElement> claimElement = driver.findElementsByXPath("//div[@class=\"signoryItem list\"]//div[@class=\"itemUrl\"]");
             if (claimElement.size() != 0) {
                 String claim = claimElement.get(0).getText();
+                if (claim.length() > 2048) {
+                    claim = claim.substring(0, 2048) + "...";
+                }
                 patent.setClaim(claim);
             }
             statusCtrl.patentRepository.save(patent);

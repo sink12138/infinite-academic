@@ -358,6 +358,7 @@ public class SearchParser {
                 break;
             }
             try {
+                Thread.sleep(5000);
                 List<WebElement> searchResult = driver.findElementsByXPath("//div[@class=\"normal-list\"]");
                 if (searchResult.size() != 0) {
                     for (WebElement result : searchResult) {
