@@ -18,6 +18,10 @@ export const addCitation = {
           citationList[item.id] = citation;
           localStorage.setItem("citations", JSON.stringify(citationList));
           this.$store.commit('incCitations');
+          this.$notify({
+            title: '引用成功',
+            type: 'success'
+          });
         } else {
           console.log(res.data.message);
         }

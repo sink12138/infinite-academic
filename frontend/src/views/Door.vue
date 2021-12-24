@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Banner :title="{ text: 'Portal', icon: 'mdi-clipboard-account' }"></Banner>
+    <Banner :title="{ text: '个人门户', icon: 'mdi-clipboard-account' }"></Banner>
     <div class="whole">
       <v-row>
         <v-col cols="3">

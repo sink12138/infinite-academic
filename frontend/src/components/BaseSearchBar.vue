@@ -20,7 +20,7 @@
         hide-details
         prepend-inner-icon="mdi-dots-grid"
         background-color="grey lighten-2"
-        filled
+        outlined
         @change="emitFilter"
       ></v-select>
       <v-combobox
@@ -510,7 +510,7 @@ export default {
               filters: [],
               keyword: keyword,
               page: this.page,
-              size: 10,
+              size: 20,
               translated: true,
             };
             if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
