@@ -73,18 +73,14 @@
         <template v-slot:[`expanded-item`]="{ headers, item }">
           <td :colspan="headers.length">
             <v-row>
-              <v-col cols="2">
-                链接： 
-              </v-col>
+              <v-col cols="2"> 链接： </v-col>
               <v-col>
                 {{ item.websiteLink }}
               </v-col>
             </v-row>
             <v-divider></v-divider>
             <v-row>
-              <v-col cols="2">
-                文件Token： 
-              </v-col>
+              <v-col cols="2"> 文件Token： </v-col>
               <v-col>
                 {{ item.fileToken }}
               </v-col>
@@ -573,13 +569,34 @@ export default {
           );
           console.log(filename);
           this.load(response.data, filename);
-          console.log("下载中");
+          this.$notify({
+            title: "文件",
+            message: "下载中",
+            type: "success",
+          });
         },
         (err) => {
           alert(err);
         }
       );
-    }
+    },
+
+    load(data, filename) {
+      if (!data) {
+        return;
+      }
+      let url = window.URL.createObjectURL(
+        new Blob([data], { type: "application/force-download;charset=utf-8" })
+      );
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
   },
 };
 </script>
