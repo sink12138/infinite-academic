@@ -254,7 +254,6 @@
 </template>
 
 <script>
-//import qs from 'qs'
 export default {
   data() {
     return {
@@ -497,7 +496,7 @@ export default {
               keyword: "",
               languages: ["zh", "en"],
               logic: "and",
-              translated: true,
+              translated: this.filters.translated,
             },
           ],
           filters: [],

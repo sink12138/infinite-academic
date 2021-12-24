@@ -81,7 +81,8 @@
                   <h1 style="text-align:left">{{name}}</h1>
                   <h3 style="text-align:left" v-for="i in interests.length" :key="i">科研方向:{{interests[i-1]}}&emsp;&emsp;</h3>
                   <h3 style="text-align:left">邮箱:{{email}}</h3>
-                  <h3 style="text-align:left">g指数:{{gIndex}}  h指数:{{hIndex}}</h3>
+                  <h3 style="text-align:left;float:left" v-if="gIndex!=''">G指数:{{gIndex}}&emsp;&emsp;</h3>
+                  <h3 style="text-align:left" v-if="hIndex!=''">H指数:{{hIndex}}</h3>
                   <h3 style="text-align:left">文章数量:{{paperNum}}  专利数量:{{patentNum}}  引用次数:{{citationNum}}</h3>
                   <h3 style="text-align:left">现工作单位:{{currentInst.name}}</h3>
                   <v-row no-gutters>
