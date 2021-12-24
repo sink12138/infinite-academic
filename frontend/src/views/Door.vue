@@ -942,7 +942,8 @@ import Banner from "../components/BaseBanner.vue";
             this.name=response.data.data.name
             this.position=response.data.data.position
             this.interests=response.data.data.interests
-            this.hIndex=response.data.data.gIndex
+            this.hIndex=response.data.data.hIndex
+            this.gIndex=response.data.data.gIndex
             this.paperNum=response.data.data.paperNum
             this.patentNum=response.data.data.patentNum
             this.currentInst=response.data.data.currentInst
