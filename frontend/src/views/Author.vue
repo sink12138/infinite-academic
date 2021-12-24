@@ -14,8 +14,11 @@
               <h1>
                 {{ authorData.name }}
               </h1>
-              <h3>
-                g指数:{{ authorData.gIndex }} h指数:{{ authorData.hIndex }}
+              <h3 v-if="authorData.gIndex">
+                G指数:{{ authorData.gIndex }}
+              </h3>
+              <h3 v-if="authorData.hIndex">
+                H指数:{{ authorData.hIndex }}
               </h3>
               <h3>
                 文章数量:{{ authorData.paperNum }} 专利数量:{{
