@@ -1,6 +1,6 @@
 <template>
   <div class="center">
-    <v-card flat outlined min-width="800" min-height="600">
+    <v-card flat outlined min-width="1000" min-height="800">
       <v-card-text>
         <v-data-table
           :headers="headers"
@@ -44,8 +44,8 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
+            <v-icon @click="openDetail(item)">mdi-information-outline</v-icon>&emsp;&emsp;&emsp;
             <v-icon @click="deleteItem(item)"> mdi-delete </v-icon>
-            <v-icon @click="openDetail(item)">mdi-information-outline</v-icon>
           </template>
           <template v-slot:no-data>
             <h3 class="no-data">
@@ -61,7 +61,7 @@
       :length="pageCount"
       @click="this.getMessages()"
     ></v-pagination>
-    <v-dialog v-model="details" width="500">
+    <v-dialog v-model="details" width="800">
       <v-card class="text-left">
         <v-card-title class="headline grey lighten-2" primary-title>
           {{ detail.title }}
@@ -341,6 +341,16 @@ export default {
       });
       this.getMessages();
     },
+
+    closeDeleteAll(){
+      this.dialogDeleteAll = false;
+      this.getMessages();
+    },
+
+    closeReadAll(){
+      this.dialogReadAll = false;
+      this.getMessages();
+    }
   },
 };
 </script>

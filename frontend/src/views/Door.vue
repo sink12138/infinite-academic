@@ -749,6 +749,7 @@ import Banner from "../components/BaseBanner.vue";
         if(this.fileToken!=null){
           formData.append("token",this.fileToken)
         }
+        console.log(formData)
         this.$axios({
           method: "post",
           url: "/api/resource/upload",
