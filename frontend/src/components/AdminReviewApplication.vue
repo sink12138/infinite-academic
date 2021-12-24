@@ -559,7 +559,26 @@ export default {
     },
 
     download(token) {
-      console.log(token)
+      console.log(token);
+      this.$axios({
+        method: "get",
+        url: "/api/resource/download",
+        params: { token: token },
+        responseTpe: "blob",
+      }).then(
+        (response) => {
+          console.log(response);
+          const filename = decodeURIComponent(
+            response.headers["content-disposition"].split(";")[1].split("=")[1]
+          );
+          console.log(filename);
+          this.load(response.data, filename);
+          console.log("下载中");
+        },
+        (err) => {
+          alert(err);
+        }
+      );
     }
   },
 };
