@@ -218,8 +218,31 @@ export default {
     },
 
     Logout() {
-      this.isLogin = false;
-      this.menu_id = 0;
+      let token = window.localStorage.token;
+      this.$axios({
+        method: "post",
+        url: "api/admin/logout",
+        headers:{
+          'token':token
+        }
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "登出成功",
+            type: "success",
+          });
+          this.isLogin = false;
+          this.menu_id = 0;
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "登出失败",
+            type: "warning",
+          });
+        }
+      });
     },
   },
   beforeDestroy: function () {
