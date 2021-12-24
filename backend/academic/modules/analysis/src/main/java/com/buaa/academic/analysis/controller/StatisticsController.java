@@ -3,10 +3,9 @@ package com.buaa.academic.analysis.controller;
 import com.buaa.academic.analysis.model.Bucket;
 import com.buaa.academic.analysis.model.HotWord;
 import com.buaa.academic.analysis.model.TopRanks;
+import com.buaa.academic.analysis.model.TotalCounts;
 import com.buaa.academic.analysis.service.AnalysisShowService;
-import com.buaa.academic.document.entity.Institution;
-import com.buaa.academic.document.entity.Journal;
-import com.buaa.academic.document.entity.Researcher;
+import com.buaa.academic.document.entity.*;
 import com.buaa.academic.document.statistic.NumPerYear;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
@@ -15,9 +14,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WrapperQueryBuilder;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +42,23 @@ public class StatisticsController {
 
     @Autowired
     private AnalysisShowService analysisShowService;
+
+    @Autowired
+    private ElasticsearchRestTemplate template;
+
+    @GetMapping("/total")
+    @ApiOperation(value = "统计实体数量", notes = "返回五大实体的总数量")
+    public Result<TotalCounts> total() {
+        Result<TotalCounts> result = new Result<>();
+        TotalCounts totalCounts = new TotalCounts();
+        Query query = new NativeSearchQueryBuilder().withQuery(QueryBuilders.matchAllQuery()).build();
+        totalCounts.setPapers(template.count(query, Paper.class));
+        totalCounts.setResearchers(template.count(query, Researcher.class));
+        totalCounts.setInstitutions(template.count(query, Institution.class));
+        totalCounts.setJournals(template.count(query, Journal.class));
+        totalCounts.setPatents(template.count(query, Patent.class));
+        return result.withData(totalCounts);
+    }
 
     @GetMapping("/aggregations")
     @ApiOperation(
