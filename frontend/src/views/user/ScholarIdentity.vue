@@ -3,193 +3,206 @@
     <v-container>
       <v-select :items="types" v-model="type" label="认证方式" solo></v-select>
 
-      <v-stepper v-model="step" vertical>
+      <v-stepper v-model="step" vertical v-if="this.type">
         <v-stepper-step :complete="step > 1" step="1" editable>
-          Select an app
-          <small>Summarize if needed</small>
+          <b>基本信息</b>
+          <small class="mt-1"
+            >填写姓名、工作单位等基本信息;或在网站中寻找已存在的门户</small
+          >
         </v-stepper-step>
 
         <v-stepper-content step="1">
-          <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-          <v-btn color="primary" @click="step = 2"> Continue </v-btn>
-          <v-btn text> Cancel </v-btn>
+          <v-card class="mb-12" outlined>
+            <v-container v-if="type == '新建门户'">
+              <div class="d-flex">
+                <v-text-field
+                  outlined
+                  v-model="name"
+                  label="姓名"
+                  required
+                ></v-text-field>
+                <v-btn outlined @click="addIntrest()" height="56" class="mb-5">
+                  添加研究方向
+                </v-btn>
+              </div>
+              <div class="d-flex">
+                <v-container v-for="i in interests.length" :key="i">
+                  <v-text-field
+                    outlined
+                    label="研究方向"
+                    v-model="interests[i - 1]"
+                    append-icon="mdi-close"
+                    @click:append="deleteIntrest(i - 1)"
+                  >
+                  </v-text-field>
+                </v-container>
+              </div>
+
+              <v-row>
+                <v-col cols="4">
+                  <v-text-field
+                    outlined
+                    v-model="gIndex"
+                    label="g指数"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    outlined
+                    v-model="hIndex"
+                    label="h指数"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row class="d-flex pa-5">
+                <v-btn
+                  @click="find('机构', 'cur')"
+                  outlined
+                  height="56"
+                  class="px-2"
+                >
+                  查找现工作单位
+                </v-btn>
+                <v-switch
+                  class="px-2"
+                  inset
+                  v-model="editCur"
+                  label="自行编辑工作单位"
+                  hide-details
+                ></v-switch>
+                <v-text-field
+                  class="px-2"
+                  outlined
+                  v-model="currentInst.name"
+                  label="现工作单位名称"
+                  hide-details
+                  :disabled="!editCur"
+                  required
+                ></v-text-field>
+              </v-row>
+              <v-row
+                v-for="i in institutions.length"
+                :key="i"
+                class="d-flex pa-5"
+              >
+                <v-btn
+                  class="px-2"
+                  @click="find('机构', 'ins' + (i - 1))"
+                  outlined
+                  height="56"
+                >
+                  查找曾工作单位
+                </v-btn>
+                <v-switch
+                  class="px-2"
+                  inset
+                  v-model="editIns[i - 1]"
+                  label="自行编辑工作单位"
+                  hide-details
+                ></v-switch>
+                <v-text-field
+                  class="px-2"
+                  outlined
+                  v-model="institutions[i - 1].name"
+                  label="曾工作单位名称"
+                  :disabled="!editIns[i - 1]"
+                  hide-details
+                  required
+                  append-icon="mdi-close"
+                  @click:append="deleteI(i - 1)"
+                ></v-text-field>
+              </v-row>
+              <v-btn @click="addInst()" outlined height="56">
+                新增曾工作单位
+              </v-btn>
+            </v-container>
+            <v-container v-if="type == '认领已有门户'">
+              <v-row
+                v-for="i in portals.length"
+                :key="i"
+                class="d-flex justify-space-around mb-5"
+              >
+                <p>{{ portalsName[i - 1] }}</p>
+                <v-btn @click="find('科研人员', 'aut' + (i - 1))" outlined>
+                  查找门户
+                </v-btn>
+                <v-btn @click="deleteP(i - 1)" outlined> 删除该项 </v-btn>
+              </v-row>
+              <v-btn @click="addProtal()" outlined> 添加认领门户 </v-btn>
+            </v-container>
+          </v-card>
+          <v-btn color="primary" @click="step = 2"> 继续 </v-btn>
         </v-stepper-content>
 
         <v-stepper-step :complete="step > 2" step="2" editable>
-          Configure analytics for this app
+          <b>上传资料</b>
+          <small class="mt-1">上传证明材料或网页证明链接</small>
         </v-stepper-step>
 
         <v-stepper-content step="2">
-          <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-          <v-btn color="primary" @click="step = 3"> Continue </v-btn>
-          <v-btn text> Cancel </v-btn>
+          <v-card class="mb-12" height="200px" outlined>
+            <v-container>
+              <v-text-field
+                outlined
+                v-model="websiteLink"
+                label="证明材料链接"
+              ></v-text-field>
+              <div class="d-flex">
+                <v-file-input
+                  outlined
+                  class="file"
+                  chips
+                  label="上传证明文件"
+                  @change="selectFile"
+                ></v-file-input>
+                <v-btn outlined height="56" @click="upload()">上传</v-btn>
+              </div>
+            </v-container>
+          </v-card>
+          <v-btn color="primary" @click="step = 3"> 继续 </v-btn>
+          <v-btn text @click="step = 1"> 返回 </v-btn>
         </v-stepper-content>
 
-        <v-stepper-step :complete="step > 3" step="3" editable>
-          Select an ad format and name ad unit
+        <v-stepper-step step="3" editable>
+          <b>邮箱验证</b>
         </v-stepper-step>
 
         <v-stepper-content step="3">
-          <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-          <v-btn color="primary" @click="step = 4"> Continue </v-btn>
-          <v-btn text> Cancel </v-btn>
-        </v-stepper-content>
-
-        <v-stepper-step step="4" editable> View setup instructions </v-stepper-step>
-        <v-stepper-content step="4">
-          <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-          <v-btn color="primary" @click="step = 1"> Continue </v-btn>
-          <v-btn text> Cancel </v-btn>
+          <v-card class="mb-12" height="200px" outlined>
+            <v-container>
+              <div class="d-flex">
+                <v-text-field
+                  outlined
+                  v-model="email"
+                  label="邮箱"
+                  :rules="emailRules"
+                  required
+                ></v-text-field>
+                <v-btn
+                  outlined
+                  height="56"
+                  @click="getVertifyCode()"
+                  v-if="time == 0"
+                >
+                  发送验证码
+                </v-btn>
+                <v-btn outlined disabled v-else> 发送验证码({{ time }}) </v-btn>
+              </div>
+              <v-text-field
+                outlined
+                v-model="vertifyCode"
+                label="验证码"
+                required
+              ></v-text-field>
+            </v-container>
+          </v-card>
+          <v-btn color="primary" @click="submit()"> 提交 </v-btn>
+          <v-btn text @click="step = 2"> 返回 </v-btn>
         </v-stepper-content>
       </v-stepper>
-
-      <v-row v-if="type.length != 0">
-        <v-col cols="9">
-          <v-text-field
-            v-model="email"
-            label="邮箱"
-            :rules="emailRules"
-            required
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-btn @click="getVertifyCode()" v-if="time == 0"> 发送验证码 </v-btn>
-          <v-btn disabled v-else> 发送验证码({{ time }}) </v-btn>
-        </v-col>
-      </v-row>
-      <div v-if="type == '新建门户'">
-        <v-row>
-          <v-col cols="6">
-            <v-text-field v-model="name" label="姓名" required></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col v-for="i in interests.length" :key="i" cols="6">
-            <v-row>
-              <v-col>
-                <v-text-field
-                  label="研究方向"
-                  v-model="interests[i - 1]"
-                ></v-text-field>
-              </v-col>
-              <v-col>
-                <v-btn @click="deleteIntrest(i - 1)"> 删除该项 </v-btn>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-btn @click="addIntrest()"> 添加研究方向 </v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="gIndex"
-              label="g指数"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="hIndex"
-              label="h指数"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="3">
-            <br />
-            <v-btn @click="find('机构', 'cur')"> 查找现工作单位 </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-switch v-model="editCur" label="自行编辑工作单位"></v-switch>
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="currentInst.name"
-              label="现工作单位名称"
-              :disabled="!editCur"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row v-for="i in institutions.length" :key="i">
-          <v-col cols="3">
-            <br />
-            <v-btn @click="find('机构', 'ins' + (i - 1))">
-              查找曾工作单位
-            </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-switch
-              v-model="editIns[i - 1]"
-              label="自行编辑工作单位"
-            ></v-switch>
-          </v-col>
-          <v-col cols="4">
-            <v-text-field
-              v-model="institutions[i - 1].name"
-              label="曾工作单位名称"
-              :disabled="!editIns[i - 1]"
-              required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="2">
-            <v-btn @click="deleteI(i - 1)"> 删除该项 </v-btn>
-          </v-col>
-        </v-row>
-        <v-btn @click="addInst()"> 新增曾工作单位 </v-btn>
-      </div>
-      <div v-if="type == '认领已有门户'">
-        <v-row v-for="i in portals.length" :key="i">
-          <v-col cols="3">
-            <p>{{ portalsName[i - 1] }}</p>
-          </v-col>
-          <v-col cols="3">
-            <v-btn @click="find('科研人员', 'aut' + (i - 1))"> 查找门户 </v-btn>
-          </v-col>
-          <v-col cols="2">
-            <v-btn @click="deleteP(i - 1)"> 删除该项 </v-btn>
-          </v-col>
-        </v-row>
-        <v-btn @click="addProtal()"> 添加希望认领的门户 </v-btn>
-      </div>
-      <div v-if="type != ''">
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model="websiteLink"
-              label="证明材料链接"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="9">
-            <v-file-input
-              class="file"
-              chips
-              label="上传证明文件"
-              @change="selectFile"
-            ></v-file-input>
-          </v-col>
-          <v-col>
-            <v-btn @click="upload()">上传</v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="vertifyCode"
-              label="验证码"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-btn @click="submit()"> 提交认证申请 </v-btn>
-      </div>
+      <div v-if="type == '认领已有门户'"></div>
     </v-container>
 
     <v-dialog v-model="getID" persistent width="1500px">

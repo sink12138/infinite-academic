@@ -27,15 +27,15 @@ export default {
   data:() =>  ({
     expand: false,
     router: [
-        { href: "/paper", icon: "mdi-book-open-blank-variant", title: "Paper" },
+        /*{ href: "/paper", icon: "mdi-book-open-blank-variant", title: "Paper" },
         { href: "/author", icon: "mdi-clipboard-account", title: "Author" },
         { href: "/institution", icon: "mdi-home", title: "Institution" },
-        { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },
-        { href: "/search", icon: "mdi-magnify-expand", title: "Search" },
-        { href: "/topic", icon: "mdi-tooltip-check", title: "Topic" },
+        { href: "/journal", icon: "mdi-newspaper-variant", title: "Journals" },*/
+        { href: "/search", icon: "mdi-magnify-expand", title: "高级检索" },
+        /*{ href: "/topic", icon: "mdi-tooltip-check", title: "Topic" },
         { href: "/subject", icon: "mdi-flask-empty", title: "Subject" },
         { href: "/admin", icon: "mdi-shield-lock", title: "Admin" },
-        { href: "/about", icon: "mdi-account", title: "About" },
+        { href: "/about", icon: "mdi-account", title: "About" },*/
     ],
     subjects: [],
     topics: []

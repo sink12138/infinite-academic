@@ -1,12 +1,17 @@
 <template>
   <div class="center">
-    <v-card flat outlined min-width="800" min-height="600">
+    <v-card
+      flat
+      outlined
+      min-width="1000"
+      min-height="650"
+    >
       <v-card-text>
         <v-data-table
           :headers="headers"
           :items="messages"
           :page.sync="page"
-          :items-per-page="itemsPerPage"
+          :items-per-page="size"
           hide-default-footer
           class="elevation-0"
           @page-count="pageCount = $event"
@@ -15,8 +20,25 @@
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>信息列表</v-toolbar-title>
-              <v-divider inset vertical></v-divider>
+              <v-divider
+                inset
+                vertical
+              ></v-divider>
               <v-spacer></v-spacer>
+              <v-btn
+                color="primary"
+                @click="dialogReadAll=true"
+              >
+                <v-icon>mdi-delete</v-icon>
+                一键已读
+              </v-btn>&emsp;
+              <v-btn
+                color="error"
+                @click="dialogDeleteAll = true"
+              >
+                <v-icon>mdi-delete</v-icon>
+                删除所有信息
+              </v-btn>&emsp;
               <v-switch
                 v-model="isChooseNotRead"
                 inset
@@ -24,19 +46,68 @@
                 @click="reloadNotRead()"
                 label="仅显示未读消息"
               ></v-switch>
-              <v-dialog v-model="dialogDelete" max-width="500px">
+              <v-dialog
+                v-model="dialogDelete"
+                max-width="500px"
+              >
                 <v-card>
-                  <v-card-title class="text-h5"
-                    >真的要删除这条消息吗？</v-card-title
-                  >
+                  <v-card-title class="text-h5">真的要删除这条消息吗？</v-card-title>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete()"
-                      >否</v-btn
-                    >
-                    <v-btn color="blue darken-1" text @click="submitDelete()"
-                      >是</v-btn
-                    >
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="closeDelete()"
+                    >否</v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="submitDelete()"
+                    >是</v-btn>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog
+                v-model="dialogDeleteAll"
+                max-width="500px"
+              >
+                <v-card>
+                  <v-card-title class="text-h5">真的要删除全部消息吗？</v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="closeDeleteAll()"
+                    >否</v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="allDelete()"
+                    >是</v-btn>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog
+                v-model="dialogReadAll"
+                max-width="500px"
+              >
+                <v-card>
+                  <v-card-title class="text-h5">真的要将所有信息设置为已读吗？</v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="closeReadAll()"
+                    >否</v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="allRead()"
+                    >是</v-btn>
                     <v-spacer></v-spacer>
                   </v-card-actions>
                 </v-card>
@@ -44,13 +115,16 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
+            <v-icon @click="openDetail(item)">mdi-information-outline</v-icon>&emsp;&emsp;&emsp;
             <v-icon @click="deleteItem(item)"> mdi-delete </v-icon>
-            <v-icon @click="openDetail(item)">mdi-information-outline</v-icon>
           </template>
           <template v-slot:no-data>
             <h3 class="no-data">
               暂无消息,点击
-              <v-btn @click="getMessages(0)" text> 刷新 </v-btn>
+              <v-btn
+                @click="getMessages(0)"
+                text
+              > 刷新 </v-btn>
             </h3>
           </template>
         </v-data-table>
@@ -59,11 +133,17 @@
     <v-pagination
       v-model="page"
       :length="pageCount"
-      @click="this.getMessages()"
+      @click="this.getMessages(num)"
     ></v-pagination>
-    <v-dialog v-model="details" width="500">
+    <v-dialog
+      v-model="details"
+      width="800"
+    >
       <v-card class="text-left">
-        <v-card-title class="headline grey lighten-2" primary-title>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
           {{ detail.title }}
         </v-card-title>
         <v-row no-gutters>
@@ -89,7 +169,11 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="returnList()"> 关闭 </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="returnList()"
+          > 关闭 </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -109,12 +193,15 @@ export default {
       }
     });
     this.getMessages();
+    this.getMessages();
   },
   data() {
     return {
       isChooseRead: false,
       isChooseNotRead: false,
       dialog: false,
+      dialogReadAll: false,
+      dialogDeleteAll: false,
       dialogDelete: false,
       dialogValid: false,
       totalNotReadMessages: 0,
@@ -125,9 +212,24 @@ export default {
       size: 10,
       details: false,
       headers: [
-        { text: "消息时间", value: "time", sortable: false, class: "text-body-1 font-weight-black" },
-        { text: "消息标题", value: "title", sortable: false, class: "text-body-1 font-weight-black" },
-        { text: "操作", value: "actions", sortable: false, class: "text-body-1 font-weight-black", },
+        {
+          text: "消息时间",
+          value: "time",
+          sortable: false,
+          class: "text-body-1 font-weight-black",
+        },
+        {
+          text: "消息标题",
+          value: "title",
+          sortable: false,
+          class: "text-body-1 font-weight-black",
+        },
+        {
+          text: "操作",
+          value: "actions",
+          sortable: false,
+          class: "text-body-1 font-weight-black",
+        },
       ],
       messages: [],
       readList: [],
@@ -166,6 +268,53 @@ export default {
     },
   },
   methods: {
+    allDelete() {
+      this.$axios({
+        method: "post",
+        url: "/api/account/message/remove",
+        data: {
+          idList: [],
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "信息删除成功",
+            type: "success",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "信息删除失败",
+            type: "warning",
+          });
+        }
+      });
+      this.dialogDeleteAll = false;
+      this.getMessages();
+    },
+    allRead() {
+      this.$axios({
+        method: "post",
+        url: "/api/account/message/read",
+        data: {
+          idList: [],
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "全部信息已读",
+            type: "success",
+          });
+        }
+        this.dialogReadAll = false;
+        this.getMessages();
+        this.detail = this.defaultItem;
+      });
+    },
     reloadRead() {
       if (this.isChooseNotRead === true) {
         this.isChooseNotRead = false;
@@ -217,8 +366,8 @@ export default {
     getMessages(num) {
       if (num == 0)
         this.$notify({
-          title: '消息已刷新',
-          type: 'info'
+          title: "消息已刷新",
+          type: "info",
         });
       if (this.isChooseRead === false && this.isChooseNotRead === false) {
         this.loading = true;
@@ -296,7 +445,6 @@ export default {
         });
       }
     },
-
     returnList() {
       this.details = false;
       this.detail.read = true;
@@ -339,6 +487,16 @@ export default {
       this.$nextTick(() => {
         this.deleteMessage = Object.assign({}, this.defaultItem);
       });
+      this.getMessages();
+    },
+
+    closeDeleteAll() {
+      this.dialogDeleteAll = false;
+      this.getMessages();
+    },
+
+    closeReadAll() {
+      this.dialogReadAll = false;
       this.getMessages();
     },
   },
