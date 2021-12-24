@@ -100,9 +100,9 @@
                 </v-card-text>
               </v-col>
             </v-row>
-            <v-row no-gutters>
+            <v-row no-gutters v-if="this.content.create.interests.length != 0">
               <v-col cols="4">
-                <v-card-text class="font-weight-black"> 研究兴趣 </v-card-text>
+                <v-card-text class="font-weight-black"> 研究兴趣: </v-card-text>
               </v-col>
               <v-col cols="8">
                 <v-card-text>
