@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <Banner :title="{text: 'Patent', icon: 'mdi-book-open-blank-variant'}"></Banner>
+    <Banner :title="{text: '专利', icon: 'mdi-book-open-blank-variant'}"></Banner>
     <BasePatent v-bind:patentData="this.patentData"></BasePatent>
   </v-main>
 </template>
