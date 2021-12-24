@@ -94,12 +94,8 @@ public class AccountController {
 
     @ApiOperation(value = "登录")
     @PostMapping("/login")
-    public Result<Void> login(@CookieValue(name = "TOKEN", required = false) String token,
-                              @RequestParam(value = "email") @Email @NotNull String email,
+    public Result<Void> login(@RequestParam(value = "email") @Email @NotNull String email,
                               @RequestParam(value = "password") @NotNull String password) {
-        if (token != null && accountService.getAuthorityByToken(token) != null) {
-            return new Result<>();
-        }
         User user = accountRepository.findUserByEmail(email);
         if (user == null) {
             return new Result<Void>().withFailure("该邮箱未注册");
@@ -107,7 +103,7 @@ public class AccountController {
         if (!user.getPassword().equals(password)) {
             return new Result<Void>().withFailure("密码错误");
         }
-        token = accountService.addAuthority(user);
+        String token = accountService.addAuthority(user);
         setCookie(token, (int) (maxInactiveInterval * 30));
         return new Result<>();
     }
@@ -119,7 +115,7 @@ public class AccountController {
             accountService.deleteRedisKey(token);
         }
         else {
-            token = "INVALID";
+            token = "";
         }
         setCookie(token, 0);
         return new Result<>();
