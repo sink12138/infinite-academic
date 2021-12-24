@@ -833,7 +833,7 @@ import Banner from "../components/BaseBanner.vue";
           }else{
             this.$notify({
               title: "失败",
-              message: "请核对信息完整程度",
+              message: response.data.message,
               type: "error",
             });
           }
@@ -878,7 +878,7 @@ import Banner from "../components/BaseBanner.vue";
           }else{
             this.$notify({
               title: "失败",
-              message: "请核对信息完整程度，检查验证码是否正确",
+              message: response.data.message,
               type: "error",
             });
           }
@@ -912,6 +912,12 @@ import Banner from "../components/BaseBanner.vue";
               title: "成功",
               message: "申请成功",
               type: "success",
+            });
+          }else{
+            this.$notify({
+              title: "失败",
+              message: "请核对信息完整程度",
+              type: "error",
             });
           }
 
