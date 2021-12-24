@@ -250,6 +250,7 @@ export default {
       data: {},
       request: {},
       page: 0,
+      size: 10,
       aggregations: {},
       paperT: ["篇关摘", "作者", "发表机构", "刊登期刊"],
       patentT: ["标题摘要", "类型", "申请人", "发明人"],
@@ -326,15 +327,15 @@ export default {
           url = "/api/search/suggest/paper";
           break;
         case "期刊": {
-          url = "/api/search/suggest/paper";
+          url = "/api/search/suggest/journal";
           break;
         }
         case "专利": {
-          url = "/api/search/suggest/paper";
+          url = "/api/search/suggest/patent";
           break;
         }
         case "机构": {
-          url = "/api/search/suggest/paper";
+          url = "/api/search/suggest/institution";
           break;
         }
         default:
@@ -350,9 +351,7 @@ export default {
         })
           .then((response) => {
             this.suggest = [];
-            console.log(response);
             if (response.data.success == true) {
-              console.log(response.data.data);
               if (response.data.data.correction.length != 0)
                 this.suggest = this.suggest.concat(
                   response.data.data.correction
@@ -383,7 +382,7 @@ export default {
           url = "/api/search/suggest/paper";
           break;
         case "专利": {
-          url = "/api/search/suggest/paper";
+          url = "/api/search/suggest/patent";
           break;
         }
         default:
@@ -401,9 +400,7 @@ export default {
             switch (this.filter) {
               case "论文":
                 this.paperSearch[index].suggest = [];
-                console.log(response);
                 if (response.data.success == true) {
-                  console.log(response.data.data);
                   if (response.data.data.correction.length != 0)
                     this.paperSearch[index].suggest = this.paperSearch[
                       index
@@ -423,33 +420,31 @@ export default {
                   this.paperSearch[index].suggest = [];
                 }
                 break;
-              case "科研人员":
-                this.researcherSearch[index].suggest = [];
-                console.log(response);
+              case "专利":
+                this.patentSearch[index].suggest = [];
                 if (response.data.success == true) {
-                  console.log(response.data.data);
                   if (response.data.data.correction.length != 0)
-                    this.researcherSearch[index].suggest =
-                      this.researcherSearch[index].suggest.concat(
+                    this.patentSearch[index].suggest =
+                      this.patentSearch[index].suggest.concat(
                         response.data.data.correction
                       );
                   if (response.data.data.completion.length != 0)
-                    this.researcherSearch[index].suggest =
-                      this.researcherSearch[index].suggest.concat(
+                    this.patentSearch[index].suggest =
+                      this.patentSearch[index].suggest.concat(
                         response.data.data.completion
                       );
                   for (
                     i = 0;
-                    i < this.researcherSearch[index].suggest.length;
+                    i < this.patentSearch[index].suggest.length;
                     i++
                   ) {
-                    this.researcherSearch[index].suggest[i] =
-                      this.researcherSearch[index].suggest[i]
+                    this.patentSearch[index].suggest[i] =
+                      this.patentSearch[index].suggest[i]
                         .replaceAll("<b>", "")
                         .replaceAll("</b>", "");
                   }
                 } else {
-                  this.researcherSearch[index].suggest = [];
+                  this.patentSearch[index].suggest = [];
                 }
                 break;
             }
@@ -463,8 +458,6 @@ export default {
       if (this.$route.path != "/") {
         if (this.text == null || this.text == "") return;
         this.filters = this.$parent.filters;
-        console.log("搜索过滤器");
-        console.log(this.filters);
         var i;
         var url = "/api/search";
         var keyword = this.text.trim();
@@ -473,7 +466,6 @@ export default {
         var condition1;
         var fuzzy = true;
         var translated = true;
-        console.log(keywords);
         this.request = {
           conditions: [
             {
@@ -551,7 +543,6 @@ export default {
             }
             if (this.filters.paperType.type != "") {
               keywords = this.filters.paperType.type.trim().split(/\s+/);
-              console.log(keywords);
               condition = {
                 compound: false,
                 fuzzy: false,
@@ -770,16 +761,13 @@ export default {
             break;
           }
         }
-        console.log(url);
         if (this.filter != "精确") {
-          console.log(JSON.stringify(this.request));
           this.$axios({
             method: "post",
             url: url,
             data: this.request,
           })
             .then((response) => {
-              console.log(response.data);
               this.data = response.data;
               this.$emit("searchResult", this.data.data);
               this.$emit("searchType", this.filter);
@@ -796,7 +784,6 @@ export default {
                   .then((response) => {
                     this.aggregations = response.data;
                     this.$emit("searchFilter", this.aggregations);
-                    console.log(response.data);
                   })
                   .catch((error) => {
                     console.log(error);
@@ -816,7 +803,6 @@ export default {
             },
           })
             .then((response) => {
-              console.log(response.data);
               this.data = response.data;
               if (this.data.success == false) {
                 this.$notify({
@@ -841,8 +827,6 @@ export default {
     },
     search1() {
       this.filters = this.$parent.filters;
-      console.log("搜索过滤器");
-      console.log(this.filters);
       var i, j;
       var url = "/api/search";
       var keywords;
@@ -851,7 +835,6 @@ export default {
       var condition1;
       var fuzzy = true;
       var translated = true;
-      console.log(keywords);
       this.request = {
         conditions: [],
         filters: [],
@@ -1152,8 +1135,6 @@ export default {
           break;
         }
       }
-      console.log(url);
-      console.log(JSON.stringify(this.request));
       if (this.request.conditions.length == 0) return;
       this.$axios({
         method: "post",
@@ -1161,7 +1142,6 @@ export default {
         data: this.request,
       })
         .then((response) => {
-          console.log(response.data);
           this.data = response.data;
           this.$emit("searchResult", this.data.data);
           this.$emit("searchType", this.filter);
@@ -1178,7 +1158,6 @@ export default {
               .then((response) => {
                 this.aggregations = response.data;
                 this.$emit("searchFilter", this.aggregations);
-                console.log(response.data);
               })
               .catch((error) => {
                 console.log(error);
@@ -1192,16 +1171,11 @@ export default {
     searchFilters() {
       if (this.$route.path != "/") {
         this.filters = this.$parent.filters;
-        console.log("搜索过滤器");
-        console.log(this.filters);
         var url = "/api/search";
         var keyword;
-        var keywords;
         if (this.text != null && this.text != "") {
           keyword = this.text.trim();
-          keywords = keyword.split(/\s+/);
         }
-        console.log(keywords);
         this.request.filters = [];
         switch (this.filter) {
           case "全部": {
@@ -1420,18 +1394,15 @@ export default {
             break;
           }
         }
-        console.log(url);
         if (this.filter != "全部" && this.request.conditions.length == 0)
           return;
         if (this.filter != "精确") {
-          console.log(JSON.stringify(this.request));
           this.$axios({
             method: "post",
             url: url,
             data: this.request,
           })
             .then((response) => {
-              console.log(response.data);
               this.data = response.data;
               this.$emit("searchResult", this.data.data);
             })
@@ -1448,7 +1419,6 @@ export default {
             },
           })
             .then((response) => {
-              console.log(response.data);
               this.data = response.data;
               if (this.data.success == false) {
                 this.$notify({
@@ -1473,8 +1443,6 @@ export default {
     },
     searchInResult() {
       this.filters = this.$parent.filters;
-      console.log("搜索过滤器");
-      console.log(this.filters);
       var i, j, scope;
       var url = "/api/search";
       var keyword = this.text.trim();
@@ -1483,7 +1451,6 @@ export default {
       var condition1;
       var fuzzy = true;
       var translated = true;
-      console.log(keywords);
       this.request.filters = [];
       switch (this.filter) {
         case "论文": {
@@ -1517,7 +1484,6 @@ export default {
                 break;
             }
             keywords = this.paperSearch[i].text.trim().split(/\s+/);
-            console.log(keywords);
             condition = {
               compound: false,
               fuzzy: fuzzy,
@@ -1546,7 +1512,6 @@ export default {
           }
           if (this.filters.paperType.type != "") {
             keywords = this.filters.paperType.type.trim().split(/\s+/);
-            console.log(keywords);
             condition = {
               compound: false,
               fuzzy: false,
@@ -1630,7 +1595,6 @@ export default {
                 break;
             }
             keywords = this.patentSearch[i].text.trim().split(/\s+/);
-            console.log(keywords);
             condition = {
               compound: false,
               fuzzy: fuzzy,
@@ -1695,7 +1659,6 @@ export default {
                 break;
             }
             keywords = this.researcherSearch[i].text.trim().split(/\s+/);
-            console.log(keywords);
             condition = {
               compound: false,
               fuzzy: fuzzy,
@@ -1840,15 +1803,12 @@ export default {
           break;
         }
       }
-      console.log(url);
-      console.log(JSON.stringify(this.request));
       this.$axios({
         method: "post",
         url: url,
         data: this.request,
       })
         .then((response) => {
-          console.log(response.data);
           this.data = response.data;
           this.$emit("searchResult", this.data.data);
           this.$emit("searchType", this.filter);
@@ -1864,7 +1824,6 @@ export default {
               .then((response) => {
                 this.aggregations = response.data;
                 this.$emit("searchFilter", this.aggregations);
-                console.log(response.data);
               })
               .catch((error) => {
                 console.log(error);
@@ -1899,14 +1858,49 @@ export default {
       }
       this.request.page = this.page;
       if (this.filter != "全部" && this.request.conditions.length == 0) return;
-      console.log(JSON.stringify(this.request));
       this.$axios({
         method: "post",
         url: url,
         data: this.request,
       })
         .then((response) => {
-          console.log(response.data);
+          this.data = response.data;
+          this.$emit("jumpPage", this.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    sizeSearch() {
+      var url;
+      switch (this.filter) {
+        case "全部":
+          url = "/api/search/smart";
+          break;
+        case "论文":
+          url = "/api/search/paper";
+          break;
+        case "科研人员":
+          url = "/api/search/researcher";
+          break;
+        case "专利":
+          url = "/api/search/patent";
+          break;
+        case "期刊":
+          url = "/api/search/journal";
+          break;
+        case "机构":
+          url = "/api/search/institution";
+          break;
+      }
+      this.request.size = this.size;
+      if (this.filter != "全部" && this.request.conditions.length == 0) return;
+      this.$axios({
+        method: "post",
+        url: url,
+        data: this.request,
+      })
+        .then((response) => {
           this.data = response.data;
           this.$emit("jumpPage", this.data.data);
         })

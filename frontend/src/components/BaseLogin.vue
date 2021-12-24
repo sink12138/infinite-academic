@@ -53,7 +53,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    
+
     <v-dialog
       v-model="dialog"
       persistent
@@ -245,7 +245,6 @@ export default {
         method: "get",
         url: "/api/account/message/count",
       }).then((response) => {
-        console.log(response.data);
         if (response.data.success) {
           this.num = response.data.data;
         }
@@ -406,7 +405,7 @@ export default {
 a {
   text-decoration: none;
 }
- 
+
 .router-link-active {
   text-decoration: none;
 }
