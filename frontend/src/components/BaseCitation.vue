@@ -11,7 +11,6 @@
         v-bind="attrs"
         v-on="on"
         depressed
-        height="100%"
       >
         引用
         <v-icon>mdi-comma</v-icon>

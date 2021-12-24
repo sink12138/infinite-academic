@@ -1,94 +1,114 @@
 <template>
-  <v-card>
-    <v-tabs v-model="window" dark grow>
-      <v-tab>
-        <v-icon>mdi-timer-sand-full</v-icon>
-        审核中申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-cloud-check</v-icon>
-        已通过申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-cloud-alert</v-icon>
-        未通过申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-menu</v-icon>
-        所有申请
-      </v-tab>
-    </v-tabs>
+  <div class="center">
+    <v-card min-width="800" flat outlined>
+      <v-tabs v-model="window" grow color="black">
+        <v-tab>
+          <v-icon>mdi-timer-sand-full</v-icon>
+          审核中申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-cloud-check</v-icon>
+          已通过申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-cloud-alert</v-icon>
+          未通过申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-menu</v-icon>
+          所有申请
+        </v-tab>
+      </v-tabs>
+      <v-window v-model="window">
+        <!-- 审核中 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="review"
+            :items-per-page="-1"
+            hide-default-footer
+            fixed-header
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+            <template v-slot:no-data>
+              <v-card-text>无申请信息</v-card-text>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-    <v-window v-model="window">
-      <!-- 审核中 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="review"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
+        <!-- 已通过申请 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="passed"
+            :items-per-page="-1"
+            hide-default-footer
+            fixed-header
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+            <template v-slot:no-data>
+              <v-card-text>无申请信息</v-card-text>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-      <!-- 已通过申请 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="passed"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
+        <!-- 未通过申请 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="failed"
+            :items-per-page="-1"
+            hide-default-footer
+            fixed-header
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+            <template v-slot:no-data>
+              <v-card-text>无申请信息</v-card-text>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-      <!-- 未通过申请 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="failed"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
-
-      <!-- 所有申请 -->
-      <v-window-item height="100%">
-        <v-data-table
-          :headers="getHeaders()"
-          :items="all"
-          :items-per-page="-1"
-          hide-default-footer
-          fixed-header
-        >
-          <template v-slot:[`item.status`]="{ item }">
-            <v-chip v-if="item.status == '审核通过'" color="cyan lighten-2">
-              已通过
-            </v-chip>
-            <v-chip v-if="item.status == '审核不通过'" color="amber">
-              未通过
-            </v-chip>
-            <v-chip v-if="item.status == '审核中'" color="blue lighten-4">
-              审核中
-            </v-chip>
-          </template>
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
-    </v-window>
-  </v-card>
+        <!-- 所有申请 -->
+        <v-window-item height="100%">
+          <v-data-table
+            :headers="getHeaders()"
+            :items="all"
+            :items-per-page="-1"
+            hide-default-footer
+            fixed-header
+            height="600"
+          >
+            <template v-slot:[`item.status`]="{ item }">
+              <v-chip v-if="item.status == '审核通过'" color="cyan lighten-2">
+                已通过
+              </v-chip>
+              <v-chip v-if="item.status == '审核不通过'" color="amber">
+                未通过
+              </v-chip>
+              <v-chip v-if="item.status == '审核中'" color="blue lighten-4">
+                审核中
+              </v-chip>
+            </template>
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+            <template v-slot:no-data>
+              <v-card-text>无申请信息</v-card-text>
+            </template>
+          </v-data-table>
+        </v-window-item>
+      </v-window>
+    </v-card>
+  </div>
 </template>
 
 <script>
@@ -99,160 +119,18 @@ export default {
   },
   data() {
     return {
-      review: [
-        {
-          title: "人工智能",
-          type: "论文",
-          time: "2018-10-15",
-          id: "GB123ds",
-        },
-        {
-          title: "机器学习",
-          type: "论文",
-          time: "2018-10-14",
-        },
-        {
-          title: "集群",
-          type: "论文",
-          time: "2018-10-16",
-        },
-        {
-          title: "分布式",
-          type: "论文",
-          time: "2018-10-18",
-        },
-      ],
-      passed: [
-        {
-          "email": "114514@qq.com",
-          "fileToken": "B0KAR4A8Q3BHHHPMF0TT0I0B6YQMBAPPPHNPMIYM6GJMDZF4EQB7CLGOCP8S211R",
-          "id": "BcYuon0BGFAD_tUkFP7g",
-          "status": "审核中",
-          "time": "2021-08-17 19:26",
-          "type": "添加论文",
-          "userId": "3cYPmX0BGFAD_tUkT_03",
-          "websiteLink": ""
-        }
-      ],
-      failed: [
-        {
-          title: "人工智能",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "机器学习",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "集群",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          type: "论文",
-          time: "2018-10-15",
-        },
-      ],
-      all: [
-        {
-          title: "人工智能",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "机器学习",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "集群",
-          status: "审核不通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核中",
-          type: "期刊",
-          time: "2018-10-15",
-        },
-        {
-          title: "人工智能",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "机器学习",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "集群",
-          status: "审核不通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核中",
-          type: "期刊",
-          time: "2018-10-15",
-        },
-        {
-          title: "人工智能",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "机器学习",
-          status: "审核中",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "集群",
-          status: "审核不通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核通过",
-          type: "论文",
-          time: "2018-10-15",
-        },
-        {
-          title: "分布式",
-          status: "审核中",
-          type: "期刊",
-          time: "2018-10-15",
-        },
-      ],
+      review: [],
+      passed: [],
+      failed: [],
+      all: [],
       window: 0,
     };
   },
   mounted() {
     this.getAllApplications();
+    this.getReview();
+    this.getPassed();
+    this.getFailed();
   },
   methods: {
     getAllApplications() {
@@ -261,12 +139,11 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 10,
+          size: 20,
         },
       })
         .then((res) => {
           if (res.data.success) {
-            console.log(res.data.data.applications);
             this.all = res.data.data.applications;
             this.all.forEach(function (item) {
               if (item.type.substring(2) == "论文") {
@@ -325,13 +202,56 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 12,
+          size: 20,
           status: "审核中",
         },
       })
         .then((res) => {
           if (res.data.success) {
             this.review = res.data.data.applications;
+            this.review.forEach(function (item) {
+              if (item.type.substring(2) == "论文") {
+                this.$axios({
+                  method: "get",
+                  url: "/api/account/application/details/" + this.item.id,
+                })
+                  .then((res) => {
+                    if (res.data.success) {
+                      if (item.type == "添加论文")
+                        item.title = res.data.data.add.title;
+                      if (item.type == "修改论文")
+                        item.title = res.data.data.edit.title;
+                      if (item.type == "移除论文") {
+                        this.$axios({
+                          method: "post",
+                          url: "/api/search/info/brief",
+                          data: {
+                            entity: "paper",
+                            ids: [res.data.data.paperId],
+                          },
+                        })
+                          .then((res) => {
+                            if (res.data.success) {
+                              item.title = res.data.data[0].name;
+                            } else {
+                              console.log(res.data.message);
+                            }
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                          });
+                      }
+                    } else {
+                      console.log(res.data.message);
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+              } else {
+                item.title = item.type;
+              }
+            });
           } else {
             console.log(res.data.message);
           }
@@ -346,13 +266,56 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 12,
+          size: 20,
           status: "审核通过",
         },
       })
         .then((res) => {
           if (res.data.success) {
             this.passed = res.data.data.applications;
+            this.passed.forEach(function (item) {
+              if (item.type.substring(2) == "论文") {
+                this.$axios({
+                  method: "get",
+                  url: "/api/account/application/details/" + this.item.id,
+                })
+                  .then((res) => {
+                    if (res.data.success) {
+                      if (item.type == "添加论文")
+                        item.title = res.data.data.add.title;
+                      if (item.type == "修改论文")
+                        item.title = res.data.data.edit.title;
+                      if (item.type == "移除论文") {
+                        this.$axios({
+                          method: "post",
+                          url: "/api/search/info/brief",
+                          data: {
+                            entity: "paper",
+                            ids: [res.data.data.paperId],
+                          },
+                        })
+                          .then((res) => {
+                            if (res.data.success) {
+                              item.title = res.data.data[0].name;
+                            } else {
+                              console.log(res.data.message);
+                            }
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                          });
+                      }
+                    } else {
+                      console.log(res.data.message);
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+              } else {
+                item.title = item.type;
+              }
+            });
           } else {
             console.log(res.data.message);
           }
@@ -367,13 +330,56 @@ export default {
         url: "/api/account/application/list",
         params: {
           page: 0,
-          size: 12,
+          size: 20,
           status: "审核不通过",
         },
       })
         .then((res) => {
           if (res.data.success) {
             this.failed = res.data.data.applications;
+            this.failed.forEach(function (item) {
+              if (item.type.substring(2) == "论文") {
+                this.$axios({
+                  method: "get",
+                  url: "/api/account/application/details/" + this.item.id,
+                })
+                  .then((res) => {
+                    if (res.data.success) {
+                      if (item.type == "添加论文")
+                        item.title = res.data.data.add.title;
+                      if (item.type == "修改论文")
+                        item.title = res.data.data.edit.title;
+                      if (item.type == "移除论文") {
+                        this.$axios({
+                          method: "post",
+                          url: "/api/search/info/brief",
+                          data: {
+                            entity: "paper",
+                            ids: [res.data.data.paperId],
+                          },
+                        })
+                          .then((res) => {
+                            if (res.data.success) {
+                              item.title = res.data.data[0].name;
+                            } else {
+                              console.log(res.data.message);
+                            }
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                          });
+                      }
+                    } else {
+                      console.log(res.data.message);
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+              } else {
+                item.title = item.type;
+              }
+            });
           } else {
             console.log(res.data.message);
           }
@@ -408,20 +414,20 @@ export default {
             align: "start",
             width: "40%",
             sortable: false,
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "种类",
             value: "type",
             align: "start",
             sortable: true,
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "申请时间",
             value: "time",
             align: "start",
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "详细信息",
@@ -429,7 +435,7 @@ export default {
             align: "center",
             sortable: false,
             width: "120px",
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
         ];
       } else {
@@ -440,27 +446,27 @@ export default {
             align: "start",
             width: "40%",
             sortable: false,
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "状态",
             value: "status",
-            align: "start",
+            align: "center",
             sortable: false,
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "种类",
             value: "type",
             align: "start",
             sortable: true,
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "申请时间",
             value: "time",
             align: "start",
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
           {
             text: "详细信息",
@@ -468,7 +474,7 @@ export default {
             align: "center",
             sortable: false,
             width: "120px",
-            class: "grey lighten-1 text-body-2 font-weight-black",
+            class: "text-body-1 font-weight-black",
           },
         ];
       }
@@ -479,7 +485,11 @@ export default {
 </script>
 
 <style scoped>
-.v-data-table-header {
-  color: grey;
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 </style>

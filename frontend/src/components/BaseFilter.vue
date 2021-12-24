@@ -322,7 +322,7 @@ export default {
   },
   data() {
     return {
-      paperType: ["期刊论文","学位论文",""],
+      paperType: ["期刊论文","学位论文","会议论文",""],
       authorFilter: ["1"],
       journalFilter: ["1"],
       institutionFilter: ["1"],

@@ -229,13 +229,15 @@
           </div>
         </div>
         <div v-if="results.length != 0">
-          <v-row class="mt-4 d-flex">
+          <v-row class="mt-4 d-flex" style="margin-bottom:200px">
             <el-pagination
               class="mx-auto"
               background
               @current-change="pageChange"
               :current-page.sync="jumpPage"
-              layout="prev, pager, next, jumper"
+              layout="sizes, prev, pager, next, jumper"
+              @size-change="sizeChange"
+              :page-sizes="[10,20,25,50]"
               :page-size="10"
               :total="itemNum"
             >
@@ -324,6 +326,7 @@ export default {
       jumpPage: 1,
       timeCost: 0,
       page: 1,
+      size: 10,
       length: 1,
       itemNum: 0,
       filter: "全部",
@@ -409,6 +412,7 @@ export default {
       this.timeCost = this.data.timeCost;
       this.results = this.data.items;
       this.page = this.data.page + 1;
+      this.jumpPage = this.data.page + 1;
       this.length = this.data.totalPages;
       this.itemNum = this.data.totalHits;
     },
@@ -463,7 +467,7 @@ export default {
 
       let timer = setInterval(function () {
           var top = document.body.scrollTop || document.documentElement.scrollTop;
-          var speed = top / 4;
+          var speed = top / 10;
           if (document.body.scrollTop!=0) {
             document.body.scrollTop -= speed;
           }else {
@@ -472,7 +476,24 @@ export default {
           if (top == 0) {
             clearInterval(timer);
           }
-        },30);
+        },10);
+    },
+    sizeChange(val) {
+      this.$refs.bar.size = val;
+      this.$refs.bar.sizeSearch();
+
+      let timer = setInterval(function () {
+          var top = document.body.scrollTop || document.documentElement.scrollTop;
+          var speed = top / 10;
+          if (document.body.scrollTop!=0) {
+            document.body.scrollTop -= speed;
+          }else {
+            document.documentElement.scrollTop -= speed;
+          }
+          if (top == 0) {
+            clearInterval(timer);
+          }
+        },10);
     },
     filterChange(filter) {
       this.filter = filter;

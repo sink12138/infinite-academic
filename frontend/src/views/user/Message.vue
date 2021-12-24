@@ -1,9 +1,6 @@
 <template>
-  <div>
-    <v-card
-      flat
-      outlined
-    >
+  <div class="center">
+    <v-card flat outlined min-width="800" min-height="600">
       <v-card-text>
         <v-data-table
           :headers="headers"
@@ -11,45 +8,35 @@
           :page.sync="page"
           :items-per-page="itemsPerPage"
           hide-default-footer
-          class="elevation-1"
+          class="elevation-0"
           @page-count="pageCount = $event"
+          height="100%"
         >
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>信息列表</v-toolbar-title>
-              <v-divider
-                inset
-                vertical
-              ></v-divider>
+              <v-divider inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-checkbox
-                v-model="isChooseRead"
-                :label="'是否仅显示为已读消息'"
-                @click="reloadRead()"
-              ></v-checkbox>
-              <v-checkbox
+              <v-switch
                 v-model="isChooseNotRead"
-                :label="'是否仅显示为未读消息'"
+                inset
+                hide-details
                 @click="reloadNotRead()"
-              ></v-checkbox>
-              <v-dialog
-                v-model="dialogDelete"
-                max-width="500px"
-              >
+                label="仅显示未读消息"
+              ></v-switch>
+              <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
-                  <v-card-title class="text-h5">真的要删除这条消息吗？</v-card-title>
+                  <v-card-title class="text-h5"
+                    >真的要删除这条消息吗？</v-card-title
+                  >
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="closeDelete()"
-                    >否</v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="submitDelete()"
-                    >是</v-btn>
+                    <v-btn color="blue darken-1" text @click="closeDelete()"
+                      >否</v-btn
+                    >
+                    <v-btn color="blue darken-1" text @click="submitDelete()"
+                      >是</v-btn
+                    >
                     <v-spacer></v-spacer>
                   </v-card-actions>
                 </v-card>
@@ -57,81 +44,52 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.actions`]="{ item }">
-            <v-icon
-              small
-              @click="deleteItem(item)"
-            >
-              mdi-delete
-            </v-icon>
-            <v-btn
-              small
-              @click="openDetail(item)"
-            >
-              <v-icon>mdi-information-outline</v-icon>
-              详情
-            </v-btn>
+            <v-icon @click="deleteItem(item)"> mdi-delete </v-icon>
+            <v-icon @click="openDetail(item)">mdi-information-outline</v-icon>
           </template>
           <template v-slot:no-data>
-            <v-btn
-              color="primary"
-              @click="getMessages"
-            >
-              重置
-            </v-btn>
+            <h3 class="no-data">
+              暂无消息,点击
+              <v-btn @click="getMessages(0)" text> 刷新 </v-btn>
+            </h3>
           </template>
         </v-data-table>
-        <v-pagination
-          v-model="page"
-          :length="pageCount"
-          @click="this.getMessages()"
-        ></v-pagination>
       </v-card-text>
     </v-card>
-    <v-dialog
-      v-model="details"
-      width="500"
-    >
+    <v-pagination
+      v-model="page"
+      :length="pageCount"
+      @click="this.getMessages()"
+    ></v-pagination>
+    <v-dialog v-model="details" width="500">
       <v-card class="text-left">
-        <v-card-title
-          class="headline grey lighten-2"
-          primary-title
-        >
-          {{detail.title}}
+        <v-card-title class="headline grey lighten-2" primary-title>
+          {{ detail.title }}
         </v-card-title>
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black">
-              消息时间:
-            </v-card-text>
+            <v-card-text class="font-weight-black"> 消息时间: </v-card-text>
           </v-col>
           <v-col cols="8">
             <v-card-text>
-              {{detail.time}}
+              {{ detail.time }}
             </v-card-text>
           </v-col>
         </v-row>
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black">
-              正文:
-            </v-card-text>
+            <v-card-text class="font-weight-black"> 正文: </v-card-text>
           </v-col>
           <v-col cols="8">
             <v-card-text>
-              {{detail.content}}
+              {{ detail.content }}
             </v-card-text>
           </v-col>
         </v-row>
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            text
-            @click="returnList()"
-          >
-            关闭
-          </v-btn>
+          <v-btn color="primary" text @click="returnList()"> 关闭 </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -167,9 +125,9 @@ export default {
       size: 10,
       details: false,
       headers: [
-        { text: "消息时间", value: "time", sortable: false },
-        { text: "消息标题", value: "title", sortable: false },
-        { text: "操作", value: "actions", sortable: false },
+        { text: "消息时间", value: "time", sortable: false, class: "text-body-1 font-weight-black" },
+        { text: "消息标题", value: "title", sortable: false, class: "text-body-1 font-weight-black" },
+        { text: "操作", value: "actions", sortable: false, class: "text-body-1 font-weight-black", },
       ],
       messages: [],
       readList: [],
@@ -256,9 +214,12 @@ export default {
       this.closeDelete();
       this.getMessages();
     },
-    getMessages() {
-      console.log(this.page);
-      console.log(this.size);
+    getMessages(num) {
+      if (num == 0)
+        this.$notify({
+          title: '消息已刷新',
+          type: 'info'
+        });
       if (this.isChooseRead === false && this.isChooseNotRead === false) {
         this.loading = true;
         this.$axios({
@@ -385,4 +346,17 @@ export default {
 </script>
 
 <style>
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
 </style>

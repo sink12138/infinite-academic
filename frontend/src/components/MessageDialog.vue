@@ -100,9 +100,9 @@
                 </v-card-text>
               </v-col>
             </v-row>
-            <v-row no-gutters>
+            <v-row no-gutters v-if="this.content.create.interests.length != 0">
               <v-col cols="4">
-                <v-card-text class="font-weight-black"> 研究兴趣 </v-card-text>
+                <v-card-text class="font-weight-black"> 研究兴趣: </v-card-text>
               </v-col>
               <v-col cols="8">
                 <v-card-text>
@@ -200,10 +200,15 @@
       <v-container class="pa-0" v-if="this.type == 'edit_paper'">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black"> </v-card-text>
+            <v-card-text class="font-weight-black"> 论文标题:</v-card-text>
           </v-col>
           <v-col cols="8">
-            <v-card-text> </v-card-text>
+            <v-card-text>
+              {{ this.content.edit.title }}
+              <v-btn icon @click="reveal2 = true">
+                <v-icon> mdi-dots-horizontal-circle-outline </v-icon>
+              </v-btn>
+            </v-card-text>
           </v-col>
         </v-row>
       </v-container>
@@ -212,10 +217,11 @@
       <v-container class="pa-0" v-if="this.type == 'remove_paper'">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black"> </v-card-text>
+            <v-card-text class="font-weight-black"> 论文标题: </v-card-text>
           </v-col>
           <v-col cols="8">
-            <v-card-text> </v-card-text>
+            <v-card-text v-html="getTitle(this.content.paperId)">
+            </v-card-text>
           </v-col>
         </v-row>
       </v-container>
@@ -229,7 +235,15 @@
           <v-card-text class="text-h5 text--primary grey lighten-2">
             论文详细信息
           </v-card-text>
-          <CardPaper :item="content.add" elevation="0"></CardPaper>
+
+          <CardPaper 
+            v-if="this.type == 'new_paper'"
+            :item="content.add" elevation="0"
+          ></CardPaper>
+          <CardPaper
+            v-if="this.type == 'edit_paper'"
+            :item="content.edit" elevation="0"
+          ></CardPaper>
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -246,10 +260,34 @@
       <v-container class="pa-0" v-if="this.type == 'transfer'">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-card-text class="font-weight-black"> </v-card-text>
+            <v-card-text class="font-weight-black">地址:</v-card-text>
           </v-col>
           <v-col cols="8">
-            <v-card-text> </v-card-text>
+            <v-card-text>{{ this.content.address }}</v-card-text>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black">代理机构:</v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>{{ this.content.agency }}</v-card-text>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black">代理人:</v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>{{ this.content.agent }}</v-card-text>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-card-text class="font-weight-black">申请人:</v-card-text>
+          </v-col>
+          <v-col cols="8">
+            <v-card-text>{{ this.content.applicant }}</v-card-text>
           </v-col>
         </v-row>
       </v-container>
@@ -314,46 +352,7 @@ export default {
       type: "",
       data: [],
       basic: {},
-      content: {
-        add: {
-          abstract: "假装这是一大段摘要",
-          authors: [
-            {
-              id: "GF_4ynwBF-Mu8unTG1hc",
-              instName: "北京航空航天大学软件学院",
-              name: "谭火彬",
-            },
-          ],
-          date: "2021-10-15",
-          doi: "10.1007/BF02943174",
-          institutions: [
-            {
-              id: "GF_4ynwBF-Mu8unTG1hc",
-              name: "北京航空航天大学软件学院",
-            },
-          ],
-          journal: {
-            endPage: 514,
-            id: "GF_4ynwBF-Mu8unTG1hc",
-            issue: "02",
-            startPage: 114,
-            title: "Science",
-            volume: 43,
-          },
-          keywords: [],
-          publisher: "Elsevier",
-          referencePapers: [
-            {
-              id: "",
-              title: "",
-            },
-          ],
-          subjects: [],
-          title: "",
-          type: "期刊论文",
-          year: 2021,
-        },
-      },
+      content: {},
     };
   },
   props: {
@@ -402,8 +401,6 @@ export default {
             if (res.data.success) {
               this.basic = res.data.data.basic;
               this.content = res.data.data.content;
-              console.log(this.basic);
-              console.log(this.content);
             } else {
               console.log(res.data.message);
             }
@@ -420,8 +417,6 @@ export default {
             if (res.data.success) {
               this.basic = res.data.data.basic;
               this.content = res.data.data.content;
-              console.log(this.basic);
-              console.log(this.content);
             } else {
               console.log(res.data.message);
             }
@@ -431,18 +426,38 @@ export default {
           });
       }
     },
-    getBrief(entity, ids) {
+    getBrief(id) {
       this.$axios({
         method: "post",
         url: "/api/search/info/brief",
         data: {
-          entity: entity,
-          ids: ids,
+          entity: "paper",
+          ids: [id],
         },
       })
         .then((res) => {
           if (res.data.success) {
             this.data = res.data.data;
+          } else {
+            console.log(res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    getTitle(id) {
+      this.$axios({
+        method: "post",
+        url: "/api/search/info/brief",
+        data: {
+          entity: "paper",
+          ids: [id],
+        },
+      })
+        .then((res) => {
+          if (res.data.success) {
+            return res.data.data[0].name;
           } else {
             console.log(res.data.message);
           }

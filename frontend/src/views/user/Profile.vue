@@ -1,43 +1,53 @@
 <template>
-  <div>
-    <v-simple-table>
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <td>标签</td>
-            <td>信息</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>邮箱</td>
-            <td>{{ email }}</td>
-          </tr>
-          <tr>
-            <td>用户名</td>
-            <td>{{ username }}</td>
-          </tr>
-          <tr>
-            <td>注册时间</td>
-            <td>{{ date }}</td>
-          </tr>
-          <tr>
-            <td>修改邮箱</td>
-            <v-btn
-              color="primary"
-              @click="changeEmail()"
-            >修改邮箱</v-btn>
-          </tr>
-          <tr>
-            <td>修改用户名和密码</td>
-            <v-btn
-              color="primary"
-              @click="changePassword()"
-            >修改用户名密码</v-btn>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
+  <div class="center">
+    <v-card flat outlined min-width="800" min-height="600" class="text-left pa-5">
+      <v-card-title>个人资料</v-card-title>
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 邮箱: </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-card-text>
+            {{ email }}
+            <v-btn icon @click="changeEmail()">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </v-card-text>
+        </v-col>
+      </v-row>
+      <v-divider></v-divider>
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 用户名: </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-card-text>
+            {{ username }}
+            <v-btn icon @click="changePassword()">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </v-card-text>
+        </v-col>
+      </v-row>
+      <v-divider></v-divider>
+      <v-row no-gutters>
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 注册时间: </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-card-text v-text="date"></v-card-text>
+        </v-col>
+      </v-row>
+      <v-divider></v-divider>
+      <v-row no-gutters v-if="this.reseacherId != null">
+        <v-col cols="4">
+          <v-card-text class="font-weight-black"> 学者主页: </v-card-text>
+        </v-col>
+        <v-col cols="8">
+          <v-icon class="link" large @click="href('author',reseacherId)">mdi-link</v-icon>
+        </v-col>
+      </v-row>
+    </v-card>
     <v-dialog
       v-model="dialog"
       persistent
@@ -46,15 +56,12 @@
     >
       <v-card>
         <v-card-title>
-          <span
-            class="headline"
-            v-if="isChangePassword === false"
-          >修改邮箱</span>
-          <span
-            class="headline"
-            v-if="isChangePassword"
-          >修改用户名密码</span>
+          <span class="headline" v-if="isChangePassword === false"
+            >修改邮箱</span
+          >
+          <span class="headline" v-if="isChangePassword">修改用户名密码</span>
         </v-card-title>
+        <v-divider></v-divider>
         <v-card-text>
           <v-container>
             <v-row>
@@ -95,20 +102,23 @@
             text
             @click="dialog = false"
             v-if="dialog === true"
-          >返回</v-btn>
+            >返回</v-btn
+          >
           <v-spacer></v-spacer>
           <v-btn
             color="blue darken-1"
             text
             @click="submitEmail()"
             v-if="isChangePassword === false"
-          >修改邮箱</v-btn>
+            >修改邮箱</v-btn
+          >
           <v-btn
             color="blue darken-1"
             text
             @click="submitUsernameAndPassword()"
             v-if="isChangePassword === true"
-          >修改</v-btn>
+            >修改</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -128,6 +138,7 @@ export default {
         this.date = response.data.data.date;
         this.username = response.data.data.username;
         this.email = response.data.data.email;
+        this.reseacherId = response.data.data.reseacherId;
       }
     });
   },
@@ -234,9 +245,28 @@ export default {
         });
       }
     },
+    href(type, id) {
+      if (id == null) {
+        this.$notify({
+          title: "数据缺失",
+          message: "信息暂未收录，给您带来不便敬请谅解。",
+          type: "warning",
+        });
+        return;
+      }
+      let { href } = this.$router.resolve({ path: type, query: { id: id } });
+      window.open(href, "_blank");
+    },
   },
 };
 </script>
 
 <style>
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
 </style>
