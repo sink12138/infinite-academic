@@ -143,6 +143,7 @@ public class PatentParser {
             List<WebElement> agentElement = driver.findElementsByXPath("//div[@class=\"agent list\"]//div[@class=\"itemUrl\"]");
             if (agentElement.size() != 0) {
                 String agent = agentElement.get(0).getText();
+                agent = agent.replace("%", "; ");
                 patent.setAgent(agent);
             }
             // 国省代码
