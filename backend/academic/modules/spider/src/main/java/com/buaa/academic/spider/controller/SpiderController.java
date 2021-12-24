@@ -141,4 +141,14 @@ public class SpiderController {
         crawlService.crawlWithTitle(title, userId);
         return result;
     }
+
+    @PostMapping("/timing")
+    public Result<Void> autoUpdateSetting(@RequestHeader(name = "Auth") String auth,
+                                          @RequestParam(value = "cron") @CronExpr String cron) {
+        Result<Void> result = new Result<>();
+        if (!isValidHeader(auth))
+            return result.withFailure(ExceptionType.UNAUTHORIZED);
+        StatusCtrl.cron = cron;
+        return result;
+    }
 }
