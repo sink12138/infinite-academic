@@ -10,6 +10,8 @@
         class="applications"
         show-select
         v-model="selectedItem"
+        show-expand
+        item-key="id"
         style="word-break: break-all"
       >
         <template v-slot:top>
@@ -68,6 +70,28 @@
           </v-toolbar>
         </template>
 
+        <template v-slot:[`expanded-item`]="{ headers, item }">
+          <td :colspan="headers.length">
+            <v-row>
+              <v-col cols="12" sm="3">
+                链接： 
+              </v-col>
+              <v-col>
+                {{ item.websiteLink }}
+              </v-col>
+            </v-row>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col cols="12" sm="3">
+                文件Token： 
+              </v-col>
+              <v-col>
+                {{ item.fileToken }}
+              </v-col>
+            </v-row>
+          </td>
+        </template>
+
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon v-if="item.status == '审核中'" @click="passItem(item)">
             mdi-check-circle-outline
@@ -110,14 +134,12 @@ export default {
           align: "start",
           value: "id",
           sortable: false,
-          width: "9%",
+          width: "18%",
         },
         { text: "申请类型", value: "type", sortable: false, width: "8%" },
-        { text: "申请人ID", value: "userId", sortable: false, width: "9%" },
+        { text: "申请人ID", value: "userId", sortable: false, width: "18%" },
         { text: "申请时间", value: "time", sortable: false, width: "12%" },
         { text: "邮箱", value: "email", sortable: false, width: "15%" },
-        { text: "链接", value: "websiteLink", sortable: false, width: "18%" },
-        { text: "文件Token", value: "fileToken", sortable: false, width: "8%" },
         { text: "当前状态", value: "status", sortable: false, width: "9%" },
         { text: "操作", value: "actions", sortable: false, width: "12%" },
       ],

@@ -284,6 +284,12 @@ export default {
       lefttime: 10
     }
   },
+  props: {
+    islogin: {
+      type: Object,
+      default:() => {}
+    }
+  },
   computed: {
       
   },
@@ -317,7 +323,7 @@ export default {
         } else {
           this.$notify({
             title: "失败",
-            message: "账户信息获取失败",
+            message: "任务信息获取失败",
             type: "warning",
           });
           this.loading = false
@@ -486,7 +492,8 @@ export default {
             this.getTasks()
             this.lefttime = 10
           }
-          if (this.autoRefresh == false) {
+          console.log(this.islogin.login)
+          if (this.autoRefresh == false || !this.islogin.login) {
             clearInterval(this.timer);
           }
         }, 1000);
