@@ -1,23 +1,21 @@
 <template>
   <v-main>
     <Banner :title="{text: 'Patent', icon: 'mdi-book-open-blank-variant'}"></Banner>
-    <BasePatent v-bind:paperdata="this.patentdata"></BasePatent>
-    <PatentTabs :styles="styles"></PatentTabs>
+    <BasePatent v-bind:patentData="this.patentData"></BasePatent>
   </v-main>
 </template>
 
 <script>
 import Banner from '../components/BaseBanner.vue'
 import BasePatent from '../components/BasePatent.vue'
-import PatentTabs from '../components/PatentTabs.vue'
 export default {
   components: {
-    Banner,BasePatent,PatentTabs
+    Banner,BasePatent
   },
   data(){
     return{
       id:{},
-      patentdata: {},
+      patentData: {},
       styles:'paper'
     }
   },
@@ -33,7 +31,7 @@ export default {
       if(!res.data.success){
         console.log(res.data.message);
       }else{
-        this.paperdata=res.data.data;
+        this.patentData=res.data.data;
       }
     })
   },

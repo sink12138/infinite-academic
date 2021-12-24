@@ -13,6 +13,7 @@ const Admin = () => import("../views/Admin.vue")
 const About = () => import("../views/About.vue")
 const Register = () => import("../views/Register.vue")
 const Door = () => import("../views/Door.vue")
+const Patent = () => import("../views/Patent.vue")
 
 const User = () => import("../views/user/User.vue")
 const Profile = () => import("../views/user/Profile.vue")
@@ -42,6 +43,11 @@ const routes = [{
     path: '/journal',
     name: 'Journal',
     component: Journal
+  },
+  {
+    path: '/patent',
+    name: 'Patent',
+    component: Patent
   },
   {
     path: '/topic',
