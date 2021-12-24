@@ -6,8 +6,8 @@
     ></FilterYearPicker>
     <v-divider></v-divider>
     <div class="ml-4">
-      <v-switch v-model="filter.translated" label="语种关联"></v-switch>
-      <v-switch v-model="filter.fuzzy" label="模糊搜索"></v-switch>
+      <v-switch v-model="filter.translated" label="语种关联" @change="emit()"></v-switch>
+      <v-switch v-model="filter.fuzzy" label="模糊搜索" @change="emit()"></v-switch>
     </div>
     <v-divider></v-divider>
     <v-select
@@ -95,7 +95,7 @@
     <div v-show="showType == '科研人员'">
       <v-col>
         <v-text-field
-          label="h指数高于"
+          label="H指数高于"
           v-model="filter.hIndex"
           :rules="numberRule"
           @change="emitFilter()"
@@ -105,7 +105,7 @@
     <div v-show="showType == '科研人员'">
       <v-col>
         <v-text-field
-          label="g指数高于"
+          label="G指数高于"
           v-model="filter.gIndex"
           :rules="numberRule"
           @change="emitFilter()"
