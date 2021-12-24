@@ -95,7 +95,7 @@
     <div v-show="showType == '科研人员'">
       <v-col>
         <v-text-field
-          label="h指数高于"
+          label="H指数高于"
           v-model="filter.hIndex"
           :rules="numberRule"
           @change="emitFilter()"
@@ -105,7 +105,7 @@
     <div v-show="showType == '科研人员'">
       <v-col>
         <v-text-field
-          label="g指数高于"
+          label="G指数高于"
           v-model="filter.gIndex"
           :rules="numberRule"
           @change="emitFilter()"
