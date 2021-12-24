@@ -47,6 +47,21 @@
       >
         在结果中检索
       </el-button>
+      <el-button
+        icon="el-icon-search"
+        round
+        @click="openHigh"
+        style="max-height: 56px"
+        v-show="
+          filter != '全部' &&
+          filter != '期刊' &&
+          filter != '机构' &&
+          filter != '精确' &&
+          this.$route.path != '/'
+        "
+      >
+        开启高级检索
+      </el-button>
     </v-container>
     <v-container width="66%" v-else :key="2">
       <tr class="d-flex">
@@ -62,6 +77,9 @@
         ></v-select>
         <el-button icon="el-icon-search" round @click="searchInResult">
           在结果中检索
+        </el-button>
+        <el-button icon="el-icon-search" round @click="closeHigh">
+          关闭高级检索
         </el-button>
       </tr>
       <div v-if="filter == '论文'">
@@ -236,7 +254,6 @@
 </template>
 
 <script>
-//import qs from 'qs'
 export default {
   data() {
     return {
@@ -271,6 +288,12 @@ export default {
     }, 1);
   },
   methods: {
+    openHigh() {
+      this.high = true;
+    },
+    closeHigh() {
+      this.high = false;
+    },
     add(type) {
       switch (type) {
         case "paper":
@@ -424,24 +447,23 @@ export default {
                 this.patentSearch[index].suggest = [];
                 if (response.data.success == true) {
                   if (response.data.data.correction.length != 0)
-                    this.patentSearch[index].suggest =
-                      this.patentSearch[index].suggest.concat(
-                        response.data.data.correction
-                      );
+                    this.patentSearch[index].suggest = this.patentSearch[
+                      index
+                    ].suggest.concat(response.data.data.correction);
                   if (response.data.data.completion.length != 0)
-                    this.patentSearch[index].suggest =
-                      this.patentSearch[index].suggest.concat(
-                        response.data.data.completion
-                      );
+                    this.patentSearch[index].suggest = this.patentSearch[
+                      index
+                    ].suggest.concat(response.data.data.completion);
                   for (
                     i = 0;
                     i < this.patentSearch[index].suggest.length;
                     i++
                   ) {
-                    this.patentSearch[index].suggest[i] =
-                      this.patentSearch[index].suggest[i]
-                        .replaceAll("<b>", "")
-                        .replaceAll("</b>", "");
+                    this.patentSearch[index].suggest[i] = this.patentSearch[
+                      index
+                    ].suggest[i]
+                      .replaceAll("<b>", "")
+                      .replaceAll("</b>", "");
                   }
                 } else {
                   this.patentSearch[index].suggest = [];
@@ -474,12 +496,12 @@ export default {
               keyword: "",
               languages: ["zh", "en"],
               logic: "and",
-              translated: true,
+              translated: this.filters.translated,
             },
           ],
           filters: [],
           page: 0,
-          size: 10,
+          size: 20,
         };
         switch (this.filter) {
           case "全部": {
@@ -761,6 +783,7 @@ export default {
             break;
           }
         }
+        this.$emit("showData");
         if (this.filter != "精确") {
           this.$axios({
             method: "post",
@@ -777,6 +800,7 @@ export default {
                 this.filter == "科研人员" ||
                 this.filter == "专利"
               ) {
+                this.$emit("showFilter");
                 this.$axios({
                   method: "get",
                   url: "/api/analysis/aggregations",
@@ -839,7 +863,7 @@ export default {
         conditions: [],
         filters: [],
         page: 0,
-        size: 10,
+        size: 20,
       };
       switch (this.filter) {
         case "论文": {
@@ -1136,6 +1160,8 @@ export default {
         }
       }
       if (this.request.conditions.length == 0) return;
+
+      this.$emit("showData");
       this.$axios({
         method: "post",
         url: url,
@@ -1397,6 +1423,7 @@ export default {
         if (this.filter != "全部" && this.request.conditions.length == 0)
           return;
         if (this.filter != "精确") {
+          this.$emit("showData");
           this.$axios({
             method: "post",
             url: url,
@@ -1803,6 +1830,7 @@ export default {
           break;
         }
       }
+      this.$emit("showData");
       this.$axios({
         method: "post",
         url: url,
@@ -1817,6 +1845,7 @@ export default {
             this.filter == "科研人员" ||
             this.filter == "专利"
           ) {
+            this.$emit("showFilter");
             this.$axios({
               method: "get",
               url: "/api/analysis/aggregations",
@@ -1858,6 +1887,7 @@ export default {
       }
       this.request.page = this.page;
       if (this.filter != "全部" && this.request.conditions.length == 0) return;
+      this.$emit("showData");
       this.$axios({
         method: "post",
         url: url,
@@ -1895,6 +1925,7 @@ export default {
       }
       this.request.size = this.size;
       if (this.filter != "全部" && this.request.conditions.length == 0) return;
+      this.$emit("showData");
       this.$axios({
         method: "post",
         url: url,
@@ -1930,9 +1961,9 @@ export default {
   margin-left: 10px;
 }
 .v-text-field {
-  font-family: 'Fira code', 'Lucida Sans Regular', sans-serif;
+  font-family: "Fira code", "Lucida Sans Regular", sans-serif;
 }
 .v-list-item__title {
-  font-family: 'Fira code', 'Lucida Sans Regular', sans-serif;
+  font-family: "Fira code", "Lucida Sans Regular", sans-serif;
 }
 </style>
