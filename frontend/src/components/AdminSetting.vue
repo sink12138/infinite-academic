@@ -11,6 +11,7 @@
         :loading="loading"
         :options.sync="options"
         show-expand
+        item-key="name"
         class="task"
         hide-default-footer
       >
@@ -127,7 +128,7 @@
           </v-toolbar>
         </template>
 
-        <template v-slot:expanded-item="{ headers, item }">
+        <template v-slot:[`expanded-item`]="{ headers, item }">
           <td :colspan="headers.length">
             <v-data-table
               :headers="childheaders"
