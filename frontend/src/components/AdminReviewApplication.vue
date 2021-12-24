@@ -579,7 +579,24 @@ export default {
           alert(err);
         }
       );
-    }
+    },
+
+    load(data, filename) {
+      if (!data) {
+        return;
+      }
+      let url = window.URL.createObjectURL(
+        new Blob([data], { type: "application/force-download;charset=utf-8" })
+      );
+      let link = document.createElement("a");
+      link.style.display = "none";
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
   },
 };
 </script>
