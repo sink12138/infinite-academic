@@ -626,7 +626,7 @@ export default {
               for (i = 1; i < keywords.length; i++) {
                 condition1 = {
                   compound: true,
-                  fuzzy: true,
+                  fuzzy: this.filters.fuzzy,
                   keyword: keywords[i],
                   languages: ["zh", "en"],
                   logic: "and",
@@ -649,7 +649,7 @@ export default {
               condition = this.request.conditions[0];
               for (i = 1; i < keywords.length; i++) {
                 condition1 = {
-                  compound: true,
+                  compound: this.filters.fuzzy,
                   fuzzy: true,
                   keyword: keywords[i],
                   languages: ["zh", "en"],
