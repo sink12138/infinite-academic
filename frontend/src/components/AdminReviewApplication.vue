@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    flat
-    outlined
-  >
+  <v-card flat outlined>
     <v-card-text>
       <v-data-table
         :headers="headers"
@@ -13,48 +10,39 @@
         class="applications"
         show-select
         v-model="selectedItem"
-        style="word-break:break-all"
+        style="word-break: break-all"
       >
         <template v-slot:top>
-          <v-toolbar
-            flat
-          >
+          <v-toolbar flat>
             <v-toolbar-title>审核申请</v-toolbar-title>
-            <v-divider
-              inset
-              vertical
-            ></v-divider>
+            <v-divider inset vertical></v-divider>
+            <v-btn outlined @click="passItems" class="ml-4">
+              <v-icon dark> mdi-check </v-icon>
+              一键通过
+            </v-btn>
             <v-spacer></v-spacer>
-            
-            <v-radio-group
-              v-model="radioGroup"
-              row
-              @change="getApplications"
-            >
-              <v-radio
-                v-for="(item, id) in radio"
-                :key="id"
-                :label="item.title"
+
+            <v-btn-toggle v-model="radioGroup" @change="getApplications" group>
+              <v-btn
+                v-for="item in radio"
+                :key="item.title"
+                v-html="'<b>' + item.title + '</b>'"
                 :value="item.num"
-              ></v-radio>
-            </v-radio-group>
-            
-            <v-divider
-              inset
-              vertical
-            ></v-divider>
-            
-            <v-col 
-              cols="12"
-              sm="3"
-            >
+              ></v-btn>
+            </v-btn-toggle>
+
+            <v-divider inset vertical></v-divider>
+
+            <v-col cols="12" sm="3">
               <v-select
                 v-model="select"
                 :items="items"
                 item-text="text"
                 item-value="num"
                 single-line
+                hide-details
                 return-object
+                :menu-props="{ maxHeight: 360 }"
                 dense
                 @change="getApplications"
                 label="申请类型"
@@ -64,10 +52,14 @@
 
             <v-dialog v-model="dialogFail" max-width="500px">
               <v-card>
-                <v-card-title class="text-h5">真的要不通过这个申请吗？</v-card-title>
+                <v-card-title class="text-h5"
+                  >真的要不通过这个申请吗？</v-card-title
+                >
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeFail">再想想</v-btn>
+                  <v-btn color="blue darken-1" text @click="closeFail"
+                    >再想想</v-btn
+                  >
                   <v-btn color="blue darken-1" text @click="fail">确定</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
@@ -77,56 +69,30 @@
         </template>
 
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon
-            v-if="item.status=='审核中'"
-            @click="passItem(item)"
-          >
+          <v-icon v-if="item.status == '审核中'" @click="passItem(item)">
             mdi-check-circle-outline
           </v-icon>
-          <v-icon
-            v-if="item.status=='审核中'"
-            @click="failItem(item)"
-          >
+          <v-icon v-if="item.status == '审核中'" @click="failItem(item)">
             mdi-close-circle-outline
           </v-icon>
 
-          <Application
-            :message="item"
-          ></Application>
+          <Application :message="item" path="admin"></Application>
         </template>
 
         <template v-slot:no-data>
-          <v-btn
-            color="primary"
-            @click="refresh"
-            rounded
-          >
-            重置
-          </v-btn>
+          <v-btn color="primary" @click="refresh" rounded> 重置 </v-btn>
         </template>
       </v-data-table>
     </v-card-text>
-
-    <v-btn
-      class="passAll"
-      @click="passItems"
-      rounded
-      dark
-    >
-      <v-icon dark>
-        mdi-check
-      </v-icon>
-      一键通过
-    </v-btn>
   </v-card>
 </template>
 
 <script>
-import Application from '../components/MessageDialog.vue'
+import Application from "../components/MessageDialog.vue";
 
 export default {
   components: {
-    Application
+    Application,
   },
 
   data() {
@@ -140,92 +106,88 @@ export default {
       size: 10,
       headers: [
         {
-          text: '申请ID',
-          align: 'start',
-          value: 'id',
+          text: "申请ID",
+          align: "start",
+          value: "id",
           sortable: false,
-          width: "9%"
+          width: "9%",
         },
-        { text: '申请类型', value: 'type', sortable: false, width: "10.5%" },
-        { text: '申请人ID', value: 'userId', sortable: false, width: "9%" },
-        { text: '申请时间', value: 'time', sortable: false, width: "12%" },
-        { text: '邮箱', value: 'email', sortable: false, width: "15%" },
-        { text: 'websiteLink', value: 'websiteLink', sortable: false, width: "18%" },
-        { text: '文件Token', value: 'fileToken', sortable: false, width: "8%" },
-        { text: '当前状态', value: 'status', sortable: false, width: "9%" },
-        { text: '操作', value: 'actions', sortable: false, width: "9%" },
+        { text: "申请类型", value: "type", sortable: false, width: "8%" },
+        { text: "申请人ID", value: "userId", sortable: false, width: "9%" },
+        { text: "申请时间", value: "time", sortable: false, width: "12%" },
+        { text: "邮箱", value: "email", sortable: false, width: "15%" },
+        { text: "链接", value: "websiteLink", sortable: false, width: "18%" },
+        { text: "文件Token", value: "fileToken", sortable: false, width: "8%" },
+        { text: "当前状态", value: "status", sortable: false, width: "9%" },
+        { text: "操作", value: "actions", sortable: false, width: "12%" },
       ],
       applications: [
         {
           id: 0,
-          type: 'test',
+          type: "test",
           userId: 2,
-          time: '2021.12.15',
-          email: 'test',
-          websiteLink: 'test',
-          fileToken: 'test',
-          status: 'test',
-        }
+          time: "2021.12.15",
+          email: "test",
+          websiteLink: "test",
+          fileToken: "test",
+          status: "test",
+        },
       ],
       radioGroup: 0,
       radio: [
         {
           num: 0,
-          title: '全部'
+          title: "全部",
         },
         {
           num: 1,
-          title: '审核中'
+          title: "审核中",
         },
         {
           num: 2,
-          title: '审核不通过'
+          title: "审核不通过",
         },
         {
           num: 3,
-          title: '审核通过'
-        }
+          title: "审核通过",
+        },
       ],
-      select: { text: '全部', num: '0' },
+      select: { text: "全部", num: "0" },
       items: [
-        { text: '全部', num: '0' },
-        { text: '学者认证', num: '1' },
-        { text: '门户认领', num: '2' },
-        { text: '门户信息修改', num: '3' },
-        { text: '添加论文', num: '4' },
-        { text: '下架论文', num: '5' },
-        { text: '修改论文信息', num: '6' },
-        { text: '专利转让', num: '7' },
-        
+        { text: "全部", num: "0" },
+        { text: "学者认证", num: "1" },
+        { text: "门户认领", num: "2" },
+        { text: "门户信息修改", num: "3" },
+        { text: "添加论文", num: "4" },
+        { text: "下架论文", num: "5" },
+        { text: "修改论文信息", num: "6" },
+        { text: "专利转让", num: "7" },
       ],
       selectedItem: [],
       refreshtime: 2,
-    }
+    };
   },
-  computed: {
-      
-  },
+  computed: {},
 
   watch: {
     options: {
-      handler () {
-        this.getApplications()
+      handler() {
+        this.getApplications();
       },
       deep: true,
     },
   },
 
-  created () {
-    
-  },
+  created() {},
 
-  methods:{
-    getApplications () {
-      this.loading = true
+  methods: {
+    getApplications() {
+      this.loading = true;
       this.page = this.options.page;
-      this.size = this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
+      this.size =
+        this.options.itemsPerPage <= 30 ? this.options.itemsPerPage : 30;
 
-      if (this.radioGroup == 0 && this.select['num'] == 0) {
+      if (this.radioGroup == 0 && this.select["num"] == 0) {
         this.$axios({
           method: "get",
           url: "api/admin/review/list",
@@ -236,104 +198,101 @@ export default {
         }).then((response) => {
           console.log(response.data);
           if (response.data.success === true) {
-            this.applications = response.data.data.items
-            this.totalApplications = response.data.data.pageCount * this.size
-            this.loading = false
+            this.applications = response.data.data.items;
+            this.totalApplications = response.data.data.pageCount * this.size;
+            this.loading = false;
           } else {
             this.$notify({
               title: "失败",
               message: "账户信息获取失败",
               type: "warning",
             });
-            this.loading = false
+            this.loading = false;
           }
         });
-      }
-      else if (this.radioGroup == 0 && this.select['num'] != 0) {
+      } else if (this.radioGroup == 0 && this.select["num"] != 0) {
         this.$axios({
           method: "get",
           url: "api/admin/review/list",
           params: {
             page: this.page - 1,
             size: this.size,
-            type: this.select['text']
+            type: this.select["text"],
           },
         }).then((response) => {
           console.log(response.data);
           if (response.data.success === true) {
-            this.applications = response.data.data.items
-            this.totalApplications = response.data.data.pageCount * this.size
-            this.loading = false
+            this.applications = response.data.data.items;
+            this.totalApplications = response.data.data.pageCount * this.size;
+            this.loading = false;
           } else {
             this.$notify({
               title: "失败",
               message: "账户信息获取失败",
               type: "warning",
             });
-            this.loading = false
+            this.loading = false;
           }
         });
-      }
-      else if (this.radioGroup != 0 && this.select['num'] == 0) {
+      } else if (this.radioGroup != 0 && this.select["num"] == 0) {
         this.$axios({
           method: "get",
           url: "api/admin/review/list",
           params: {
             page: this.page - 1,
             size: this.size,
-            status: this.radio[this.radioGroup]['title']
+            status: this.radio[this.radioGroup]["title"],
           },
         }).then((response) => {
           console.log(response.data);
           if (response.data.success === true) {
-            this.applications = response.data.data.items
-            this.totalApplications = response.data.data.pageCount * this.size
-            this.loading = false
+            this.applications = response.data.data.items;
+            this.totalApplications = response.data.data.pageCount * this.size;
+            this.loading = false;
           } else {
             this.$notify({
               title: "失败",
               message: "账户信息获取失败",
               type: "warning",
             });
-            this.loading = false
+            this.loading = false;
           }
         });
-      }
-      else {
+      } else {
         this.$axios({
           method: "get",
           url: "api/admin/review/list",
           params: {
             page: this.page - 1,
             size: this.size,
-            type: this.select['text'],
-            status: this.radio[this.radioGroup]['title']
+            type: this.select["text"],
+            status: this.radio[this.radioGroup]["title"],
           },
         }).then((response) => {
           console.log(response.data);
           if (response.data.success === true) {
-            this.applications = response.data.data.items
-            this.totalApplications = response.data.data.pageCount * this.size
-            this.loading = false
+            this.applications = response.data.data.items;
+            this.totalApplications = response.data.data.pageCount * this.size;
+            this.loading = false;
           } else {
             this.$notify({
               title: "失败",
               message: "账户信息获取失败",
               type: "warning",
             });
-            this.loading = false
+            this.loading = false;
           }
         });
       }
-      this.checkedItem = this.applications[0]
+      this.checkedItem = this.applications[0];
     },
 
-    checkItem (item) {
-      this.checkedItem = item
-      this.dialog = true
+    checkItem(item) {
+      this.checkedItem = item;
+      this.dialog = true;
     },
 
-    passItem (item) {
+    passItem(item) {
       if (item.type === "学者认证") {
         this.$axios({
           method: "post",
@@ -357,8 +316,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "门户认领") {
+      } else if (item.type === "门户认领") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/claim",
@@ -381,8 +339,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "门户修改") {
+      } else if (item.type === "门户修改") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/modification",
@@ -405,8 +362,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "添加论文") {
+      } else if (item.type === "添加论文") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/paper/add",
@@ -429,8 +385,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "修改论文") {
+      } else if (item.type === "修改论文") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/paper/edit",
@@ -453,8 +408,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "移除论文") {
+      } else if (item.type === "移除论文") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/paper/remove",
@@ -477,8 +431,7 @@ export default {
             });
           }
         });
-      }
-      else if (item.type === "专利转让") {
+      } else if (item.type === "专利转让") {
         this.$axios({
           method: "post",
           url: "api/admin/review/accept/transfer",
@@ -506,18 +459,18 @@ export default {
         this.refreshtime--;
 
         if (this.refreshtime === 0) {
-          this.refreshtime = 2
+          this.refreshtime = 2;
           this.getApplications();
           clearInterval(this.timer);
         }
       }, 1000);
     },
 
-    failItem () {
-      this.dialogFail = true
+    failItem() {
+      this.dialogFail = true;
     },
 
-    fail (item) {
+    fail(item) {
       this.$axios({
         method: "post",
         url: "api/admin/review/reject",
@@ -540,50 +493,55 @@ export default {
           });
         }
       });
-      this.closeFail()
+      this.closeFail();
     },
 
-    close () {
-      this.dialog = false
-      this.content = ''
+    close() {
+      this.dialog = false;
+      this.content = "";
 
       this.timer = setInterval(() => {
         this.refreshtime--;
 
         if (this.refreshtime === 0) {
-          this.refreshtime = 2
+          this.refreshtime = 2;
           this.getApplications();
           clearInterval(this.timer);
         }
       }, 1000);
     },
 
-    closeFail () {
-      this.dialogFail = false
+    closeFail() {
+      this.dialogFail = false;
       this.timer = setInterval(() => {
         this.refreshtime--;
 
         if (this.refreshtime === 0) {
-          this.refreshtime = 2
+          this.refreshtime = 2;
           this.getApplications();
           clearInterval(this.timer);
         }
       }, 1000);
     },
 
-    passItems () {
+    passItems() {
       for (var i in this.selectedItem) {
-        this.passItem(this.selectedItem[i])
+        this.passItem(this.selectedItem[i]);
       }
-    }, 
-
+    },
   },
-}
+};
 </script>
 
 <style>
 .passAll {
-  background:-webkit-gradient(linear, 100% 0%, 0% 0%,from(#59C2FD), to(#2B99FF));
+  background: -webkit-gradient(
+    linear,
+    100% 0%,
+    0% 0%,
+    from(#59c2fd),
+    to(#2b99ff)
+  );
   border-radius: 20px;
   color: #fff;
 }

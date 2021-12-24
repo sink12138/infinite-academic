@@ -7,37 +7,35 @@
       <v-icon class="mx-1">
         mdi-text-box-multiple-outline
       </v-icon>
-      <span class="link" @click="href('paper', paperdata.id)">{{paperdata.title}}</span>
+      <span class="link" @click="href('patent', patentdata.id)">{{patentdata.title}}</span>
       <v-spacer></v-spacer>
-      <v-btn icon @click="addCitationItem(paperdata)">
+      <v-btn icon @click="addCitationItem(patentdata)">
         <v-icon>mdi-comma-box</v-icon>
       </v-btn>
     </v-card-title>
     <v-card-subtitle class="pb-0">
-      <span v-if="paperdata.date" v-text="paperdata.date.substr(0,4)"></span>&nbsp;
-      <span>被引量:{{paperdata.citationNum}}</span>&nbsp;
+      <span v-if="patentdata.date" v-text="patentdata.date.substr(0,4)"></span>&nbsp;
+      <span>被引量:{{patentdata.citationNum}}</span>&nbsp;
       <span>来源:</span>&nbsp;
-      <span v-for="item in paperdata.sources" :key="item.id">
+      <span v-for="item in patentdata.sources" :key="item.id">
         <span class="link" @click=toSource(item.url)>{{item.website}}</span>&nbsp;
       </span>
       <br>
-      <span v-if="paperdata.journal">
+      <span v-if="patentdata.journal">
         <span class="link"
-          @click="href('journal', paperdata.journal.id)"
-          v-text="paperdata.journal.title"
+          @click="href('journal', patentdata.journal.id)"
+          v-text="patentdata.journal.title"
         >
         </span>&nbsp;
-        <span v-if="paperdata.journal.volume">第{{paperdata.journal.volume}}卷第{{paperdata.journal.issue}}期</span>&nbsp;
-        <span v-if="paperdata.journal.startPage">{{paperdata.journal.startPage}}到{{paperdata.journal.endPage}}页</span>
       </span>
     </v-card-subtitle>
     <v-card-text class="pb-0">
       <span
-        v-for="(author, idx) in paperdata.authors"
+        v-for="(author, idx) in patentdata.authors"
         :key="author.id"
       >
         <span class="link"
-          v-if="paperdata.authors && idx == paperdata.authors.length-1"
+          v-if="patentdata.authors && idx == patentdata.authors.length-1"
           @click="href('author', author.id)"
           v-text="author.name"
         ></span>
@@ -51,14 +49,13 @@
     <v-card-text class="pt-2 pb-0">
       <span
         class="mx-1"
-        v-for="keyword in paperdata.keywords"
+        v-for="keyword in patentdata.keywords"
         :key="keyword"
         v-show="keyword"
       >
         <v-btn
           small
           outlined
-          @click="hrefname('topic', keyword)"
         >
           <v-icon small>
             mdi-tag-outline
@@ -68,12 +65,12 @@
       </span>
     </v-card-text>
     <v-card-text>
-      <span v-if="expand" v-text="paperdata.abstract"></span>
-      <span v-else v-text="$options.filters.abstract(paperdata.abstract)"></span>
+      <span v-if="expand" v-text="patentdata.abstract"></span>
+      <span v-else v-text="$options.filters.abstract(patentdata.abstract)"></span>
       <v-btn
         x-small
         outlined
-        v-if="paperdata.abstract && paperdata.abstract.length > 1100"
+        v-if="patentdata.abstract && patentdata.abstract.length > 1100"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
@@ -84,44 +81,42 @@
       </v-btn>
     </v-card-text>
     <v-card-text class="pb-1">
-      <span v-if="paperdata.institutions">
+      <span v-if="patentdata.institutions">
         <span>所有机构:</span>&nbsp;
-        <span v-for="institution in paperdata.institutions" :key="institution.id">
+        <span v-for="institution in patentdata.institutions" :key="institution.id">
           <span class="link" @click="href('institution',institution.id)" v-html="institution.name"></span>
         </span>
       </span>
       <br>
-      <span v-if="paperdata.type">
+      <span v-if="patentdata.type">
         <span>论文类别:</span>&nbsp;
-        <span>{{paperdata.type}}</span>
+        <span>{{patentdata.type}}</span>
       </span>
       <br>
-      <span v-if="paperdata.subjects">
+      <span v-if="patentdata.subjects">
         <span>学科分类:</span>&nbsp;
-        <span v-for="subject in paperdata.subjects" :key="subject.id">
-          <span class="link" @click="hrefname('subject',subject)">{{subject}}&nbsp;</span>
+        <span v-for="subject in patentdata.subjects" :key="subject.id">
+          <a @click="hrefname('subject',subject)">{{subject}}&nbsp;</a>
         </span>
       </span>
       <br>
-      <span v-if="paperdata.publisher">
+      <span v-if="patentdata.publisher">
         <span>出版商:</span>&nbsp;
-        <span>{{paperdata.publisher}}</span>
+        <span>{{patentdata.publisher}}</span>
       </span>
       <br>
-      <span v-if="paperdata.doi">
+      <span v-if="patentdata.doi">
         <span>doi:</span>
-        {{paperdata.doi}}
+        {{patentdata.doi}}
       </span>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
-import { addCitation } from "./mixins/mixin"
 export default {
-  mixins: [addCitation],
   props:{
-    paperdata: {
+    patentdata: {
       type: Object,
       default:() => {}
     }
@@ -174,7 +169,7 @@ export default {
     }
   },
   mounted(){
-    console.log(this.paperdata)
+    console.log(this.patentdata)
   }
 }
 </script>

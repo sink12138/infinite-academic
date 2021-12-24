@@ -1,7 +1,21 @@
 <template>
   <v-dialog v-model="dialog" width="500">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-bind="attrs" v-on="on" small @click="getDetails()">
+      <v-icon
+        v-if="path == 'admin'"
+        v-bind="attrs"
+        v-on="on"
+        @click="getDetails()"
+        >mdi-information-outline</v-icon
+      >
+      <v-btn
+        v-else
+        outlined
+        v-bind="attrs"
+        v-on="on"
+        small
+        @click="getDetails()"
+      >
         <v-icon>mdi-information-outline</v-icon>
         详细
       </v-btn>
@@ -140,7 +154,7 @@
             <v-card-text>
               <span
                 class="link"
-                v-for="item in this.data" 
+                v-for="item in this.data"
                 :key="item.id"
                 @click="href('author', item.id)"
               >
@@ -180,7 +194,6 @@
             </v-card-text>
           </v-col>
         </v-row>
-        
       </v-container>
 
       <!-- 修改论文 -->
@@ -288,10 +301,10 @@
 </template>
 
 <script>
-import CardPaper from "../components/card/CardPaper.vue"
+import CardPaper from "../components/card/CardPaper.vue";
 export default {
   components: {
-    CardPaper
+    CardPaper,
   },
   data() {
     return {
@@ -301,50 +314,55 @@ export default {
       type: "",
       data: [],
       basic: {},
-      content: {"add": {
-			"abstract": "假装这是一大段摘要",
-			"authors": [
-				{
-					"id": "GF_4ynwBF-Mu8unTG1hc",
-					"instName": "北京航空航天大学软件学院",
-					"name": "谭火彬"
-				}
-			],
-			"date": "2021-10-15",
-			"doi": "10.1007/BF02943174",
-			"institutions": [
-				{
-					"id": "GF_4ynwBF-Mu8unTG1hc",
-					"name": "北京航空航天大学软件学院"
-				}
-			],
-			"journal": {
-				"endPage": 514,
-				"id": "GF_4ynwBF-Mu8unTG1hc",
-				"issue": "02",
-				"startPage": 114,
-				"title": "Science",
-				"volume": 43
-			},
-			"keywords": [],
-			"publisher": "Elsevier",
-			"referencePapers": [
-				{
-					"id": "",
-					"title": ""
-				}
-			],
-			"subjects": [],
-			"title": "",
-			"type": "期刊论文",
-			"year": 2021
-		}},
+      content: {
+        add: {
+          abstract: "假装这是一大段摘要",
+          authors: [
+            {
+              id: "GF_4ynwBF-Mu8unTG1hc",
+              instName: "北京航空航天大学软件学院",
+              name: "谭火彬",
+            },
+          ],
+          date: "2021-10-15",
+          doi: "10.1007/BF02943174",
+          institutions: [
+            {
+              id: "GF_4ynwBF-Mu8unTG1hc",
+              name: "北京航空航天大学软件学院",
+            },
+          ],
+          journal: {
+            endPage: 514,
+            id: "GF_4ynwBF-Mu8unTG1hc",
+            issue: "02",
+            startPage: 114,
+            title: "Science",
+            volume: 43,
+          },
+          keywords: [],
+          publisher: "Elsevier",
+          referencePapers: [
+            {
+              id: "",
+              title: "",
+            },
+          ],
+          subjects: [],
+          title: "",
+          type: "期刊论文",
+          year: 2021,
+        },
+      },
     };
   },
   props: {
     message: {
       type: Object,
       default: () => {},
+    },
+    path: {
+      type: String,
     },
   },
   methods: {
@@ -374,7 +392,7 @@ export default {
         default:
           this.type = "";
       }
-      console.log(this.$route.path)
+      console.log(this.$route.path);
       if (this.$route.path == "/user/apply") {
         this.$axios({
           method: "get",
@@ -393,8 +411,7 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-      }
-      else if (this.$route.path == "/admin") {
+      } else if (this.$route.path == "/admin") {
         this.$axios({
           method: "get",
           url: "/api/admin/review/details/" + this.message.id,
@@ -437,9 +454,9 @@ export default {
     href(type, id) {
       if (id == null) {
         this.$notify({
-          title: '数据缺失',
-          message: '信息暂未收录，给您带来不便敬请谅解。',
-          type: 'warning'
+          title: "数据缺失",
+          message: "信息暂未收录，给您带来不便敬请谅解。",
+          type: "warning",
         });
         return;
       }

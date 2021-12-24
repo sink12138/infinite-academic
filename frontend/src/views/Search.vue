@@ -121,7 +121,8 @@
                 <PaperCard
                   :item="item"
                   :disabled="fromDoor"
-                  style="margin-top: 10px"
+                  class="mx-3 my-3"
+                  style="width: 100%"
                 ></PaperCard>
                 <v-btn v-if="fromDoor != ''" @click="toDoor(item)">选择</v-btn>
               </v-row>

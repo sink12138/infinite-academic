@@ -1,11 +1,11 @@
 <template>
-  <v-card class="text-left my-2" max-width="1950">
+  <v-card class="text-left my-1" max-width="1950">
     <v-card-title class="d-flex">
       <v-icon class="mx-1"> mdi-text-box-multiple-outline </v-icon>
       <span
         class="link"
         @click="href('paper', item.id)"
-        v-html="item.title"
+        v-html="$options.filters.title(item.title)"
         :class="disabled"
       ></span>
       <v-spacer></v-spacer>
@@ -14,15 +14,14 @@
       </v-btn>
     </v-card-title>
     <v-card-subtitle class="pb-0">
-      <span v-if="item.date" v-text="item.date.substr(0, 4)"></span>&nbsp;
+      <span v-if="item.date" v-html="item.date.substr(0, 4)+'&nbsp;'"></span>
       <span
         class="link"
         v-if="item.journal"
         @click="href('journal', item.journal.id)"
         :class="disabled"
-        v-html="item.journal.title"
+        v-html="item.journal.title+'&nbsp;'"
       ></span>
-      &nbsp;
       <span>被引量:{{ item.citationNum }}</span>
     </v-card-subtitle>
     <v-card-text class="pb-0">
@@ -50,19 +49,19 @@
         :key="keyword"
         v-show="keyword"
       >
-        <v-btn small outlined @click="href('topic', keyword)" :class="disabled">
+        <v-btn small outlined @click="href('topic', keyword)" :class="disabled" class="my-1">
           <v-icon small> mdi-tag-outline </v-icon>
           <span v-html="keyword"></span>
         </v-btn>
       </span>
     </v-card-text>
-    <v-card-text>
+    <v-card-text class="pt-2 pb-4">
       <span v-if="expand" v-html="item.abstract"></span>
       <span v-else v-html="$options.filters.abstract(item.abstract)"></span>
       <v-btn
         x-small
         outlined
-        v-if="item.abstract && item.abstract.length > 110"
+        v-if="item.abstract && item.abstract.length > 120"
         @click="expand = !expand"
       >
         <span v-if="expand">收起</span>
@@ -94,10 +93,17 @@ export default {
     };
   },
   filters: {
+    title(text) {
+      if (!text) return " ";
+      if (text.length > 60) {
+        return text.slice(0, 57) + "...";
+      }
+      return text;
+    },
     abstract(text) {
       if (!text) return " ";
-      if (text.length > 110) {
-        return text.slice(0, 110) + "...";
+      if (text.length > 120) {
+        return text.slice(0, 120) + "...";
       }
       return text;
     },

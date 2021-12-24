@@ -217,7 +217,6 @@ export default {
       method: "get",
       url: "/api/account/profile",
     }).then((response) => {
-      console.log(response.data);
       if (response.data.success === true) {
         this.isLogin = true;
       }
