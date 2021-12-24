@@ -6,6 +6,7 @@ import com.buaa.academic.model.web.Result;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.spider.service.CrawlService;
 import com.buaa.academic.spider.util.StatusCtrl;
+import com.buaa.academic.tool.validator.CronExpr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
