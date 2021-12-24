@@ -66,7 +66,8 @@ public class TransferController {
     public Result<Void> transferSubmit(@RequestHeader(value = "Auth") String userId,
                                        @RequestBody @Valid ApplicationInfo<Transfer> transferInfo) {
         Result<Void> result = new Result<>();
-
+        if (transferInfo.getFileToken() == null && transferInfo.getWebsiteLink() == null)
+            return result.withFailure(ExceptionType.INVALID_PARAM);
         // File token existence check
         String fileToken = transferInfo.getFileToken();
         if (fileToken != null && !resourceClient.exists(fileToken).getData())
