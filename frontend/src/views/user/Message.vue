@@ -283,6 +283,8 @@ export default {
             message: "信息删除成功",
             type: "success",
           });
+          this.getMessages();
+          this.getMessages();
         } else {
           this.$notify({
             title: "失败",

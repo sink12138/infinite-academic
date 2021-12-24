@@ -75,6 +75,12 @@
       <v-card>
         <v-card-title>
           <span class="headline">登录</span>
+          <v-divider></v-divider>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="closeDialog()"
+          >X</v-btn>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -111,11 +117,6 @@
               text
             >暂无账号？注册账号</v-btn>
           </router-link>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="closeDialog()"
-          >关闭</v-btn>
           <v-spacer></v-spacer>
           <v-btn
             color="blue darken-1"
