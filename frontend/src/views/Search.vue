@@ -30,7 +30,6 @@
             ref="filter"
             v-on:handleFilter="handleFilter"
             v-on:searchFilter="handleFilter2"
-            v-show="filter != '机构' && filter != '期刊'"
           ></BaseFilter>
         </el-main>
       </v-col>
