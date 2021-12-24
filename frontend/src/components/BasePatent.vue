@@ -397,14 +397,14 @@ export default {
         if (this.submitItem.applicant === "") {
           this.submitItem.applicant = this.patentData.applicant;
         }
-        if(this.fileToken === ""){
-          this.fileToken = null
+        if (this.fileToken === "") {
+          this.fileToken = null;
         }
-        if(this.websiteLink === ""){
-          this.websiteLink = null
+        if (this.websiteLink === "") {
+          this.websiteLink = null;
         }
-        if(this.email === ""){
-          this.email === null
+        if (this.email === "") {
+          this.email === null;
         }
         console.log(this.submitItem.applicant);
         console.log(this.submitItem.agency);
@@ -444,6 +444,16 @@ export default {
               type: "error",
             });
           }
+          this.submitItem.agency = "";
+          this.submitItem.agent = "";
+          this.submitItem.address = "";
+          this.submitItem.applicant = "";
+          this.submitItem.transferee = "";
+          this.submitItem.transferor = "";
+          this.currentFile = null;
+          this.fileToken = "";
+          this.websiteLink = "";
+          this.email = "";
         });
       }
     },
