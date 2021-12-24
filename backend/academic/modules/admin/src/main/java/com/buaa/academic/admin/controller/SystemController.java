@@ -213,7 +213,7 @@ public class SystemController {
             case "spider" -> operation = new FeignOperation<>(code) {
                 @Override
                 public Result<Void> apply() {
-                    return new Result<Void>().withFailure(ExceptionType.NOT_FOUND);
+                    return spiderClient.timing(auth, cron);
                 }
             };
             default -> {

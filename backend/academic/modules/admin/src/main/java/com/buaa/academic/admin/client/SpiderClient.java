@@ -19,8 +19,12 @@ public interface SpiderClient {
     @GetMapping("/status")
     Result<Schedule> status(@RequestHeader(name = "Auth") String auth);
 
+    @PostMapping("/timing")
+    Result<Void> timing(@RequestHeader(name = "Auth") String auth,
+                        @RequestParam(value = "cron") String cron);
+
     @PostMapping("/setting")
     Result<Void> inspire(@RequestHeader(name = "Auth") String auth,
-                             @RequestBody List<String> inspirations);
+                         @RequestBody List<String> inspirations);
 
 }
