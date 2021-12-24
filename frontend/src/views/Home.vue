@@ -1,33 +1,36 @@
 <template>
-  <v-main>
+  <v-main class="home">
     <BaseNavigation :router="this.router"></BaseNavigation>
     <div class="big-font">Infinite Academic</div>
-    <BaseSearchBar class="ma-auto"></BaseSearchBar>
+    <BaseSearchBar class="ma-auto bar"></BaseSearchBar>
     <v-container class="d-flex pa-0 align-center">
-      <v-card outlined height="479px">
-        <div class="home-font">Infinite Academic</div>
-        <div class="home-font text-right mr-5">————学无止境</div>
-        <v-divider class="mb-12 pb-12"></v-divider>
-        <div class="d-flex align-center">
+      <v-card outlined height="479px" width="800px">
+        <v-divider class="mb-16 pb-16"></v-divider>
+        <div class="d-flex align-center justify-center">
           <v-sheet>
             <v-icon size="64">mdi-book-open-blank-variant</v-icon>
-            <v-card-text> 论文:{{ this.total.papers }} </v-card-text>
+            <v-card-text> 论文</v-card-text>
+            <v-card-text>{{ this.total.papers }} </v-card-text>
           </v-sheet>
           <v-sheet>
             <v-icon size="64">mdi-clipboard-account</v-icon>
-            <v-card-text> 科研人员:{{ this.total.researchers }} </v-card-text>
+            <v-card-text> 科研人员</v-card-text>
+            <v-card-text>{{ this.total.researchers }} </v-card-text>
           </v-sheet>
           <v-sheet>
             <v-icon size="64">mdi-home</v-icon>
-            <v-card-text> 机构:{{ this.total.institutions }} </v-card-text>
+            <v-card-text> 机构</v-card-text>
+            <v-card-text>{{ this.total.institutions }} </v-card-text>
           </v-sheet>
           <v-sheet>
             <v-icon size="64">mdi-newspaper-variant</v-icon>
-            <v-card-text> 期刊:{{ this.total.journals }} </v-card-text>
+            <v-card-text> 期刊</v-card-text>
+            <v-card-text>{{ this.total.journals }} </v-card-text>
           </v-sheet>
           <v-sheet>
             <v-icon size="64">mdi-lightbulb-on</v-icon>
-            <v-card-text> 专利:{{ this.total.patents }} </v-card-text>
+            <v-card-text> 专利</v-card-text>
+            <v-card-text>{{ this.total.patents }} </v-card-text>
           </v-sheet>
         </div>
       </v-card>
@@ -141,7 +144,17 @@ export default {
 </script>
 
 <style scoped>
+.home {
+  background-image: url("../assets/Home_bg.jpg");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  height: 100%;
+}
 .home-font {
   font-size: 42px;
+}
+.bar {
+  width: 1185px;
+  background-color: rgba(255, 255, 255, 0.753);
 }
 </style>

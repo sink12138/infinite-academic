@@ -2,7 +2,7 @@
   <div>
     <Banner
       v-if="fromDoor == ''"
-      :title="{ text: 'Search', icon: 'mdi-magnify-expand' }"
+      :title="{ text: '搜索', icon: 'mdi-magnify-expand' }"
     ></Banner>
 
     <BaseSearchBar

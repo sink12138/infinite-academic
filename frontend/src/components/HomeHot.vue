@@ -1,5 +1,5 @@
 <template>
-  <v-card min-width="210">
+  <v-card min-width="240">
     <v-list dense class="text-left">
       <v-subheader class="text-body-1 text-left black--text">
         <v-icon v-if="type == '学科'">
