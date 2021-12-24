@@ -314,6 +314,7 @@ export default {
     },
     deleteP(index) {
       this.portals.splice(index, 1);
+      this.portalsName.splice(index,1)
     },
     deleteIntrest(index) {
       this.interests.splice(index, 1);
