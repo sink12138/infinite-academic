@@ -463,7 +463,7 @@ export default {
 
       let timer = setInterval(function () {
           var top = document.body.scrollTop || document.documentElement.scrollTop;
-          var speed = top / 4;
+          var speed = top / 10;
           if (document.body.scrollTop!=0) {
             document.body.scrollTop -= speed;
           }else {
@@ -472,7 +472,7 @@ export default {
           if (top == 0) {
             clearInterval(timer);
           }
-        },30);
+        },10);
     },
     filterChange(filter) {
       this.filter = filter;
