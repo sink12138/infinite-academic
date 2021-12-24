@@ -78,14 +78,6 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-row>
-            <v-select
-              :items="types"
-              label="文献类型"
-              v-model="type"
-              solo
-            ></v-select>
-          </v-row>
           <v-row v-for="i in authors.length" :key="i">
             <v-col cols="3">
             <br/>
@@ -118,24 +110,14 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-btn @click="addAuthor()">
-            添加作者
-          </v-btn>
           <v-row>
             <v-col>
-              <p>发表日期:</p>
-              <v-date-picker v-model="date"></v-date-picker>
+              <v-btn @click="addAuthor()">
+                添加作者
+              </v-btn>
             </v-col>
           </v-row>
           
-          <v-row>
-            <v-col >
-              <v-text-field
-                label="DOI"
-                v-model="doi"
-              ></v-text-field>
-            </v-col>
-          </v-row>
           <v-row v-for="i in institutions.length" :key="i">
             <v-col cols="3">
               <br/>
@@ -160,9 +142,39 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-btn @click="addInst()">
-            添加机构
-          </v-btn>
+          <v-row>
+            <v-col>
+              <v-btn @click="addInst()">
+                添加机构
+              </v-btn>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-select
+              :items="types"
+              label="文献类型"
+              v-model="type"
+              solo
+            ></v-select>
+          </v-row>
+          
+          <v-row>
+            <v-col>
+              <p>发表日期:</p>
+              <v-date-picker v-model="date"></v-date-picker>
+            </v-col>
+          </v-row>
+          
+          <v-row>
+            <v-col >
+              <v-text-field
+                label="DOI"
+                v-model="doi"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          
           <v-row>
             <v-col cols="3">
             <br/>
