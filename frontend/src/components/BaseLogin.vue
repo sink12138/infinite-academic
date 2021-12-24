@@ -285,6 +285,7 @@ export default {
           if (response.data.success === true) {
             this.dialog = false;
             this.isLogin = true;
+            sessionStorage.setItem("isLogin", true);
             this.$notify({
               title: "成功",
               message: "登录成功",
@@ -309,6 +310,7 @@ export default {
         console.log(response.data);
         if (response.data.success === true) {
           this.isLogin = false;
+          sessionStorage.setItem("isLogin", false);
           this.$notify({
             title: "成功",
             message: "登出成功",

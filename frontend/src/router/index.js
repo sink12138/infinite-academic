@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import elementui from 'element-ui'
 
 const Home = () => import("../views/Home.vue")
 const Author = () => import("../views/Author.vue")
@@ -88,6 +89,21 @@ const routes = [{
     path: '/user',
     name: 'User',
     component: User,
+    beforeEnter: (to, from, next) => {
+      if (sessionStorage.getItem("isLogin") == "true") {
+        next()
+        console.log(sessionStorage.getItem("isLogin"))
+      }
+      else {
+        next("/")
+        console.log(sessionStorage.getItem("isLogin"))
+        elementui.Notification({
+          title: '需要登录',
+          message: '请登录后再进行操作',
+          type: 'warning'
+        });
+      }
+    },
     children: [{
         path: 'profile',
         name: 'Profile',
