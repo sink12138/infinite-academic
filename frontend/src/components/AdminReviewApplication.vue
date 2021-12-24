@@ -564,7 +564,7 @@ export default {
         method: "get",
         url: "/api/resource/download",
         params: { token: token },
-        responseTpe: "blob",
+        responseType: "blob",
       }).then(
         (response) => {
           console.log(response);
@@ -586,7 +586,7 @@ export default {
         return;
       }
       let url = window.URL.createObjectURL(
-        new Blob([data], { type: "application/force-download;charset=utf-8" })
+        new Blob([data], { type: "application/json;charset=utf-8" })
       );
       let link = document.createElement("a");
       link.style.display = "none";
