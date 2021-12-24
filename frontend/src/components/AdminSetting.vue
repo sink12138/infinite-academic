@@ -109,6 +109,14 @@
                     >
                       频率:每{{ frequency }}月{{ hour }}点更新
                     </p>
+
+                    <v-text-field
+                      v-model="cron"
+                      label="Cron 表达式"
+                      outlined
+                      rounded
+                      dense
+                    ></v-text-field>
                   </v-container>
                 </v-card-text>
 
@@ -281,7 +289,7 @@ export default {
       ],
       code: '',
       autoRefresh: true,
-      lefttime: 10
+      lefttime: 10,
     }
   },
   props: {
@@ -316,7 +324,6 @@ export default {
         method: "get",
         url: "api/admin/system/schedules",
       }).then((response) => {
-        console.log(response.data);
         if (response.data.success === true) {
           this.tasks = response.data.data.schedules
           this.loading = false
@@ -335,6 +342,7 @@ export default {
       this.radioGroup = 0
       this.frequency = 0
       this.hour = 0
+      this.cron = ""
 
       if (item.name == "学科话题热点关联分析") {
         this.code = "analysis"
@@ -343,17 +351,19 @@ export default {
         this.code = "spider"
       }
 
-      if (this.radioGroup == 0) {
-        this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
-      }
-      else {
-        this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
-      }
-
       this.dialog = true
     },
 
     set () {
+      if (this.cron == "") {
+        if (this.radioGroup == 0) {
+          this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
+        } 
+        else {
+          this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
+        }
+      }
+
       this.$axios({
         method: "post",
         url: "api/admin/system/timing",
@@ -363,6 +373,7 @@ export default {
         },
       }).then((response) => {
         console.log(response.data);
+        console.log(this.cron)
         if (response.data.success === true) {
           this.$notify({
             title: "成功",
@@ -498,7 +509,7 @@ export default {
           }
         }, 1000);
       }
-    }
+    },
   },
 }
 </script>
