@@ -559,7 +559,7 @@ export default {
     },
 
     download(token) {
-      
+      console.log(token)
     }
   },
 };
