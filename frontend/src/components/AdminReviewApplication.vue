@@ -73,7 +73,7 @@
         <template v-slot:[`expanded-item`]="{ headers, item }">
           <td :colspan="headers.length">
             <v-row>
-              <v-col cols="12" sm="3">
+              <v-col cols="2">
                 链接： 
               </v-col>
               <v-col>
@@ -82,11 +82,17 @@
             </v-row>
             <v-divider></v-divider>
             <v-row>
-              <v-col cols="12" sm="3">
+              <v-col cols="2">
                 文件Token： 
               </v-col>
               <v-col>
                 {{ item.fileToken }}
+              </v-col>
+              <v-col cols="2">
+                <v-btn outlined x-small @click="download(item.fileToken)">
+                  <v-icon small>mdi-download</v-icon>
+                  下载
+                </v-btn>
               </v-col>
             </v-row>
           </td>
@@ -551,6 +557,29 @@ export default {
         this.passItem(this.selectedItem[i]);
       }
     },
+
+    download(token) {
+      console.log(token);
+      this.$axios({
+        method: "get",
+        url: "/api/resource/download",
+        params: { token: token },
+        responseTpe: "blob",
+      }).then(
+        (response) => {
+          console.log(response);
+          const filename = decodeURIComponent(
+            response.headers["content-disposition"].split(";")[1].split("=")[1]
+          );
+          console.log(filename);
+          this.load(response.data, filename);
+          console.log("下载中");
+        },
+        (err) => {
+          alert(err);
+        }
+      );
+    }
   },
 };
 </script>
