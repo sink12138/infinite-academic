@@ -32,7 +32,6 @@
 <script>
 import BaseCitation from "./BaseCitation.vue";
 import BaseLogin from "./BaseLogin.vue";
-//import BaseLogin from "./BaseLogin.vue";
 export default {
   components: {
     BaseCitation,

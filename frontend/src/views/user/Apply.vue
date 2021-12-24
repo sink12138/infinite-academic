@@ -1,94 +1,99 @@
 <template>
-  <v-card>
-    <v-tabs v-model="window" dark grow>
-      <v-tab>
-        <v-icon>mdi-timer-sand-full</v-icon>
-        审核中申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-cloud-check</v-icon>
-        已通过申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-cloud-alert</v-icon>
-        未通过申请
-      </v-tab>
-      <v-tab>
-        <v-icon>mdi-menu</v-icon>
-        所有申请
-      </v-tab>
-    </v-tabs>
+  <div class="center">
+    <v-card min-width="800" flat outlined>
+      <v-tabs v-model="window" dark grow>
+        <v-tab>
+          <v-icon>mdi-timer-sand-full</v-icon>
+          审核中申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-cloud-check</v-icon>
+          已通过申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-cloud-alert</v-icon>
+          未通过申请
+        </v-tab>
+        <v-tab>
+          <v-icon>mdi-menu</v-icon>
+          所有申请
+        </v-tab>
+      </v-tabs>
+      <v-window v-model="window">
+        <!-- 审核中 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="review"
+            :items-per-page="-1"
+            hide-default-footer
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-    <v-window v-model="window">
-      <!-- 审核中 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="review"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
+        <!-- 已通过申请 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="passed"
+            :items-per-page="-1"
+            hide-default-footer
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-      <!-- 已通过申请 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="passed"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
+        <!-- 未通过申请 -->
+        <v-window-item>
+          <v-data-table
+            :headers="getHeaders()"
+            :items="failed"
+            :items-per-page="-1"
+            hide-default-footer
+            height="600"
+          >
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+          </v-data-table>
+        </v-window-item>
 
-      <!-- 未通过申请 -->
-      <v-window-item>
-        <v-data-table
-          :headers="getHeaders()"
-          :items="failed"
-          :items-per-page="-1"
-          hide-default-footer
-        >
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
-
-      <!-- 所有申请 -->
-      <v-window-item height="100%">
-        <v-data-table
-          :headers="getHeaders()"
-          :items="all"
-          :items-per-page="-1"
-          hide-default-footer
-          fixed-header
-        >
-          <template v-slot:[`item.status`]="{ item }">
-            <v-chip v-if="item.status == '审核通过'" color="cyan lighten-2">
-              已通过
-            </v-chip>
-            <v-chip v-if="item.status == '审核不通过'" color="amber">
-              未通过
-            </v-chip>
-            <v-chip v-if="item.status == '审核中'" color="blue lighten-4">
-              审核中
-            </v-chip>
-          </template>
-          <template v-slot:[`item.info`]="{ item }">
-            <MessageDialog :message="item"></MessageDialog>
-          </template>
-        </v-data-table>
-      </v-window-item>
-    </v-window>
-  </v-card>
+        <!-- 所有申请 -->
+        <v-window-item height="100%">
+          <v-data-table
+            :headers="getHeaders()"
+            :items="all"
+            :items-per-page="-1"
+            hide-default-footer
+            fixed-header
+            height="600"
+          >
+            <template v-slot:[`item.status`]="{ item }">
+              <v-chip v-if="item.status == '审核通过'" color="cyan lighten-2">
+                已通过
+              </v-chip>
+              <v-chip v-if="item.status == '审核不通过'" color="amber">
+                未通过
+              </v-chip>
+              <v-chip v-if="item.status == '审核中'" color="blue lighten-4">
+                审核中
+              </v-chip>
+            </template>
+            <template v-slot:[`item.info`]="{ item }">
+              <MessageDialog :message="item"></MessageDialog>
+            </template>
+          </v-data-table>
+        </v-window-item>
+      </v-window>
+    </v-card>
+  </div>
 </template>
 
 <script>
@@ -115,6 +120,62 @@ export default {
           title: "集群",
           type: "论文",
           time: "2018-10-16",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "机器学习",
+          type: "论文",
+          time: "2018-10-14",
+        },
+        {
+          title: "集群",
+          type: "论文",
+          time: "2018-10-16",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
+        },
+        {
+          title: "分布式",
+          type: "论文",
+          time: "2018-10-18",
         },
         {
           title: "分布式",
@@ -481,5 +542,12 @@ export default {
 <style scoped>
 .v-data-table-header {
   color: grey;
+}
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 </style>
