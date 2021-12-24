@@ -1,6 +1,6 @@
 <template>
   <div class="center">
-    <v-card flat outlined min-width="800" min-height="400">
+    <v-card flat outlined min-width="800" min-height="600">
       <v-card-text>
         <v-data-table
           :headers="headers"
@@ -125,9 +125,9 @@ export default {
       size: 10,
       details: false,
       headers: [
-        { text: "消息时间", value: "time", sortable: false },
-        { text: "消息标题", value: "title", sortable: false },
-        { text: "操作", value: "actions", sortable: false },
+        { text: "消息时间", value: "time", sortable: false, class: "text-body-1 font-weight-black" },
+        { text: "消息标题", value: "title", sortable: false, class: "text-body-1 font-weight-black" },
+        { text: "操作", value: "actions", sortable: false, class: "text-body-1 font-weight-black", },
       ],
       messages: [],
       readList: [],

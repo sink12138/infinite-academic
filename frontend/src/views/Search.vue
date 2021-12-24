@@ -462,17 +462,17 @@ export default {
       this.$refs.bar.jumpPage();
 
       let timer = setInterval(function () {
-          var top = document.body.scrollTop || document.documentElement.scrollTop;
-          var speed = top / 4;
-          if (document.body.scrollTop!=0) {
-            document.body.scrollTop -= speed;
-          }else {
-            document.documentElement.scrollTop -= speed;
-          }
-          if (top == 0) {
-            clearInterval(timer);
-          }
-        },30);
+        var top = document.body.scrollTop || document.documentElement.scrollTop;
+        var speed = top / 4;
+        if (document.body.scrollTop != 0) {
+          document.body.scrollTop -= speed;
+        } else {
+          document.documentElement.scrollTop -= speed;
+        }
+        if (top == 0) {
+          clearInterval(timer);
+        }
+      }, 30);
     },
     filterChange(filter) {
       this.filter = filter;
