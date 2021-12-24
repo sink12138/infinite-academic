@@ -274,7 +274,7 @@
         </el-main>
       </v-col>
     </v-row>
-    <div v-if="fromDoor != ''" style="position: fixed;top: 0;right:0">
+    <div v-if="fromDoor != ''" style="position: fixed;top: 8%;right:4%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>

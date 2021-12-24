@@ -3,7 +3,7 @@
     <Banner :title="{ text: 'Portal', icon: 'mdi-clipboard-account' }"></Banner>
     <div class="whole">
       <v-row>
-        <v-col cols="2">
+        <v-col cols="3">
           <v-card
             class="mx-auto left"
             width="256"
@@ -35,9 +35,10 @@
                     <v-list-group
                     >
                       <template v-slot:activator>
-                        <v-list-item-content>
-                          <v-list-item-title>门户管理</v-list-item-title>
-                        </v-list-item-content>
+                        <v-list-item-icon>
+                          <v-icon>mdi-account</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>门户管理</v-list-item-title>
                       </template>
                       <v-list-item link>
                         <v-list-item-title
@@ -57,9 +58,10 @@
                     <v-list-group
                     >
                       <template v-slot:activator>
-                        <v-list-item-content>
+                          <v-list-item-icon>
+                            <v-icon> mdi-text-box-multiple-outline</v-icon>
+                          </v-list-item-icon>
                           <v-list-item-title>论文管理</v-list-item-title>
-                        </v-list-item-content>
                       </template>
                       <v-list-item link>
                         <v-list-item-title
@@ -518,7 +520,6 @@ import Banner from "../components/BaseBanner.vue";
           name:"b"
         }
       ],
-
       institutionsE:[],
       institutionNum:0,
       idRules: [(v) => !!v || "请填写姓名"],
