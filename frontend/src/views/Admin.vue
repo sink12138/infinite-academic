@@ -102,7 +102,7 @@
       </div>
 
       <div class="systemSettings" v-if="menu_id == 4">
-        <SystemSetting></SystemSetting>
+        <SystemSetting :islogin="{ login: this.isLogin }"></SystemSetting>
       </div>
     </v-main>
   </v-app>
@@ -156,6 +156,7 @@ export default {
         },
       ],
       date: new Date(),
+      refreshtime: 1,
     };
   },
   mounted() {
@@ -234,7 +235,16 @@ export default {
             type: "success",
           });
           this.isLogin = false;
-          this.menu_id = 0;
+          this.timer = setInterval(() => {
+            this.refreshtime--;
+
+            if (this.refreshtime === 0) {
+              this.refreshtime = 1;
+              this.menu_id = 0;
+              clearInterval(this.timer);
+            }
+          }, 1000);
+          
         } else {
           this.$notify({
             title: "失败",
