@@ -109,6 +109,16 @@
                     >
                       频率:每{{ frequency }}月{{ hour }}点更新
                     </p>
+
+                    <v-text-field
+                      v-model="testcorn"
+                      label="testcorn"
+                      append-icon="mdi-check"
+                      @click:append="test"
+                      outlined
+                      rounded
+                      dense
+                    ></v-text-field>
                   </v-container>
                 </v-card-text>
 
@@ -281,7 +291,8 @@ export default {
       ],
       code: '',
       autoRefresh: true,
-      lefttime: 10
+      lefttime: 10,
+      testcorn: "",
     }
   },
   props: {
@@ -498,6 +509,33 @@ export default {
           }
         }, 1000);
       }
+    },
+
+    test () {
+      this.$axios({
+        method: "post",
+        url: "api/admin/system/timing",
+        params: {
+          code: this.code,
+          cron: this.testcorn,
+        },
+      }).then((response) => {
+        console.log(response.data);
+        if (response.data.success === true) {
+          this.$notify({
+            title: "成功",
+            message: "任务频率设置成功",
+            type: "warning",
+          });
+        } else {
+          this.$notify({
+            title: "失败",
+            message: "任务频率设置失败",
+            type: "warning",
+          });
+        }
+      });
+      this.dialog = false
     }
   },
 }
