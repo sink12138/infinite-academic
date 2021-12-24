@@ -1,5 +1,29 @@
 <template>
   <div>
+    <template
+      v-if="isLogin === true"
+      v-bind="attrs"
+      v-on="on"
+    >
+      <v-badge
+        color="red"
+        :content="num"
+        v-if="num != 0"
+      >
+        <router-link to="/user/message">
+          <v-btn>
+            <v-icon>mdi-message-text</v-icon>
+          </v-btn>
+        </router-link>
+      </v-badge>
+      <router-link to="/user/message">
+        <v-btn
+          v-if="num === 0"
+        >
+          <v-icon>mdi-message-text</v-icon>
+        </v-btn>
+      </router-link>
+    </template>
     <v-menu
       open-on-hover
       offset-y
@@ -7,10 +31,9 @@
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
-          icon
           v-bind="attrs"
           v-on="on"
-          height="100%"
+          @click="href('/user/profile')"
         >
           <v-icon>
             mdi-account-circle
@@ -26,48 +49,11 @@
           <v-list-item-content>{{ item.title }}</v-list-item-content>
         </v-list-item>
         <v-list-item @click="logout()">
-          <v-list-item-title>登出</v-list-item-title>
+          <v-list-item-content>登出</v-list-item-content>
         </v-list-item>
       </v-list>
     </v-menu>
-    <template
-      v-bind="attrs"
-      v-on="on"
-    >
-      <v-badge
-        color="red"
-        :content="num"
-        v-if="num != 0"
-      >
-        <router-link to="/user/message">
-          <v-btn
-            icon
-            height="100%"
-          >
-            <v-icon>mdi-message-text</v-icon>
-          </v-btn>
-        </router-link>
-      </v-badge>
-      <router-link to="/user/message">
-        <v-btn
-          v-if="num === 0"
-          height="100%"
-          icon
-        >
-          <v-icon>mdi-message-text</v-icon>
-        </v-btn>
-      </router-link>
-    </template>
-    <router-link to='/register'>
-      <v-btn
-        depressed
-        height="100%"
-        dark
-        v-if="isLogin === false"
-      >
-        注册
-      </v-btn>
-    </router-link>
+    
     <v-dialog
       v-model="dialog"
       persistent
@@ -77,8 +63,6 @@
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           depressed
-          height="100%"
-          dark
           v-bind="attrs"
           v-on="on"
         >
@@ -409,7 +393,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #app {
   position: relative;
 }
@@ -418,6 +402,13 @@ export default {
     width: 65%;
     margin: 0 auto;
   }
+}
+a {
+  text-decoration: none;
+}
+ 
+.router-link-active {
+  text-decoration: none;
 }
 </style>
 

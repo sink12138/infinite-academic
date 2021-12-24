@@ -1,18 +1,21 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer app>
-
-      <v-sheet
-        color="grey lighten-4"
-        class="pa-4"
-      >
-        <v-avatar size="64">
-          <v-icon size="64">mdi-account-circle</v-icon>
-        </v-avatar>
-
-        <div>{{username}}</div>
-        <div>{{email}}</div>
-      </v-sheet>
+    <v-navigation-drawer app dark>
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title>
+            <v-avatar size="64">
+              <v-icon size="64">mdi-account-circle</v-icon>
+            </v-avatar>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            <div>{{ username }}</div>
+            <div>{{ email }}</div>
+            <v-spacer></v-spacer>
+            <v-btn outlined class="ma-5" @click="goBack">返回首页</v-btn>
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
 
       <v-divider></v-divider>
 
@@ -35,7 +38,6 @@
     <v-main app>
       <router-view></router-view>
     </v-main>
-
   </v-app>
 </template>
 
@@ -50,7 +52,7 @@ export default {
       if (response.data.success === true) {
         this.email = response.data.data.email;
         this.username = response.data.data.username;
-        this.researcherId=response.data.data.researcherId
+        this.researcherId = response.data.data.researcherId;
       }
     });
   },
@@ -65,9 +67,14 @@ export default {
       ],
       email: "",
       username: "",
-      researcherId:"",
+      researcherId: "",
     };
   },
+  methods: {
+    goBack() {
+      this.$router.push({ path: '/'})
+    }
+  }
 };
 </script>
 
