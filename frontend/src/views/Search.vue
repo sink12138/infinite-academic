@@ -30,7 +30,6 @@
             ref="filter"
             v-on:handleFilter="handleFilter"
             v-on:searchFilter="handleFilter2"
-            v-show="filter != '机构' && filter != '期刊'"
           ></BaseFilter>
         </el-main>
       </v-col>
@@ -274,7 +273,7 @@
         </el-main>
       </v-col>
     </v-row>
-    <div v-if="fromDoor != ''" style="position: fixed;top: 0;right:0">
+    <div v-if="fromDoor != ''" style="position: fixed;top: 8%;right:4%">
       <v-btn @click="close()">关闭</v-btn>
     </div>
   </div>
