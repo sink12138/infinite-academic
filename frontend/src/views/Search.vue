@@ -84,6 +84,12 @@
                     <JournalCard
                       :item="item"
                       :disabled="fromDoor"
+                      style="
+                        margin-top: 10px;
+                        min-height: 200px;
+                        min-width: 200px;
+                        margin-left: 10px;
+                      "
                     ></JournalCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
@@ -101,7 +107,16 @@
               >
                 <v-col v-for="item in row" :key="item.id" cols="4">
                   <v-row class="d-flex ma-1">
-                    <AuthorCard :item="item" :disabled="fromDoor"></AuthorCard>
+                    <AuthorCard
+                      :item="item"
+                      :disabled="fromDoor"
+                      style="
+                        margin-top: 10px;
+                        min-height: 200px;
+                        min-width: 200px;
+                        margin-left: 10px;
+                      "
+                    ></AuthorCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
                     >
@@ -121,6 +136,12 @@
                     <InstitutionCard
                       :item="item"
                       :disabled="fromDoor"
+                      style="
+                        margin-top: 10px;
+                        min-height: 150px;
+                        min-width: 200px;
+                        margin-left: 10px;
+                      "
                     ></InstitutionCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
@@ -155,7 +176,13 @@
                     <JournalCard
                       :item="item"
                       :disabled="fromDoor"
-                      style="margin-top: 10px"
+                      style="
+                        margin-top: 10px;
+                        max-height: 200px;
+                        min-height: 200px;
+                        min-width: 350px;
+                        margin-left: 10px;
+                      "
                     ></JournalCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
@@ -226,7 +253,13 @@
                     <AuthorCard
                       :item="item"
                       :disabled="fromDoor"
-                      style="margin-top: 10px"
+                      style="
+                        margin-top: 10px;
+                        max-height: 200px;
+                        min-height: 200px;
+                        min-width: 350px;
+                        margin-left: 10px;
+                      "
                     ></AuthorCard>
                     <v-btn v-if="fromDoor != ''" @click="toDoor(item)"
                       >选择</v-btn
