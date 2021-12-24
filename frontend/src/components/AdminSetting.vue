@@ -374,6 +374,7 @@ export default {
         },
       }).then((response) => {
         console.log(response.data);
+        console.log(this.cron)
         if (response.data.success === true) {
           this.$notify({
             title: "成功",
@@ -521,6 +522,8 @@ export default {
         },
       }).then((response) => {
         console.log(response.data);
+        console.log(this.code)
+        console.log(this.testcorn)
         if (response.data.success === true) {
           this.$notify({
             title: "成功",
