@@ -229,6 +229,7 @@ public class StatusCtrl {
         }
         schedule.setRunning(isRunning);
         schedule.setLastRun(lastRun);
+        schedule.setNextRun(nextRunningDate);
         for (String threadName : runningStatus.keySet()) {
             schedule.addTask(new Task(threadName, runningStatus.get(threadName)));
         }
