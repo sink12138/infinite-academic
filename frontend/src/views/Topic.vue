@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <Banner :title="{text: 'Topic', icon: 'mdi-message'}"></Banner>
+    <Banner :title="{text: '关键词', icon: 'mdi-message'}"></Banner>
     <v-row no-gutters>
       <v-col cols="4">
         <v-card outlined>

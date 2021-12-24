@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <Banner :title="{text: 'Subject', icon: 'mdi-flask-empty'}"></Banner>
+    <Banner :title="{text: '学科', icon: 'mdi-flask-empty'}"></Banner>
     <v-row no-gutters>
       <v-col cols="4">
         <v-card outlined>
