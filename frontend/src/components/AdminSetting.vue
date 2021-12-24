@@ -315,10 +315,7 @@ export default {
     }
   },
   props: {
-    islogin: {
-      type: Object,
-      default:() => {}
-    }
+
   },
   computed: {
       
@@ -525,8 +522,8 @@ export default {
             this.getTasks()
             this.lefttime = 10
           }
-          console.log(this.islogin.login)
-          if (this.autoRefresh == false || !this.islogin.login) {
+          console.log(sessionStorage.getItem("adminlogin"))
+          if (this.autoRefresh == false || sessionStorage.getItem("adminlogin") == "false") {
             clearInterval(this.timer);
           }
         }, 1000);
