@@ -603,7 +603,7 @@ import Banner from "../components/BaseBanner.vue";
       thePaper:Object,
       theDelete:"",
       page:1,
-      onePageNum:2,
+      onePageNum:8,
       pageNum:2,
       currentFile:null,
 
@@ -1008,9 +1008,6 @@ import Banner from "../components/BaseBanner.vue";
 
         this.timer = setTimeout(()=>{   //设置延迟执行
           this.pageNum=Math.ceil(this.papers.length/this.onePageNum)
-          console.log(this.pageNum)
-          console.log(this.papers)
-          console.log(this.papers.length)
         },1000);
 
       },
