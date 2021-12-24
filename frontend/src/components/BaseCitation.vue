@@ -7,34 +7,38 @@
     offset-y
   >
     <template v-slot:activator="{ on, attrs }">
+
       <v-btn
         v-bind="attrs"
         v-on="on"
         depressed
       >
         引用
-        <v-icon>mdi-comma</v-icon>
+        <v-badge
+          color="blue darken-3"
+          v-if="citationList.length>0"
+          :content="citationList.length"
+          offset-x="9"
+          offset-y="10"
+          overlap
+        >
+          <v-icon>mdi-comma</v-icon>
+        </v-badge>
       </v-btn>
     </template>
-
     <v-card
       max-width="450"
       rounded="sm"
     >
-      <v-card-title
-        class="text-center text-h4"
-      >
+      <v-card-title class="text-center text-h4">
         引用列表
         <v-spacer></v-spacer>
         <v-icon large>mdi-comma-box</v-icon>
         <v-icon large>mdi-comma-box</v-icon>
       </v-card-title>
 
-
-      <v-card-text
-        v-if="citationList.length > 0"
-      >
-        <v-list 
+      <v-card-text v-if="citationList.length > 0">
+        <v-list
           max-height="300"
           max-width="468"
           class="overflow-auto"
@@ -48,7 +52,7 @@
             </div>
             <v-list-item-action>
               <v-btn icon>
-                <v-icon 
+                <v-icon
                   color="red darken-2"
                   @click="deleteItem(citation)"
                 >
@@ -65,42 +69,35 @@
         class="text-left text-body-1"
       >
         <v-row>
-          <v-col 
+          <v-col
             align-self="center"
             cols="2"
           >
-            <v-icon x-large full-height>mdi-information</v-icon>
+            <v-icon
+              x-large
+              full-height
+            >mdi-information</v-icon>
           </v-col>
-          <v-col
-            align-self="center"
-          >
+          <v-col align-self="center">
             <div class="text-h6">尚未选择任何论文引用</div>
           </v-col>
         </v-row>
-        <br/>
+        <br />
         <div>点击论文旁的<b>“引用”</b>按钮，将其添加到引用列表</div>
         <div>添加引用信息后可以修改引用规范并一键复制</div>
       </v-card-text>
 
       <v-divider></v-divider>
 
-      <v-card-actions
-        v-if="citationList.length > 0"
-      >
+      <v-card-actions v-if="citationList.length > 0">
         <v-btn-toggle
           v-model="citationType"
           group
           color="indigo darken-4"
         >
-          <v-btn
-            value="MLA"
-          >MLA</v-btn>
-          <v-btn
-            value="APA"
-          >APA</v-btn>
-          <v-btn
-            value="GBT"
-          >GB/T</v-btn>
+          <v-btn value="MLA">MLA</v-btn>
+          <v-btn value="APA">APA</v-btn>
+          <v-btn value="GBT">GB/T</v-btn>
         </v-btn-toggle>
         <v-spacer></v-spacer>
         <v-btn
@@ -111,7 +108,7 @@
           <v-icon>mdi-trash-can</v-icon>
           清空
         </v-btn>
-        <v-btn 
+        <v-btn
           plain
           @click="copyCitations()"
         >
@@ -123,21 +120,17 @@
       <v-expand-transition>
         <v-card
           v-if="reveal"
-          class="transition-fast-in-fast-out v-card--reveal 
+          class="transition-fast-in-fast-out v-card--reveal
           d-flex flex-column justify-center align-center"
           style="height: 100%"
           dark
         >
           <div>
-            <v-card-text
-              class="text-center text-h6"
-            >
+            <v-card-text class="text-center text-h6">
               是否确认删除所有引用？
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-actions
-              class="text-center"
-            >
+            <v-card-actions class="text-center">
               <v-btn
                 color="grey"
                 class="font-weight-bold"
@@ -166,7 +159,7 @@
 
 <script>
 export default {
-  data:() =>  ({
+  data: () => ({
     expand: false,
     reveal: false,
     citationType: "MLA",
@@ -178,9 +171,9 @@ export default {
   },
 
   watch: {
-    '$store.state.citations'() {
+    "$store.state.citations"() {
       this.loadCitations();
-    }
+    },
   },
 
   methods: {
@@ -193,19 +186,20 @@ export default {
     },
     copyCitations() {
       var citationText = "";
-      for (var i in this.citationList){
+      for (var i in this.citationList) {
         citationText += this.citationList[i]["MLA"] + "\n";
       }
       this.$copyText(citationText)
-      .then(e => {
-        this.$notify({
-          title: 'Copy',
-          message: e.text,
-          type: 'success'
+        .then((e) => {
+          this.$notify({
+            title: "Copy",
+            message: e.text,
+            type: "success",
+          });
+        })
+        .catch((error) => {
+          console.log(error);
         });
-      }).catch(error => {
-        console.log(error)
-      })
     },
     deleteItem(citation) {
       var citations = JSON.parse(localStorage.getItem("citations"));
@@ -214,20 +208,19 @@ export default {
       this.citationList.splice(index, 1);
       if (JSON.stringify(citations) == "{}")
         localStorage.removeItem("citations");
-      else
-        localStorage.setItem("citations", JSON.stringify(citations));
-      this.$store.commit('decCitations');
+      else localStorage.setItem("citations", JSON.stringify(citations));
+      this.$store.commit("decCitations");
     },
     cleanCitaions() {
-      this.citationList.splice(0,this.citationList.length);
+      this.citationList.splice(0, this.citationList.length);
       this.reveal = false;
       localStorage.removeItem("citations");
     },
     onClickOutside() {
       this.expand = false;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss">

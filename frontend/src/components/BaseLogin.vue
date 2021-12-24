@@ -9,6 +9,9 @@
         color="red"
         :content="num"
         v-if="num != 0"
+        offset-x="29"
+        offset-y="16"
+        overlap
       >
         <router-link to="/user/message">
           <v-btn>
@@ -245,7 +248,7 @@ export default {
         method: "get",
         url: "/api/account/message/count",
       }).then((response) => {
-        if (response.data.success) {
+        if (response.data.success === true) {
           this.num = response.data.data;
         }
       });
@@ -283,8 +286,10 @@ export default {
           console.log(sha256(this.password));
           console.log(response.data);
           if (response.data.success === true) {
+            this.getUnreadMessage();
             this.dialog = false;
             this.isLogin = true;
+            sessionStorage.setItem("isLogin", true);
             this.$notify({
               title: "成功",
               message: "登录成功",
@@ -309,6 +314,7 @@ export default {
         console.log(response.data);
         if (response.data.success === true) {
           this.isLogin = false;
+          sessionStorage.setItem("isLogin", false);
           this.$notify({
             title: "成功",
             message: "登出成功",

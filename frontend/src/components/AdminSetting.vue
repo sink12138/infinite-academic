@@ -55,7 +55,7 @@
                 </v-card-title>
 
                 <v-card-text>
-                  <v-container>
+                  <v-container v-if="!setByCron">
                     <v-slider
                       v-if="radioGroup == 0"
                       v-model="frequency"
@@ -110,6 +110,10 @@
                       频率:每{{ frequency }}月{{ hour }}点更新
                     </p>
 
+                    
+                  </v-container>
+
+                  <v-container v-if="setByCron">
                     <v-text-field
                       v-model="cron"
                       label="Cron 表达式"
@@ -117,11 +121,28 @@
                       rounded
                       dense
                     ></v-text-field>
+                    <p>tips: 请使用英文的标点符号</p>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
+                  <v-btn
+                    v-if="!setByCron"
+                    color="blue darken-1"
+                    @click="setByCron=true"
+                  >
+                    使用 Cron 设置
+                  </v-btn>
+
+                  <v-btn
+                    v-if="setByCron"
+                    color="blue darken-1"
+                    @click="setByCron=false"
+                  >
+                    使用可视化界面设置
+                  </v-btn>
+
                   <v-btn
                     color="blue darken-1"
                     :disabled="radioGroup < 0"
@@ -290,13 +311,11 @@ export default {
       code: '',
       autoRefresh: true,
       lefttime: 10,
+      setByCron: false,
     }
   },
   props: {
-    islogin: {
-      type: Object,
-      default:() => {}
-    }
+
   },
   computed: {
       
@@ -342,6 +361,7 @@ export default {
       this.radioGroup = 0
       this.frequency = 0
       this.hour = 0
+      this.setByCron = false
       this.cron = ""
 
       if (item.name == "学科话题热点关联分析") {
@@ -457,7 +477,6 @@ export default {
     },
 
     close () {
-      console.log(this.radioGroup)
       this.dialog = false
     },
 
@@ -503,8 +522,8 @@ export default {
             this.getTasks()
             this.lefttime = 10
           }
-          console.log(this.islogin.login)
-          if (this.autoRefresh == false || !this.islogin.login) {
+          console.log(sessionStorage.getItem("adminlogin"))
+          if (this.autoRefresh == false || sessionStorage.getItem("adminlogin") == "false") {
             clearInterval(this.timer);
           }
         }, 1000);

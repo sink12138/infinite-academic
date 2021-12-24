@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import elementui from 'element-ui'
 
 const Home = () => import("../views/Home.vue")
 const Author = () => import("../views/Author.vue")
@@ -20,7 +21,6 @@ const Profile = () => import("../views/user/Profile.vue")
 const Apply = () => import("../views/user/Apply.vue")
 const Message = () => import("../views/user/Message.vue")
 const ScholarIdentity = () => import("../views/user/ScholarIdentity.vue")
-const PatentTransfer = () => import("../views/user/Patenttransfer.vue")
 
 Vue.use(VueRouter)
 
@@ -88,6 +88,21 @@ const routes = [{
     path: '/user',
     name: 'User',
     component: User,
+    beforeEnter: (to, from, next) => {
+      if (sessionStorage.getItem("isLogin") == "true") {
+        next()
+        console.log(sessionStorage.getItem("isLogin"))
+      }
+      else {
+        next("/")
+        console.log(sessionStorage.getItem("isLogin"))
+        elementui.Notification({
+          title: '需要登录',
+          message: '请登录后再进行操作',
+          type: 'warning'
+        });
+      }
+    },
     children: [{
         path: 'profile',
         name: 'Profile',
@@ -102,11 +117,6 @@ const routes = [{
         path: 'message',
         name: 'Message',
         component: Message
-      },
-      {
-        path: 'patentTransfer',
-        name: 'PatentTransfer',
-        component: PatentTransfer
       },
       {
         path: 'scholarIdentity',
