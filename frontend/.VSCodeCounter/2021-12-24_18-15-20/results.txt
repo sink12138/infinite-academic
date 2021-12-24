@@ -1,0 +1,115 @@
+Date : 2021-12-24 18:15:20
+Directory : c:\Users\86133\Desktop\infinite-academic\frontend
+Total : 71 files,  44970 codes, 24 comments, 410 blanks, all 45404 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JSON       |          7 |     30,905 |          0 |          2 |     30,907 |
+| Vue.js     |         46 |     12,971 |         11 |        348 |     13,330 |
+| JavaScript |         13 |      1,021 |         12 |         48 |      1,081 |
+| CSS        |          1 |         35 |          0 |          3 |         38 |
+| Markdown   |          1 |         19 |          0 |          6 |         25 |
+| HTML       |          1 |         18 |          1 |          1 |         20 |
+| XML        |          1 |          1 |          0 |          1 |          2 |
+| SCSS       |          1 |          0 |          0 |          1 |          1 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                        | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                           |         71 |     44,970 |         24 |        410 |     45,404 |
+| public                                                                                      |          5 |        217 |          1 |          1 |        219 |
+| src                                                                                         |         61 |     14,395 |         23 |        400 |     14,818 |
+| src\assets                                                                                  |          3 |        433 |          0 |          4 |        437 |
+| src\assets\style                                                                            |          2 |        432 |          0 |          3 |        435 |
+| src\components                                                                              |         26 |      7,932 |         15 |        219 |      8,166 |
+| src\components\card                                                                         |          5 |        373 |          0 |         12 |        385 |
+| src\components\mixins                                                                       |          1 |        755 |         12 |         16 |        783 |
+| src\plugins                                                                                 |          7 |         56 |          0 |         17 |         73 |
+| src\router                                                                                  |          1 |        141 |          0 |          8 |        149 |
+| src\store                                                                                   |          1 |         20 |          0 |          3 |         23 |
+| src\styles                                                                                  |          1 |          0 |          0 |          1 |          1 |
+| src\views                                                                                   |         20 |      5,773 |          8 |        141 |      5,922 |
+| src\views\user                                                                              |          6 |      2,083 |          2 |         36 |      2,121 |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                    | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\86133\Desktop\infinite-academic\frontend\README.md                                 | Markdown   |         19 |          0 |          6 |         25 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\babel.config.js                           | JavaScript |          5 |          0 |          1 |          6 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\package-lock.json                         | JSON       |     30,247 |          0 |          1 |     30,248 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\package.json                              | JSON       |         62 |          0 |          1 |         63 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\public\chuban.json                        | JSON       |         47 |          0 |          0 |         47 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\public\citations.json                     | JSON       |         47 |          0 |          0 |         47 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\public\index.html                         | HTML       |         18 |          1 |          1 |         20 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\public\paper.json                         | JSON       |         58 |          0 |          0 |         58 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\public\references.json                    | JSON       |         47 |          0 |          0 |         47 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\App.vue                               | Vue.js     |         21 |          0 |          4 |         25 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\assets\logo.svg                       | XML        |          1 |          0 |          1 |          2 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\assets\style\infinite.json            | JSON       |        397 |          0 |          0 |        397 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\assets\style\main.css                 | CSS        |         35 |          0 |          3 |         38 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\AdminAccountManagement.vue | Vue.js     |        605 |          0 |         31 |        636 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\AdminBanner.vue            | Vue.js     |         79 |          0 |          4 |         83 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\AdminReviewApplication.vue | Vue.js     |        543 |          0 |         27 |        570 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\AdminSetting.vue           | Vue.js     |        490 |          0 |         48 |        538 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseAnalytics.vue          | Vue.js     |         81 |          3 |          3 |         87 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseBanner.vue             | Vue.js     |         38 |          0 |          3 |         41 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseCitation.vue           | Vue.js     |        222 |          0 |         12 |        234 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseFilter.vue             | Vue.js     |        427 |          0 |          3 |        430 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseGoBack.vue             | Vue.js     |         19 |          0 |          1 |         20 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseLogin.vue              | Vue.js     |        414 |          0 |          6 |        420 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseNavigation.vue         | Vue.js     |         48 |          0 |          3 |         51 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BasePaper.vue              | Vue.js     |        180 |          0 |          4 |        184 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BasePatent.vue             | Vue.js     |        504 |          0 |          5 |        509 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\BaseSearchBar.vue          | Vue.js     |      1,966 |          0 |          3 |      1,969 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\FilterYearPicker.vue       | Vue.js     |         44 |          0 |          4 |         48 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\HomeHot.vue                | Vue.js     |         93 |          0 |          2 |         95 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\MessageDialog.vue          | Vue.js     |        474 |          0 |         19 |        493 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\MessageList.vue            | Vue.js     |         70 |          0 |          8 |         78 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\PaperTabs.vue              | Vue.js     |        453 |          0 |          1 |        454 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\UserMenu.vue               | Vue.js     |         54 |          0 |          4 |         58 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\card\CardAuthor.vue        | Vue.js     |         76 |          0 |          2 |         78 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\card\CardInstitution.vue   | Vue.js     |         49 |          0 |          2 |         51 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\card\CardJournal.vue       | Vue.js     |         50 |          0 |          2 |         52 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\card\CardPaper.vue         | Vue.js     |        140 |          0 |          3 |        143 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\card\CardPatent.vue        | Vue.js     |         58 |          0 |          3 |         61 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\components\mixins\mixin.js            | JavaScript |        755 |         12 |         16 |        783 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\main.js                               | JavaScript |         19 |          0 |          3 |         22 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\axios.js                      | JavaScript |          5 |          0 |          2 |          7 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\echarts.js                    | JavaScript |          5 |          0 |          1 |          6 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\element.js                    | JavaScript |          3 |          0 |          1 |          4 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\index.js                      | JavaScript |          4 |          0 |          0 |          4 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\loading.js                    | JavaScript |         28 |          0 |          9 |         37 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\vueclipboard.js               | JavaScript |          3 |          0 |          1 |          4 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\plugins\vuetify.js                    | JavaScript |          8 |          0 |          3 |         11 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\router\index.js                       | JavaScript |        141 |          0 |          8 |        149 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\store\index.js                        | JavaScript |         20 |          0 |          3 |         23 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\styles\variables.scss                 | SCSS       |          0 |          0 |          1 |          1 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\About.vue                       | Vue.js     |        100 |          0 |          5 |        105 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Admin.vue                       | Vue.js     |        263 |          0 |         15 |        278 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Author.vue                      | Vue.js     |        146 |          0 |          2 |        148 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\BaseEditPaper.vue               | Vue.js     |        706 |          3 |         11 |        720 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Door.vue                        | Vue.js     |      1,016 |          3 |         27 |      1,046 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Home.vue                        | Vue.js     |         88 |          0 |          2 |         90 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Institution.vue                 | Vue.js     |         77 |          0 |          3 |         80 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Journal.vue                     | Vue.js     |         77 |          0 |          4 |         81 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Paper.vue                       | Vue.js     |         45 |          0 |          1 |         46 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Patent.vue                      | Vue.js     |         43 |          0 |          2 |         45 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Register.vue                    | Vue.js     |        172 |          0 |          3 |        175 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Search.vue                      | Vue.js     |        543 |          0 |          9 |        552 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Subject.vue                     | Vue.js     |        207 |          0 |         10 |        217 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\Topic.vue                       | Vue.js     |        207 |          0 |         11 |        218 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\Apply.vue                  | Vue.js     |        490 |          0 |          5 |        495 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\Message.vue                | Vue.js     |        512 |          0 |          9 |        521 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\Patenttransfer.vue         | Vue.js     |        278 |          0 |          2 |        280 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\Profile.vue                | Vue.js     |        271 |          0 |          3 |        274 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\ScholarIdentity.vue        | Vue.js     |        456 |          2 |         10 |        468 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\src\views\user\User.vue                   | Vue.js     |         76 |          0 |          7 |         83 |
+| c:\Users\86133\Desktop\infinite-academic\frontend\vue.config.js                             | JavaScript |         25 |          0 |          0 |         25 |
+| Total                                                                                       |            |     44,970 |         24 |        410 |     45,404 |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
