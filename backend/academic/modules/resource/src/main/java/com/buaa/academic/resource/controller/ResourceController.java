@@ -114,6 +114,10 @@ public class ResourceController {
                 os.write(buffer, 0, i);
                 i = bis.read(buffer);
             }
+            bis.close();
+            fis.close();
+            os.flush();
+            os.close();
         }
     }
 
