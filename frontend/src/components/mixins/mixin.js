@@ -211,7 +211,7 @@ export const getChart = {
           },
           label: {
             show: true,
-            fontSize: 18
+            fontSize: 14
           },
           edgeLabel: {
             show: true,
@@ -742,7 +742,7 @@ export const relationshipNetworkChart = {
               },
               label: {
                 show: true,
-                fontSize: 18
+                fontSize: 12
               },
               edgeLabel: {
                 show: true,
@@ -755,7 +755,7 @@ export const relationshipNetworkChart = {
           }
           var origin = {
             name: this.name,
-            symbolSize: 120
+            symbolSize: 100
           }
           option.series.data.push(origin);
           network.forEach(function(item) {

@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <Banner :title="{text: 'Paper', icon: 'mdi-book-open-blank-variant'}"></Banner>
+    <Banner :title="{text: '论文', icon: 'mdi-book-open-blank-variant'}"></Banner>
     <BasePaper v-bind:paperdata="this.paperdata"></BasePaper>
     <PaperTabs :styles="styles"></PaperTabs>
   </v-main>

@@ -105,11 +105,11 @@
             "width": 1,
             "color": "#aaa"
         },
-        "symbolSize": "100",
+        "symbolSize": "80",
         "symbol": "circle",
         "smooth": true,
         "force": {
-            "edgeLength": [150, 200]
+            "edgeLength": [100, 150]
         },
         "color": [
             "#59c4e6",
@@ -120,7 +120,8 @@
             "#b0b1e3"
         ],
         "label": {
-            "color": "#eee"
+            "color": "#000",
+            "position": "inside"
         }
     },
     "map": {
@@ -130,7 +131,8 @@
             "borderWidth": 0.5
         },
         "label": {
-            "color": "#000"
+            "color": "#000",
+            "position": "top"
         },
         "emphasis": {
             "itemStyle": {
