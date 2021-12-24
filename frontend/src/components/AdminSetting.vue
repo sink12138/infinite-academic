@@ -111,10 +111,8 @@
                     </p>
 
                     <v-text-field
-                      v-model="testcorn"
-                      label="testcorn"
-                      append-icon="mdi-check"
-                      @click:append="test"
+                      v-model="cron"
+                      label="Cron 表达式"
                       outlined
                       rounded
                       dense
@@ -292,7 +290,6 @@ export default {
       code: '',
       autoRefresh: true,
       lefttime: 10,
-      testcorn: "",
     }
   },
   props: {
@@ -327,7 +324,6 @@ export default {
         method: "get",
         url: "api/admin/system/schedules",
       }).then((response) => {
-        console.log(response.data);
         if (response.data.success === true) {
           this.tasks = response.data.data.schedules
           this.loading = false
@@ -346,6 +342,7 @@ export default {
       this.radioGroup = 0
       this.frequency = 0
       this.hour = 0
+      this.cron = ""
 
       if (item.name == "学科话题热点关联分析") {
         this.code = "analysis"
@@ -354,17 +351,19 @@ export default {
         this.code = "spider"
       }
 
-      if (this.radioGroup == 0) {
-        this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
-      }
-      else {
-        this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
-      }
-
       this.dialog = true
     },
 
     set () {
+      if (this.cron == "") {
+        if (this.radioGroup == 0) {
+          this.cron = '0 0 ' + this.hour + ' */' + this.frequency +' * ?'
+        } 
+        else {
+          this.cron = '0 0 ' + this.hour + ' * */' + this.frequency +' ?'
+        }
+      }
+
       this.$axios({
         method: "post",
         url: "api/admin/system/timing",
@@ -511,35 +510,6 @@ export default {
         }, 1000);
       }
     },
-
-    test () {
-      this.$axios({
-        method: "post",
-        url: "api/admin/system/timing",
-        params: {
-          code: this.code,
-          cron: this.testcorn,
-        },
-      }).then((response) => {
-        console.log(response.data);
-        console.log(this.code)
-        console.log(this.testcorn)
-        if (response.data.success === true) {
-          this.$notify({
-            title: "成功",
-            message: "任务频率设置成功",
-            type: "warning",
-          });
-        } else {
-          this.$notify({
-            title: "失败",
-            message: "任务频率设置失败",
-            type: "warning",
-          });
-        }
-      });
-      this.dialog = false
-    }
   },
 }
 </script>
