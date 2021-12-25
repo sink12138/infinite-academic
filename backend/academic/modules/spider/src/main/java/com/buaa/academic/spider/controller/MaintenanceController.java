@@ -1,9 +1,6 @@
 package com.buaa.academic.spider.controller;
 
-import com.buaa.academic.document.entity.Institution;
-import com.buaa.academic.document.entity.Paper;
-import com.buaa.academic.document.entity.Researcher;
-import com.buaa.academic.document.entity.User;
+import com.buaa.academic.document.entity.*;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.spider.service.AminerService;
 import com.buaa.academic.spider.util.StringUtil;
@@ -20,11 +17,8 @@ import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 public class MaintenanceController {
@@ -33,30 +27,20 @@ public class MaintenanceController {
     private ElasticsearchRestTemplate template;
 
     @Autowired
-    private AminerController aminerController;
-
-    @Autowired
     private AminerService aminerService;
 
     @PostMapping("/hybrid")
     public Result<Void> hybrid() {
         new Thread(() -> {
-            count();
             try {
-                aminerController.aminer();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                Thread.sleep(1000 * 60 * 90);
+                rename();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            count();
-            ref();
             inst();
-            rename();
-        }).start();
+            fix();
+            count();
+        }, "Thread-hybrid").start();
         return new Result<>();
     }
 
@@ -64,41 +48,57 @@ public class MaintenanceController {
     public Result<Void> fix() {
         Query query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
-                        .must(QueryBuilders.existsQuery("institutions"))
                         .mustNot(QueryBuilders.existsQuery("authors.id")))
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
         int sum = 0;
         int fixed = 0;
         Logger log = LoggerFactory.getLogger(this.getClass());
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
+        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(60000, query, Paper.class, IndexCoordinates.of("paper"));
              scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 60000, Paper.class, IndexCoordinates.of("paper"))) {
             sum += scrollHits.getSearchHits().size();
             for (SearchHit<Paper> hit : scrollHits) {
                 Paper paper = hit.getContent();
                 boolean edited = false;
                 List<Paper.Author> authors = paper.getAuthors();
                 for (Paper.Author author : authors) {
-                    boolean found = false;
-                    for (Paper.Institution institution : paper.getInstitutions()) {
+                    if (paper.getInstitutions() == null) {
                         SearchHits<Researcher> researcherHits = template.search(new NativeSearchQueryBuilder()
-                                .withQuery(QueryBuilders.boolQuery()
-                                        .must(QueryBuilders.termQuery("name", author.getName()))
-                                        .must(QueryBuilders.matchQuery("currentInst.name", institution.getName())))
-                                .withMaxResults(5)
+                                .withQuery(QueryBuilders.termQuery("name", author.getName()))
+                                .withMaxResults(1)
                                 .build(), Researcher.class);
-                        for (SearchHit<Researcher> researcherHit : researcherHits) {
-                            Researcher researcher = researcherHit.getContent();
-                            if (researcher.getCurrentInst().getName().startsWith(institution.getName()) || institution.getName().startsWith(researcher.getCurrentInst().getName())) {
-                                author.setId(researcher.getId());
-                                edited = true;
-                                found = true;
-                                break;
-                            }
+                        if (researcherHits.getTotalHits() == 1) {
+                            Researcher researcher = researcherHits.getSearchHit(0).getContent();
+                            author.setId(researcher.getId());
+                            researcher.setPaperNum(researcher.getPaperNum() + 1);
+                            template.save(researcher);
+                            edited = true;
                         }
-                        if (found)
-                            break;
+                    }
+                    else {
+                        boolean found = false;
+                        for (Paper.Institution institution : paper.getInstitutions()) {
+                            SearchHits<Researcher> researcherHits = template.search(new NativeSearchQueryBuilder()
+                                    .withQuery(QueryBuilders.boolQuery()
+                                            .must(QueryBuilders.termQuery("name", author.getName()))
+                                            .must(QueryBuilders.matchQuery("currentInst.name", institution.getName())))
+                                    .withMaxResults(5)
+                                    .build(), Researcher.class);
+                            for (SearchHit<Researcher> researcherHit : researcherHits) {
+                                Researcher researcher = researcherHit.getContent();
+                                if (researcher.getCurrentInst().getName().startsWith(institution.getName()) || institution.getName().startsWith(researcher.getCurrentInst().getName())) {
+                                    author.setId(researcher.getId());
+                                    researcher.setPaperNum(researcher.getPaperNum() + 1);
+                                    template.save(researcher);
+                                    edited = true;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (found)
+                                break;
+                        }
                     }
                 }
                 if (edited) {
@@ -151,75 +151,30 @@ public class MaintenanceController {
         return new Result<>();
     }
 
-    @PostMapping("/strip")
-    public Result<Void> strip() {
+    @PostMapping("/replace")
+    public Result<Void> replace() {
         Query query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.existsQuery("abstract"))
+                .withQuery(QueryBuilders.existsQuery("agent"))
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
         int sum = 0;
         int fixed = 0;
         Logger log = LoggerFactory.getLogger(this.getClass());
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
+        for (SearchScrollHits<Patent> scrollHits = template.searchScrollStart(10000, query, Patent.class, IndexCoordinates.of("patent"));
              scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
+             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Patent.class, IndexCoordinates.of("patent"))) {
             sum += scrollHits.getSearchHits().size();
-            for (SearchHit<Paper> hit : scrollHits) {
-                Paper paper = hit.getContent();
-                String paperAbstract = paper.getPaperAbstract();
+            for (SearchHit<Patent> hit : scrollHits) {
+                Patent patent = hit.getContent();
+                String agent = patent.getAgent();
                 boolean edited = false;
-                if (paperAbstract.isBlank()) {
+                if (agent.contains("%")) {
+                    patent.setAgent(agent.replaceAll("%", "; "));
                     edited = true;
-                    paper.setPaperAbstract(null);
-                }
-                else if (Character.isWhitespace(paperAbstract.charAt(0))) {
-                    edited = true;
-                    paper.setPaperAbstract(paperAbstract.strip());
                 }
                 if (edited) {
                     ++fixed;
-                    template.save(paper);
-                }
-            }
-            log.info("Scrolled {}, fixed {}", sum, fixed);
-        }
-        log.info("Scroll done");
-        return new Result<>();
-    }
-
-    @PostMapping("/split")
-    public Result<Void> split() {
-        Query query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.existsQuery("keywords"))
-                .withPageable(PageRequest.of(0, 1000))
-                .build();
-        int sum = 0;
-        int fixed = 0;
-        Logger log = LoggerFactory.getLogger(this.getClass());
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(10000, query, Paper.class, IndexCoordinates.of("paper"));
-             scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 10000, Paper.class, IndexCoordinates.of("paper"))) {
-            sum += scrollHits.getSearchHits().size();
-            for (SearchHit<Paper> hit : scrollHits) {
-                Paper paper = hit.getContent();
-                boolean edited = false;
-                List<String> keywords = new ArrayList<>();
-                for (String keyword : paper.getKeywords()) {
-                    if (keyword.contains("，") || keyword.contains(",")) {
-                        edited = true;
-                        for (String term : keyword.split("[,，]+")) {
-                            if (!term.isBlank())
-                                keywords.add(term.strip());
-                        }
-                    }
-                    else {
-                        keywords.add(keyword);
-                    }
-                }
-                if (edited) {
-                    ++fixed;
-                    paper.setKeywords(keywords);
-                    template.save(paper);
+                    template.save(patent);
                 }
             }
             log.info("Scrolled {}, fixed {}", sum, fixed);
@@ -311,7 +266,7 @@ public class MaintenanceController {
     }
 
     @PostMapping("/rename")
-    public Result<Void> rename() {
+    public Result<Void> rename() throws InterruptedException {
         Query firstQuery;
         int firstSum;
         int firstFixed;
@@ -339,17 +294,18 @@ public class MaintenanceController {
                     template.save(institution);
                 }
             }
-            log.info("Scrolled {}, fixed {} institutions", firstSum, firstFixed);
+            log.info("Scrolled {}, renamed {} institutions", firstSum, firstFixed);
         }
         log.info("Scroll institutions done");
 
-        new Thread(() -> {
+        Thread paperThread = new Thread(() -> {
             Query query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.existsQuery("institutions"))
                     .withPageable(PageRequest.of(0, 1000))
                     .build();
             int sum = 0;
             int fixed = 0;
+            int created = 0;
             for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(20000, query, Paper.class, IndexCoordinates.of("paper"));
                  scrollHits.hasSearchHits();
                  scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 20000, Paper.class, IndexCoordinates.of("paper"))) {
@@ -358,32 +314,35 @@ public class MaintenanceController {
                     Paper paper = hit.getContent();
                     boolean edited = false;
                     for (Paper.Institution institution : paper.getInstitutions()) {
-                        if (institution.getId() != null) {
-                            Institution inst = Objects.requireNonNull(template.get(institution.getId(), Institution.class));
-                            if (!institution.getName().equals(inst.getName())) {
+                        Institution inst = template.get(institution.getId(), Institution.class);
+                        if (inst != null) {
+                            if (!inst.getName().equals(institution.getName())) {
                                 institution.setName(inst.getName());
                                 edited = true;
                             }
                         }
                         else {
-                            String newName = StringUtil.formatInstitutionName(institution.getName());
-                            if (!institution.getName().equals(newName)) {
-                                institution.setName(newName);
+                            String instName = StringUtil.formatInstitutionName(institution.getName());
+                            institution.setId(aminerService.findInstitution(instName).getId());
+                            ++created;
+                            if (!instName.equals(institution.getName())) {
+                                institution.setName(instName);
                                 edited = true;
                             }
                         }
                     }
                     if (edited) {
-                        ++fixed;
                         template.save(paper);
+                        ++fixed;
                     }
                 }
-                log.info("Scrolled {}, fixed {} papers", sum, fixed);
+                log.info("Scrolled {}, renamed {}, created {} institutions of papers", sum, fixed, created);
             }
             log.info("Scroll papers done");
-        }).start();
+        });
+        paperThread.start();
 
-        new Thread(() -> {
+        Thread researcherThread = new Thread(() -> {
             Query query = new NativeSearchQueryBuilder()
                     .withQuery(QueryBuilders.boolQuery()
                             .should(QueryBuilders.existsQuery("currentInst"))
@@ -392,6 +351,7 @@ public class MaintenanceController {
                     .build();
             int sum = 0;
             int fixed = 0;
+            int created = 0;
             for (SearchScrollHits<Researcher> scrollHits = template.searchScrollStart(20000, query, Researcher.class, IndexCoordinates.of("researcher"));
                  scrollHits.hasSearchHits();
                  scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 20000, Researcher.class, IndexCoordinates.of("researcher"))) {
@@ -401,48 +361,53 @@ public class MaintenanceController {
                     boolean edited = false;
                     if (researcher.getCurrentInst() != null) {
                         Researcher.Institution institution = researcher.getCurrentInst();
-                        if (institution.getId() != null) {
-                            Institution inst = Objects.requireNonNull(template.get(institution.getId(), Institution.class));
-                            if (!institution.getName().equals(inst.getName())) {
+                        Institution inst = template.get(institution.getId(), Institution.class);
+                        if (inst != null) {
+                            if (!inst.getName().equals(institution.getName())) {
                                 institution.setName(inst.getName());
                                 edited = true;
                             }
                         }
                         else {
-                            String newName = StringUtil.formatInstitutionName(institution.getName());
-                            if (!institution.getName().equals(newName)) {
-                                institution.setName(newName);
+                            String instName = StringUtil.formatInstitutionName(institution.getName());
+                            institution.setId(aminerService.findInstitution(instName).getId());
+                            if (!instName.equals(institution.getName())) {
+                                institution.setName(instName);
                                 edited = true;
                             }
                         }
                     }
                     if (researcher.getInstitutions() != null) {
                         for (Researcher.Institution institution : researcher.getInstitutions()) {
-                            if (institution.getId() != null) {
-                                Institution inst = Objects.requireNonNull(template.get(institution.getId(), Institution.class));
-                                if (!institution.getName().equals(inst.getName())) {
+                            Institution inst = template.get(institution.getId(), Institution.class);
+                            if (inst != null) {
+                                if (!inst.getName().equals(institution.getName())) {
                                     institution.setName(inst.getName());
                                     edited = true;
                                 }
                             }
                             else {
-                                String newName = StringUtil.formatInstitutionName(institution.getName());
-                                if (!institution.getName().equals(newName)) {
-                                    institution.setName(newName);
+                                String instName = StringUtil.formatInstitutionName(institution.getName());
+                                institution.setId(aminerService.findInstitution(instName).getId());
+                                if (!instName.equals(institution.getName())) {
+                                    institution.setName(instName);
                                     edited = true;
                                 }
                             }
                         }
                     }
                     if (edited) {
-                        ++fixed;
                         template.save(researcher);
+                        ++fixed;
                     }
                 }
-                log.info("Scrolled {}, fixed {} researchers", sum, fixed);
+                log.info("Scrolled {}, renamed {}, created {} institutions of researchers", sum, fixed, created);
             }
             log.info("Scroll researchers done");
-        }).start();
+        });
+        researcherThread.start();
+        paperThread.join();
+        researcherThread.join();
         return new Result<>();
     }
 
@@ -474,89 +439,13 @@ public class MaintenanceController {
         return new Result<>();
     }
 
-    @PostMapping("/ref")
-    public Result<Void> ref() {
-        Logger log = LoggerFactory.getLogger(this.getClass());
-        Query query;
-        int sum;
-        int fixed;
-        query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.existsQuery("institutions"))
-                .withPageable(PageRequest.of(0, 1000))
-                .build();
-        sum = 0;
-        fixed = 0;
-        for (SearchScrollHits<Paper> scrollHits = template.searchScrollStart(20000, query, Paper.class, IndexCoordinates.of("paper"));
-             scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 20000, Paper.class, IndexCoordinates.of("paper"))) {
-            sum += scrollHits.getSearchHits().size();
-            for (SearchHit<Paper> hit : scrollHits) {
-                Paper paper = hit.getContent();
-                boolean edited = false;
-                for (Paper.Institution institution : paper.getInstitutions()) {
-                    Institution inst = aminerService.findInstitution(institution.getName());
-                    if (!inst.getId().equals(institution.getId())) {
-                        institution.setId(institution.getId());
-                        edited = true;
-                    }
-                }
-                if (edited) {
-                    ++fixed;
-                    template.save(paper);
-                }
-            }
-            log.info("Scrolled {}, fixed {} papers", sum, fixed);
-        }
-        log.info("Scroll papers done");
-
-        query = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.boolQuery()
-                        .should(QueryBuilders.existsQuery("currentInst"))
-                        .should(QueryBuilders.existsQuery("institutions")))
-                .withPageable(PageRequest.of(0, 1000))
-                .build();
-        sum = 0;
-        fixed = 0;
-        for (SearchScrollHits<Researcher> scrollHits = template.searchScrollStart(20000, query, Researcher.class, IndexCoordinates.of("researcher"));
-             scrollHits.hasSearchHits();
-             scrollHits = template.searchScrollContinue(scrollHits.getScrollId(), 20000, Researcher.class, IndexCoordinates.of("researcher"))) {
-            sum += scrollHits.getSearchHits().size();
-            for (SearchHit<Researcher> hit : scrollHits) {
-                Researcher researcher = hit.getContent();
-                boolean edited = false;
-                if (researcher.getCurrentInst() != null) {
-                    Researcher.Institution institution = researcher.getCurrentInst();
-                    Institution inst = aminerService.findInstitution(institution.getName());
-                    if (!inst.getId().equals(institution.getId())) {
-                        institution.setId(inst.getId());
-                        edited = true;
-                    }
-                }
-                if (researcher.getInstitutions() != null) {
-                    for (Researcher.Institution institution : researcher.getInstitutions()) {
-                        Institution inst = aminerService.findInstitution(institution.getName());
-                        if (!inst.getId().equals(institution.getId())) {
-                            institution.setId(inst.getId());
-                            edited = true;
-                        }
-                    }
-                }
-                if (edited) {
-                    ++fixed;
-                    template.save(researcher);
-                }
-            }
-            log.info("Scrolled {}, fixed {} researchers", sum, fixed);
-        }
-        log.info("Scroll researchers done");
-        return new Result<>();
-    }
-
     private int mergeInstitution(Institution institution) {
         Query query = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.boolQuery()
                         .should(QueryBuilders.termQuery("name.raw", institution.getName()))
-                        .should(QueryBuilders.termQuery("name.raw", institution.getName().replaceAll(",", ""))))
+                        .should(QueryBuilders.termQuery("name.raw", institution.getName().replaceAll(",", "")))
+                        .should(QueryBuilders.termQuery("name.raw", institution.getName().toLowerCase()))
+                        .should(QueryBuilders.termQuery("name.raw", institution.getName().toUpperCase())))
                 .withPageable(PageRequest.of(0, 1000))
                 .build();
         int merged = 0;

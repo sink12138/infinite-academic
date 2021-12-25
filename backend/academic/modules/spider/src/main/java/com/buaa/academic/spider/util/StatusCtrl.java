@@ -9,6 +9,7 @@ import com.buaa.academic.spider.model.queueObject.PatentObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import com.buaa.academic.spider.repository.*;
 import com.buaa.academic.spider.service.Impl.*;
+import com.buaa.academic.tool.util.NaturalCron;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -187,7 +188,7 @@ public class StatusCtrl {
         if (runningJob.size() > 0)
             return false;
         startInit();
-        List<String> defaultKeywords = List.of("软件设计", "卷积", "计算机体系", "计算机网络", "分布式系统");
+        List<String> defaultKeywords = List.of("操作系统", "平板电脑", "快充技术", "通信设备", "定位设备", "人脸识别", "指纹识别", "虹膜识别", "声纹识别");
         StatusCtrl.paperKeywordQueue.addAll(defaultKeywords);
         StatusCtrl.patentKeywordQueue.addAll(defaultKeywords);
         boolean headless = true;
@@ -230,6 +231,7 @@ public class StatusCtrl {
         schedule.setRunning(isRunning);
         schedule.setLastRun(lastRun);
         schedule.setNextRun(nextRunningDate);
+        schedule.setFrequency(NaturalCron.describe(cron));
         for (String threadName : runningStatus.keySet()) {
             schedule.addTask(new Task(threadName, runningStatus.get(threadName)));
         }

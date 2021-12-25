@@ -65,8 +65,8 @@ public class SpiderController {
 
         statusCtrl.setJournalThreadNum(0);
         statusCtrl.setSubjectTopicThreadNum(0);
-        statusCtrl.setPatentsInitThreadNum(3);
-        statusCtrl.setPatentMainInfoNum(6);
+        statusCtrl.setPatentsInitThreadNum(1);
+        statusCtrl.setPatentMainInfoNum(2);
         if (statusCtrl.start())
             return result;
         return result.withFailure("Has been running");

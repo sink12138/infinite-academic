@@ -3,6 +3,7 @@ package com.buaa.academic.spider.util;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -16,6 +17,7 @@ public abstract class StringUtil {
                 .replaceAll("[?#%$*!@^`~]+", "")
                 .replaceAll("\\s+\\.\\s+", ". ")
                 .replaceAll("&", "and")
+                .replaceAll("(?i)univ\\s*\\.", "University")
                 .replaceAll("(?i)dept\\s*\\.\\s*", "Dept. ")
                 .strip().split(";\\s*");
         if (parts.length > 0) {
@@ -45,7 +47,7 @@ public abstract class StringUtil {
                 joiner.add(part);
             }
             text = joiner.toString();
-            if (text.length() > 48) {
+            if (text.length() > 32) {
                 joiner = new StringJoiner(", ");
                 joiner.add(parts[0]);
                 for (int i = 1; i < parts.length; ++i) {
@@ -55,6 +57,31 @@ public abstract class StringUtil {
                     }
                 }
                 text = joiner.toString();
+                if (text.contains("(")) {
+                    parts = text.split("\\s*\\(\\s*");
+                    if (parts.length <= 1)
+                        return text;
+                    if (parts[1].equals(parts[0])) {
+                        text = parts[0];
+                    }
+                    else if (parts[1].startsWith(parts[0])) {
+                        text = parts[0];
+                        String[] par = parts[1].split("\\s*\\)\\s*", 2);
+                        String remain = par[0].substring(parts[0].length()).replaceAll("^\\s*,\\s*", "").strip();
+                        if (remain.startsWith(parts[0]))
+                            text = remain;
+                        if (par.length > 1)
+                            text += par[1];
+                    }
+                }
+            }
+            parts = text.split(",\\s*");
+            if (parts.length > 1 && parts[0].equals(parts[1])) {
+                text = parts[0];
+            }
+            int index = text.toLowerCase().indexOf("university");
+            if (index > 3 && text.length() > index + 10 && text.charAt(index + 10) == ',') {
+                text = text.substring(0, index + 10);
             }
             return text;
         }
@@ -79,6 +106,10 @@ public abstract class StringUtil {
             }
             return String.join(" ", partsNeeded);
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(StringUtil.formatInstitutionName("Peking University(Peking University), Beijing"));
     }
 
 }

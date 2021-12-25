@@ -16,16 +16,16 @@ import java.util.Date;
 @EnableScheduling
 public class ScheduleTask implements SchedulingConfigurer {
     @Autowired
-    StatusCtrl statusCtrl;
+    private StatusCtrl statusCtrl;
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
         taskRegistrar.addTriggerTask(() -> {
             if (StatusCtrl.runningJob.isEmpty()) {
-                statusCtrl.setPapersInitThreadNum(2);
+                statusCtrl.setPapersInitThreadNum(1);
                 statusCtrl.setPaperMainInfoNum(2);
                 statusCtrl.setPaperSourceThreadNum(2);
-                statusCtrl.setResearcherThreadNum(3);
+                statusCtrl.setResearcherThreadNum(2);
                 statusCtrl.setInterestsThreadNum(1);
                 statusCtrl.setJournalThreadNum(1);
                 statusCtrl.setSubjectTopicThreadNum(1);
@@ -45,8 +45,8 @@ public class ScheduleTask implements SchedulingConfigurer {
                 statusCtrl.setInterestsThreadNum(0);
                 statusCtrl.setJournalThreadNum(0);
                 statusCtrl.setSubjectTopicThreadNum(0);
-                statusCtrl.setPatentsInitThreadNum(2);
-                statusCtrl.setPatentMainInfoNum(3);
+                statusCtrl.setPatentsInitThreadNum(1);
+                statusCtrl.setPatentMainInfoNum(2);
                 statusCtrl.start();
                 try {
                     Thread.sleep(StatusCtrl.patentDurationHours * 3600000L);
