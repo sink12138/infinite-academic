@@ -160,7 +160,7 @@ public class StatusCtrl implements Runnable {
     private void associationAnalysis() throws InterruptedException {
         log.info("Association analysis started");
 
-        double minSupport = 0.00004;
+        double minSupport = 0.00002;
         double minConfidence = 0.03;
 
         FPGMainClass topicFPG = new FPGMainClass("keywords")
