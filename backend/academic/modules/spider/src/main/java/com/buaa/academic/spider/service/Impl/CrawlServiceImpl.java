@@ -193,17 +193,20 @@ public class CrawlServiceImpl implements CrawlService {
                 driver.quit();
                 return;
             }
+
             Paper paper = esUtil.findPaperByTileAndAuthors(title, authors);
-            if (paper != null) {
-                result.setMessage("数据库中已包含该篇文章");
-                driver.close();
-                driver.quit();
+            if (paper != null && paper.isCrawled()) {
+                result.setMessage("数据库中已含有该论文");
                 return;
+            } else if (paper == null) {
+                paper = new Paper();
+                paper.setType(paperType);
+                paper.setTitle(title);
+                paper.setAuthors(authors);
+                template.save(paper);
             }
-            paper = new Paper();
-            paper.setType(paperType);
-            paper.setTitle(title);
-            paper.setAuthors(authors);
+            paper.setCrawled(true);
+
             // 机构
             List<WebElement> instElement = driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h3");
             if (instElement.size() == 2) {
