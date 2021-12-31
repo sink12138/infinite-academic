@@ -46,6 +46,7 @@
               elevation="1"
               rounded="lg"
               dark
+              color="blue darken-4"
             >
               <span>
                 当前第 <b>{{ page }}/{{ length }}</b> 页
