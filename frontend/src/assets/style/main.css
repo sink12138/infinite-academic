@@ -1,0 +1,39 @@
+.big-font {
+  font-family: 'Fira code', Geneva, Verdana, sans-serif;
+  font-size: 72px;
+  font-weight: 400;
+  color: #fff;
+}
+
+.my-font {
+  font-family: 'Lucida Fax', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+}
+.betop{
+  position:fixed;
+  top:0;
+}
+.message{
+   text-align:left; 
+}
+.whole{
+  width:80%;
+  margin:0 auto;
+  left:0;
+  right:0;
+  padding-top:10px;
+}
+
+.disabled{
+  pointer-events: none;
+}
+
+.link {
+  color: #000000;
+  cursor: pointer
+}
+.link:hover {
+  color: #0D47A1;
+  text-decoration: underline;
+}
