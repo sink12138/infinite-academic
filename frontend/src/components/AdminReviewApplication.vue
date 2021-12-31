@@ -71,7 +71,7 @@
                   <v-btn color="blue darken-1" text @click="closeFail"
                     >再想想</v-btn
                   >
-                  <v-btn color="blue darken-1" text @click="fail">确定</v-btn>
+                  <v-btn color="blue darken-1" text @click="fail" :disabled="failReason.length>300">确定</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
               </v-card>
