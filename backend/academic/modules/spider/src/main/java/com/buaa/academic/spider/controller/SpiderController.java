@@ -9,6 +9,7 @@ import com.buaa.academic.spider.util.StatusCtrl;
 import com.buaa.academic.tool.validator.CronExpr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.List;
 @Validated
 @RestController
 public class SpiderController {
+
     private String authHeader;
 
     @Value("${auth.username}")
@@ -30,11 +32,19 @@ public class SpiderController {
     @Value("${auth.password}")
     private String password;
 
+    @Autowired
+    private Environment environment;
+
     @PostConstruct
     public void init() {
         if (authHeader == null)
             authHeader = Base64.getEncoder().encodeToString((username + '@' + password).getBytes(StandardCharsets.UTF_8));
-        System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        String[] profiles = environment.getActiveProfiles();
+        if (profiles.length == 0)
+            profiles = environment.getDefaultProfiles();
+        if (profiles[0].equals("dev")) {
+            System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        }
         System.setProperty("webdriver.chrome.silentOutput", "true");
     }
 
