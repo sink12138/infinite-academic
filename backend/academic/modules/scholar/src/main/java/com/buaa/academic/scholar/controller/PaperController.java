@@ -61,7 +61,7 @@ public class PaperController {
         if (url == null && title == null)
             return result.withFailure(ExceptionType.INVALID_PARAM);
         else if (url != null) {
-            if (!url.matches("^(https://)?d\\.wanfangdata\\.com\\.cn/(periodical|thesis)/[0-9A-Za-z]+$") &&
+            if (!url.matches("^(https://)?d\\.wanfangdata\\.com\\.cn/(periodical|thesis)/[0-9A-Za-z%_-]+$") &&
                     !url.matches("^(https://)?kns\\.cnki\\.net/kcms/detail/detail\\.aspx\\?[A-Za-z]+=[0-9A-Za-z-_]+(&[A-Za-z]+=[0-9A-Za-z-_]+)*$"))
                 return result.withFailure("不支持的URL格式");
             return spiderClient.url(userId, url);
