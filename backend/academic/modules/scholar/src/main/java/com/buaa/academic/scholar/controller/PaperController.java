@@ -7,11 +7,11 @@ import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.scholar.client.ResourceClient;
 import com.buaa.academic.scholar.client.SpiderClient;
+import com.buaa.academic.scholar.model.AutoPaper;
 import com.buaa.academic.scholar.service.ApplicationService;
 import com.buaa.academic.scholar.utils.ExistenceCheck;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.validation.annotation.Validated;
@@ -54,9 +54,10 @@ public class PaperController {
                     "<b>万方数据</b>：https://d.wanfangdata.com.cn/periodical/... 或 https://d.wanfangdata.com.cn/thesis/...</br>" +
                     "<b>中国知网</b>：https://kns.cnki.net/kcms/detail/detail.aspx...")
     public Result<Void> auto(@RequestHeader(value = "Auth") String userId,
-                             @RequestParam(value = "url", required = false) @URL String url,
-                             @RequestParam(value = "title", required = false) String title) {
+                             @RequestBody @Valid AutoPaper autoPaper) {
         Result<Void> result = new Result<>();
+        String url = autoPaper.getUrl();
+        String title = autoPaper.getTitle();
         if (url == null && title == null)
             return result.withFailure(ExceptionType.INVALID_PARAM);
         else if (url != null) {
