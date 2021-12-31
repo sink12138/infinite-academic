@@ -82,8 +82,7 @@ public class CrawlServiceImpl implements CrawlService {
         msg.setTitle("自助添加文章" + res);
         if (result.isSuccess()) {
             msg.setContent(String.format("论文 《%s》 已由本系统自动获取完毕，请及时查看。如您发现错误，请提交修改申请或联系管理员。", result.getData().getTitle()));
-        }
-        else {
+        } else {
             msg.setContent(String.format("很抱歉，您提交的自助添加请求未能成功完成。原因：%s。", result.getMessage()));
         }
         msg.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
@@ -92,7 +91,7 @@ public class CrawlServiceImpl implements CrawlService {
     }
 
     @Data
-    private class zhiwangUrlSpider implements AutoSpider{
+    private class zhiwangUrlSpider implements AutoSpider {
         private String url;
 
         private Result<Paper> result = new Result<>(false, null, null);
@@ -113,7 +112,7 @@ public class CrawlServiceImpl implements CrawlService {
             driver.get(url);
             ParserUtil.randomSleep(2000);
             String curUrl = driver.getCurrentUrl();
-            if(!curUrl.startsWith("https://kns.cnki.net/kcms/detail")) {
+            if (!curUrl.startsWith("https://kns.cnki.net/kcms/detail")) {
                 driver.close();
                 driver.quit();
                 result.setMessage("访问文章链接失败");
@@ -121,78 +120,74 @@ public class CrawlServiceImpl implements CrawlService {
             }
             // 判断类型
             String paperType;
-            if(curUrl.contains("CJFD")){
-                paperType="期刊论文";
-            }
-            else if(curUrl.contains("CDFD")){
-                paperType="学位论文";
-            }
-            else{
+            if (curUrl.contains("CJFD")) {
+                paperType = "期刊论文";
+            } else if (curUrl.contains("CDFD")) {
+                paperType = "学位论文";
+            } else {
                 result.setMessage("仅支持期刊论文和学位论文");
                 driver.close();
                 driver.quit();
                 return;
             }
             String title;
-            List<Paper.Author> authors=new ArrayList<>();
-            List<WebElement> titleElement=driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h1");
+            List<Paper.Author> authors = new ArrayList<>();
+            List<WebElement> titleElement = driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h1");
             if (titleElement.size() != 0) {
-                title=titleElement.get(0).getAttribute("textContent");
-            }
-            else{
+                title = titleElement.get(0).getAttribute("textContent");
+            } else {
                 result.setMessage("无法获取文章标题");
                 driver.close();
                 driver.quit();
                 return;
             }
             // 作者
-            List<WebElement> authorAndInst=driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h3");
-            if(authorAndInst.size()==0){
+            List<WebElement> authorAndInst = driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h3");
+            if (authorAndInst.size() == 0) {
                 result.setMessage("无法获取作者");
                 driver.close();
                 driver.quit();
                 return;
             }
-            WebElement allAuthor=authorAndInst.get(0);
+            WebElement allAuthor = authorAndInst.get(0);
             List<WebElement> authorElement;
             authorElement = allAuthor.findElements(By.xpath(".//span//a"));
-            List<PaperParser.AuthorAndUrl> authorUrlList=new ArrayList<>();
+            List<PaperParser.AuthorAndUrl> authorUrlList = new ArrayList<>();
             // 作者及其url
-            if(authorElement.size()!=0){
-                for(WebElement authorEl:authorElement){
-                    Paper.Author paperAuthor=new Paper.Author();
-                    String nameText=authorEl.getText();
-                    List<WebElement> numElement=authorEl.findElements(By.xpath(".//sup"));
-                    if(numElement.size()!=0){
-                        String num=numElement.get(0).getText();
-                        nameText=nameText.replace(num,"");
+            if (authorElement.size() != 0) {
+                for (WebElement authorEl : authorElement) {
+                    Paper.Author paperAuthor = new Paper.Author();
+                    String nameText = authorEl.getText();
+                    List<WebElement> numElement = authorEl.findElements(By.xpath(".//sup"));
+                    if (numElement.size() != 0) {
+                        String num = numElement.get(0).getText();
+                        nameText = nameText.replace(num, "");
                     }
                     paperAuthor.setName(nameText);
                     authors.add(paperAuthor);
                     // 拼接url
-                    String getUrl=authorEl.getAttribute("onclick");
-                    if(getUrl == null){
-                        PaperParser.AuthorAndUrl authorAndUrl=new PaperParser.AuthorAndUrl(nameText,null);
+                    String getUrl = authorEl.getAttribute("onclick");
+                    if (getUrl == null) {
+                        PaperParser.AuthorAndUrl authorAndUrl = new PaperParser.AuthorAndUrl(nameText, null);
                         authorUrlList.add(authorAndUrl);
                         continue;
                     }
-                    getUrl=getUrl.strip().replace("TurnPageToKnetV","").replace("(","").replace(");","").replace("'","");
-                    String[] all=getUrl.split(",");
-                    if(all.length!=4){
-                        PaperParser.AuthorAndUrl authorAndUrl=new PaperParser.AuthorAndUrl(nameText,null);
+                    getUrl = getUrl.strip().replace("TurnPageToKnetV", "").replace("(", "").replace(");", "").replace("'", "");
+                    String[] all = getUrl.split(",");
+                    if (all.length != 4) {
+                        PaperParser.AuthorAndUrl authorAndUrl = new PaperParser.AuthorAndUrl(nameText, null);
                         authorUrlList.add(authorAndUrl);
                         continue;
                     }
-                    String sfield=all[0];
-                    String skey=all[1];
-                    String code=all[2];
-                    String v=all[3];
-                    String todoUrl="https://kns.cnki.net/kcms/detail/knetsearch.aspx?sfield="+sfield+"&skey="+skey+"&code="+code+"&v="+v;
-                    PaperParser.AuthorAndUrl authorAndUrl=new PaperParser.AuthorAndUrl(nameText,todoUrl);
+                    String sfield = all[0];
+                    String skey = all[1];
+                    String code = all[2];
+                    String v = all[3];
+                    String todoUrl = "https://kns.cnki.net/kcms/detail/knetsearch.aspx?sfield=" + sfield + "&skey=" + skey + "&code=" + code + "&v=" + v;
+                    PaperParser.AuthorAndUrl authorAndUrl = new PaperParser.AuthorAndUrl(nameText, todoUrl);
                     authorUrlList.add(authorAndUrl);
                 }
-            }
-            else{
+            } else {
                 result.setMessage("无法获取作者");
                 driver.close();
                 driver.quit();
@@ -210,17 +205,18 @@ public class CrawlServiceImpl implements CrawlService {
             paper.setTitle(title);
             paper.setAuthors(authors);
             // 机构
-            List<WebElement> instElement=driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h3");
-            if(instElement.size()==2){
-                WebElement allInst=instElement.get(1);
-                List<WebElement> insts=allInst.findElements(By.xpath(".//a"));
-                if(insts.size() != 0) {
+            List<WebElement> instElement = driver.findElementsByXPath("//div[@class=\"wx-tit\"]//h3");
+            if (instElement.size() == 2) {
+                WebElement allInst = instElement.get(1);
+                List<WebElement> insts = allInst.findElements(By.xpath(".//a"));
+                if (insts.size() != 0) {
                     ArrayList<Paper.Institution> institutions = new ArrayList<>();
                     for (WebElement institution : insts) {
                         String instNameText = institution.getAttribute("textContent");
                         String[] instNames = instNameText.split("[；;]");
                         for (String instName : instNames) {
                             Paper.Institution inst = new Paper.Institution();
+                            instName = instName.replaceAll("^\\d+\\.\\s*", "");
                             instName = StringUtil.formatInstitutionName(instName);
                             // find inst by name
                             Institution foundInst = esUtil.findInstByName(instName);
@@ -250,39 +246,38 @@ public class CrawlServiceImpl implements CrawlService {
                 }
             }
             // 摘要、关键词
-            List<WebElement> briefElement=driver.findElementsByXPath("//div[@class=\"brief\"]//div[@class=\"row\"]");
-            if(briefElement.size()!=0){
-                for(WebElement brief:briefElement){
-                    String type=brief.findElement(By.xpath(".//span[@class=\"rowtit\"]")).getText();
-                    if(type.equals("关键词：")){
-                        List<WebElement> keywordElement=brief.findElements(By.xpath(".//p[@class=\"keywords\"]//a"));
-                        if(keywordElement.size()!=0){
-                            List<String> keywords=new ArrayList<>();
-                            for(WebElement keyword:keywordElement){
-                                String keywordText=keyword.getAttribute("textContent");
-                                keywordText=keywordText.replace(";","");
-                                keywordText=keywordText.replace("；","");
-                                keywordText=keywordText.strip();
+            List<WebElement> briefElement = driver.findElementsByXPath("//div[@class=\"brief\"]//div[@class=\"row\"]");
+            if (briefElement.size() != 0) {
+                for (WebElement brief : briefElement) {
+                    String type = brief.findElement(By.xpath(".//span[@class=\"rowtit\"]")).getText();
+                    if (type.equals("关键词：")) {
+                        List<WebElement> keywordElement = brief.findElements(By.xpath(".//p[@class=\"keywords\"]//a"));
+                        if (keywordElement.size() != 0) {
+                            List<String> keywords = new ArrayList<>();
+                            for (WebElement keyword : keywordElement) {
+                                String keywordText = keyword.getAttribute("textContent");
+                                keywordText = keywordText.replace(";", "");
+                                keywordText = keywordText.replace("；", "");
+                                keywordText = keywordText.strip();
                                 keywords.add(keywordText);
                             }
                             paper.setKeywords(keywords);
                         }
-                    }
-                    else if(type.equals("摘要：")){
-                        List<WebElement> moreElement=brief.findElements(By.xpath(".//span//a[@id=\"ChDivSummaryMore\"]"));
-                        if(moreElement.size()!=0){
-                            WebElement more=moreElement.get(0);
-                            String style=more.getAttribute("style");
-                            if(style.equals("")){
-                                Actions actions=new Actions(driver);
+                    } else if (type.equals("摘要：")) {
+                        List<WebElement> moreElement = brief.findElements(By.xpath(".//span//a[@id=\"ChDivSummaryMore\"]"));
+                        if (moreElement.size() != 0) {
+                            WebElement more = moreElement.get(0);
+                            String style = more.getAttribute("style");
+                            if (style.equals("")) {
+                                Actions actions = new Actions(driver);
                                 actions.click(more).perform();
                                 Thread.sleep(2000);
                             }
                         }
-                        List<WebElement> abstractElement=brief.findElements(By.xpath(".//span[@id=\"ChDivSummary\"]"));
-                        if(abstractElement.size()!=0){
-                            String abstractText=abstractElement.get(0).getAttribute("textContent");
-                            abstractText=abstractText.strip();
+                        List<WebElement> abstractElement = brief.findElements(By.xpath(".//span[@id=\"ChDivSummary\"]"));
+                        if (abstractElement.size() != 0) {
+                            String abstractText = abstractElement.get(0).getAttribute("textContent");
+                            abstractText = abstractText.strip();
                             paper.setPaperAbstract(abstractText);
                         }
                     }
@@ -290,35 +285,34 @@ public class CrawlServiceImpl implements CrawlService {
             }
             String journalUrl = null;
             // 期刊进行这一步操作
-            if(paperType.equals("期刊论文")) {
+            if (paperType.equals("期刊论文")) {
                 // 期刊、发表年份、卷数、期数
-                List<WebElement> journalInfoElement=driver.findElementsByXPath("//div[@class=\"top-tip\"]//span//a");
-                if(journalInfoElement.size()==2){
-                    Paper.Journal paperJournal=new Paper.Journal();
-                    WebElement journalElement=journalInfoElement.get(0);
-                    String journalName=journalElement.getAttribute("textContent");
+                List<WebElement> journalInfoElement = driver.findElementsByXPath("//div[@class=\"top-tip\"]//span//a");
+                if (journalInfoElement.size() == 2) {
+                    Paper.Journal paperJournal = new Paper.Journal();
+                    WebElement journalElement = journalInfoElement.get(0);
+                    String journalName = journalElement.getAttribute("textContent");
                     // 拼接url
-                    journalUrl=journalElement.getAttribute("onclick");
-                    if(journalUrl!=null) {
-                        journalUrl=journalUrl.strip().replace("getKns8NaviLink","").replace("(","").replace(");","").replace("'","");
-                        String[] all=journalUrl.split(",");
-                        if(all.length!=2){
-                            journalUrl=null;
-                        }
-                        else {
-                            String dbcode=all[0];
-                            String baseid=all[1];
-                            journalUrl="https://kns.cnki.net/kcms/detail/navipage.aspx?dbcode="+dbcode+"&baseid="+baseid;
+                    journalUrl = journalElement.getAttribute("onclick");
+                    if (journalUrl != null) {
+                        journalUrl = journalUrl.strip().replace("getKns8NaviLink", "").replace("(", "").replace(");", "").replace("'", "");
+                        String[] all = journalUrl.split(",");
+                        if (all.length != 2) {
+                            journalUrl = null;
+                        } else {
+                            String dbcode = all[0];
+                            String baseid = all[1];
+                            journalUrl = "https://kns.cnki.net/kcms/detail/navipage.aspx?dbcode=" + dbcode + "&baseid=" + baseid;
                         }
                     }
                     paperJournal.setTitle(journalName);
-                    WebElement yearAndVolumeElement=journalInfoElement.get(1);
-                    String yearAndVolume=yearAndVolumeElement.getAttribute("textContent");
-                    String year=yearAndVolume.substring(0,yearAndVolume.indexOf(","));
-                    String issue=yearAndVolume.substring(yearAndVolume.indexOf(",")+1,yearAndVolume.indexOf("("));
-                    String volume=yearAndVolume.substring(yearAndVolume.indexOf("(")+1,yearAndVolume.indexOf(")"));
+                    WebElement yearAndVolumeElement = journalInfoElement.get(1);
+                    String yearAndVolume = yearAndVolumeElement.getAttribute("textContent");
+                    String year = yearAndVolume.substring(0, yearAndVolume.indexOf(","));
+                    String issue = yearAndVolume.substring(yearAndVolume.indexOf(",") + 1, yearAndVolume.indexOf("("));
+                    String volume = yearAndVolume.substring(yearAndVolume.indexOf("(") + 1, yearAndVolume.indexOf(")"));
                     paper.setYear(Integer.valueOf(year));
-                    paper.setDate(year+"01-01");
+                    paper.setDate(year + "01-01");
                     paperJournal.setVolume(volume);
                     paperJournal.setIssue(issue);
                     paper.setJournal(paperJournal);
@@ -334,25 +328,24 @@ public class CrawlServiceImpl implements CrawlService {
                         allSubject = allSubject.replaceAll(" ", "");
                         List<String> subjects = Arrays.asList(allSubject.split(";"));
                         paper.setSubjects(subjects);
-                    }
-                    else if(type.equals("DOI：")){
+                    } else if (type.equals("DOI：")) {
                         String doi = subjectAndTopic.findElement(By.xpath(".//p")).getText();
                         paper.setDoi(doi);
                     }
                 }
             }
             // 参考文献
-            List<WebElement> iframeElement=driver.findElementsByXPath("//iframe[@id=\"frame1\"]");
+            List<WebElement> iframeElement = driver.findElementsByXPath("//iframe[@id=\"frame1\"]");
             // 切换iframe
-            if(iframeElement.size()!=0){
+            if (iframeElement.size() != 0) {
                 driver.switchTo().frame(iframeElement.get(0));
-                List<WebElement> essayBoxElement=driver.findElementsByXPath("//div[@class=\"essayBox\"]//li");
-                if(essayBoxElement.size()!=0) {
-                    List<String> references=new ArrayList<>();
-                    for(WebElement essayBox:essayBoxElement) {
-                        String em=essayBox.findElement(By.xpath(".//em")).getText();
-                        String allText=essayBox.getText();
-                        String refer=allText.replace(em,"");
+                List<WebElement> essayBoxElement = driver.findElementsByXPath("//div[@class=\"essayBox\"]//li");
+                if (essayBoxElement.size() != 0) {
+                    List<String> references = new ArrayList<>();
+                    for (WebElement essayBox : essayBoxElement) {
+                        String em = essayBox.findElement(By.xpath(".//em")).getText();
+                        String allText = essayBox.getText();
+                        String refer = allText.replace(em, "").replace("\"\"", "");
                         references.add(refer);
                     }
                     paper.setReferences(references);
@@ -362,12 +355,12 @@ public class CrawlServiceImpl implements CrawlService {
             driver.close();
             driver.quit();
             // 作者url队列
-            List<Paper.Author> researchers=new ArrayList<>();
-            for(PaperParser.AuthorAndUrl authorAndUrl:authorUrlList) {
+            List<Paper.Author> researchers = new ArrayList<>();
+            for (PaperParser.AuthorAndUrl authorAndUrl : authorUrlList) {
                 String url = authorAndUrl.getUrl();
-                String name=authorAndUrl.getName();
-                if(url==null) {
-                    Paper.Author paperResearcher=new Paper.Author();
+                String name = authorAndUrl.getName();
+                if (url == null) {
+                    Paper.Author paperResearcher = new Paper.Author();
                     paperResearcher.setName(name);
                     researchers.add(paperResearcher);
                     continue;
@@ -377,29 +370,29 @@ public class CrawlServiceImpl implements CrawlService {
                 Thread.sleep(2000);
                 String researcherName;
                 String instName;
-                List<WebElement> authorNameElement=driver.findElementsByXPath("//h1[@id=\"showname\"]");
-                if(authorNameElement.size()==0){
-                    Paper.Author paperResearcher=new Paper.Author();
+                List<WebElement> authorNameElement = driver.findElementsByXPath("//h1[@id=\"showname\"]");
+                if (authorNameElement.size() == 0) {
+                    Paper.Author paperResearcher = new Paper.Author();
                     paperResearcher.setName(name);
                     researchers.add(paperResearcher);
                     driver.close();
                     driver.quit();
                     continue;
                 }
-                researcherName=authorNameElement.get(0).getText();
-                List<WebElement> curInstElement=driver.findElementsByXPath("//h3//span//a");
-                if(curInstElement.size()==0){
-                    Paper.Author paperResearcher=new Paper.Author();
+                researcherName = authorNameElement.get(0).getText();
+                List<WebElement> curInstElement = driver.findElementsByXPath("//h3//span//a");
+                if (curInstElement.size() == 0) {
+                    Paper.Author paperResearcher = new Paper.Author();
                     paperResearcher.setName(name);
                     researchers.add(paperResearcher);
                     driver.close();
                     driver.quit();
                     continue;
                 }
-                instName=curInstElement.get(0).getText();
+                instName = curInstElement.get(0).getText();
                 Researcher researcher = esUtil.findResearcherByNameAndInst(researcherName, instName);
-                if(researcher!=null){
-                    Paper.Author paperResearcher=new Paper.Author();
+                if (researcher != null) {
+                    Paper.Author paperResearcher = new Paper.Author();
                     paperResearcher.setName(researcher.getName());
                     paperResearcher.setId(researcher.getId());
                     researchers.add(paperResearcher);
@@ -408,7 +401,7 @@ public class CrawlServiceImpl implements CrawlService {
                     continue;
                 }
 
-                researcher=new Researcher();
+                researcher = new Researcher();
                 researcher.setName(researcherName);
                 Researcher.Institution curInstitution = new Researcher.Institution();
                 // get inst by name.
@@ -425,19 +418,19 @@ public class CrawlServiceImpl implements CrawlService {
                 researcher.setCurrentInst(curInstitution);
                 template.save(researcher);
                 // 加入文章作者列表
-                Paper.Author paperResearcher=new Paper.Author();
+                Paper.Author paperResearcher = new Paper.Author();
                 paperResearcher.setName(researcher.getName());
                 paperResearcher.setId(researcher.getId());
                 researchers.add(paperResearcher);
                 // 获取方向
-                List<WebElement> interestsElement=driver.findElementsByXPath("//div[@class=\"doc\"]/div/h3");
-                if(interestsElement.size()==2){
-                    String interestText=interestsElement.get(1).getText();
-                    if(interestText.contains(";")||interestText.contains("；")){
-                        interestText=interestText.replace(";",",");
-                        interestText=interestText.replace("；",",");
+                List<WebElement> interestsElement = driver.findElementsByXPath("//div[@class=\"doc\"]/div/h3");
+                if (interestsElement.size() == 2) {
+                    String interestText = interestsElement.get(1).getText();
+                    if (interestText.contains(";") || interestText.contains("；")) {
+                        interestText = interestText.replace(";", ",");
+                        interestText = interestText.replace("；", ",");
                     }
-                    interestText=interestText.strip();
+                    interestText = interestText.strip();
                     String[] interests = interestText.split(",");
                     researcher.setInterests(Arrays.asList(interests));
                     template.save(researcher);
@@ -446,39 +439,38 @@ public class CrawlServiceImpl implements CrawlService {
                 driver.quit();
             }
             paper.setAuthors(researchers);
-            if(paperType.equals("期刊论文") && journalUrl !=null ){
+            if (paperType.equals("期刊论文") && journalUrl != null) {
                 driver = ParserUtil.getDriver(true);
                 driver.get(journalUrl);
                 Thread.sleep(2000);
                 Journal foundJournal = esUtil.findJournalByName(paper.getJournal().getTitle());
-                if(foundJournal==null){
-                    String journalName=paper.getJournal().getTitle();
-                    foundJournal=new Journal();
+                if (foundJournal == null) {
+                    String journalName = paper.getJournal().getTitle();
+                    foundJournal = new Journal();
                     foundJournal.setTitle(journalName);
-                    List<WebElement> imageElement=driver.findElementsByXPath("//dt[@id=\"J_journalPic\"]//img");
-                    if(imageElement.size()!=0){
-                        String imageUrl=imageElement.get(0).getAttribute("src");
+                    List<WebElement> imageElement = driver.findElementsByXPath("//dt[@id=\"J_journalPic\"]//img");
+                    if (imageElement.size() != 0) {
+                        String imageUrl = imageElement.get(0).getAttribute("src");
                         foundJournal.setCoverUrl(imageUrl);
                     }
-                    List<WebElement> journalMoreElement=driver.findElementsByXPath("//div[@class=\"btnbox\"]//a[@id=\"J_sumBtn-stretch\"]");
-                    if(journalMoreElement.size()!=0){
-                        Actions actions=new Actions(driver);
+                    List<WebElement> journalMoreElement = driver.findElementsByXPath("//div[@class=\"btnbox\"]//a[@id=\"J_sumBtn-stretch\"]");
+                    if (journalMoreElement.size() != 0) {
+                        Actions actions = new Actions(driver);
                         actions.click(journalMoreElement.get(0)).perform();
                     }
-                    List<WebElement> infoElement=driver.findElementsByXPath("//p[contains(@class,\"hostUnit\")]");
-                    if(infoElement.size()!=0){
-                        for (WebElement info:infoElement){
-                            List<WebElement> typeElement=info.findElements(By.xpath(".//label"));
-                            if(typeElement.size()==0){
+                    List<WebElement> infoElement = driver.findElementsByXPath("//p[contains(@class,\"hostUnit\")]");
+                    if (infoElement.size() != 0) {
+                        for (WebElement info : infoElement) {
+                            List<WebElement> typeElement = info.findElements(By.xpath(".//label"));
+                            if (typeElement.size() == 0) {
                                 continue;
                             }
-                            String type=typeElement.get(0).getAttribute("textContent");
-                            if(type.equals("主办单位")){
-                                String sponsor=info.findElement(By.xpath(".//span")).getAttribute("textContent");
+                            String type = typeElement.get(0).getAttribute("textContent");
+                            if (type.equals("主办单位")) {
+                                String sponsor = info.findElement(By.xpath(".//span")).getAttribute("textContent");
                                 foundJournal.setSponsor(sponsor);
-                            }
-                            else if(type.equals("ISSN")){
-                                String issn=info.findElement(By.xpath(".//span")).getAttribute("textContent");
+                            } else if (type.equals("ISSN")) {
+                                String issn = info.findElement(By.xpath(".//span")).getAttribute("textContent");
                                 foundJournal.setIssn(issn);
                             }
                         }
@@ -487,7 +479,7 @@ public class CrawlServiceImpl implements CrawlService {
                     driver.close();
                     driver.quit();
                 }
-                Paper.Journal paperJournal=paper.getJournal();
+                Paper.Journal paperJournal = paper.getJournal();
                 paperJournal.setId(foundJournal.getId());
                 paper.setJournal(paperJournal);
                 template.save(paper);
@@ -519,11 +511,9 @@ public class CrawlServiceImpl implements CrawlService {
             String paperType;
             if (url.contains("periodical")) {
                 paperType = "期刊论文";
-            }
-            else if (url.contains("thesis")) {
+            } else if (url.contains("thesis")) {
                 paperType = "学位论文";
-            }
-            else {
+            } else {
                 result.setMessage("仅支持期刊论文和学位论文");
                 return;
             }
@@ -533,8 +523,7 @@ public class CrawlServiceImpl implements CrawlService {
             List<WebElement> titleElement = driver.findElementsByXPath("//span[@class=\"detailTitleCN\"]");
             if (titleElement.size() != 0) {
                 title = titleElement.get(0).getText();
-            }
-            else {
+            } else {
                 result.setMessage("获取标题失败");
                 return;
             }
@@ -559,8 +548,7 @@ public class CrawlServiceImpl implements CrawlService {
             if (paper != null && paper.isCrawled()) {
                 result.setMessage("数据库中已含有该论文");
                 return;
-            }
-            else if (paper == null) {
+            } else if (paper == null) {
                 paper = new Paper();
                 paper.setType(paperType);
                 paper.setTitle(title);
@@ -569,7 +557,7 @@ public class CrawlServiceImpl implements CrawlService {
             }
             paper.setCrawled(true);
 
-            try  {
+            try {
                 // 获取摘要
                 List<WebElement> summaryElement = driver.findElementsByXPath("//div[@class=\"summary\"]");
                 if (summaryElement.size() != 0) {
