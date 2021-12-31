@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class Translator {
 
-    private static final String appid = "20210916000945263";
-    private static final String securityKey = "nff5EjfZ5h2pJKdiHcnH";
+    public static String appid;
+    public static String securityKey;
 
     private Translator() { }
 

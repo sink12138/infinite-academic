@@ -9,7 +9,6 @@ import com.buaa.academic.spider.model.queueObject.PatentObject;
 import com.buaa.academic.spider.model.queueObject.ResearcherSet;
 import com.buaa.academic.spider.repository.*;
 import com.buaa.academic.spider.service.Impl.*;
-import com.buaa.academic.tool.util.NaturalCron;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +24,7 @@ import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Component;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
@@ -231,7 +231,7 @@ public class StatusCtrl {
         schedule.setRunning(isRunning);
         schedule.setLastRun(lastRun);
         schedule.setNextRun(nextRunningDate);
-        schedule.setFrequency(NaturalCron.describe(cron));
+        schedule.setFrequency(cron);
         for (String threadName : runningStatus.keySet()) {
             schedule.addTask(new Task(threadName, runningStatus.get(threadName)));
         }

@@ -7,11 +7,11 @@ import com.buaa.academic.analysis.service.impl.fpg.FPGMainClass;
 import com.buaa.academic.analysis.service.impl.heat.HeatUpdateMainThread;
 import com.buaa.academic.model.web.Schedule;
 import com.buaa.academic.model.web.Task;
-import com.buaa.academic.tool.util.NaturalCron;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.mapreduce.Job;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -131,7 +131,7 @@ public class StatusCtrl implements Runnable {
         schedule.setName("学科话题热点关联分析");
         schedule.setLastRun(lastRunningDate);
         schedule.setNextRun(nextRunningDate);
-        schedule.setFrequency(NaturalCron.describe(cron));
+        schedule.setFrequency(cron);
         schedule.setRunning(scheduleRunning);
         return schedule;
     }

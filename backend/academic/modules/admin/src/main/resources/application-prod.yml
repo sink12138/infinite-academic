@@ -1,5 +1,5 @@
 server:
-  port: 8096
+  port: 8096  # 端口号
 
 spring:
   application:
@@ -7,10 +7,10 @@ spring:
   jackson:
     default-property-inclusion: non_null
   redis:
-    password: redis-academic-2021
+    password: redis-academic-2021  # Redis 密码
     timeout: 5000
     cluster:
-      nodes:
+      nodes:  # Redis 集群地址（可更换为单节点）
         - 192.168.0.228:7001
         - 192.168.0.228:7002
         - 192.168.0.228:7003
@@ -25,9 +25,9 @@ spring:
         min-idle: 2
   elasticsearch:
     rest:
-      username: elastic
-      password: elastic-academic-2021
-      uris: http://192.168.0.239:9200
+      username: elastic  # Elasticsearch 用户名
+      password: elastic-academic-2021  # Elasticsearch 密码
+      uris: http://192.168.0.239:9200  # Elasticsearch IP 地址与端口号
 
 eureka:
   instance:
@@ -35,7 +35,7 @@ eureka:
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/
+      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/  # Eureka 地址
 
 feign:
   httpclient:
@@ -54,6 +54,10 @@ logging:
     com.netflix.discovery.DiscoveryClient: warn
 
 auth:
-  username: admin
-  password: admin-academic-2021
-  max-valid-interval: 1800
+  username: admin  # 管理员用户名
+  password: admin-academic-2021  # 管理员密码
+  max-valid-interval: 1800  # 管理员登录状态保留时限，默认为 30 分钟，单位：秒
+
+translator:  # 百度翻译 API 配置
+  app-id: 20210916000945263
+  security-key: nff5EjfZ5h2pJKdiHcnH

@@ -47,3 +47,7 @@ logging:
 search:
   conditions:
     max-depth: 5
+
+translator:
+  app-id: 20210916000945263
+  security-key: nff5EjfZ5h2pJKdiHcnH

@@ -8,6 +8,7 @@ import com.buaa.academic.admin.service.AuthValidator;
 import com.buaa.academic.model.exception.ExceptionType;
 import com.buaa.academic.model.web.Result;
 import com.buaa.academic.model.web.Schedule;
+import com.buaa.academic.tool.util.NaturalCron;
 import com.buaa.academic.tool.validator.CronExpr;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -87,6 +88,7 @@ public class SystemController {
                 continue;
             }
             Schedule schedule = operationResult.getData();
+            schedule.setFrequency(NaturalCron.describe(schedule.getFrequency()));
             if (schedule.isRunning())
                 ++running;
             schedules.add(schedule);

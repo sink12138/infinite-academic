@@ -49,3 +49,7 @@ auth:
   username: admin
   password: admin-academic-2021
   max-valid-interval: 1800
+
+translator:
+  app-id: 20210916000945263
+  security-key: nff5EjfZ5h2pJKdiHcnH
