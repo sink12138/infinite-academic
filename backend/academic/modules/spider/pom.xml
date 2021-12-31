@@ -11,9 +11,9 @@
     </parent>
 
     <artifactId>spider</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>spider</name>
-    <description>Crawl data from Internet and insert into database,including on-time tasks and the original spider</description>
+    <description>Crawl data from Internet and insert into database, including on-time tasks and the original spider</description>
     <packaging>jar</packaging>
 
     <dependencies>

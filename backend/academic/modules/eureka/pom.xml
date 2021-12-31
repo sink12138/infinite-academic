@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>eureka</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>eureka</name>
     <description>Registry and discovery host for services.</description>
     <packaging>jar</packaging>

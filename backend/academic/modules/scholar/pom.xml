@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>scholar</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0_RELEASE</version>
     <name>scholar</name>
     <description>Certificates and management for scholars.</description>
     <packaging>jar</packaging>
