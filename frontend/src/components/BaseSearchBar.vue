@@ -511,7 +511,7 @@ export default {
               keyword: keyword,
               page: this.page,
               size: 20,
-              translated: true,
+              translated: this.filters.translated,
             };
             if (this.filters.year1 != 1900 || this.filters.year2 != 2021) {
               this.request.filters.push({

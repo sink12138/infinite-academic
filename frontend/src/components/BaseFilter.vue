@@ -7,7 +7,7 @@
     <v-divider></v-divider>
     <div class="ml-4">
       <v-switch v-model="filter.translated" label="语种关联" @change="emit()"></v-switch>
-      <v-switch v-model="filter.fuzzy" label="模糊搜索" @change="emit()"></v-switch>
+      <v-switch v-model="filter.fuzzy" label="模糊搜索" @change="emit()" v-show="this.showType!='全部'"></v-switch>
     </div>
     <v-divider></v-divider>
     <v-select
