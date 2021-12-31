@@ -447,7 +447,7 @@ public class FPGMainClass implements Runnable {
         String line;
         try {
             while ((line = bufferedReader.readLine()) != null) {
-                String[] rule = line.split(":");
+                String[] rule = line.split("@@@");
                 String item = rule[0];
                 String[] associationItems = rule[1].split(FPGMainClass.splitChar);
                 List<String> confidencesStr = Arrays.asList(rule[2].split(FPGMainClass.splitChar));

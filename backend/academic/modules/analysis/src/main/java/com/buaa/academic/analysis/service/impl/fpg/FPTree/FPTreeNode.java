@@ -67,7 +67,7 @@ public class FPTreeNode implements Comparable<FPTreeNode> {
 
     @Override
     public String toString() {
-        return this.getContent() + ": " + this.getSupport();
+        return this.getContent() + "@@@ " + this.getSupport();
     }
 
     @Override

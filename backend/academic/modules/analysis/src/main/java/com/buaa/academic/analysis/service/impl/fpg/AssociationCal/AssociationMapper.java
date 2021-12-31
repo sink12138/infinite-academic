@@ -36,7 +36,7 @@ public class AssociationMapper extends Mapper<LongWritable, Text, Text, Associat
                         StatusCtrl.stop(context.getJobName());
                     }
 
-                    String[] itemFreq = line.split(":");//读出频繁一项集，以TreeNode类型保存到集合中
+                    String[] itemFreq = line.split("@@@");//读出频繁一项集，以TreeNode类型保存到集合中
                     supportMap.put(itemFreq[0], Integer.parseInt(itemFreq[1].split("\\s+")[1]));
                 }
             }catch (IOException e) {
@@ -51,7 +51,7 @@ public class AssociationMapper extends Mapper<LongWritable, Text, Text, Associat
             throws IOException, InterruptedException {
 
         String line = value.toString().trim();
-        String[] freSet = line.split(":");
+        String[] freSet = line.split("@@@");
         String[] freItems = freSet[0].split(FPGMainClass.splitChar);
         int frequencyOfSet = Integer.parseInt(freSet[1]);
         for (String item : freItems) {

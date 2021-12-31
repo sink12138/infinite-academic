@@ -40,7 +40,7 @@ public class AssociationReducer extends Reducer<Text, AssociationRule, NullWrita
             }
         }
 
-        String jsonRes = item + ":" + StringUtils.join(FPGMainClass.splitChar, associationList) + ":"  + StringUtils.join(FPGMainClass.splitChar, confidences);
+        String jsonRes = item + "@@@" + StringUtils.join(FPGMainClass.splitChar, associationList) + "@@@"  + StringUtils.join(FPGMainClass.splitChar, confidences);
         context.write(NullWritable.get(), new Text(jsonRes));
     }
 }

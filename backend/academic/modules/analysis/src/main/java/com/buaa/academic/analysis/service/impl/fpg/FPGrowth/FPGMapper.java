@@ -42,7 +42,7 @@ public class FPGMapper extends Mapper<LongWritable, Text, Text, Text> {
                         StatusCtrl.stop(context.getJobName());
                     }
 
-                    String[] itemFreq = line.split(":");//读出频繁一项集，以TreeNode类型保存到集合中
+                    String[] itemFreq = line.split("@@@");//读出频繁一项集，以TreeNode类型保存到集合中
                     try {
                         itemsSorted.add(new FPTreeNode(itemFreq[0], Integer.parseInt(itemFreq[1].split("\\s+")[1])));
                     } catch (Exception e) {

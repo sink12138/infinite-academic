@@ -126,11 +126,11 @@ public class FPTree {
 
         if (item == null) {
             for (FPTreeNode node : itemSortByFreq)
-                freqItems.add(node.getContent() + ":" + node.getSupport());
+                freqItems.add(node.getContent() + "@@@" + node.getSupport());
         } else {
             for (int i = itemSortByFreq.size() - 1; i >= 0; i--) {
                 FPTreeNode node = itemSortByFreq.get(i);
-                freqItems.add(node.getContent() + FPGMainClass.splitChar + item + ":" + node.getSupport());
+                freqItems.add(node.getContent() + FPGMainClass.splitChar + item + "@@@" + node.getSupport());
             }
         }
 
