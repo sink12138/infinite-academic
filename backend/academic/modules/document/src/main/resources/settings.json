@@ -1,0 +1,26 @@
+{
+  "analysis": {
+    "analyzer": {
+      "ik_optimized": {
+        "tokenizer": "ik_smart",
+        "filter": [
+          "lowercase",
+          "stemmer"
+        ]
+      },
+      "ik_optimized_max_word": {
+        "tokenizer": "ik_max_word",
+        "filter": [
+          "lowercase",
+          "stemmer"
+        ]
+      },
+      "thai_lowercase": {
+        "tokenizer": "thai",
+        "filter": [
+          "lowercase"
+        ]
+      }
+    }
+  }
+}

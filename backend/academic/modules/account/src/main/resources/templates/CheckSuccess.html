@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>邮箱验证成功</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100%;
+            background-color: #ECECEC;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 550px;
+            margin: auto;
+        }
+
+        .header {
+            height: 110px;
+            text-align: center;
+            background-color: #204969;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            padding-top: 25px;
+        }
+
+        .header h2 {
+            color: white;
+        }
+
+        .content {
+            text-align: center;
+            background-color: #FFFFFF;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+
+        .content h2 {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .content p {
+            padding-top: 10px;
+        }
+
+        .correct {
+            fill: green;
+        }
+
+        .footer {
+            background-color: #204969;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            padding-top: 20px;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+
+        .footer p {
+            color: #fff;
+            padding: 2px;
+        }
+
+        .info  {
+            color: #fff;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: center;
+            font-family: 'Calisto MT';
+            font-size: 14px;
+        }
+
+        .my_font {
+            font-family: 'Calisto MT';
+            font-size: 56px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h2 class="my_font">Infinite Academic</h2>
+    </div>
+    <div class="content">
+        <svg class="correct_icon" t="1636823132077" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2594" width="128" height="128"><path d="M511.063675 65.138556c-246.547209 0-446.415282 199.86705-446.415282 446.415282S264.515443 957.969121 511.063675 957.969121 957.478957 758.102071 957.478957 511.553838 757.610884 65.138556 511.063675 65.138556zM526.47262 669.384493l-78.915327 78.915327L237.117442 537.858948l78.915327-78.915327 131.525546 131.525546 258.537288-258.537288 78.915327 78.915327L526.47262 669.384493z" p-id="2595"></path></svg>
+        <div class="subtitle">
+            <h2>您的电子邮件地址验证成功。</h2>
+        </div>
+        <p>电子邮件地址&nbsp;<span th:text="${email}"></span>&nbsp;现已可用于登录。</p>
+        <p>请保管好您的信息，避免被他人盗用</p>
+        <p>当您在使用本网站时，务必要遵守法律法规</p>
+    </div>
+    <div class="footer" >
+        <p>此为系统邮件，请勿回复</p>
+        <p>如果您有什么疑问可以联系管理员，Email: <b>3488997405@qq.com</b></p>
+        
+        <div class="info">
+            ©Infinite Academic
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

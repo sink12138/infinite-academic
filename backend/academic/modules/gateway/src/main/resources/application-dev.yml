@@ -1,0 +1,83 @@
+server:
+  port: 8090
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:eureka-academic-2021@121.36.98.60:8100/eureka/
+    register-with-eureka: false
+
+spring:
+  application:
+    name: client-gateway
+  redis:
+    password: 114514
+    timeout: 5000
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 2
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      routes:
+        - id: 搜索服务
+          uri: lb://client-search
+          order: 1
+          predicates:
+            - Path=/search/**
+          filters:
+            - StripPrefix=1
+        - id: 账号服务
+          uri: lb://client-account
+          order: 2
+          predicates:
+            - Path=/account/**
+          filters:
+            - StripPrefix=1
+        - id: 分析服务
+          uri: lb://client-analysis
+          order: 3
+          predicates:
+            - Path=/analysis/**
+          filters:
+            - StripPrefix=1
+        - id: 学者服务
+          uri: lb://client-scholar
+          order: 4
+          predicates:
+            - Path=/scholar/**
+          filters:
+            - StripPrefix=1
+        - id: 后台服务
+          uri: lb://client-admin
+          order: 5
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=1
+        - id: 资源服务
+          uri: lb://client-resource
+          order: 6
+          predicates:
+            - Path=/resource/**
+          filters:
+            - StripPrefix=1
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+
+auth:
+  max-inactive-interval: 86400
+
+admin:
+  username: admin
+  password: admin-academic-2021

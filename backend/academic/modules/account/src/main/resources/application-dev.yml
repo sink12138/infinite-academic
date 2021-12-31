@@ -1,0 +1,61 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: client-account
+  jackson:
+    default-property-inclusion: non_null
+  redis:
+    password: 114514
+    timeout: 5000
+    jedis:
+      pool:
+        max-idle: 10
+        max-wait: -1ms
+        min-idle: 2
+  elasticsearch:
+    rest:
+      username: elastic
+      password: elastic-academic-2021
+      uris: http://120.46.154.200:9200
+  mail:
+    host: smtp.163.com
+    username: ruangong202105@163.com
+    password: NYTIRYOWHUTHAPIS
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+        debug: false
+    protocol: smtp
+    port: 587
+    verify:
+      host: http://localhost:${server.port}
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:eureka-academic-2021@121.36.98.60:8100/eureka/
+    register-with-eureka: false
+
+knife4j:
+  basic:
+    enable: true
+    username: knife4j
+    password: knife4j-academic-2021
+  enable: true
+
+logging:
+  level:
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+
+auth:
+  username: admin
+  password: admin-academic-2021
+  max-inactive-interval: 86400
