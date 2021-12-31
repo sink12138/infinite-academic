@@ -222,6 +222,7 @@ public class CrawlServiceImpl implements CrawlService {
                         for (String instName : instNames) {
                             Paper.Institution inst = new Paper.Institution();
                             instName = StringUtil.formatInstitutionName(instName);
+                            instName=instName.replaceAll("\\d+. ","");
                             // find inst by name
                             Institution foundInst = esUtil.findInstByName(instName);
                             if (foundInst != null) {
@@ -352,7 +353,7 @@ public class CrawlServiceImpl implements CrawlService {
                     for(WebElement essayBox:essayBoxElement) {
                         String em=essayBox.findElement(By.xpath(".//em")).getText();
                         String allText=essayBox.getText();
-                        String refer=allText.replace(em,"");
+                        String refer=allText.replace(em,"").replace("\"\"","");
                         references.add(refer);
                     }
                     paper.setReferences(references);
