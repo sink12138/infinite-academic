@@ -3,20 +3,37 @@ package com.buaa.academic.spider.service.Impl;
 import com.buaa.academic.spider.util.StatusCtrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
 
 @Lazy(false)
 @Component
 @EnableScheduling
 public class ScheduleTask implements SchedulingConfigurer {
+
     @Autowired
     private StatusCtrl statusCtrl;
+
+    @Autowired
+    private Environment environment;
+
+    @PostConstruct
+    public void init() {
+        String[] profiles = environment.getActiveProfiles();
+        if (profiles.length == 0)
+            profiles = environment.getDefaultProfiles();
+        if (profiles[0].equals("dev")) {
+            System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Google\\Chrome\\Application\\chromedriver.exe");
+        }
+        System.setProperty("webdriver.chrome.silentOutput", "true");
+    }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
