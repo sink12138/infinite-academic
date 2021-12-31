@@ -18,6 +18,6 @@ public class SortReducer extends
         if (StatusCtrl.isStopped(context.getConfiguration().get("name"))) {
             StatusCtrl.stop(context.getJobName());
         }
-        context.write(new Text(key.getTerm() + ":"), new IntWritable(key.getFrequency()));
+        context.write(new Text(key.getTerm() + "@@@"), new IntWritable(key.getFrequency()));
     }
 }

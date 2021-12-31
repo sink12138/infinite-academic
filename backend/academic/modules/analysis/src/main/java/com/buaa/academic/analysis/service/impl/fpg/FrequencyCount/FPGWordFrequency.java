@@ -47,7 +47,7 @@ public class FPGWordFrequency extends Bucket implements WritableComparable<FPGWo
 
     @Override
     public String toString() {
-        return super.getTerm() + ":" + super.getFrequency();
+        return super.getTerm() + "@@@" + super.getFrequency();
     }
 
 }
