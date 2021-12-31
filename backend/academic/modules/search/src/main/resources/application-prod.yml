@@ -38,7 +38,7 @@ eureka:
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/
+      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/  # Eureka 地址
 
 knife4j:
   basic:
@@ -55,3 +55,7 @@ logging:
 search:
   conditions:
     max-depth: 5
+
+translator:  # 百度翻译 API 配置
+  app-id: 20210916000945263
+  security-key: nff5EjfZ5h2pJKdiHcnH

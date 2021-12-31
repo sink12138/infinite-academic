@@ -79,7 +79,7 @@ public class ResourceController {
         }
         String filename = multipartFile.getOriginalFilename();
         if (!validateSuffix(filename))
-            return result.withFailure(ExceptionType.INVALID_PARAM);
+            return result.withFailure("不支持的文件类型");
         File file = new File(folder, filename);
         multipartFile.transferTo(file);
         tokenService.addToken(token);

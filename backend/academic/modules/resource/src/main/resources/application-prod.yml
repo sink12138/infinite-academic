@@ -1,5 +1,5 @@
 server:
-  port: 8097
+  port: 8097  # 端口号
 
 spring:
   application:
@@ -9,8 +9,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: 20MB  # 最大单文件限制
+      max-request-size: 20MB  # 最大请求体限制，同上保持一致
 
 eureka:
   instance:
@@ -18,7 +18,7 @@ eureka:
     prefer-ip-address: true
   client:
     serviceUrl:
-      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/
+      defaultZone: http://eureka:eureka-academic-2021@192.168.0.228:8100/eureka/  # Eureka 地址
 
 knife4j:
   basic:
@@ -33,5 +33,5 @@ logging:
     com.netflix.discovery.DiscoveryClient: warn
 
 resource:
-  storage-directory: /data/resources
-  allowed-suffixes: jpg, png, bmp, gif, tif, doc, docx, pdf, zip, rar
+  storage-directory: /data/resources  # 文件资源保存路径
+  allowed-suffixes: jpg, png, bmp, gif, tif, doc, docx, pdf, zip, rar  # 允许的文件后缀格式

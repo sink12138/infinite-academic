@@ -1,0 +1,19 @@
+server:
+  port: 8100  # 端口号
+
+spring:
+  application:
+    name: server-eureka
+  security:
+    user:
+      name: eureka  # Eureka 用户名
+      password: eureka-academic-2021  # Eureka 密码
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@${eureka.instance.hostname}:${server.port}/eureka/

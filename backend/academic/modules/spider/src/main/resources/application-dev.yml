@@ -39,7 +39,6 @@ knife4j:
 auth:
   username: admin
   password: admin-academic-2021
-  max-valid-interval: 1800
 
 logging:
   level:
