@@ -1,7 +1,14 @@
 #!/usr/bin/bash
 
+usage() {
+  echo "Usage: deploy.sh [option]"
+  echo "[option] can be below:"
+  echo "    --docker        deploy with docker"
+  echo "    --non-docker    deploy with no docker"
+}
+
 if [ $# -gt 1 ]; then
-  echo "too few arguments"
+  usage
   exit 1
 fi
 
@@ -48,4 +55,7 @@ elif [[ $1 =~ "--non-docker" ]]; then
   java -jar ./scholar/*.jar "${profiles}" &
   java -jar ./admin/*.jar "${profiles}" &
   java -jar ./resource/*.jar "${profiles}" &
+else
+  usage
+  exit 1
 fi
