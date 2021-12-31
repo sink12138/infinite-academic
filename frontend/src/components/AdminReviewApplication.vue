@@ -57,12 +57,21 @@
                 <v-card-title class="text-h5"
                   >真的要不通过这个申请吗？</v-card-title
                 >
+                <v-card-text>
+                  <v-textarea
+                    outlined
+                    v-model="failReason"
+                    :counter="300"
+                    label="拒绝原因"
+                    height="250"
+                  ></v-textarea>
+                </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="closeFail"
                     >再想想</v-btn
                   >
-                  <v-btn color="blue darken-1" text @click="fail">确定</v-btn>
+                  <v-btn color="blue darken-1" text @click="fail" :disabled="failReason.length>300">确定</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
               </v-card>
@@ -189,6 +198,7 @@ export default {
       ],
       selectedItem: [],
       refreshtime: 2,
+      failReason: "",
     };
   },
   computed: {},
@@ -490,16 +500,19 @@ export default {
       }, 1000);
     },
 
-    failItem() {
+    failItem(item) {
+      this.checkedItem = item;
+      this.failReason = "";
       this.dialogFail = true;
     },
 
-    fail(item) {
+    fail() {
       this.$axios({
         method: "post",
         url: "api/admin/review/reject",
         params: {
-          id: item.id,
+          id: this.checkedItem.id,
+          reason: this.failReason,
         },
       }).then((response) => {
         console.log(response.data);
