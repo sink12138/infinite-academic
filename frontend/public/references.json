@@ -1,0 +1,47 @@
+{
+	"data": {
+		"hasMore": true,
+		"items": [
+			{
+				"abstract": "参考1假装这是一大段摘要1假装这是一大段摘要一大段摘要Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.假装这是一大段摘要",
+				"authors": [
+					{
+						"id": "GF_4ynwBF-Mu8unTG1hcef",
+						"name": "谭火彬"
+					}
+				],
+				"citationNum": 114,
+				"date": "2021-10-15",
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"journal": {
+					"id": "GF_4ynwBF-Mu8unTG1hcec",
+					"title": "Science"
+				},
+				"keywords": [],
+				"title": "基于机器学习的无需人工编制词典的切词系统",
+				"type": "期刊论文"
+			},
+            {
+				"abstract": "参考2假装这是一大段摘要1假装这是一大段摘要一大段摘要Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.假装这是一大段摘要",
+				"authors": [
+					{
+						"id": "GF_4ynwBF-Mu8unTG1hced",
+						"name": "谭火彬"
+					}
+				],
+				"citationNum": 114,
+				"date": "2021-10-15",
+				"id": "GF_4ynwBF-Mu8unTG1hc",
+				"journal": {
+					"id": "GF_4ynwBF-Mu8unTG1hceh",
+					"title": "Science"
+				},
+				"keywords": [],
+				"title": "基于机器学习的无需人工编制词典的切词系统",
+				"type": "期刊论文"
+			}
+		]
+	},
+	"message": "参数格式非法",
+	"success": true
+}
