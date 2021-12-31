@@ -108,8 +108,4 @@ public abstract class StringUtil {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(StringUtil.formatInstitutionName("Peking University(Peking University), Beijing"));
-    }
-
 }

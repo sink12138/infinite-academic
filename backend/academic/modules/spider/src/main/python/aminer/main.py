@@ -24,8 +24,6 @@ keywords = [
 
 
 def select_paper(_in, _out, _step):
-    # if not os.path.exists(_out):
-    #     os.makedirs(_out)
     with open(_in, 'r', encoding='utf-8') as file:
         reader = Reader(file, filters=[
             filter.fields,
@@ -85,12 +83,6 @@ def select_journal(_in, _out, _step):
             obj = reader.next_object()
         print(f"Finished - {reader.count} scanned, {num} selected ({'%.2f%%' % (num / reader.count * 100)})")
 
-
-# if __name__ == '__main__':
-#     input_file = 'F:\\aminerv2\\unzipped\\'  # sys.argv[1]
-#     output_file = 'D:\\Aminer\\output\\'  # sys.argv[2]
-#     for i in range(0, 15):
-#         select_paper(f'{input_file}aminer_papers_{i}.txt', f'{output_file}aminer_papers_{i // 5}.txt', 10000)
 
 if __name__ == '__main__':
     input_path = sys.argv[1]
