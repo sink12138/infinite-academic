@@ -371,7 +371,7 @@ public class ReviewController {
     @ApiOperation(value = "接受专利转让申请")
     @ApiImplicitParam(name = "id", value = "申请的ID，该申请必须是专利转让类型")
     public Result<Void> acceptPatentTransfer(@RequestHeader(name = "Auth") String auth,
-                                             @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z]{20}$") String id) {
+                                             @RequestParam(name = "id") @Pattern(regexp = "^[0-9A-Za-z_-]{20}$") String id) {
         Result<Void> result = new Result<>();
 
         // Authority
