@@ -66,7 +66,12 @@
                       <v-list-item link>
                         <v-list-item-title
                           @click="addingPaper=true"
-                        >添加论文</v-list-item-title>
+                        >手动添加论文</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item link>
+                        <v-list-item-title
+                          @click="addingPaperAuto=true"
+                        >自动添加论文</v-list-item-title>
                       </v-list-item>
                     </v-list-group>
                   </v-list-item>
@@ -118,14 +123,14 @@
                   <v-row>
                     <v-col>
                       <v-btn @click="editPaper(i+(page-1)*onePageNum-1)">
-                        编辑文献
+                        编辑论文
                       </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col>
                       <v-btn @click="deletePaper(i+(page-1)*onePageNum-1)">
-                        删除文献
+                        删除论文
                       </v-btn>
                     </v-col>
                   </v-row>
@@ -364,13 +369,13 @@
 
       </v-card>
     </v-dialog>
-    <!-- 删除文献 -->
+    <!-- 删除论文 -->
     <v-dialog v-model="deletingPaper" persistent width=800px >
       <v-card>
         <div class="whole">
           <v-row>
             <v-col cols="10">
-              <h2>移除文献:{{theDelete.title}}</h2>
+              <h2>移除论文:{{theDelete.title}}</h2>
               <v-row>
                 <v-col >
                   <v-textarea
@@ -419,7 +424,47 @@
 
       </v-card>
     </v-dialog>
-    <!-- 新增文献 -->
+    <!-- 自动 -->
+    <v-dialog v-model="addingPaperAuto" persistent width=800px>
+      <v-card>
+        <div class="whole">
+          <v-card-title>输入网址或论文标题以申请自动添加论文</v-card-title>
+          <v-card-text>当前支持的网站及URL格式：</v-card-text>
+          <v-card-text>万方数据：https://d.wanfangdata.com.cn/periodical/... 或 https://d.wanfangdata.com.cn/thesis/...</v-card-text>
+          <v-card-text>中国知网：https://kns.cnki.net/kcms/detail/detail.aspx...</v-card-text>
+          <v-select :items="autoTypes" v-model="autoType" label="请选择输入方式" solo></v-select>
+          <v-row v-if="autoType=='网址'">
+            <v-col >
+              <v-text-field
+                v-model="websiteLinkAuto"
+                label="网址"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row v-if="autoType=='标题'">
+            <v-col >
+              <v-text-field
+                v-model="titleAuto"
+                label="标题"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6">
+              <v-btn @click="submitAddPaperAuto()">
+                提交申请
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn @click="cancelAll()">
+                取消
+              </v-btn>
+            </v-col>
+          </v-row>
+        </div>
+      </v-card>
+    </v-dialog>
+    <!-- 新增论文 -->
     <v-dialog v-model="addingPaper" persistent width=800px>
       <BaseEditPaper
       :paper="newPaper"
@@ -429,7 +474,7 @@
       @closeZ="closeF"
       ></BaseEditPaper>
     </v-dialog>
-    <!-- 修改文献 -->
+    <!-- 修改论文 -->
     <v-dialog v-model="editingPaper" persistent width=800px>
       <BaseEditPaper
       :paper="thePaper"
@@ -472,6 +517,7 @@ import Banner from "../components/BaseBanner.vue";
       deletingPaper:false,
       editingPaper:false,
       addingPaper:false,
+      addingPaperAuto:false,
       getID:false,
       deletePaperID:"",
       deletePaperReason:"",
@@ -529,7 +575,7 @@ import Banner from "../components/BaseBanner.vue";
         (v) => /.+@.+\..+/.test(v) || "邮箱格式不合法",
       ],
 
-      //文献部分
+      //论文部分
       papers: [
         {
           "abstract": "假装这是一大段摘要",
@@ -607,6 +653,10 @@ import Banner from "../components/BaseBanner.vue";
       onePageNum:8,
       pageNum:2,
       currentFile:null,
+      autoType:"",
+      autoTypes:["网址","标题"],
+      websiteLinkAuto:"",
+      titleAuto:"",
 
       //找id
       disabled:"disabled",
@@ -725,6 +775,7 @@ import Banner from "../components/BaseBanner.vue";
         this.editingD=false,
         this.addDoor=false,
         this.deletingPaper=false,
+        this.addingPaperAuto=false,
         this.clearWeb()
       },
       clearWeb(){
@@ -920,6 +971,45 @@ import Banner from "../components/BaseBanner.vue";
             this.$notify({
               title: "失败",
               message: "请核对信息完整程度",
+              type: "error",
+            });
+          }
+
+        }).catch(error => {
+          console.log(error)
+        })
+      },
+      submitAddPaperAuto(){
+        if(this.autoType=='网址'){
+          this.titleAuto=null
+        }else if(this.autoType=='标题'){
+          this.websiteLinkAuto=null
+        }
+        let data={
+          title:this.titleAuto,
+          url:this.websiteLinkAuto
+        }
+        
+        console.log(JSON.stringify(data))
+        this.$axios({
+          method: "post",
+          url: "/api/scholar/paper/auto",
+          data: data
+        }).then(response => {
+          console.log(response.data)
+          if(response.data.success){
+            this.snackbarSub=true
+            this.addingPaperAuto=false
+            this.clearWeb()
+            this.$notify({
+              title: "成功",
+              message: "申请成功",
+              type: "success",
+            });
+          }else{
+            this.$notify({
+              title: "失败",
+              message: response.data.message,
               type: "error",
             });
           }
