@@ -1,19 +1,7 @@
 <template>
   <div class="login">
-    <router-link to="/">
-      <v-btn
-        class="ma-2"
-        color="green"
-        dark
-        max-width="150px"
-      >
-        <v-icon
-          dark
-          left
-        >mdi-arrow-left</v-icon>返回
-      </v-btn>
-    </router-link>
     <v-container class="loginOverlay">
+
       <v-layout
         align-center
         justify-center
@@ -22,10 +10,24 @@
           xs12
           sm8
         >
-          <v-card>
+          <v-card width="800" outlined>
+            <router-link to="/">
+              <v-btn
+                class="ma-2"
+                color="black"
+                dark
+                max-width="150px"
+              >
+                <v-icon
+                  dark
+                  left
+                >mdi-arrow-left</v-icon>返回
+              </v-btn>
+            </router-link>
             <v-card-title>
               <span class="headline">注册</span>
             </v-card-title>
+            <v-spacer></v-spacer>
             <v-card-text class="pt-4">
               <v-form ref="form">
                 <v-text-field
@@ -55,7 +57,7 @@
             <v-card-actions>
               <v-btn
                 @click="register()"
-                class="green white--text"
+                class="black white--text"
               >注册</v-btn>
             </v-card-actions>
           </v-card>

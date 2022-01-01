@@ -587,7 +587,7 @@
         })
       },
       submitEditPaper(){
-        if(this.check==false){
+        if(this.check()==false){
           return
         }else if(this.description==''){
           this.$notify({
